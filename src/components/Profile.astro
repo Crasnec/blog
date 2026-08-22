@@ -1,0 +1,23 @@
+---
+import { Image } from "astro:assets";
+import profileAvatar from "../assets/profile-avatar.png";
+import { profileConfig } from "../config";
+---
+
+<section class="widget profile-widget">
+	<div class="profile-identity">
+		<Image
+			class="profile-avatar"
+			src={profileAvatar}
+			alt=""
+			width={144}
+			height={144}
+			format="webp"
+			quality={85}
+			loading="eager"
+			decoding="async"
+		/>
+		<span class="profile-name">{profileConfig.name}</span>
+	</div>
+	<p class="profile-bio">{profileConfig.bio}</p>
+</section>

@@ -1,0 +1,77 @@
+---
+import { machineDate, stampDate } from "../utils/format";
+import { t } from "../strings";
+import type { PostRef } from "../utils/content";
+import { categoryName, postMeta } from "../utils/content";
+import Icon from "./Icon.astro";
+
+interface Props {
+	post: PostRef;
+}
+
+const { post } = Astro.props;
+const { entry, href } = post;
+
+/*
+ * Everything below is derived from the body, so a locked post gets none of it —
+ * the excerpt is literally its first paragraph. The lock is all a listing may
+ * say.
+ */
+const locked = Boolean(entry.data.sealed);
+
+const { readingTime, excerpt } = await postMeta(entry);
+const summary = locked ? "" : (entry.data.description ?? excerpt ?? "");
+
+	const readLabel =
+		!locked && readingTime !== undefined
+			? `${String(readingTime)} ${t("post.readingTime")}`
+			: undefined;
+---
+
+<li class="entry">
+	<a class="entry-link" href={href}>
+		<div class="entry-aside">
+			<time class="stamp entry-date" datetime={machineDate(entry.data.published)}>
+				{stampDate(entry.data.published)}
+			</time>
+			{
+				locked && (
+					<span class="lock-mark">
+						<Icon name="lock" class="lock-icon" />
+						{t("secret.mark")}
+					</span>
+				)
+			}
+		</div>
+
+		<div class="entry-main">
+			<h2 class="entry-title">{entry.data.title}</h2>
+			{summary && <p class="entry-excerpt">{summary}</p>}
+
+			<div class="entry-foot">
+				{/*
+					The area first, then the technologies. It is not a pill and carries
+					no `#`, because it is not one of the tags — it is the one shelf this
+					post is on, and the two answer different questions.
+
+					Both are plain text here rather than links: the whole entry is one
+					anchor, and an anchor inside an anchor is not a thing.
+				*/}
+				<span class="category-mark">
+					{categoryName(entry.data.category)}
+				</span>
+
+				{
+					entry.data.tags.length > 0 && (
+						<ul class="tag-row">
+							{entry.data.tags.slice(0, 4).map((tag) => (
+								<li class="tag">{tag}</li>
+							))}
+						</ul>
+					)
+				}
+				{readLabel && <span class="entry-read">{readLabel}</span>}
+			</div>
+		</div>
+	</a>
+</li>

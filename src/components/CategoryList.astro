@@ -1,0 +1,37 @@
+---
+import type { CategoryKey } from "../config";
+import { t } from "../strings";
+import { getCategories } from "../utils/content";
+import { sitePath } from "../utils/url";
+
+interface Props {
+	currentCategory?: CategoryKey | undefined;
+}
+
+const { currentCategory } = Astro.props;
+const categories = await getCategories();
+---
+
+{
+	categories.length > 0 && (
+		<section class="widget">
+			<span class="widget-title">{t("categories.title")}</span>
+			<ul class="widget-list">
+				{categories.map(({ key, name, count }) => (
+					<li>
+						<a
+							class:list={[
+								"widget-link bloom",
+								{ "is-current": key === currentCategory },
+							]}
+							href={sitePath(`/categories/${key}`)}
+						>
+							{name}
+							<span class="count">{count}</span>
+						</a>
+					</li>
+				))}
+			</ul>
+		</section>
+	)
+}

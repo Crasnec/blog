@@ -1,0 +1,120 @@
+/*
+ * slate — an alternative theme.
+ *
+ * It exists to keep the seam honest. A theme system with one theme in it is an
+ * untested claim, and the fastest way for a hardcoded colour to creep back into
+ * a component is for nobody to ever swap the palette out.
+ *
+ * Cool blue-grey paper against a near-black blue ink, with an indigo marker.
+ * Deliberately a different temperature and a different accent family from
+ * `graphite`, so switching between the two exercises every token rather than
+ * shifting one hue.
+ *
+ * The marker is still a highlighter and still means "the thing you are pointed
+ * at". A theme may change what the colour is; it does not get to change what it
+ * means, because the components were built around that.
+ */
+
+:root {
+	color-scheme: light;
+
+	/* — surfaces ————————————————————————————————— */
+	--paper: oklch(0.985 0.004 250);
+	--paper-raised: oklch(1 0 0);
+	--paper-sunk: oklch(0.955 0.008 250);
+
+	/* — ink —————————————————————————————————————— */
+	--ink-strong: oklch(0.21 0.024 262);
+	--ink: oklch(0.335 0.021 262);
+	--ink-muted: oklch(0.54 0.018 258);
+	--ink-faint: oklch(0.7 0.014 256);
+
+	/* — rules ———————————————————————————————————— */
+	--rule: oklch(0.898 0.009 254);
+	--rule-strong: oklch(0.798 0.014 254);
+	--rule-faint: oklch(0.946 0.006 254);
+
+	/* — the marker ——————————————————————————————— */
+	--marker: oklch(0.5 0.19 268);
+	--marker-line: oklch(0.67 0.145 268);
+	--marker-wash: oklch(0.935 0.04 268);
+	--marker-wash-strong: oklch(0.888 0.072 268);
+
+	/* — admonitions only ————————————————————————— */
+	--warn: oklch(0.545 0.12 70);
+	--warn-line: oklch(0.78 0.095 72);
+	--warn-wash: oklch(0.958 0.032 75);
+
+	--danger: oklch(0.525 0.19 25);
+	--danger-line: oklch(0.73 0.14 25);
+	--danger-wash: oklch(0.955 0.03 25);
+
+	/* — interaction ——————————————————————————————— */
+	--hover-wash: oklch(0.944 0.008 254);
+	--active-wash: oklch(0.914 0.012 254);
+
+	/* Darkness rather than ink, so these are not repeated in the dark block. */
+	--scrim: oklch(0.21 0.024 262 / 0.42);
+	--shadow-color: oklch(0.21 0.03 262 / 0.35);
+
+	/* — type ————————————————————————————————————— */
+	--font-sans: "IBM Plex Sans", "IBM Plex Sans KR", ui-sans-serif, system-ui,
+		-apple-system, "Segoe UI", sans-serif;
+	--font-mono: "IBM Plex Mono", "IBM Plex Sans KR", ui-monospace,
+		SFMono-Regular, "Cascadia Code", monospace;
+
+	/* Slightly sharper than graphite — a theme owns its corners. */
+	--radius-1: 2px;
+	--radius-2: 4px;
+	--radius-3: 8px;
+
+	/* sRGB mirror for Mermaid, which cannot read oklch(). Keep in step. */
+	--hex-bg: #ffffff;
+	--hex-surface: #eff1f6;
+	--hex-ink: #23283a;
+	--hex-ink-muted: #6b7284;
+	--hex-rule: #c2c7d2;
+	--hex-accent: #3f45c4;
+	--hex-accent-soft: #e3e5fb;
+}
+
+:root.dark {
+	color-scheme: dark;
+
+	--paper: oklch(0.19 0.018 262);
+	--paper-raised: oklch(0.238 0.021 262);
+	--paper-sunk: oklch(0.155 0.016 262);
+
+	--ink-strong: oklch(0.965 0.006 250);
+	--ink: oklch(0.885 0.01 250);
+	--ink-muted: oklch(0.665 0.016 254);
+	--ink-faint: oklch(0.495 0.018 256);
+
+	--rule: oklch(0.32 0.02 260);
+	--rule-strong: oklch(0.43 0.024 260);
+	--rule-faint: oklch(0.258 0.018 260);
+
+	--marker: oklch(0.75 0.145 268);
+	--marker-line: oklch(0.55 0.14 268);
+	--marker-wash: oklch(0.3 0.075 268);
+	--marker-wash-strong: oklch(0.37 0.1 268);
+
+	--warn: oklch(0.805 0.1 75);
+	--warn-line: oklch(0.525 0.085 72);
+	--warn-wash: oklch(0.285 0.04 72);
+
+	--danger: oklch(0.735 0.14 25);
+	--danger-line: oklch(0.525 0.125 25);
+	--danger-wash: oklch(0.292 0.055 25);
+
+	--hover-wash: oklch(0.252 0.021 262);
+	--active-wash: oklch(0.292 0.024 262);
+
+	--hex-bg: #222635;
+	--hex-surface: #171a25;
+	--hex-ink: #dfe2ea;
+	--hex-ink-muted: #99a0b1;
+	--hex-rule: #454b5e;
+	--hex-accent: #a4a8f5;
+	--hex-accent-soft: #2c2f5c;
+}

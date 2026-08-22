@@ -1,0 +1,26 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCategories, getPostsByCategory } from "../../utils/content";
+import CategoryView from "../../views/CategoryView.astro";
+
+/*
+ * Built from the categories that have posts in them, so there is no route to a
+ * category nothing has been written in yet. The key needs no escaping — it
+ * is chosen in `src/config.ts` and is the reason a category key is spelled in
+ * ASCII while its name is not.
+ */
+export const getStaticPaths = (async () => {
+	const categories = await getCategories();
+
+	return Promise.all(
+		categories.map(async ({ key, name }) => ({
+			params: { category: key },
+			props: { key, name, posts: await getPostsByCategory(key) },
+		})),
+	);
+}) satisfies GetStaticPaths;
+
+const { key, name, posts } = Astro.props;
+---
+
+<CategoryView categoryKey={key} name={name} posts={posts} />

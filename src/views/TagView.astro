@@ -1,0 +1,28 @@
+---
+import PostEntry from "../components/PostEntry.astro";
+import Sidebar from "../components/Sidebar.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import type { PostRef } from "../utils/content";
+
+interface Props {
+	tag: string;
+	posts: PostRef[];
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout
+	title={`#${tag}`}
+>
+	<Sidebar slot="sidebar" currentTag={tag} />
+
+	<!-- Nothing else on the page says which one you are looking at. -->
+	<div class="page-intro">
+		<h1>#{tag}</h1>
+	</div>
+
+	<ul class="entry-list">
+		{posts.map((post) => <PostEntry post={post} />)}
+	</ul>
+</BaseLayout>

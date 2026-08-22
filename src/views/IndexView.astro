@@ -1,0 +1,34 @@
+---
+import { t } from "../strings";
+import type { Page } from "astro";
+import Pagination from "../components/Pagination.astro";
+import PostEntry from "../components/PostEntry.astro";
+import Sidebar from "../components/Sidebar.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import type { PostRef } from "../utils/content";
+
+interface Props {
+	page: Page<PostRef>;
+}
+
+const { page } = Astro.props;
+
+---
+
+<BaseLayout>
+	<Sidebar slot="sidebar" />
+
+	{
+		page.data.length === 0 ? (
+			<p class="empty-note">{t("index.empty")}</p>
+		) : (
+			<ul class="entry-list">
+				{page.data.map((post) => (
+					<PostEntry post={post} />
+				))}
+			</ul>
+		)
+	}
+
+	<Pagination page={page} />
+</BaseLayout>

@@ -1,0 +1,40 @@
+---
+import { t } from "../strings";
+import type { PostRef } from "../utils/content";
+import { tagSlug } from "../utils/content";
+import { sitePath } from "../utils/url";
+
+/**
+ * Post apparatus: where else to go from here.
+ *
+ * The dates and the reading time are not here. They belong to the article and
+ * are stated once, in its header — repeating them in the margin only makes a
+ * reader check whether the two agree.
+ *
+ * Renders the widgets only. The post sidebar owns the <aside> around them,
+ * because the contents rail sits in the same column and above these.
+ */
+interface Props {
+	post: PostRef;
+}
+
+const { post } = Astro.props;
+const { data } = post.entry;
+---
+
+{
+	data.tags.length > 0 && (
+		<section class="widget">
+			<span class="widget-title">{t("post.tags")}</span>
+			<ul class="tag-row">
+				{data.tags.map((tag) => (
+					<li>
+						<a class="tag" href={sitePath(`/tags/${tagSlug(tag)}`)}>
+							{tag}
+						</a>
+					</li>
+				))}
+			</ul>
+		</section>
+	)
+}

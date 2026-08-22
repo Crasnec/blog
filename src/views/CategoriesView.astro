@@ -1,0 +1,47 @@
+---
+import { countLabel } from "../utils/format";
+import { t } from "../strings";
+import Sidebar from "../components/Sidebar.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCategories } from "../utils/content";
+import { sitePath } from "../utils/url";
+
+/**
+ * The four areas, as rows rather than as the pills the tag index uses.
+ *
+ * There are few of them and they are named in prose — `데이터베이스`, not
+ * `postgres` — so a row with the count at the end reads as a table of
+ * contents, which is what this page is. Pills would say "here are some
+ * keywords", and that is the other page.
+ */
+const categories = await getCategories();
+---
+
+<BaseLayout
+	title={t("categories.title")}
+>
+	<Sidebar slot="sidebar" />
+
+	<!-- The masthead already says this. Kept for the document outline. -->
+	<h1 class="visually-hidden">{t("categories.title")}</h1>
+
+	{
+		categories.length === 0 ? (
+			<p class="empty-note">{t("index.empty")}</p>
+		) : (
+			<ul class="category-list">
+				{categories.map(({ key, name, count }) => (
+					<li class="category-item">
+						<a
+							class="category-link"
+							href={sitePath(`/categories/${key}`)}
+						>
+							<span class="category-name">{name}</span>
+							<span class="category-tally">{countLabel(count)}</span>
+						</a>
+					</li>
+				))}
+			</ul>
+		)
+	}
+</BaseLayout>

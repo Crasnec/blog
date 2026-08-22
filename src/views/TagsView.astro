@@ -1,0 +1,35 @@
+---
+import { t } from "../strings";
+import Sidebar from "../components/Sidebar.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getTags, tagSlug } from "../utils/content";
+import { sitePath } from "../utils/url";
+
+const tags = await getTags();
+---
+
+<BaseLayout
+	title={t("tags.title")}
+>
+	<Sidebar slot="sidebar" />
+
+	<!-- The masthead already says this. Kept for the document outline. -->
+	<h1 class="visually-hidden">{t("tags.title")}</h1>
+
+	{
+		tags.length === 0 ? (
+			<p class="empty-note">{t("index.empty")}</p>
+		) : (
+			<ul class="tag-row is-large">
+				{tags.map(({ tag, count }) => (
+					<li>
+						<a class="tag" href={sitePath(`/tags/${tagSlug(tag)}`)}>
+							{tag}
+							<span class="tag-count">{count}</span>
+						</a>
+					</li>
+				))}
+			</ul>
+		)
+	}
+</BaseLayout>

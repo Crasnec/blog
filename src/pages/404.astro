@@ -1,0 +1,21 @@
+---
+import { t } from "../strings";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { sitePath } from "../utils/url";
+
+/**
+ * A static build serves one 404 for every path, so the language cannot be known
+ * from the URL. Korean is the default; the page offers both ways home.
+ */
+---
+
+<BaseLayout title={t("notFound.title")}>
+	<div class="page-intro">
+		<h1>{t("notFound.title")}</h1>
+		<p>{t("notFound.body")}</p>
+	</div>
+
+	<p>
+		<a class="link-text" href={sitePath()}>{t("notFound.home")}</a>
+	</p>
+</BaseLayout>

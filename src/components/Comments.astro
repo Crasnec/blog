@@ -1,0 +1,180 @@
+---
+import { machineDate, stampDate } from "../utils/format";
+import { HTML_LANG, t } from "../strings";
+import { commentsConfig } from "../config";
+import { renderCommentBody } from "../utils/comment-markdown";
+import { getComments } from "../utils/content";
+import { sitePath } from "../utils/url";
+
+/**
+ * The discussion on a post.
+ *
+ * Reading and writing are separate paths and neither needs a server. What is
+ * already here was cloned into `.comments/` at build time and compiled to
+ * static HTML; posting starts a workflow in the comment repository, which
+ * validates the submission and commits it. So a new comment is not visible
+ * immediately, and the form says so rather than leaving the reader to work it
+ * out.
+ *
+ * Bodies are Markdown, compiled and sanitised by `comment-markdown.ts` — see
+ * there for what a commenter is and is not allowed to write.
+ */
+interface Props {
+	/** What the thread is filed under: the post's slug. */
+	postKey: string;
+}
+
+const { postKey } = Astro.props;
+
+const comments = (await getComments(postKey)).map((comment) => ({
+	data: comment.data,
+	html: renderCommentBody(comment.data.body),
+}));
+
+/*
+ * The token is public by design and is scoped to the comment repository's
+ * Actions API. The form remains visible without configuration so its place in
+ * the design is stable, but it stays disabled until both values are present.
+ */
+const repo = import.meta.env.PUBLIC_COMMENTS_REPO?.trim() ?? "";
+const token = import.meta.env.PUBLIC_COMMENTS_TOKEN ?? "";
+const canPost = Boolean(repo && token);
+
+const endpoint = canPost
+	? `https://api.github.com/repos/${repo}/actions/workflows/${commentsConfig.workflow}/dispatches`
+	: undefined;
+---
+
+<section id="comments" class="comments" data-pagefind-ignore>
+	<h2 class="comments-title">
+		{t("comments.title")}
+		{comments.length > 0 && <span class="comments-count">{comments.length}</span>}
+	</h2>
+
+	{
+		comments.length === 0 ? (
+			<p class="comment-empty">{t("comments.empty")}</p>
+		) : (
+			<ol class="comment-list">
+				{comments.map(({ data, html }) => (
+					<li class="comment">
+						<div class="comment-head">
+							<span class="comment-author">{data.author}</span>
+							<time
+								class="stamp comment-date"
+								datetime={machineDate(data.published)}
+							>
+								{stampDate(data.published)}
+							</time>
+						</div>
+						{/* Sanitised in comment-markdown.ts; nothing else may set HTML here. */}
+						<div class="comment-body" set:html={html} />
+					</li>
+				))}
+			</ol>
+		)
+	}
+
+	<form
+		id="comment-form"
+		class="comment-form"
+		aria-disabled={!canPost ? "true" : undefined}
+		data-endpoint={endpoint}
+		data-token={canPost ? token : undefined}
+		data-branch={commentsConfig.branch}
+		data-post={postKey}
+		data-lang={HTML_LANG.split("-")[0]}
+		data-sending={t("comments.sending")}
+		data-sent={t("comments.sent")}
+		data-failed={t("comments.failed")}
+	>
+		<span class="comments-title comment-form-title">{t("comments.form")}</span>
+
+		<label class="field">
+			<span class="label field-label">{t("comments.name")}</span>
+			<input
+				class="field-input"
+				name="author"
+				type="text"
+				required
+				disabled={!canPost}
+				maxlength={commentsConfig.maxAuthor}
+				autocomplete="nickname"
+			/>
+		</label>
+
+		<label class="field">
+			<span class="label field-label">
+				{t("comments.body")}
+				{/* A limit you cannot see is one you find out about by hitting it. */}
+				<span id="comment-count" class="field-count" aria-live="polite">
+					0 / {commentsConfig.maxBody.toLocaleString()}
+				</span>
+			</span>
+			<textarea
+				id="comment-body"
+				class="field-input field-textarea"
+				name="body"
+				required
+				disabled={!canPost}
+				maxlength={commentsConfig.maxBody}
+				data-max={commentsConfig.maxBody}
+			/>
+		</label>
+
+		{/* Bots fill every field they find; people never see this one. */}
+		<input
+			class="field-trap"
+			name="website"
+			type="text"
+			disabled={!canPost}
+			tabindex="-1"
+			autocomplete="off"
+			aria-hidden="true"
+		/>
+
+		<div class="comment-actions">
+			<span class="comment-note">
+				{canPost ? t("comments.note") : t("comments.unavailable")}
+			</span>
+			<button class="btn-solid" type="submit" disabled={!canPost}>
+				{t("comments.submit")}
+			</button>
+		</div>
+
+		<p id="comment-status" class="comment-status" role="status" hidden />
+	</form>
+</section>
+
+<!--
+	Links inside a comment were written by a stranger, so following one off the
+	site is a decision the reader gets to make with the address in front of them.
+	Links in the article itself are the author's own and are left alone.
+
+	The anchor keeps its real href, so copy-link, middle-click and a page with no
+	JavaScript all behave normally — the prompt is a courtesy, not a gate.
+-->
+<div
+	id="leave-panel"
+	class="leave-panel"
+	role="dialog"
+	aria-modal="true"
+	aria-labelledby="leave-title"
+	hidden
+>
+	<div class="leave-dialog">
+		<h2 id="leave-title" class="leave-title">{t("link.title")}</h2>
+		<p id="leave-host" class="leave-host"></p>
+		<p id="leave-url" class="leave-url"></p>
+		<p class="leave-note">{t("link.note")}</p>
+
+		<div class="leave-actions">
+			<button id="leave-cancel" class="btn leave-cancel" type="button">
+				{t("link.cancel")}
+			</button>
+			<a id="leave-go" class="btn-solid" href={sitePath()} rel="nofollow ugc noopener noreferrer">
+				{t("link.go")}
+			</a>
+		</div>
+	</div>
+</div>

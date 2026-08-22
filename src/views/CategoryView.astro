@@ -1,0 +1,31 @@
+---
+import PostEntry from "../components/PostEntry.astro";
+import Sidebar from "../components/Sidebar.astro";
+import type { CategoryKey } from "../config";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import type { PostRef } from "../utils/content";
+
+interface Props {
+	categoryKey: CategoryKey;
+	/** Already localised by the route, which had to resolve it to build the path. */
+	name: string;
+	posts: PostRef[];
+}
+
+const { categoryKey, name, posts } = Astro.props;
+---
+
+<BaseLayout
+	title={name}
+>
+	<Sidebar slot="sidebar" currentCategory={categoryKey} />
+
+	<!-- Nothing else on the page says which one you are looking at. -->
+	<div class="page-intro">
+		<h1>{name}</h1>
+	</div>
+
+	<ul class="entry-list">
+		{posts.map((post) => <PostEntry post={post} />)}
+	</ul>
+</BaseLayout>

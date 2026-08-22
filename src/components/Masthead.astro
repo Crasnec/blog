@@ -1,0 +1,20 @@
+---
+import { siteConfig } from "../config";
+
+/**
+ * The running head.
+ *
+ * The site's nameplate stays present across routes so navigation does not
+ * collapse the page's visual anchor. The navbar carries the compact version;
+ * this larger heading gives every section the same starting rhythm.
+ */
+---
+
+<div id="masthead-wrapper" class="is-tall">
+	<div id="masthead" class="shell onload">
+		<h1 class="masthead-title">
+			<span class="masthead-mark">{siteConfig.title}</span>
+		</h1>
+		<p class="masthead-sub">{siteConfig.subtitle}</p>
+	</div>
+</div>

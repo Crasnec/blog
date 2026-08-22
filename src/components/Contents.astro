@@ -1,0 +1,82 @@
+---
+import { t } from "../strings";
+import type { MarkdownHeading } from "astro";
+import { siteConfig } from "../config";
+
+/**
+ * The contents of a post.
+ *
+ * Two variants of the same list. `rail` rides along in the sticky sidebar and
+ * marks the section you are in; `inline` folds into the top of the article on
+ * viewports where the sidebar has dropped below the content and a list down
+ * there would be useless. Each renders only at its own width, so the pair never
+ * appears at once.
+ *
+ * It marks position, not progress: which section you are in, not how much of
+ * the post you have got through. A reader can see how far down the page they
+ * are without being told.
+ */
+interface Props {
+	headings: MarkdownHeading[];
+	variant?: "rail" | "inline";
+}
+
+const { headings, variant = "rail" } = Astro.props;
+
+/*
+ * remark-gfm emits an <h2 id="footnote-label"> above the footnotes. It is a
+ * label for assistive technology, not a section of the post, so it must not
+ * land in the contents.
+ */
+const structural = headings.filter((h) => h.slug !== "footnote-label");
+
+const minDepth = structural.length
+	? Math.min(...structural.map((h) => h.depth))
+	: 2;
+
+const items = structural
+	.filter((h) => h.depth >= minDepth && h.depth < minDepth + siteConfig.tocDepth)
+	.map((h) => ({ ...h, level: h.depth === minDepth ? 2 : 3 }));
+
+/** rehype-autolink-headings appends a "#" anchor that lands in heading.text. */
+const strip = (text: string) => text.replace(/\s*#\s*$/, "");
+---
+
+{
+	items.length > 0 &&
+		(variant === "rail" ? (
+			<section id="contents" class="widget contents">
+				<span class="widget-title" id="contents-heading">
+					{t("toc.title")}
+				</span>
+
+				<nav class="contents-scroll" aria-labelledby="contents-heading">
+					<ol class="contents-list">
+						{items.map((item) => (
+							<li>
+								<a
+									class="contents-item"
+									href={`#${item.slug}`}
+									data-depth={item.level}
+									data-slug={item.slug}
+								>
+									<span class="contents-text">{strip(item.text)}</span>
+								</a>
+							</li>
+						))}
+					</ol>
+				</nav>
+			</section>
+		) : (
+			<details class="contents-inline">
+				<summary>{t("toc.title")}</summary>
+				<ol class="contents-inline-list">
+					{items.map((item) => (
+						<li data-depth={item.level}>
+							<a href={`#${item.slug}`}>{strip(item.text)}</a>
+						</li>
+					))}
+				</ol>
+			</details>
+		))
+}

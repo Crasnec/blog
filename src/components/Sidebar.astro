@@ -1,0 +1,78 @@
+---
+import { t } from "../strings";
+import type { CategoryKey } from "../config";
+import {
+	getTags,
+	groupByYear,
+	tagSlug,
+} from "../utils/content";
+import { sitePath } from "../utils/url";
+import CategoryList from "./CategoryList.astro";
+import Profile from "./Profile.astro";
+
+/** Index apparatus: who is writing, what the topics are, and which years exist. */
+interface Props {
+	/** Highlighted when the reader is already filtered to a topic. */
+	currentTag?: string;
+	/** Likewise, when they are filtered to an area. */
+	currentCategory?: CategoryKey;
+}
+
+const { currentTag, currentCategory } = Astro.props;
+
+/*
+ * Categories come before tags: four named areas answer "what is here" in a way
+ * twelve technology tags cannot, and a reader who wants the fine grain is
+ * already looking further down. They are set as a list rather than as pills for
+ * the same reason the years are — a short, closed set reads as a menu.
+ */
+const tags = (await getTags()).slice(0, 12);
+const years = await groupByYear();
+---
+
+<aside id="sidebar" class="onload" aria-label={t("index.browse")}>
+	<Profile />
+	<CategoryList currentCategory={currentCategory} />
+
+	{
+		tags.length > 0 && (
+			<section class="widget">
+				<span class="widget-title">{t("tags.title")}</span>
+				<ul class="tag-row">
+					{tags.map(({ tag, count }) => (
+						<li>
+							<a
+								class:list={["tag", { "is-current": tag === currentTag }]}
+								href={sitePath(`/tags/${tagSlug(tag)}`)}
+							>
+								{tag}
+								<span class="tag-count">{count}</span>
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
+		)
+	}
+
+	{
+		years.length > 0 && (
+			<section class="widget">
+				<span class="widget-title">{t("archive.title")}</span>
+				<ul class="widget-list">
+					{years.map(({ year, posts }) => (
+						<li>
+							<a
+								class="widget-link bloom"
+								href={`${sitePath("/archive")}#y${String(year)}`}
+							>
+								{year}
+								<span class="count">{posts.length}</span>
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
+		)
+	}
+</aside>

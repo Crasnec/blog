@@ -1,0 +1,147 @@
+/*
+ * graphite — the default theme.
+ *
+ * Achromatic on purpose. Paper and ink are a warm neutral, a graphite leaning
+ * very slightly to brown rather than the blue-grey every developer site
+ * defaults to, and there is exactly one colour on top of it: the marker.
+ *
+ * The marker behaves like a highlighter, not like a brand accent. It shows up
+ * as a wash *behind* the thing you are pointed at — the hovered post, the
+ * section you are reading, a search match, an accepted comment — and as the
+ * line under a link. It never tints large areas and it never means "status".
+ *
+ * `warn` and `danger` exist only for admonitions, where a reader has to tell a
+ * caution from a warning at a glance. Nothing outside `:::warning` and
+ * `:::caution` may use them.
+ *
+ * Every value here is chosen rather than computed. Mixing a wash out of its
+ * base colour gives you something duller than a highlighter looks like, so the
+ * washes are set by hand and are allowed to carry more chroma than their
+ * lightness would imply.
+ */
+
+:root {
+	color-scheme: light;
+
+	/* — surfaces ————————————————————————————————— */
+	--paper: oklch(0.987 0.0025 90);
+	--paper-raised: oklch(1 0 0);
+	--paper-sunk: oklch(0.958 0.004 90);
+
+	/* — ink —————————————————————————————————————— */
+	--ink-strong: oklch(0.2 0.008 80);
+	--ink: oklch(0.325 0.008 80);
+	--ink-muted: oklch(0.53 0.008 80);
+	--ink-faint: oklch(0.695 0.007 80);
+
+	/* — rules ———————————————————————————————————— */
+	--rule: oklch(0.9 0.004 88);
+	--rule-strong: oklch(0.805 0.005 88);
+	--rule-faint: oklch(0.948 0.003 88);
+
+	/* — the marker ——————————————————————————————— */
+	--marker: oklch(0.545 0.205 328);
+	--marker-line: oklch(0.7 0.16 328);
+	--marker-wash: oklch(0.942 0.034 328);
+	--marker-wash-strong: oklch(0.9 0.062 328);
+
+	/* — admonitions only ————————————————————————— */
+	--warn: oklch(0.53 0.115 68);
+	--warn-line: oklch(0.775 0.09 72);
+	--warn-wash: oklch(0.958 0.03 75);
+
+	--danger: oklch(0.53 0.185 25);
+	--danger-line: oklch(0.73 0.14 25);
+	--danger-wash: oklch(0.956 0.028 25);
+
+	/* — interaction ——————————————————————————————— */
+	--hover-wash: oklch(0.945 0.004 88);
+	--active-wash: oklch(0.918 0.005 88);
+
+	/*
+	 * Overlays are darkness, not ink, so they stay dark in both modes — a scrim
+	 * that inverted with the theme would light the page up instead of dimming it.
+	 * That is why these two are not repeated in the dark block below.
+	 */
+	--scrim: oklch(0.2 0.01 80 / 0.4);
+	--shadow-color: oklch(0.2 0.02 80 / 0.35);
+
+	/* — type ————————————————————————————————————— */
+
+	/*
+	 * One superfamily across both scripts. IBM Plex was drawn for technical
+	 * documentation and has a Korean cut with the same skeleton, which is the
+	 * whole argument for it: a Hangul title and a Latin title come out looking
+	 * like the same voice instead of two fonts sharing a line.
+	 *
+	 * Changing these means changing `fonts.css` next to this file too.
+	 */
+	--font-sans: "IBM Plex Sans", "IBM Plex Sans KR", ui-sans-serif, system-ui,
+		-apple-system, "Segoe UI", sans-serif;
+	--font-mono: "IBM Plex Mono", "IBM Plex Sans KR", ui-monospace,
+		SFMono-Regular, "Cascadia Code", monospace;
+
+	/* Interface radii, not typeset ones: this is software, not a printed page. */
+	--radius-1: 3px;
+	--radius-2: 6px;
+	--radius-3: 10px;
+
+	/*
+	 * Mermaid does its own colour arithmetic and can read neither oklch() nor a
+	 * custom property it has not been handed, so the diagram palette is the same
+	 * set converted to sRGB. It is a mirror, not a second palette: regenerate it
+	 * whenever the values above change.
+	 */
+	--hex-bg: #ffffff;
+	--hex-surface: #f2f0ee;
+	--hex-ink: #262220;
+	--hex-ink-muted: #736d68;
+	--hex-rule: #c8c4c0;
+	--hex-accent: #b21e79;
+	--hex-accent-soft: #f9e0ef;
+}
+
+/*
+ * Warm graphite rather than blue-black. It keeps the dark theme reading as the
+ * same material with the lights off, instead of as a different site.
+ */
+:root.dark {
+	color-scheme: dark;
+
+	--paper: oklch(0.183 0.005 85);
+	--paper-raised: oklch(0.232 0.006 85);
+	--paper-sunk: oklch(0.148 0.004 85);
+
+	--ink-strong: oklch(0.965 0.003 85);
+	--ink: oklch(0.885 0.004 85);
+	--ink-muted: oklch(0.665 0.006 85);
+	--ink-faint: oklch(0.492 0.006 85);
+
+	--rule: oklch(0.315 0.006 85);
+	--rule-strong: oklch(0.425 0.008 85);
+	--rule-faint: oklch(0.252 0.005 85);
+
+	--marker: oklch(0.78 0.155 328);
+	--marker-line: oklch(0.55 0.13 328);
+	--marker-wash: oklch(0.288 0.055 328);
+	--marker-wash-strong: oklch(0.355 0.08 328);
+
+	--warn: oklch(0.8 0.1 75);
+	--warn-line: oklch(0.52 0.08 72);
+	--warn-wash: oklch(0.278 0.035 72);
+
+	--danger: oklch(0.735 0.135 25);
+	--danger-line: oklch(0.52 0.12 25);
+	--danger-wash: oklch(0.285 0.05 25);
+
+	--hover-wash: oklch(0.245 0.006 85);
+	--active-wash: oklch(0.285 0.007 85);
+
+	--hex-bg: #211f1d;
+	--hex-surface: #171614;
+	--hex-ink: #e3e0dd;
+	--hex-ink-muted: #a09a94;
+	--hex-rule: #454240;
+	--hex-accent: #eb8ac6;
+	--hex-accent-soft: #43203a;
+}

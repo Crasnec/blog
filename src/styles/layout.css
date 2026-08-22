@@ -1,0 +1,294 @@
+/*
+ * Page structure.
+ *
+ * A sticky navbar, a masthead as tall as whatever it happens to carry, and one
+ * two-column grid — apparatus on the left, content on the right — that every
+ * page uses. On a post the left column holds the contents; on a listing it
+ * holds the profile, the tags and the years. There is no third column and no
+ * fixed furniture in the margins: everything on the page is in the flow, which
+ * is why the contents work at 900px as well as at 1800px.
+ */
+
+.page {
+	position: relative;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.shell {
+	width: 100%;
+	max-width: var(--page-width);
+	margin-inline: auto;
+	padding-inline: var(--page-pad);
+}
+
+/* — navbar ————————————————————————————————————— */
+
+#navbar-wrapper {
+	position: sticky;
+	top: 0;
+	z-index: var(--z-navbar);
+	height: var(--navbar-height);
+	isolation: isolate;
+}
+
+#navbar {
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	height: var(--navbar-height);
+}
+
+.navbar-mark {
+	display: flex;
+	align-items: baseline;
+	margin-right: auto;
+	margin-left: -0.5rem;
+	padding: 0.35rem 0.5rem;
+	border-radius: var(--radius-2);
+	font-family: var(--font-mono);
+	font-size: var(--step--1);
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	color: var(--ink-strong);
+	white-space: nowrap;
+}
+
+.navbar-links {
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.navbar-tools {
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+	padding-left: var(--space-2);
+	margin-left: var(--space-2);
+	border-left: 1px solid var(--rule);
+}
+
+.navbar-menu-btn {
+	display: none;
+}
+
+@media (max-width: 800px) {
+	.navbar-links {
+		display: none;
+	}
+
+	.navbar-menu-btn {
+		display: flex;
+	}
+}
+
+/*
+ * The sections, folded away where the inline list will not fit. It drops under
+ * the navbar rather than covering the page, so the reader keeps their place.
+ */
+.nav-menu {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: var(--navbar-height);
+	background: var(--paper-raised);
+	border-bottom: 1px solid var(--rule);
+	box-shadow: var(--shadow-menu);
+	overflow: hidden;
+}
+
+.nav-menu[hidden] {
+	display: none;
+}
+
+.nav-menu-list {
+	list-style: none;
+	margin: 0;
+	padding-block: var(--space-2);
+	display: flex;
+	flex-direction: column;
+}
+
+.nav-menu-list a {
+	display: block;
+	padding: 0.6rem 0;
+	font-family: var(--font-mono);
+	font-size: var(--step--1);
+	color: var(--ink-muted);
+	border-bottom: 1px solid var(--rule-faint);
+	transition: color var(--dur-fast) var(--ease-out);
+}
+
+.nav-menu-list li:last-child a {
+	border-bottom: 0;
+}
+
+.nav-menu-list a:hover,
+.nav-menu-list a[aria-current="page"] {
+	color: var(--marker);
+}
+
+/* — masthead ——————————————————————————————————— */
+
+/*
+ * Height is driven by content, not by a viewport fraction. A vh-tall masthead
+ * with nothing in it reads as a mistake.
+ */
+#masthead-wrapper {
+	display: flex;
+	align-items: flex-end;
+	/* The navbar occupies the first row, so the masthead starts under it. */
+	margin-top: calc(-1 * var(--navbar-height));
+	padding-top: calc(var(--navbar-height) + var(--space-5));
+}
+
+#masthead-wrapper.is-tall {
+	padding-top: calc(var(--navbar-height) + clamp(2.5rem, 8vh, 5rem));
+}
+
+#masthead {
+	width: 100%;
+}
+
+/*
+ * The nameplate, set in the code face. The marker is drawn across it on
+ * arrival — the site's own name is the first thing it is used on, which is how
+ * a reader learns what the colour means before meeting it on a link.
+ */
+.masthead-title {
+	font-size: var(--step-5);
+	font-weight: 400;
+	line-height: 1;
+}
+
+.masthead-mark {
+	position: relative;
+	display: inline-block;
+	z-index: 0;
+	isolation: isolate;
+	font-family: var(--font-mono);
+	font-weight: 600;
+	letter-spacing: -0.045em;
+	color: var(--ink-strong);
+}
+
+.masthead-mark::before {
+	content: "";
+	position: absolute;
+	z-index: -1;
+	left: -0.1em;
+	right: -0.1em;
+	bottom: 0.04em;
+	height: 0.32em;
+	background: var(--marker-wash-strong);
+	transform: scaleX(0);
+	transform-origin: left center;
+	animation: marker-swipe 560ms var(--ease-out) 320ms forwards;
+}
+
+.masthead-sub {
+	margin-top: var(--space-4);
+	max-width: 36rem;
+	font-size: var(--step-1);
+	line-height: 1.55;
+	color: var(--ink-muted);
+	word-break: keep-all;
+}
+
+/*
+ * The spec line: one mono row saying what this page is and how much of it there
+ * is. It is the same row on every page, which is what makes it readable as a
+ * header rather than as decoration.
+ */
+/* — main grid —————————————————————————————————— */
+
+/*
+ * The gap above the content, wherever it comes from. The masthead used to own
+ * it as its own bottom padding, and only the index has a masthead now — so it
+ * lives here, where both cases get the same one.
+ */
+#main {
+	position: relative;
+	z-index: var(--z-content);
+	flex: 1;
+	padding-top: var(--space-6);
+	padding-bottom: clamp(var(--space-7), 8vw, var(--space-9));
+}
+
+#main-grid {
+	display: grid;
+	grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+	gap: var(--space-7) 3.5rem;
+	align-items: start;
+}
+
+/* Not every page has apparatus — 404 does not — and those get the full width. */
+#main-grid:not(:has(#sidebar)) {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+#content {
+	min-width: 0;
+}
+
+#sidebar {
+	position: sticky;
+	top: calc(var(--navbar-height) + 1.5rem);
+	max-height: calc(100vh - var(--navbar-height) - 3rem);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	scrollbar-width: none;
+	min-width: 0;
+}
+
+#sidebar::-webkit-scrollbar {
+	display: none;
+}
+
+@media (max-width: 1024px) {
+	#main-grid {
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--space-6);
+	}
+
+	#sidebar {
+		position: static;
+		max-height: none;
+		overflow: visible;
+		order: 2;
+		padding-top: var(--space-6);
+		border-top: 1px solid var(--rule);
+	}
+
+	#content {
+		order: 1;
+	}
+}
+
+/* — back to top ———————————————————————————————— */
+
+#back-to-top {
+	position: fixed;
+	right: clamp(1rem, 3vw, 2rem);
+	bottom: clamp(1rem, 3vw, 2rem);
+	z-index: var(--z-navbar);
+	width: 2.5rem;
+	height: 2.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--rule);
+	border-radius: var(--radius-2);
+	background: var(--paper-raised);
+	color: var(--ink-muted);
+}
+
+#back-to-top:hover {
+	color: var(--marker);
+	border-color: var(--marker-line);
+}

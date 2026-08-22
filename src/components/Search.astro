@@ -1,0 +1,55 @@
+---
+import { t } from "../strings";
+import Icon from "./Icon.astro";
+
+/**
+ * Search shell. The index is Pagefind's, built from the rendered HTML after
+ * `astro build`, and loaded on first open — never on page load, because most
+ * visits never search.
+ *
+ * Results are already scoped to the language being read: Pagefind indexes each
+ * locale separately and its runtime picks the index from `<html lang>`, so
+ * there is nothing to filter here.
+ */
+---
+
+<div
+	id="search-panel"
+	class="search-panel"
+	role="dialog"
+	aria-modal="true"
+	aria-label={t("action.search")}
+	data-empty={t("search.empty")}
+	data-loading={t("search.loading")}
+	hidden
+>
+	<div class="search-dialog">
+		<div class="search-field">
+			<Icon name="search" />
+			<input
+				id="search-input"
+				class="search-input"
+				type="search"
+				autocomplete="off"
+				spellcheck="false"
+				placeholder={t("search.placeholder")}
+				aria-label={t("search.placeholder")}
+			/>
+			<button
+				id="search-close"
+				class="search-esc"
+				type="button"
+				aria-label={t("action.close")}>ESC</button
+			>
+		</div>
+
+		<ul id="search-results" class="search-results"></ul>
+
+		<!--
+			The status line. Empty and hidden until there is something to say — that
+			the index is loading, or that a query found nothing. An empty search box
+			does not need to be told it is a search box.
+		-->
+		<p id="search-note" class="search-note" hidden></p>
+	</div>
+</div>

@@ -1,0 +1,29 @@
+/*
+ * slate — webfonts.
+ *
+ * Part of the theme, not of the build: a theme that changes `--font-sans` or
+ * `--font-mono` changes this file too, and adds whatever package it needs.
+ *
+ * Same faces as `graphite`. A theme is free to choose others; it owns this
+ * file precisely so it can.
+ *
+ * IBM Plex, split by script so nothing is downloaded twice. Latin comes from
+ * IBM Plex Sans; the Korean-only subsets come from IBM Plex Sans KR, whose own
+ * Latin cut is never reached because Plex Sans wins first in the stack.
+ */
+
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-400-italic.css";
+@import "@fontsource/ibm-plex-sans/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
+@import "@fontsource/ibm-plex-sans/latin-700.css";
+
+@import "@fontsource/ibm-plex-sans-kr/korean-400.css";
+@import "@fontsource/ibm-plex-sans-kr/korean-500.css";
+@import "@fontsource/ibm-plex-sans-kr/korean-600.css";
+@import "@fontsource/ibm-plex-sans-kr/korean-700.css";
+
+/* Code, and the apparatus layer that borrows the code voice. */
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
+@import "@fontsource/ibm-plex-mono/latin-600.css";

@@ -1,0 +1,73 @@
+---
+import { HTML_LANG, t } from "../strings";
+import { ClientRouter } from "astro:transitions";
+import BackToTop from "../components/BackToTop.astro";
+import BaseHead from "../components/BaseHead.astro";
+import Masthead from "../components/Masthead.astro";
+import Navbar from "../components/Navbar.astro";
+import Search from "../components/Search.astro";
+import { pageTurn } from "../utils/transitions";
+
+interface Props {
+	title?: string | undefined;
+	description?: string | undefined;
+	article?: boolean | undefined;
+	publishedTime?: Date | undefined;
+	modifiedTime?: Date | undefined;
+	/** The page's own social card. Falls back to the locale's. */
+	card?: string | undefined;
+	/** The post's category, for the structured data. */
+	section?: string | undefined;
+}
+
+const {
+	title,
+	description,
+	article,
+	publishedTime,
+	modifiedTime,
+	card,
+	section,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={HTML_LANG} class="no-js" data-theme="auto">
+	<head>
+		<BaseHead
+			title={title}
+			description={description}
+			article={article}
+			publishedTime={publishedTime}
+			modifiedTime={modifiedTime}
+			card={card}
+			section={section}
+		/>
+		<ClientRouter />
+		<slot name="head" />
+	</head>
+
+	<body class="page">
+		<a class="skip-link" href="#content">{t("action.skip")}</a>
+
+		<Navbar />
+		<Masthead />
+
+		<div id="main">
+			<div id="main-grid" class="shell">
+				<slot name="sidebar" />
+
+				<main id="content" class="onload" transition:animate={pageTurn}>
+					<slot />
+				</main>
+			</div>
+		</div>
+
+		<BackToTop />
+		<Search />
+
+		<script>
+			import "../scripts/ui";
+		</script>
+	</body>
+</html>

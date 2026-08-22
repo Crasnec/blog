@@ -1,0 +1,80 @@
+/*
+ * Structural tokens — everything a theme does *not* decide.
+ *
+ * The split is the point: this file is about how the page is measured and how
+ * it moves, and `themes/<name>/palette.css` is about what it looks like. A
+ * theme is loaded after this one and may override anything here, but it only
+ * has to define colour, type and radii. See `themes/README.md`.
+ *
+ * Nothing in this file may name a colour. If a component needs one that the
+ * palette does not have, the palette gains a token — that is what keeps a theme
+ * swap from leaving a stray hue behind somewhere nobody thought to look.
+ */
+
+:root {
+	/* — type scale ————————————————————————————————
+	 * Sizes and rhythm are structural; the faces they are set in are the theme's.
+	 */
+	--step--2: 0.6875rem;
+	--step--1: 0.8125rem;
+	--step-0: 1.0625rem;
+	--step-1: clamp(1.125rem, 0.3vw + 1.05rem, 1.2rem);
+	--step-2: clamp(1.3rem, 0.7vw + 1.12rem, 1.5rem);
+	--step-3: clamp(1.5rem, 1.2vw + 1.2rem, 1.9rem);
+	--step-4: clamp(1.85rem, 2.2vw + 1.3rem, 2.6rem);
+	--step-5: clamp(2.1rem, 3.4vw + 1.35rem, 3.5rem);
+
+	--leading-tight: 1.14;
+	--leading-snug: 1.4;
+	--leading-body: 1.72;
+
+	/* Hangul needs more air than Latin at the same size. */
+	--tracking-tight: -0.028em;
+	--tracking-label: 0.1em;
+	--tracking-mono: -0.005em;
+
+	/* — space ————————————————————————————————————— */
+	--space-1: 0.25rem;
+	--space-2: 0.5rem;
+	--space-3: 0.75rem;
+	--space-4: 1rem;
+	--space-5: 1.5rem;
+	--space-6: 2rem;
+	--space-7: 3rem;
+	--space-8: 4.5rem;
+	--space-9: 7rem;
+
+	/* — layout ———————————————————————————————————— */
+	--page-width: 74rem;
+	--prose-width: 41rem;
+	--sidebar-width: 14.5rem;
+	--page-pad: clamp(1.25rem, 4vw, 2.5rem);
+	--navbar-height: 3.5rem;
+
+	/* — motion ———————————————————————————————————— */
+	--content-delay: 130ms;
+	/* Dropped to 0ms after the first navigation, so the entrance plays once. */
+	--onload-dur: 400ms;
+	--ease-out: cubic-bezier(0.16, 0.84, 0.44, 1);
+	--ease-in-out: cubic-bezier(0.62, 0.06, 0.32, 0.98);
+	--dur-fast: 140ms;
+	--dur: 230ms;
+	--dur-slow: 380ms;
+
+	/* — layers ————————————————————————————————————— */
+	--z-content: 30;
+	--z-navbar: 50;
+	--z-panel: 70;
+
+	/*
+	 * Derived from the palette rather than set by it. These are mechanical — a
+	 * selection is the marker at its strongest, an elevated surface casts the
+	 * theme's own shadow — so a theme gets them for free and overrides only if it
+	 * disagrees. Custom properties resolve where they are used, not where they
+	 * are written, so these follow the palette into dark mode on their own.
+	 */
+	--selection-bg: var(--marker-wash-strong);
+	--selection-fg: var(--ink-strong);
+	--shadow-menu: 0 16px 32px -20px var(--shadow-color);
+	--shadow-panel: 0 24px 60px -24px var(--shadow-color);
+}

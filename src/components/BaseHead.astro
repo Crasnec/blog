@@ -1,0 +1,153 @@
+---
+import { HTML_LANG } from "../strings";
+import { profileConfig, siteConfig } from "../config";
+import { CARD, siteCardPath } from "../utils/og";
+import { sitePath } from "../utils/url";
+import "../styles/global.css";
+
+interface Props {
+	title?: string | undefined;
+	description?: string | undefined;
+	/** Set on post pages so Open Graph reports an article rather than a site. */
+	article?: boolean | undefined;
+	publishedTime?: Date | undefined;
+	modifiedTime?: Date | undefined;
+	/** The page's own social card. Falls back to the locale's. */
+	card?: string | undefined;
+	/** The post's category. `articleSection` in the structured data. */
+	section?: string | undefined;
+}
+
+const {
+	title,
+	description,
+	article,
+	publishedTime,
+	modifiedTime,
+	card,
+	section,
+} = Astro.props;
+
+const pageTitle = title
+	? `${title} — ${siteConfig.title}`
+	: `${siteConfig.title} — ${siteConfig.subtitle}`;
+
+const desc = description ?? siteConfig.description;
+const origin = Astro.site ?? Astro.url.origin;
+const canonical = new URL(Astro.url.pathname, origin);
+const cardUrl = new URL(card ?? siteCardPath(), origin);
+
+/*
+ * Structured data, kept to the one type each page actually is. Everything in it
+ * is already stated in the markup above — this only restates it in the shape a
+ * search engine will read, which is why there is no description on a locked
+ * post here either.
+ */
+const schema = article
+	? {
+			"@context": "https://schema.org",
+			"@type": "BlogPosting",
+			headline: title,
+			...(description ? { description } : {}),
+			...(section ? { articleSection: section } : {}),
+			datePublished: publishedTime?.toISOString(),
+			...(modifiedTime ? { dateModified: modifiedTime.toISOString() } : {}),
+			author: { "@type": "Person", name: profileConfig.name },
+			publisher: { "@type": "Organization", name: siteConfig.title },
+			image: cardUrl.href,
+			inLanguage: HTML_LANG,
+			mainEntityOfPage: canonical.href,
+			url: canonical.href,
+		}
+	: {
+			"@context": "https://schema.org",
+			"@type": "WebSite",
+			name: siteConfig.title,
+			description: desc,
+			inLanguage: HTML_LANG,
+			url: new URL(sitePath(), origin).href,
+		};
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content={Astro.generator} />
+
+<title>{pageTitle}</title>
+<meta name="description" content={desc} />
+<link rel="canonical" href={canonical} />
+
+
+<meta property="og:type" content={article ? "article" : "website"} />
+<meta property="og:site_name" content={siteConfig.title} />
+<meta property="og:title" content={title ?? siteConfig.title} />
+<meta property="og:description" content={desc} />
+<meta property="og:url" content={canonical} />
+<meta property="og:locale" content={HTML_LANG.replace("-", "_")} />
+{
+	publishedTime && (
+		<meta
+			property="article:published_time"
+			content={publishedTime.toISOString()}
+		/>
+	)
+}
+{
+	modifiedTime && (
+		<meta
+			property="article:modified_time"
+			content={modifiedTime.toISOString()}
+		/>
+	)
+}
+
+<meta property="og:image" content={cardUrl} />
+<meta property="og:image:width" content={String(CARD.width)} />
+<meta property="og:image:height" content={String(CARD.height)} />
+<meta property="og:image:alt" content={title ?? siteConfig.title} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title ?? siteConfig.title} />
+<meta name="twitter:description" content={desc} />
+<meta name="twitter:image" content={cardUrl} />
+
+<!--
+	All three are generated from the theme's own colours by `src/utils/mark.ts`,
+	so swapping a theme cannot leave the old one sitting in the tab. The `.ico`
+	is there for the browsers that request that path regardless of what is
+	linked here, and for the ones that will not take an SVG.
+-->
+<link rel="icon" href={sitePath("/favicon.svg")} type="image/svg+xml" sizes="any" />
+<link rel="alternate icon" href={sitePath("/favicon.ico")} sizes="32x32" />
+<link rel="apple-touch-icon" href={sitePath("/apple-touch-icon.png")} />
+
+<script
+	type="application/ld+json"
+	is:inline
+	set:html={JSON.stringify(schema)}
+/>
+
+<!--
+	Theme is resolved before first paint so the page never flashes the wrong
+	one. It runs again after every view transition, because the swap replaces
+	the documentElement's class list.
+-->
+<script is:inline>
+	(() => {
+		const apply = () => {
+			const stored = localStorage.getItem("theme") ?? "auto";
+			const dark =
+				stored === "dark" ||
+				(stored === "auto" &&
+					window.matchMedia("(prefers-color-scheme: dark)").matches);
+			document.documentElement.classList.toggle("dark", dark);
+			document.documentElement.dataset.theme = stored;
+		};
+
+		apply();
+		document.addEventListener("astro:after-swap", apply);
+		window
+			.matchMedia("(prefers-color-scheme: dark)")
+			.addEventListener("change", apply);
+	})();
+</script>

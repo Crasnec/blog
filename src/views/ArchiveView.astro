@@ -1,0 +1,61 @@
+---
+import { countLabel, machineDate } from "../utils/format";
+import { t } from "../strings";
+import Icon from "../components/Icon.astro";
+import Sidebar from "../components/Sidebar.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { groupByYear } from "../utils/content";
+
+const years = await groupByYear();
+
+const dayOf = (date: Date) => {
+	const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+	const d = String(date.getUTCDate()).padStart(2, "0");
+	return `${m} · ${d}`;
+};
+---
+
+<BaseLayout
+	title={t("archive.title")}
+>
+	<Sidebar slot="sidebar" />
+
+	<!-- The masthead already says this. Kept for the document outline. -->
+	<h1 class="visually-hidden">{t("archive.title")}</h1>
+
+	{
+		years.length === 0 ? (
+			<p class="empty-note">{t("index.empty")}</p>
+		) : (
+				years.map(({ year, posts }) => (
+					<section class="year-group" id={`y${String(year)}`}>
+					<div class="year-head">
+						<span class="year-number">{year}</span>
+						<span class="year-count">
+							{countLabel(posts.length)}
+						</span>
+					</div>
+
+					<ul class="archive-list">
+						{posts.map(({ entry, href }) => (
+							<li class="archive-item">
+								<a class="archive-link" href={href}>
+									<time
+										class="archive-day"
+										datetime={machineDate(entry.data.published)}
+									>
+										{dayOf(entry.data.published)}
+									</time>
+									<span class="archive-title">{entry.data.title}</span>
+									{entry.data.sealed && (
+										<Icon name="lock" class="lock-icon archive-lock" />
+									)}
+								</a>
+							</li>
+						))}
+					</ul>
+				</section>
+			))
+		)
+	}
+</BaseLayout>

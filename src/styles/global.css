@@ -1,0 +1,25 @@
+/*
+ * Single entry point, so the cascade order is fixed rather than left to the
+ * bundler: theme fonts → vendor → structure → theme palette → base → layout →
+ * components → prose → motion.
+ *
+ * `@theme` is an alias for `themes/<name>/`, resolved in `astro.config.mjs`
+ * from `src/theme.config.mjs`. Changing the active theme is that one line —
+ * this file does not name it.
+ *
+ * The palette is imported *after* `tokens.css` on purpose: a theme may override
+ * a structural default, but the structure must never win over a theme.
+ */
+
+@import "@theme/fonts.css";
+
+@import "katex/dist/katex.min.css";
+
+@import "./tokens.css";
+@import "@theme/palette.css";
+
+@import "./base.css";
+@import "./layout.css";
+@import "./components.css";
+@import "./prose.css";
+@import "./motion.css";

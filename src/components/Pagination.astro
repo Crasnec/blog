@@ -1,0 +1,57 @@
+---
+import { t } from "../strings";
+import type { Page } from "astro";
+import type { PostRef } from "../utils/content";
+import Icon from "./Icon.astro";
+
+/**
+ * On the first page there is no previous page, so there is no link — a `<span>`
+ * rather than an `<a href="#">` wearing `aria-disabled`. A disabled anchor is
+ * still an anchor: `pointer-events: none` stops the mouse and nothing stops the
+ * keyboard, so tabbing to it and pressing Enter jumped to the top of the page
+ * and put a `#` in the address bar.
+ */
+interface Props {
+	page: Page<PostRef>;
+}
+
+const { page } = Astro.props;
+---
+
+{
+	page.lastPage > 1 && (
+		<nav class="pagination" aria-label={t("nav.posts")}>
+			{page.url.prev ? (
+				<a class="pagination-link bloom" href={page.url.prev}>
+					<Icon name="arrow-left" class="pagination-arrow" />
+					{t("page.prev")}
+				</a>
+			) : (
+				<span class="pagination-link is-disabled">
+					<Icon name="arrow-left" class="pagination-arrow" />
+					{t("page.prev")}
+				</span>
+			)}
+
+			<span class="pagination-spacer" />
+
+			<span class="pagination-state">
+				{page.currentPage} / {page.lastPage}
+			</span>
+
+			<span class="pagination-spacer" />
+
+			{page.url.next ? (
+				<a class="pagination-link bloom" href={page.url.next}>
+					{t("page.next")}
+					<Icon name="arrow-right" class="pagination-arrow" />
+				</a>
+			) : (
+				<span class="pagination-link is-disabled">
+					{t("page.next")}
+					<Icon name="arrow-right" class="pagination-arrow" />
+				</span>
+			)}
+		</nav>
+	)
+}

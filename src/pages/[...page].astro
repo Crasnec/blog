@@ -1,0 +1,15 @@
+---
+import type { GetStaticPaths } from "astro";
+import { siteConfig } from "../config";
+import IndexView from "../views/IndexView.astro";
+import { getPosts } from "../utils/content";
+
+export const getStaticPaths = (async ({ paginate }) => {
+	const posts = await getPosts();
+	return paginate(posts, { pageSize: siteConfig.postsPerPage });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+---
+
+<IndexView page={page} />

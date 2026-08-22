@@ -1,0 +1,129 @@
+---
+import { t } from "../strings";
+import { navLinks, siteConfig } from "../config";
+import { sitePath } from "../utils/url";
+import Icon from "./Icon.astro";
+
+const normalizePath = (path: string) => path.replace(/\/+$/, "") || "/";
+const here = normalizePath(Astro.url.pathname);
+const home = normalizePath(sitePath());
+const links = navLinks.map((link) => ({ ...link, href: sitePath(link.href) }));
+
+const within = (href: string) => {
+	const target = normalizePath(href);
+	return here === target || here.startsWith(`${target}/`);
+};
+
+const relativeHere = home === "/" ? here : here.slice(home.length) || "/";
+
+const isCurrent = (link: (typeof links)[number]) => {
+	if (link.key === "nav.posts") {
+		return (
+			relativeHere === "/" ||
+			/^\/\d+$/.test(relativeHere) ||
+			within(sitePath("/posts"))
+		);
+	}
+
+	return within(link.href);
+};
+---
+
+<header id="navbar-wrapper" class="onload">
+	<nav id="navbar" class="shell" aria-label={siteConfig.title}>
+		<a class="navbar-mark bloom" href={sitePath()}>
+			{siteConfig.title}
+		</a>
+
+		<ul class="navbar-links">
+			{
+				links.map((link) => (
+					<li>
+						<a
+							class="btn bloom"
+							href={link.href}
+							aria-current={isCurrent(link) ? "page" : undefined}
+						>
+							{t(link.key)}
+						</a>
+					</li>
+				))
+			}
+		</ul>
+
+		<div class="navbar-tools">
+			<button
+				id="search-open"
+				class="btn btn-icon bloom"
+				type="button"
+				aria-label={t("action.search")}
+				aria-haspopup="dialog"
+			>
+				<Icon name="search" />
+			</button>
+
+
+			<!--
+				The icon alone does not say which of the three modes is active, so the
+				script rewrites aria-label from these as it cycles.
+			-->
+			<button
+				id="theme-toggle"
+				class="btn btn-icon bloom"
+				type="button"
+				aria-label={t("action.theme")}
+				data-action={t("action.theme")}
+				data-light={t("theme.light")}
+				data-dark={t("theme.dark")}
+				data-auto={t("theme.auto")}
+			>
+				<Icon name="sun" class="theme-icon" data-theme-icon="light" />
+				<Icon name="moon" class="theme-icon" data-theme-icon="dark" />
+				<Icon name="monitor" class="theme-icon" data-theme-icon="auto" />
+			</button>
+
+			<button
+				id="menu-toggle"
+				class="btn btn-icon bloom navbar-menu-btn"
+				type="button"
+				aria-label={t("action.menu")}
+				aria-expanded="false"
+				aria-controls="nav-menu"
+			>
+				<Icon name="menu" />
+			</button>
+		</div>
+	</nav>
+
+	<!-- The sections, for the widths where the inline list does not fit. -->
+	<div id="nav-menu" class="nav-menu" hidden>
+		<ul class="shell nav-menu-list">
+			{
+				links.map((link) => (
+					<li>
+						<a
+							href={link.href}
+							aria-current={isCurrent(link) ? "page" : undefined}
+						>
+							{t(link.key)}
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</header>
+
+<style>
+	/* Only the icon matching the stored mode is shown; the script sets the
+	   attribute on <html>, so this needs no JavaScript of its own. */
+	#theme-toggle :global(.theme-icon) {
+		display: none;
+	}
+
+	:global(html[data-theme="light"]) #theme-toggle :global([data-theme-icon="light"]),
+	:global(html[data-theme="dark"]) #theme-toggle :global([data-theme-icon="dark"]),
+	:global(html[data-theme="auto"]) #theme-toggle :global([data-theme-icon="auto"]) {
+		display: block;
+	}
+</style>

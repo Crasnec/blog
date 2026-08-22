@@ -1,0 +1,181 @@
+---
+import { longDate, machineDate, shortDate } from "../utils/format";
+import { t } from "../strings";
+import { render } from "astro:content";
+import CategoryList from "../components/CategoryList.astro";
+import Colophon from "../components/Colophon.astro";
+import Comments from "../components/Comments.astro";
+import Contents from "../components/Contents.astro";
+import Icon from "../components/Icon.astro";
+import Profile from "../components/Profile.astro";
+import SecretLock from "../components/SecretLock.astro";
+import type { PostRef } from "../utils/content";
+import { categoryName, getNeighbours, parsePostMeta } from "../utils/content";
+import { cardPath } from "../utils/og";
+import { THEME } from "../theme.config.mjs";
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+	post: PostRef;
+}
+
+const { post } = Astro.props;
+const { entry } = post;
+
+const { Content, headings, remarkPluginFrontmatter } = await render(entry);
+const { readingTime, excerpt } = parsePostMeta(remarkPluginFrontmatter);
+
+const { prev, next } = await getNeighbours(post);
+
+/*
+ * A locked post arrives already encrypted: its author sealed it before
+ * committing, and this build can no more read it than a stranger can. All that
+ * happens here is that the payload is handed to the page.
+ *
+ * The contents rail, the description and the comment form are still left off —
+ * the outline, the excerpt and the comment store would each give away a piece
+ * of what is being kept back. None of them is a decision any more, though:
+ * with the body sealed, there is nothing left to compute them from.
+ */
+const sealed = entry.data.sealed;
+
+/*
+ * A sealed body was rendered once, when it was sealed, so its code blocks carry
+ * the colours of whichever theme was active that day. Say so rather than
+ * serving one post in a stale palette without comment — re-sealing is the fix,
+ * and it needs a passphrase this build does not have.
+ */
+if (sealed && sealed.theme !== THEME) {
+	console.warn(
+		`[secret] ${post.slug} was sealed under the "${sealed.theme}" theme but ` +
+			`this build uses "${THEME}", so its code blocks will not match the ` +
+			"rest of the site. Re-seal it: npm run secret:open, then secret:seal.",
+	);
+}
+
+const description = sealed ? undefined : (entry.data.description ?? excerpt);
+
+	const readLabel =
+		!sealed && readingTime !== undefined
+			? `${String(readingTime)} ${t("post.readingTime")}`
+		: undefined;
+
+/*
+ * The revision drops its year when it shares one with the publication date,
+ * which is nearly always — two full dates side by side is the same fact twice.
+ * Korean puts the label after the date, English before it.
+ */
+const updated = entry.data.updated;
+const revised = updated
+	? updated.getUTCFullYear() === entry.data.published.getUTCFullYear()
+		? shortDate(updated)
+		: longDate(updated)
+	: undefined;
+const revisedLabel = revised ? `${t("post.updated")} ${revised}` : undefined;
+---
+
+<BaseLayout
+	title={entry.data.title}
+	description={description}
+	article
+	publishedTime={entry.data.published}
+	modifiedTime={entry.data.updated}
+	card={cardPath(post)}
+	section={categoryName(entry.data.category)}
+>
+	<aside id="sidebar" class="onload" slot="sidebar" aria-label={t("post.info")}>
+		<Profile />
+		<CategoryList currentCategory={entry.data.category} />
+		{!sealed && <Contents headings={headings} />}
+		<Colophon post={post} />
+	</aside>
+
+	<!--
+		`data-pagefind-body` scopes the search index to article text. Because at
+		least one page on the site declares it, Pagefind drops every page that does
+		not — which is what keeps the index, archive and tag listings out of the
+		results instead of returning the same excerpt five times.
+	-->
+	<article data-pagefind-body={sealed ? undefined : true}>
+		<header class="post-header onload">
+			<!-- The only place on the page that states when this was written. -->
+			<div class="post-header-meta" data-pagefind-ignore>
+				<time
+					class="post-meta-date"
+					datetime={machineDate(entry.data.published)}
+				>
+					{longDate(entry.data.published)}
+				</time>
+
+				{
+					updated && revisedLabel && (
+						<time class="post-meta-note" datetime={machineDate(updated)}>
+							{revisedLabel}
+						</time>
+					)
+				}
+
+				{readLabel && <span class="post-meta-note">{readLabel}</span>}
+			</div>
+
+			<h1 class="post-title" data-pagefind-meta="title">{entry.data.title}</h1>
+
+			{
+				!sealed && entry.data.description && (
+					<p class="post-lede">{entry.data.description}</p>
+				)
+			}
+		</header>
+
+		<!-- Only where the sidebar has dropped below the article, and never on a
+		     locked post: the outline is part of what is being kept back. -->
+		{
+			!sealed && (
+				<div data-pagefind-ignore>
+					<Contents headings={headings} variant="inline" />
+				</div>
+			)
+		}
+
+		{
+			sealed ? (
+				<SecretLock payload={sealed} />
+			) : (
+				<div class="prose post-body">
+					<Content />
+				</div>
+			)
+		}
+	</article>
+
+	{!sealed && <Comments postKey={post.key} />}
+
+	{
+		(prev ?? next) && (
+			<nav
+				class:list={["post-nav", { "is-single": !prev || !next }]}
+				aria-label={t("nav.posts")}
+			>
+				{prev && (
+					<a class="post-nav-item is-prev" href={prev.href} rel="prev">
+						<span class="label">
+							<Icon name="arrow-left" class="post-nav-arrow" />
+							{t("post.prev")}
+						</span>
+						<span class="post-nav-title">{prev.entry.data.title}</span>
+					</a>
+				)}
+
+				{next && (
+					<a class="post-nav-item is-next" href={next.href} rel="next">
+						<span class="label">
+							{t("post.next")}
+							<Icon name="arrow-right" class="post-nav-arrow" />
+						</span>
+						<span class="post-nav-title">{next.entry.data.title}</span>
+					</a>
+				)}
+			</nav>
+		)
+	}
+</BaseLayout>

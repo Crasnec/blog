@@ -1,0 +1,33 @@
+# build output
+dist/
+# generated types
+.astro/
+# the plaintext of locked posts. Only the sealed copy under
+# src/content/posts/ is committed; see README "Locked posts".
+secrets/
+
+# comment store, cloned from its own repository at build time
+.comments/
+.comments.tmp/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# environment variables
+.env
+.env.production
+PAT.txt
+FAT.txt
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/

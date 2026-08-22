@@ -1,0 +1,12 @@
+{
+  "v": 3,
+  "alg": "ECDH-P-256",
+  "key": {
+    "key_ops": [],
+    "ext": true,
+    "kty": "EC",
+    "x": "8v_6YU2uWvZL2eAfTw_JyG24zyUMhqIUTV-_2Lutupo",
+    "y": "3WQ74DZACkcHH2l2SfGUyDFtzhfpD9q0ICsDGcJKsNY",
+    "crv": "P-256"
+  }
+}
