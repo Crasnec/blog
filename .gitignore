@@ -23,8 +23,6 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
-PAT.txt
-FAT.txt
 
 # macOS-specific files
 .DS_Store
