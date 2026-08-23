@@ -68,6 +68,6 @@ The content collection validates frontmatter during these commands. A missing fi
 
 Add `draft: true` to keep unfinished writing out of a production build. Remove it, or set it to `false`, when the post is ready.
 
-For content that should be listed publicly but readable only with a passphrase, use the private-post workflow described in [Private Posts and Moderated Comments](/posts/private-posts-and-comments).
+For content that should be listed publicly but readable only with a passphrase, use the private-post workflow described in [Private Posts and Moderated Comments](/posts/backend/private-posts-and-comments).
 
 Once the checks pass, commit and push the source. The included GitHub Actions workflow builds the site and deploys the generated files to GitHub Pages.

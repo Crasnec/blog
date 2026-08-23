@@ -26,7 +26,7 @@ The map offers a quick sense of whether an article is mostly explanation, code, 
 
 Astro validates the content collection and generates the pages at build time. Pagefind adds static search, and GitHub Pages hosts the final output. Optional encrypted posts and repository-backed comments add private publishing and moderated discussion without an application server.
 
-For the practical workflow, read [Writing and Publishing a Post](/posts/writing-and-publishing). The project's README contains the complete setup and maintenance reference.
+For the practical workflow, read [Writing and Publishing a Post](/posts/team/writing-and-publishing). The project's README contains the complete setup and maintenance reference.
 
 ## Contact
 

@@ -165,7 +165,7 @@ npm run secret:seal secrets/private-note.md
 Open a sealed post for editing:
 
 ```bash
-npm run secret:open src/content/posts/private-note.md
+npm run secret:open src/content/posts/private/private-note.md
 ```
 
 Change the passphrase without resealing posts:

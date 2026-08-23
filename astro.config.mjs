@@ -19,6 +19,15 @@ import { siteConfig } from "./src/config.ts";
 export default defineConfig({
 	site: siteConfig.url,
 	trailingSlash: "ignore",
+	redirects: {
+		"/posts/markdown-and-mdx-features":
+			"/posts/build/markdown-and-mdx-features",
+		"/posts/private-posts-and-comments":
+			"/posts/backend/private-posts-and-comments",
+		"/posts/welcome-to-the-blog": "/posts/build/welcome-to-the-blog",
+		"/posts/writing-and-publishing":
+			"/posts/team/writing-and-publishing",
+	},
 
 
 	// Expressive Code must be registered before MDX so that MDX inherits it.
