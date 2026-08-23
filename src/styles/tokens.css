@@ -46,7 +46,7 @@
 
 	/* — layout ———————————————————————————————————— */
 	--page-width: 74rem;
-	--prose-width: 41rem;
+	--prose-width: 43rem;
 	--sidebar-width: 14.5rem;
 	--page-pad: clamp(1.25rem, 4vw, 2.5rem);
 	--navbar-height: 3.5rem;
