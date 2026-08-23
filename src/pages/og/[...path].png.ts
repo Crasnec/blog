@@ -25,7 +25,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 	return [
 		{ params: { path: "site" }, props: {} },
 		...posts.map((post) => ({
-			params: { path: post.slug },
+			params: { path: post.path },
 			props: { post },
 		})),
 	];

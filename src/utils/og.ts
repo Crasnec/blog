@@ -30,7 +30,7 @@ export const CARD = { width: 1200, height: 630 } as const;
 const PAD = 80;
 
 /** Where a post's card is written, and what `og:image` points at. */
-export const cardPath = (ref: PostRef): string => sitePath(`/og/${ref.slug}.png`);
+export const cardPath = (ref: PostRef): string => sitePath(`/og/${ref.path}.png`);
 
 /** The card for everything that is not a post: index, archive, tags, about. */
 export const siteCardPath = (): string => sitePath("/og/site.png");

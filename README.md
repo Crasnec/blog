@@ -86,11 +86,12 @@ The comment form remains visible but disabled until both values are configured.
 
 ## Writing posts
 
-Posts live in `src/content/posts/`. The filename becomes the URL slug.
+Posts live in `src/content/posts/`. Their full path below that directory becomes
+the URL path, so nested directories are preserved.
 
 ```text
-src/content/posts/cache-invalidation.md
-https://crasnec.github.io/posts/cache-invalidation/
+src/content/posts/databases/redis/cache-invalidation.md
+https://crasnec.github.io/posts/databases/redis/cache-invalidation/
 ```
 
 Frontmatter follows this schema:

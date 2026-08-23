@@ -52,8 +52,11 @@ export async function postMeta(entry: Post): Promise<PostMeta> {
 
 export interface PostRef {
 	entry: Post;
-	/** The filename without its extension, e.g. `step-indexing`. */
-	slug: string;
+	/**
+	 * Path below `src/content/posts`, without the extension.
+	 * Directory segments are preserved, e.g. `databases/postgres/indexing`.
+	 */
+	path: string;
 	/** Site-absolute URL. */
 	href: string;
 	/** What a comment thread is filed under. */
@@ -66,7 +69,7 @@ const isPublished = (entry: Post) =>
 function toRef(entry: Post): PostRef {
 	return {
 		entry,
-		slug: entry.id,
+		path: entry.id,
 		href: sitePath(`/posts/${entry.id}`),
 		key: entry.id,
 	};

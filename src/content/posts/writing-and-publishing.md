@@ -6,13 +6,13 @@ category: team
 tags: [writing, markdown, publishing]
 ---
 
-Every article begins as a Markdown or MDX file in `src/content/posts`. The filename becomes the URL, so a file named `small-reliable-tools.md` is published at `/posts/small-reliable-tools`.
+Every article begins as a Markdown or MDX file in `src/content/posts`. Its full path below that directory becomes the URL, so `src/content/posts/build/tools/small-reliable-tools.md` is published at `/posts/build/tools/small-reliable-tools`.
 
 ## Add the frontmatter
 
 Start a post with a small block of metadata:
 
-```yaml title="src/content/posts/small-reliable-tools.md"
+```yaml title="src/content/posts/build/tools/small-reliable-tools.md"
 ---
 title: Small, Reliable Tools
 published: 2026-08-22

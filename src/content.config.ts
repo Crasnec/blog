@@ -3,7 +3,10 @@ import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { CATEGORY_KEYS } from "./config";
 
-/** Posts are one flat directory: `src/content/posts/<slug>.md`. */
+/**
+ * A post's path below `src/content/posts/` becomes its URL below `/posts/`.
+ * The recursive glob deliberately preserves nested directory segments.
+ */
 const posts = defineCollection({
 	loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: "./src/content/posts" }),
 	schema: z.object({

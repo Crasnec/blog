@@ -3,8 +3,8 @@
  *
  *   npm run secret:keygen                                   once, ever
  *   npm run secret:rekey                                    change the passphrase
- *   npm run secret:seal secrets/team-retro-2026-q2.md    no passphrase
- *   npm run secret:open src/content/posts/team-retro-2026-q2.md
+ *   npm run secret:seal secrets/team/retro-2026-q2.md    no passphrase
+ *   npm run secret:open src/content/posts/team/retro-2026-q2.md
  *
  * The plaintext lives in `secrets/`, which is gitignored, and the sealed post
  * lives in the collection where every other post does. Sealing renders the body
@@ -200,7 +200,7 @@ async function passphraseFor(action) {
 	return first;
 }
 
-/** `secrets/x.md` ⇄ `src/content/posts/x.md`, so one path implies the other. */
+/** Nested paths are preserved between `secrets/` and `src/content/posts/`. */
 /**
  * @param {string} input
  * @param {"seal" | "open"} direction

@@ -47,7 +47,7 @@ const sealed = entry.data.sealed;
  */
 if (sealed && sealed.theme !== THEME) {
 	console.warn(
-		`[secret] ${post.slug} was sealed under the "${sealed.theme}" theme but ` +
+		`[secret] ${post.path} was sealed under the "${sealed.theme}" theme but ` +
 			`this build uses "${THEME}", so its code blocks will not match the ` +
 			"rest of the site. Re-seal it: npm run secret:open, then secret:seal.",
 	);
