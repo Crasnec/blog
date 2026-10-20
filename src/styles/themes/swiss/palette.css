@@ -1,0 +1,101 @@
+/*
+ * swiss — an International Typographic Style theme.
+ *
+ * Pure white, pure black and heavy rules, with a signal orange marker and a
+ * highlighter-yellow wash. `layout.css` sets the nameplate huge and uppercase,
+ * numbers the posts in display type and draws every division as a thick bar.
+ */
+
+:root {
+	color-scheme: light;
+
+	--paper: oklch(1 0 0);
+	--paper-raised: oklch(1 0 0);
+	--paper-sunk: oklch(0.965 0 0);
+
+	--ink-strong: oklch(0.13 0 0);
+	--ink: oklch(0.2 0 0);
+	--ink-muted: oklch(0.45 0 0);
+	--ink-faint: oklch(0.62 0 0);
+
+	--rule: oklch(0.86 0 0);
+	--rule-strong: oklch(0.13 0 0);
+	--rule-faint: oklch(0.93 0 0);
+
+	--marker: oklch(0.6 0.21 40);
+	--marker-line: oklch(0.6 0.21 40);
+	--marker-wash: oklch(0.96 0.1 105);
+	--marker-wash-strong: oklch(0.92 0.17 105);
+
+	--warn: oklch(0.52 0.11 80);
+	--warn-line: oklch(0.7 0.12 85);
+	--warn-wash: oklch(0.96 0.04 85);
+
+	--danger: oklch(0.5 0.2 15);
+	--danger-line: oklch(0.6 0.2 15);
+	--danger-wash: oklch(0.955 0.03 15);
+
+	--hover-wash: oklch(0.95 0 0);
+	--active-wash: oklch(0.9 0 0);
+
+	--scrim: oklch(0.1 0 0 / 0.55);
+	--shadow-color: oklch(0.1 0 0 / 0.4);
+
+	--font-sans: "Space Grotesk", "IBM Plex Sans KR", ui-sans-serif, system-ui,
+		sans-serif;
+	--font-mono: "Space Mono", "IBM Plex Sans KR", ui-monospace,
+		SFMono-Regular, monospace;
+
+	--radius-1: 0;
+	--radius-2: 0;
+	--radius-3: 0;
+
+	--hex-bg: #ffffff;
+	--hex-surface: #f3f3f3;
+	--hex-ink: #000000;
+	--hex-ink-muted: #5e5e5e;
+	--hex-rule: #000000;
+	--hex-accent: #ec4f0e;
+	--hex-accent-soft: #fbec4c;
+}
+
+:root.dark {
+	color-scheme: dark;
+
+	--paper: oklch(0.13 0 0);
+	--paper-raised: oklch(0.17 0 0);
+	--paper-sunk: oklch(0.1 0 0);
+
+	--ink-strong: oklch(0.99 0 0);
+	--ink: oklch(0.9 0 0);
+	--ink-muted: oklch(0.68 0 0);
+	--ink-faint: oklch(0.5 0 0);
+
+	--rule: oklch(0.3 0 0);
+	--rule-strong: oklch(0.99 0 0);
+	--rule-faint: oklch(0.22 0 0);
+
+	--marker: oklch(0.72 0.18 45);
+	--marker-line: oklch(0.72 0.18 45);
+	--marker-wash: oklch(0.3 0.06 105);
+	--marker-wash-strong: oklch(0.42 0.1 105);
+
+	--warn: oklch(0.82 0.12 85);
+	--warn-line: oklch(0.55 0.1 85);
+	--warn-wash: oklch(0.26 0.04 85);
+
+	--danger: oklch(0.7 0.17 15);
+	--danger-line: oklch(0.55 0.17 15);
+	--danger-wash: oklch(0.26 0.05 15);
+
+	--hover-wash: oklch(0.2 0 0);
+	--active-wash: oklch(0.25 0 0);
+
+	--hex-bg: #000000;
+	--hex-surface: #000000;
+	--hex-ink: #fcfcfc;
+	--hex-ink-muted: #9b9b9b;
+	--hex-rule: #fcfcfc;
+	--hex-accent: #ff7a3d;
+	--hex-accent-soft: #4f4b05;
+}

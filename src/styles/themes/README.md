@@ -4,7 +4,7 @@ A theme is a folder. Swapping one is one line:
 
 ```js
 // src/theme.config.mjs
-export const THEME = "graphite";
+export const THEME = "swiss";
 ```
 
 `astro.config.mjs` reads that, aliases `@theme` at `themes/<name>/`, and loads
@@ -15,11 +15,20 @@ themes/<name>/
   palette.css   colour, type stacks, radii          ← the theme
   fonts.css     the @fontsource imports it needs
   code.mjs      Shiki themes for code blocks
+  layout.css    overrides to the arrangement — may be empty
 ```
 
-Two ship: **graphite** (default — warm neutral paper, magenta marker) and
-**slate** (cool blue-grey paper, indigo marker). The second one exists to keep
-the seam honest. A theme system with one theme in it is an untested claim.
+Three ship:
+
+| Theme | Look | Arrangement |
+| --- | --- | --- |
+| **swiss** (default) | black and white, orange marker, yellow wash, Space Grotesk | numbered list, heavy rules |
+| **graphite** | warm neutral paper, magenta marker, IBM Plex | sidebar left |
+| **slate** | cool blue-grey paper, indigo marker, IBM Plex | sidebar left |
+
+`graphite` and `slate` share the default arrangement and an empty
+`layout.css`; `swiss` rearranges the page as well. A theme system with
+one theme in it is an untested claim.
 
 ## Switching one
 
@@ -39,6 +48,12 @@ broken when it is only stale.
 The same cache is why `build:clean` exists for `src/plugins/` edits.
 
 ## The split
+
+`layout.css` is imported last, after `motion.css`, so a theme can move things
+as well as recolour them: put the sidebar on the right, turn the post list
+into cards, centre the column. It still may not name a colour — a theme that
+needs a new one (a glow, a card shadow) adds a token to its own `palette.css`
+and reads it from there.
 
 `tokens.css` holds everything structural — the type scale, the spacing scale,
 layout widths, motion, z-index — and **may not name a colour**. `palette.css` is

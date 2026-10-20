@@ -1,7 +1,7 @@
 /*
  * Single entry point, so the cascade order is fixed rather than left to the
  * bundler: theme fonts → vendor → structure → theme palette → base → layout →
- * components → prose → motion.
+ * components → prose → motion → theme layout.
  *
  * `@theme` is an alias for `themes/<name>/`, resolved in `astro.config.mjs`
  * from `src/theme.config.mjs`. Changing the active theme is that one line —
@@ -23,3 +23,9 @@
 @import "./components.css";
 @import "./prose.css";
 @import "./motion.css";
+
+/*
+ * Last, so a theme can rearrange the page as well as recolour it. Everything
+ * above is the default arrangement; this file only ever overrides it.
+ */
+@import "@theme/layout.css";
