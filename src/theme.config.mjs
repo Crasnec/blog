@@ -8,4 +8,4 @@
  * Themes live in `src/styles/themes/<name>/`. See the README there for what a
  * theme has to define.
  */
-export const THEME = "graphite";
+export const THEME = "swiss";
