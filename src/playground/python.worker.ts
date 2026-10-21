@@ -1,4 +1,5 @@
 import type * as Pyodide from "pyodide";
+import { t } from "../strings.ts";
 import type { RunRequest } from "./contracts.ts";
 import { isPythonPackage } from "./contracts.ts";
 import { parseJson } from "../utils/json.ts";
@@ -17,7 +18,7 @@ async function run(request: RunRequest) {
 		const python = await loadPyodide({
 			indexURL: request.assets,
 			packageBaseUrl: request.assets,
-			stdin: () => { throw new Error("Interactive input is unavailable; provide input in your code"); },
+			stdin: () => { throw new Error(t("playground.inputUnavailable")); },
 			stdout: (text) => { send({ type: "output", level: "log", text }); },
 			stderr: (text) => { send({ type: "output", level: "error", text }); },
 		});
@@ -34,10 +35,10 @@ async function run(request: RunRequest) {
 		if (!Array.isArray(imported)) throw new Error("Could not inspect Python imports");
 		for (const name of imported) if (typeof name === "string" && isPythonPackage(name)) packages.add(name);
 		if (packages.size) {
-			send({ type: "status", text: `Loading ${[...packages].join(", ")}…` });
+			send({ type: "status", text: t("playground.packagesLoading", { packages: [...packages].join(", ") }) });
 			await python.loadPackage([...packages], {
 				checkIntegrity: true,
-				messageCallback: (text) => { send({ type: "status", text }); },
+				messageCallback: () => { /* Keep the localized package-loading status. */ },
 				errorCallback: (text) => { send({ type: "output", level: "warn", text }); },
 			});
 		}

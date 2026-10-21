@@ -2,7 +2,8 @@ import { basicSetup } from "codemirror";
 import { EditorState, StateEffect, StateField } from "@codemirror/state";
 import { EditorView, Decoration, keymap, type DecorationSet } from "@codemirror/view";
 import { indentWithTab } from "@codemirror/commands";
-import { t } from "../strings.ts";
+import { LOCALE, t } from "../strings.ts";
+import { editorPhrases } from "../locales/editor.ts";
 import { MAX_CODE, MAX_GRAMMAR, type GrammarSource, type HighlightRequest, type HighlightResponse, type HighlightToken, type PlaygroundConfig } from "./contracts.ts";
 
 const setTokens = StateEffect.define<HighlightToken[]>();
@@ -48,7 +49,7 @@ export function mountEditor(root: HTMLElement, config: PlaygroundConfig, run: ()
 		parent,
 		state: EditorState.create({
 			doc: original,
-			extensions: [basicSetup, highlights, EditorView.lineWrapping,
+			extensions: [basicSetup, highlights, EditorView.lineWrapping, EditorState.phrases.of(editorPhrases[LOCALE]),
 				EditorView.contentAttributes.of({ "aria-label": `${config.label}: ${t("playground.code")}`, spellcheck: "false" }),
 				EditorState.transactionFilter.of((transaction) => transaction.newDoc.length > MAX_CODE ? [] : transaction),
 				keymap.of([{ key: "Mod-Enter", run: () => { run(); return true; } }, indentWithTab]),
@@ -107,7 +108,7 @@ export function mountEditor(root: HTMLElement, config: PlaygroundConfig, run: ()
 		try {
 			const files = [...(upload.files ?? [])];
 			if (!files.length) return;
-			if (files.length > 16 || files.reduce((sum, file) => sum + file.size, 0) > MAX_GRAMMAR) throw new Error("Provide at most 16 grammar files totalling 1 MB");
+			if (files.length > 16 || files.reduce((sum, file) => sum + file.size, 0) > MAX_GRAMMAR) throw new Error(t("playground.grammarLimit"));
 			const sources = await Promise.all(files.map(async (file) => ({ filename: file.name, content: await file.text() })));
 			if (mine === uploadVersion && !disposed) replaceGrammars(sources);
 		} catch (error) {

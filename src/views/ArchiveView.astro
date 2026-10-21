@@ -1,5 +1,5 @@
 ---
-import { countLabel, machineDate } from "../utils/format";
+import { countLabel, machineDate, shortStampDate, yearLabel } from "../utils/format";
 import { t } from "../strings";
 import Icon from "../components/Icon.astro";
 import Sidebar from "../components/Sidebar.astro";
@@ -8,11 +8,6 @@ import { groupByYear } from "../utils/content";
 
 const years = await groupByYear();
 
-const dayOf = (date: Date) => {
-	const m = String(date.getUTCMonth() + 1).padStart(2, "0");
-	const d = String(date.getUTCDate()).padStart(2, "0");
-	return `${m} · ${d}`;
-};
 ---
 
 <BaseLayout
@@ -30,7 +25,7 @@ const dayOf = (date: Date) => {
 				years.map(({ year, posts }) => (
 					<section class="year-group" id={`y${String(year)}`}>
 					<div class="year-head">
-						<span class="year-number">{year}</span>
+						<span class="year-number">{yearLabel(year)}</span>
 						<span class="year-count">
 							{countLabel(posts.length)}
 						</span>
@@ -44,7 +39,7 @@ const dayOf = (date: Date) => {
 										class="archive-day"
 										datetime={machineDate(entry.data.published)}
 									>
-										{dayOf(entry.data.published)}
+										{shortStampDate(entry.data.published)}
 									</time>
 									<span class="archive-title">{entry.data.title}</span>
 									{entry.data.sealed && (

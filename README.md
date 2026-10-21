@@ -74,7 +74,7 @@ content schema, category definitions, or the active theme.
 
 ## Configuration
 
-Site metadata, categories, navigation, profile information, and comment limits
+The interface locale, site metadata, categories, navigation, profile information, and comment limits
 live in [`src/config.ts`](src/config.ts).
 
 The active visual theme is selected in
@@ -91,6 +91,62 @@ PUBLIC_COMMENTS_TOKEN=github_pat_...
 Never commit `.env`.
 
 The comment form remains visible but disabled until both values are configured.
+
+## Language and date formatting
+
+This blog uses `locale: "ko"` in [`src/config.ts`](src/config.ts). Set it to
+`"en"` for the English interface. Rebuild with `npm run build:clean` after
+changing it, or restart the background development server.
+
+The setting controls search, comments, locked-post controls,
+figure replay controls, code playground controls and status messages,
+CodeMirror's find/replace panel, post counts, reading
+times, document language, sharing metadata and the search index. Navigation and
+section names (Posts, Archive, Categories, Tags, About and Contents) and category
+names keep this blog's established English terminology. Category keys and post
+URLs stay the same. Custom category names can be set in `src/config.ts`.
+
+The shared formatters in [`src/utils/format.ts`](src/utils/format.ts) apply to
+listings, archives, articles, comments and generated social images:
+
+| Display | `en` | `ko` |
+| --- | --- | --- |
+| Full date | October 21, 2026 | 2026년 10월 21일 |
+| Compact date | 2026 · 10 · 21 | 2026. 10. 21. |
+| Archive month/day | 10 · 21 | 10. 21. |
+| Archive year | 2026 | 2026년 |
+| Revision in the same year | Updated October 21 | 10월 21일 수정 |
+| Revision in another year | Updated October 21, 2027 | 2027년 10월 21일 수정 |
+| Post count | 1 post / 2 posts | 1개의 글 / 2개의 글 |
+| Reading time | 3 min | 3분 |
+
+Dates use **UTC**, independent of the reader's device timezone. Write
+frontmatter dates as ISO `YYYY-MM-DD`. Locale changes their display;
+machine-readable `<time datetime>` and JSON-LD dates keep ISO formats.
+
+The locale is selected once per build. It does not create translated posts,
+language-prefixed routes or a language switcher. Authored article text, titles,
+descriptions, tags, custom profile/site text, and diagram data, units and labels
+stay as written. Project documentation and example guides remain in English.
+Compiler errors and third-party runtime diagnostics retain their original text.
+
+Pagefind uses the document language for its index. Korean search works, but
+this Pagefind release does not provide Korean stemming: related word forms
+are not automatically treated as the same search term.
+
+Message catalogs live in [`src/locales/`](src/locales/). Checks require the same
+keys and interpolation placeholders in both languages. CodeMirror's phrase map
+is in `src/locales/editor.ts`. No additional dependencies are required.
+
+To check the locale in a running production preview, use:
+
+```bash
+LOCALE_BASE=http://localhost:4321 EXPECTED_LOCALE=ko npm run test:locale:browser
+```
+
+`LOCALE_BASE` selects the server and `EXPECTED_LOCALE` selects the expected
+language for the test; neither changes the site configuration. These browser
+checks require a Playwright Chromium installation.
 
 ## Writing posts
 

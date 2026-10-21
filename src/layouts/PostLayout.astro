@@ -1,5 +1,5 @@
 ---
-import { longDate, machineDate, shortDate } from "../utils/format";
+import { longDate, machineDate, readingTimeLabel, shortDate } from "../utils/format";
 import { t } from "../strings";
 import { render } from "astro:content";
 import CategoryList from "../components/CategoryList.astro";
@@ -57,7 +57,7 @@ const description = sealed ? undefined : (entry.data.description ?? excerpt);
 
 	const readLabel =
 		!sealed && readingTime !== undefined
-			? `${String(readingTime)} ${t("post.readingTime")}`
+			? readingTimeLabel(readingTime)
 		: undefined;
 
 /*
@@ -71,7 +71,7 @@ const revised = updated
 		? shortDate(updated)
 		: longDate(updated)
 	: undefined;
-const revisedLabel = revised ? `${t("post.updated")} ${revised}` : undefined;
+const revisedLabel = revised ? t("post.updated", { date: revised }) : undefined;
 ---
 
 <BaseLayout

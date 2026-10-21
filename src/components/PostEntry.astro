@@ -1,5 +1,5 @@
 ---
-import { machineDate, stampDate } from "../utils/format";
+import { machineDate, readingTimeLabel, stampDate } from "../utils/format";
 import { t } from "../strings";
 import type { PostRef } from "../utils/content";
 import { categoryName, postMeta } from "../utils/content";
@@ -24,7 +24,7 @@ const summary = locked ? "" : (entry.data.description ?? excerpt ?? "");
 
 	const readLabel =
 		!locked && readingTime !== undefined
-			? `${String(readingTime)} ${t("post.readingTime")}`
+			? readingTimeLabel(readingTime)
 			: undefined;
 ---
 

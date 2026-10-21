@@ -12,6 +12,8 @@
  * failed rather than fired blindly into the dark.
  */
 
+import { HTML_LANG } from "../strings";
+
 const AUTHOR_STORAGE_KEY = "comments.author";
 
 function readStoredAuthor(): string {
@@ -70,7 +72,7 @@ function wireForm() {
 	if (body && count) {
 		const max = Number(body.dataset.max ?? 0);
 		const paint = () => {
-			count.textContent = `${body.value.length.toLocaleString()} / ${max.toLocaleString()}`;
+			count.textContent = `${body.value.length.toLocaleString(HTML_LANG)} / ${max.toLocaleString(HTML_LANG)}`;
 			// The last tenth is where a limit starts mattering to whoever is typing.
 			count.classList.toggle("is-near", body.value.length > max * 0.9);
 		};

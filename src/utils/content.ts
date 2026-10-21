@@ -1,6 +1,7 @@
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import { type CategoryKey, categories } from "../config";
 import { sitePath } from "./url";
+import { HTML_LANG } from "../strings";
 
 export type Post = CollectionEntry<"posts">;
 
@@ -115,7 +116,7 @@ export async function getTags(): Promise<TagCount[]> {
 
 	return [...counts.entries()]
 		.map(([tag, count]) => ({ tag, count }))
-		.sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+		.sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, HTML_LANG));
 }
 
 export async function getPostsByTag(tag: string) {

@@ -6,7 +6,12 @@
  * the codebase hard-codes these values.
  */
 
+import { translate, type Locale } from "./locales/index.ts";
+
 export const siteConfig = {
+	/** Interface language. Does not translate posts or change their URLs. */
+	locale: "ko" satisfies Locale,
+
 	/** Absolute site URL. Required for the sitemap and canonical links. */
 	url: "https://crasnec.github.io",
 
@@ -44,10 +49,10 @@ export const siteConfig = {
  * meant to be read in is not the order they happened to be written in.
  */
 export const categories = {
-	backend: "Backend",
-	databases: "Databases",
-	build: "Build tooling",
-	team: "Team",
+	backend: translate(siteConfig.locale, "category.backend"),
+	databases: translate(siteConfig.locale, "category.databases"),
+	build: translate(siteConfig.locale, "category.build"),
+	team: translate(siteConfig.locale, "category.team"),
 } as const satisfies Record<string, string>;
 
 export type CategoryKey = keyof typeof categories;

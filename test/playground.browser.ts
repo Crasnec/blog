@@ -129,7 +129,7 @@ void test("XML TextMate grammars can replace highlighting and malformed grammars
 	const xml = '<?xml version="1.0"?><plist version="1.0"><dict><key>scopeName</key><string>source.xml-test</string><key>patterns</key><array><dict><key>name</key><string>keyword.control</string><key>match</key><string>SPECIAL</string></dict></array></dict></plist>';
 	const upload = root.locator("input[type=file]");
 	await upload.setInputFiles({ name: "custom.tmLanguage", mimeType: "text/xml", buffer: Buffer.from(xml) });
-	await page.waitForFunction(() => [...document.querySelectorAll("[data-code-playground]")].some((el) => el.querySelector(".playground-grammar-status")?.textContent.includes("Highlighting: custom.tmLanguage")));
+	await page.waitForFunction(() => [...document.querySelectorAll("[data-code-playground]")].some((el) => el.getAttribute("data-highlight") === "ready" && el.querySelector(".playground-grammar-status")?.textContent.includes("custom.tmLanguage")));
 	const token = root.locator('[data-textmate-token][style*="token-keyword"]').first();
 	assert.equal(await token.innerText(), "SPECIAL");
 	await upload.setInputFiles({ name: "broken.json", mimeType: "application/json", buffer: Buffer.from("{") });

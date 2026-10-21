@@ -9,6 +9,7 @@
  */
 
 import type { Mermaid, MermaidConfig } from "mermaid";
+import { t } from "../strings";
 
 let api: Mermaid | null = null;
 let counter = 0;
@@ -111,7 +112,7 @@ export async function renderDiagrams() {
 				const message = String(
 					error instanceof Error ? error.message : error,
 				).split("\n")[0];
-				note.textContent = message ?? "Diagram could not be rendered.";
+				note.textContent = message ?? t("diagram.failed");
 
 				figure.prepend(note);
 				figure.classList.remove("is-pending", "is-rendered");

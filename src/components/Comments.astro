@@ -108,7 +108,7 @@ const endpoint = canPost
 				{t("comments.body")}
 				{/* A limit you cannot see is one you find out about by hitting it. */}
 				<span id="comment-count" class="field-count" aria-live="polite">
-					0 / {commentsConfig.maxBody.toLocaleString()}
+					0 / {commentsConfig.maxBody.toLocaleString(HTML_LANG)}
 				</span>
 			</span>
 			<textarea

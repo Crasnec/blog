@@ -1,5 +1,6 @@
 ---
 import { t } from "../strings";
+import { yearLabel } from "../utils/format";
 import type { CategoryKey } from "../config";
 import {
 	getTags,
@@ -66,7 +67,7 @@ const years = await groupByYear();
 								class="widget-link bloom"
 								href={`${sitePath("/archive")}#y${String(year)}`}
 							>
-								{year}
+								{yearLabel(year)}
 								<span class="count">{posts.length}</span>
 							</a>
 						</li>

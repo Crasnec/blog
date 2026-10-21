@@ -8,7 +8,7 @@
  * card leaves off is what the page leaves off — the reading time, which
  * describes a body nobody is meant to have yet.
  */
-import { longDate } from "../../utils/format";
+import { longDate, readingTimeLabel } from "../../utils/format";
 import { t } from "../../strings";
 import type { APIRoute, GetStaticPaths } from "astro";
 import { siteConfig } from "../../config";
@@ -54,7 +54,7 @@ async function postCard(post: PostRef): Promise<Buffer> {
 	const meta = [
 		longDate(entry.data.published),
 		!locked && readingTime !== undefined
-			? `${String(readingTime)} ${t("post.readingTime")}`
+			? readingTimeLabel(readingTime)
 			: null,
 		entry.data.tags.length > 0 ? entry.data.tags.join(", ") : null,
 	].filter((part): part is string => part !== null);

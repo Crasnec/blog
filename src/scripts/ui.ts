@@ -9,6 +9,7 @@
  */
 
 import { NAVBAR_HEIGHT } from "../consts";
+import { t } from "../strings";
 
 type ThemeMode = "light" | "dark" | "auto";
 const ORDER: ThemeMode[] = ["light", "dark", "auto"];
@@ -37,7 +38,7 @@ function applyTheme(mode: ThemeMode) {
 	const toggle = document.getElementById("theme-toggle");
 	const name = toggle?.dataset[mode];
 	if (toggle && name) {
-		const action = toggle.dataset.action ?? "Appearance";
+		const action = toggle.dataset.action ?? t("action.theme");
 		toggle.setAttribute("aria-label", `${action}: ${name}`);
 	}
 
