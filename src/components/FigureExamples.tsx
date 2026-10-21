@@ -10,7 +10,6 @@ export default function FigureExamples({ examples, idPrefix = "" }: { examples: 
 		return (
 		<section key={id}>
 			<h3 id={id}>{example.title}</h3>
-			<p><code>{`kind="${example.kind}"`}</code></p>
 			<Figure {...example} label={example.label ?? `${example.title}. ${example.caption ?? ""}`} />
 		</section>
 		);

@@ -317,19 +317,16 @@
 	border-top: 1px solid var(--rule-faint);
 }
 
-.figure figcaption:not(:has(span, :not([hidden]))) {
-	display: none;
-}
-
 .figure-replay {
 	flex: none;
 	margin-left: auto;
 	border: 1px solid var(--rule);
 }
 
-/* `.btn` sets a display, which would otherwise beat the attribute. */
+/* Keep the replay slot in the layout so captions never rewrap on completion. */
 .figure-replay[hidden] {
-	display: none;
+	display: inline-flex;
+	visibility: hidden;
 }
 
 .figure-replay:hover {

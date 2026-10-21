@@ -29,10 +29,10 @@ export default function Figure(input: FigureProps) {
 					<canvas aria-hidden="true" />
 				</div>
 			</div>
-			<figcaption>
+			{(!figure.loop || Boolean(input.caption)) && <figcaption>
 				{input.caption && <span>{input.caption}</span>}
-				<button className="figure-replay btn" type="button" hidden>{t("figure.replay")}</button>
-			</figcaption>
+				{!figure.loop && <button className="figure-replay btn" type="button" hidden>{t("figure.replay")}</button>}
+			</figcaption>}
 		</figure>
 	);
 }

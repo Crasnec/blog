@@ -165,7 +165,7 @@ Within each score bin, compare the mean predicted probability with the observed 
 
 ## Use the graphs with your own data
 
-Each heading names its reusable `kind`. A post-specific TSX component supplies observations and captions, then MDX imports that component. The drawings compute their geometry from those inputs; the animation does not change the estimates.
+A post-specific TSX component supplies observations and captions to typed plotting components, then MDX imports that composition. The drawings compute their geometry from those inputs; the animation does not change the estimates.
 
 ```tsx
 import { Boxplot, ECDF } from "../../../../components/figures";

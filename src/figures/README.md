@@ -292,6 +292,11 @@ keep square cells, can add `heightFor: (width, props) => number`. The runtime
 resizes the canvas with it, unless the post set `height` itself.
 `grid-search.ts` shows it.
 
+Keep the figure's layout independent of animation time. Reserve room for the
+final labels and controls from the first frame. Non-looping figures keep the
+replay button's space while it is hidden, so revealing it cannot rewrap the
+caption or move the surrounding article. Looping figures have no replay slot.
+
 The bare minimum of a kind looks like this:
 
 ```ts

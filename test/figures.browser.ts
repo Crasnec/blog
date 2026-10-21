@@ -58,6 +58,36 @@ void test("a held reduced-motion figure updates its backing store after resizing
 	});
 });
 
+void test("replaying and finishing preserve figure bounds with and without a caption", async () => {
+	await page.setViewportSize({ width: 390, height: 844 });
+	await page.goto(new URL("/posts/build/statistical-figures/", base).href, { waitUntil: "networkidle" });
+	await page.evaluate(() => document.fonts.ready);
+	assert.equal(await page.locator(".post-body section > p > code").filter({ hasText: /^kind=/u }).count(), 0);
+	const figure = page.locator(".figure.is-ready").first();
+	const replay = figure.locator(".figure-replay");
+	const measure = () => figure.evaluate((root) => {
+		const bounds = root.getBoundingClientRect();
+		const canvas = root.querySelector("canvas")?.getBoundingClientRect();
+		return {
+			width: bounds.width, height: bounds.height,
+			canvasWidth: canvas?.width, canvasHeight: canvas?.height,
+			captionWidth: root.querySelector("figcaption span")?.getBoundingClientRect().width,
+		};
+	});
+	for (const caption of [true, false]) {
+		if (!caption) await figure.locator("figcaption span").evaluate((span) => { span.remove(); });
+		await replay.waitFor({ state: "visible" });
+		const finished = await measure();
+		await replay.click();
+		await replay.waitFor({ state: "hidden" });
+		assert.deepEqual(await measure(), finished, "restarting must not resize or rewrap the figure");
+		await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => { resolve(); })));
+		assert.deepEqual(await measure(), finished, "animation must retain the same geometry");
+		await replay.waitFor({ state: "visible", timeout: 15_000 });
+		assert.deepEqual(await measure(), finished, "completion must retain the same geometry");
+	}
+});
+
 void test("a frozen figure recomputes its height when switching to phone width", async () => {
 	await page.setViewportSize({ width: 900, height: 1200 });
 	await page.goto(new URL("/posts/build/figure-sequence/?figure-at=1", base).href, { waitUntil: "networkidle" });
