@@ -8,9 +8,9 @@
  *
  *   <Figure kind="line" props={{
  *     unit: "RPS",
- *     xLabels: ["0시", "12시", "24시"],
+ *     xLabels: ["00:00", "12:00", "24:00"],
  *     series: [{ label: "API", values: [120, 90, 400, 820, 610] }],
- *     notes: [{ at: 3, text: "배포" }],
+ *     notes: [{ at: 3, text: "Deploy" }],
  *   }} />
  */
 

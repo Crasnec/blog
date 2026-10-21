@@ -17,8 +17,7 @@ The import path climbs one `../` per directory between the post and `src/`.
 `src/content/posts/build/x.mdx` needs three.
 
 `src/content/posts/build/animated-figures.mdx` introduces `line`,
-`distribution`, `flow`, `queue` and post-specific TSX compositions. It is a draft, so it is only served by
-the dev server, at `/posts/build/animated-figures/`.
+`distribution`, `flow`, `queue` and post-specific TSX compositions. Read it at `/posts/build/animated-figures/`.
 
 ## Typed components for all 43 reusable kinds
 
@@ -141,7 +140,7 @@ Most figures do not need new code. Try these first.
 | `queue` | the same arrival/service workload under dedicated and shared FCFS queues | no |
 | `checkout` | compatibility preset for old posts; new posts compose `queue` in TSX | no |
 
-Each kind above documents its props at the top of its file, and has a draft
+Each kind above documents its props at the top of its file, and has a published
 demo post at `/posts/build/figure-<kind>/` (`queue`, `checkout` and the first three are
 in `/posts/build/animated-figures/`).
 
@@ -151,7 +150,7 @@ density contours, pairplot, jointplot, forest, funnel, Bland–Altman, mosaic,
 residuals, scale–location, influence, ACF, PACF, lag, Kaplan–Meier, ROC,
 precision–recall and calibration. Their exact `kind` names, input contracts,
 limits and statistical conventions are in
-[`statistics/README.md`](statistics/README.md). The draft gallery at
+[`statistics/README.md`](statistics/README.md). The published guide at
 `/posts/build/statistical-figures/` contains a working example of all thirty.
 
 Write a new kind only when the idea is a mechanism none of these can show,

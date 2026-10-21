@@ -63,10 +63,10 @@ const WEIGHT = { compare: 1, swap: 2, move: 2 } as const;
 
 const ALGORITHMS: readonly Algorithm[] = ["bubble", "insertion", "quick", "merge"];
 const NAMES: Record<Algorithm, string> = {
-	bubble: "버블 정렬",
-	insertion: "삽입 정렬",
-	quick: "퀵 정렬",
-	merge: "병합 정렬",
+	bubble: "Bubble sort",
+	insertion: "Insertion sort",
+	quick: "Quicksort",
+	merge: "Merge sort",
 };
 
 /* — 2. the trace ——————————————————————————————————————————————————— */
@@ -162,7 +162,7 @@ export default defineFigure<Props>({
 		return {
 			values,
 			title: maybe(p.title, "props.title", str) ?? NAMES[algo],
-			writeWord: algo === "merge" ? "이동" : "교환",
+			writeWord: algo === "merge" ? "moves" : "swaps",
 			steps,
 			final,
 			end: at,
@@ -243,7 +243,7 @@ export default defineFigure<Props>({
 
 		/* layout */
 		const area = canvasRect(frame);
-		const header = 22;
+		const header = narrow ? 42 : 22;
 		ctx.font = `400 11px ${palette.mono}`;
 		const widest = Math.max(...props.values.map((value) => ctx.measureText(formatNumber(value)).width));
 		const showValues = width / n >= Math.max(18, widest + 4);
@@ -261,8 +261,8 @@ export default defineFigure<Props>({
 			text(frame, props.title, area.x, area.y + 14, { size: 13, weight: 700, color: palette.inkStrong });
 			const compares = done ? props.totals.compares : (cur?.compares ?? 0) + (cur?.op.kind === "compare" ? 1 : 0);
 			const writes = done ? props.totals.writes : (cur?.writes ?? 0) + (cur && cur.op.kind !== "compare" ? 1 : 0);
-			const summary = `비교 ${String(compares)} · ${props.writeWord} ${String(writes)}`;
-			label(frame, done ? `${summary}회` : summary, area.x + area.w, area.y + 14, {
+			const summary = `Comparisons ${String(compares)} · ${props.writeWord} ${String(writes)}`;
+			label(frame, summary, area.x + area.w, area.y + (narrow ? 34 : 14), {
 				size: narrow ? 11 : 12,
 				weight: done ? 700 : 500,
 				mono: true,
@@ -324,7 +324,7 @@ export default defineFigure<Props>({
 				const value = props.values[pivot] ?? 0;
 				const x = xOf(pos[pivot] ?? 0) + (slotW - gap) / 2;
 				const top = Math.min(baseline, yOf(value));
-				text(frame, "피벗", x, Math.max(bars.y + 10, top - 6), { align: "center", size: 11, weight: 600, color: palette.warn });
+				text(frame, "Pivot", x, Math.max(bars.y + 10, top - 6), { align: "center", size: 11, weight: 600, color: palette.warn });
 			}
 		});
 	},

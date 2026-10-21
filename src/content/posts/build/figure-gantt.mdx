@@ -4,7 +4,6 @@ published: 2026-10-20
 description: Schedule the same five jobs with FCFS, SJF and round robin, then compare their waiting times.
 category: backend
 tags: [scheduling, figures]
-draft: true
 ---
 
 import { FcfsSchedule, SjfSchedule, RoundRobinSchedule } from "./_figures/GanttExamples.tsx";
@@ -21,4 +20,6 @@ SJF chooses the shortest waiting job whenever the CPU becomes free. This example
 
 <RoundRobinSchedule />
 
-Round robin runs each job for at most a fixed quantum, then places unfinished work at the back of the queue. Short jobs can progress before a long job finishes, with additional context-switch overhead.
+Round robin runs each job for at most a fixed quantum, then places unfinished work at the back of the queue. Short jobs can progress before a long job finishes. This example counts switches but assigns them no time cost; a real system also pays context-switch overhead.
+
+Waiting time counts time ready to run but not executing. Turnaround time runs from arrival to completion, so it includes both waiting and service. Compare those outcomes alongside the first time a job receives CPU time: a policy that responds quickly need not minimise average completion time.

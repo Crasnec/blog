@@ -11,8 +11,8 @@
  *     unit: "ms",
  *     max: 1000,
  *     groups: [
- *       { label: "서버 A", generate: { count: 60, median: 120, spread: 0.3 } },
- *       { label: "서버 B", generate: { count: 60, median: 90, spread: 0.3 },
+ *       { label: "Server A", generate: { count: 60, median: 120, spread: 0.3 } },
+ *       { label: "Server B", generate: { count: 60, median: 90, spread: 0.3 },
  *         outliers: [420, 460, 510, 880] },
  *     ],
  *     markers: ["p50", "p99"],

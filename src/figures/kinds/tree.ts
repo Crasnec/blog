@@ -67,7 +67,7 @@ const WEIGHT = { compare: 1, place: 1.6, swap: 1.6, found: 1.6, missing: 1.6 } a
 
 /** Vertical room per tree level, in CSS pixels, before the canvas runs out. */
 const LEVEL = 48;
-const HEADER = 34;
+const headerHeight = (narrow: boolean) => narrow ? 54 : 34;
 
 /* — 2. the trace ——————————————————————————————————————————————————————— */
 
@@ -90,9 +90,9 @@ interface Props {
 }
 
 const TITLES: Record<Operation, string> = {
-	"bst-insert": "이진 탐색 트리에 삽입",
-	"bst-search": "이진 탐색 트리에서 찾기",
-	"heap-insert": "최대 힙에 삽입",
+	"bst-insert": "BST insertion",
+	"bst-search": "BST search",
+	"heap-insert": "Max-heap insertion",
 };
 
 function readValues(raw: JsonValue | undefined): number[] {
@@ -122,8 +122,8 @@ export default defineFigure<Props>({
 	duration: DURATION,
 	height: 300,
 	// One band per level, so a tall tree gets a tall canvas, within reason.
-	heightFor: (_width, props) =>
-		clamp(HEADER + (props.trace.maxDepth + 1) * LEVEL + 18, 200, 540),
+	heightFor: (width, props) =>
+		clamp(headerHeight(width < 520) + (props.trace.maxDepth + 1) * LEVEL + 18, 200, 540),
 
 	decode(raw) {
 		const p = obj(raw, "props");
@@ -184,9 +184,10 @@ export default defineFigure<Props>({
 		const levels = t.maxDepth + 1;
 		const count = Math.max(...[t.initial, ...t.steps.map((s) => s.after)].map((s) => s.size));
 		const spanX = (area.w - 16) / Math.max(1, count);
-		const spanY = (height - HEADER - 12) / levels;
+		const header = headerHeight(narrow);
+		const spanY = (height - header - 12) / levels;
 		const r = clamp(Math.min(spanX * 0.42, spanY * 0.36, 17), 10, 17);
-		const board = { x: area.x + r + 8, y: HEADER + r + 2, w: area.w - 2 * r - 16, h: height - HEADER - 2 * r - 10 };
+		const board = { x: area.x + r + 8, y: header + r + 2, w: area.w - 2 * r - 16, h: height - header - 2 * r - 10 };
 		const dy = levels > 1 ? board.h / (levels - 1) : 0;
 		const toPx = (n: Placed): Point => ({ x: board.x + n.x * board.w, y: board.y + n.depth * dy });
 		const posOf = (id: number): Point | undefined => {
@@ -202,10 +203,10 @@ export default defineFigure<Props>({
 			const height_ = Math.max(-1, ...[...after.values()].map((n) => n.depth)) + 1;
 			const stats = done
 				? props.operation === "bst-search"
-					? `비교 ${String(t.lastComparisons)}회 · ${t.result ?? ""}`
-					: `높이 ${String(height_)} · 노드 ${String(after.size)} · 비교 ${String(step?.comparisons ?? 0)}회`
-				: `높이 ${String(height_)} · 비교 ${String(step?.comparisons ?? 0)}회`;
-			label(frame, stats, width, 14, {
+					? `Comparisons ${String(t.lastComparisons)} · ${t.result === "찾음" ? "found" : "not found"}`
+					: `Height ${String(height_)} · nodes ${String(after.size)} · ${narrow ? "comp" : "comparisons"} ${String(step?.comparisons ?? 0)}`
+				: `Height ${String(height_)} · ${narrow ? "comp" : "comparisons"} ${String(step?.comparisons ?? 0)}`;
+			label(frame, stats, width, narrow ? 34 : 14, {
 				size: narrow ? 11 : 12,
 				weight: done ? 700 : 400,
 				mono: true,
@@ -214,7 +215,7 @@ export default defineFigure<Props>({
 			});
 
 			if (after.size === 0) {
-				text(frame, "빈 트리", area.x + area.w / 2, board.y + 4, {
+				text(frame, "Empty tree", area.x + area.w / 2, board.y + 4, {
 					align: "center",
 					mono: true,
 					size: 11,

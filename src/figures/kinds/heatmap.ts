@@ -9,8 +9,8 @@
  * worst cell as a value.
  *
  *   <Figure kind="heatmap" props={{
- *     rows: ["월", "화", "수"],
- *     cols: ["0시", "1시", "2시"],
+ *     rows: ["Mon", "Tue", "Wed"],
+ *     cols: ["00:00", "01:00", "02:00"],
  *     values: [[120, 90, 80], [130, 95, 85], [125, 100, 90]],
  *     unit: "ms",
  *     highlight: 2,
@@ -261,7 +261,7 @@ function drawHeatmap(frame: Frame, props: Props) {
 			const worst = props.top[0];
 			if (worst) {
 				withAlpha(ctx, ease.out(progress(time, TIMES.verdict, 0.4)), () => {
-					label(frame, `최고 ${fmt(worst.value)}${props.unit} · ${props.rows[worst.row] ?? ""} ${props.cols[worst.col] ?? ""}`, right, headerY, {
+					label(frame, `Peak ${fmt(worst.value)}${props.unit} · ${props.rows[worst.row] ?? ""} ${props.cols[worst.col] ?? ""}`, right, headerY, {
 						size: 12,
 						weight: 700,
 						mono: true,
@@ -277,7 +277,7 @@ function drawHeatmap(frame: Frame, props: Props) {
 					if (time >= colStart(c) && v > seen) seen = v;
 				}
 			}
-			const message = Number.isFinite(seen) ? `지금까지 최고 ${fmt(seen)}${props.unit}` : "기록 시작";
+			const message = Number.isFinite(seen) ? `Peak so far ${fmt(seen)}${props.unit}` : "Starting";
 			label(frame, message, right, headerY, { size: 11, mono: true, color: palette.inkFaint, maxX: right });
 		}
 	});

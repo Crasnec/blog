@@ -183,7 +183,7 @@ export default defineFigure<Props>({
 			actors,
 			messages,
 			notes,
-			timeoutLabel: maybe(p.timeoutLabel, "props.timeoutLabel", str) ?? "타임아웃",
+			timeoutLabel: maybe(p.timeoutLabel, "props.timeoutLabel", str) ?? "Timeout",
 			total: Math.max(...messages.map((m) => m.end)),
 		};
 	},
@@ -236,7 +236,7 @@ export default defineFigure<Props>({
 					text(frame, actor.sub, x, top + 28, { align: "center", mono: true, size: 11, color: palette.inkFaint });
 				}
 			}
-			text(frame, "시간 ↓", 0, bodyTop - 8, { mono: true, size: 11, color: palette.inkFaint });
+			text(frame, "Time ↓", 0, bodyTop - 8, { mono: true, size: 11, color: palette.inkFaint });
 
 			/* layer 2: timeout brackets, behind the arrows they explain */
 			for (const m of props.messages) {

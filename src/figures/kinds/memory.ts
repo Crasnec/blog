@@ -22,7 +22,7 @@
  *             freeing an unknown or already freed id fails the build.
  *   count     when `requests` is absent: how many to generate (default 12)
  *   seed      seed for generated requests (default 1)
- *   title     label shown top left (default: the policy's Korean name)
+ *   title     label shown top left (default: the policy name)
  */
 
 import {
@@ -71,10 +71,10 @@ const DURATION = 10;
 
 const POLICIES: readonly Policy[] = ["first-fit", "best-fit", "worst-fit", "next-fit"];
 const POLICY_NAMES: Record<Policy, string> = {
-	"first-fit": "first-fit · 처음 맞는 칸",
-	"best-fit": "best-fit · 가장 꼭 맞는 칸",
-	"worst-fit": "worst-fit · 가장 큰 칸",
-	"next-fit": "next-fit · 지난 자리부터",
+	"first-fit": "First fit",
+	"best-fit": "Best fit",
+	"worst-fit": "Worst fit",
+	"next-fit": "Next fit",
 };
 
 
@@ -109,7 +109,7 @@ export default defineFigure<Props>({
 		const { rows } = rowsFor(width, props.heap);
 		// A line of its own for the failure badge, when there is one to show.
 		const badgeLine = props.steps.some((s) => s.failed) ? 28 : 0;
-		return TOP + rows * ROW_H + (rows - 1) * ROW_GAP + 16 + BOTTOM + badgeLine;
+		return TOP + rows * ROW_H + (rows - 1) * ROW_GAP + 16 + BOTTOM + badgeLine + (width < 520 ? 22 : 0);
 	},
 
 	decode(raw) {
@@ -184,7 +184,7 @@ export default defineFigure<Props>({
 		withAlpha(ctx, ease.out(progress(time, 0, TIMES.appear)), () => {
 			/* layer 1: header */
 			text(frame, props.title, 0, 14, { size: 12, weight: 700, color: palette.inkStrong });
-			text(frame, `힙 ${String(heap)}칸`, width, 14, { align: "right", mono: true, size: 11, color: palette.inkFaint });
+			text(frame, `Heap ${String(heap)} cells`, width, 14, { align: "right", mono: true, size: 11, color: palette.inkFaint });
 
 			/* layer 2: the request strip, windowed so the current one is visible */
 			drawRequests(frame, props, k, frac, done);
@@ -246,7 +246,7 @@ export default defineFigure<Props>({
 			const footY = rowY(rows - 1) + ROW_H + 40;
 			text(
 				frame,
-				narrow ? `사용 ${String(used)} · 빈 ${String(free)} · 최대 빈칸 ${String(largest)}` : `사용 중 ${String(used)} · 빈 공간 ${String(free)} · 가장 큰 빈 블록 ${String(largest)}`,
+				narrow ? `Used ${String(used)} · free ${String(free)} · largest ${String(largest)}` : `Used ${String(used)} · free ${String(free)} · largest free block ${String(largest)}`,
 				0,
 				footY,
 				{ mono: true, size: 11, color: palette.inkMuted },
@@ -256,13 +256,13 @@ export default defineFigure<Props>({
 			if (failure) {
 				// Stays up for the rest of the figure, on its own line under the
 				// values: it is the result, and nothing else may sit under it.
-				badge(frame, `할당 실패: ${String(failure.needed)} 필요, 최대 빈칸 ${String(failure.largest)}`, 0, footY + 28, palette.danger, "left");
+				badge(frame, `Failed: need ${String(failure.needed)}, largest free ${String(failure.largest)}`, 0, footY + (narrow ? 50 : 28), palette.danger, "left");
 			}
 			const verdict = progress(time, TIMES.start + steps.length * step + 0.2, 0.5);
 			if (verdict > 0) {
 				const frag = free === 0 ? 0 : 1 - largest / free;
 				withAlpha(ctx, verdict, () => {
-					label(frame, `단편화 ${String(Math.round(frag * 100))}%`, width, footY, {
+					label(frame, `Fragmented ${String(Math.round(frag * 100))}%`, width, footY + (narrow ? 22 : 0), {
 						size: 12,
 						weight: 700,
 						mono: true,

@@ -20,9 +20,9 @@ const quickSortData = {
 } satisfies FigureInputs["sort"];
 
 export function BubbleSort(input: Partial<DiagramProps<"sort">>) {
-	return <Sort props={bubbleSortData} caption="한 바퀴마다 가장 큰 값 하나가 끝으로 밀려나며 자리를 잡는다." {...input} />;
+	return <Sort props={bubbleSortData} caption="Each pass moves the largest remaining value into its final position." {...input} />;
 }
 
 export function QuickSort(input: Partial<DiagramProps<"sort">>) {
-	return <Sort props={quickSortData} caption="같은 입력인데 비교 횟수가 훨씬 적어서, 같은 속도로 재생해도 먼저 끝난다." {...input} />;
+	return <Sort props={quickSortData} caption="Fewer comparisons on the same input produce an earlier finish at the same playback rate." {...input} />;
 }

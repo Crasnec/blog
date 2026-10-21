@@ -40,13 +40,13 @@ const roundRobinScheduleData = {
 } satisfies FigureInputs["gantt"];
 
 export function FcfsSchedule(input: Partial<DiagramProps<"gantt">>) {
-	return <Gantt props={fcfsScheduleData} caption="긴 작업이 먼저 잡으면 뒤의 짧은 작업들이 모두 그 뒤에 줄을 선다." {...input} />;
+	return <Gantt props={fcfsScheduleData} caption="A long first job makes all the shorter arrivals wait behind it." {...input} />;
 }
 
 export function SjfSchedule(input: Partial<DiagramProps<"gantt">>) {
-	return <Gantt props={sjfScheduleData} caption="P1이 끝난 뒤에는 짧은 것부터 고르지만, 이미 시작한 P1을 멈추지는 않는다." {...input} />;
+	return <Gantt props={sjfScheduleData} caption="After P1 finishes, shorter waiting jobs run first; P1 is not preempted." {...input} />;
 }
 
 export function RoundRobinSchedule(input: Partial<DiagramProps<"gantt">>) {
-	return <Gantt props={roundRobinScheduleData} caption="2씩 돌아가며 나눠 쓰니 짧은 작업은 금방 끝나고, 긴 P1은 맨 마지막에 끝난다." {...input} />;
+	return <Gantt props={roundRobinScheduleData} caption="Two-unit time slices let short jobs finish before the long P1 completes." {...input} />;
 }

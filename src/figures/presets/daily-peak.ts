@@ -13,7 +13,7 @@ import type { JsonValue } from "../../utils/json.ts";
  *   daytime    share of the peak the working day carries     (default 0.35)
  *   weekend    row labels that get `weekendFactor` of peaks  (default [])
  *   weekendFactor                                            (default 0.45)
- *   spikes     [{ row: "월", col: "9시", add: 600 }]         (default [])
+ *   spikes     [{ row: "Mon", col: "09:00", add: 600 }]         (default [])
  *   noise      multiplicative jitter, 0.1 = ±10% or so       (default 0.08)
  *   seed       for the jitter                                (default 1)
  */
@@ -48,7 +48,7 @@ export function dailyPeak(spec: Record<string, JsonValue>, rows: string[], cols:
 	return rows.map((name, r) => {
 		const factor = weekend.has(name) ? weekendFactor : 1;
 		return cols.map((_, c) => {
-			// Distance to the peak on a 24-hour clock, so 23시 is near 0시.
+			// Distance to the peak on a 24-hour clock, so 23:00 is near 00:00.
 			const d = Math.min(Math.abs(c - peakHour), n - Math.abs(c - peakHour));
 			const evening = Math.exp(-(d * d) / (2 * spread * spread));
 			// Working hours (roughly 9–18 on a 24-column day) carry a plateau.

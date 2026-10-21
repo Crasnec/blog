@@ -4,7 +4,7 @@ import type { FigureInputs } from "../../../../figures/inputs";
 import { lognormalSamples } from "../../../../figures/generators";
 
 const deploymentLatencyData = {
-	unit: "p99 지연 (ms)",
+	unit: "p99 latency (ms)",
 	xLabels: ["14:00", "14:30", "15:00"],
 	series: [
 		{
@@ -16,10 +16,10 @@ const deploymentLatencyData = {
 	],
 	notes: [
 		{
-			at: 5, text: "v2.3 배포"
+			at: 5, text: "Deploy v2.3"
 		},
 		{
-			at: 8, text: "롤백"
+			at: 8, text: "Rollback"
 		},
 	]
 } satisfies FigureInputs["line"];
@@ -29,10 +29,10 @@ const latencyDistributionData = {
 	max: 1000,
 	groups: [
 		{
-			label: "서버 A", samples: [...lognormalSamples(70, 130, 0.25, 1)]
+			label: "Server A", samples: [...lognormalSamples(70, 130, 0.25, 1)]
 		},
 		{
-			label: "서버 B", samples: [...lognormalSamples(66, 95, 0.3, 2), ...[430, 470, 520, 610, 900]]
+			label: "Server B", samples: [...lognormalSamples(66, 95, 0.3, 2), ...[430, 470, 520, 610, 900]]
 		}
 	],
 	markers: ["p50", "p99"]
@@ -50,7 +50,7 @@ const serviceFlowData = {
 			id: "cache", label: "Redis", x: 1, y: 0.1
 		},
 		{
-			id: "db", label: "Postgres", sub: "느림", x: 1, y: 0.9, tone: "warn"
+			id: "db", label: "Postgres", sub: "slow", x: 1, y: 0.9, tone: "warn"
 		},
 	],
 	edges: [
@@ -72,33 +72,33 @@ const workerQueuesData = {
 	services: [8, 1, 1, 1, 1, 1],
 	policies: [
 		{
-			policy: "per-server", label: "작업자별 대기열"
+			policy: "per-server", label: "Dedicated queues"
 		},
 		{
-			policy: "shared", label: "공유 작업 대기열"
+			policy: "shared", label: "Shared queue"
 		}
 	],
-	unit: "초",
-	entryLabel: "작업 도착",
-	doneLabel: "처리 완료",
-	waitingLabel: "대기 작업",
+	unit: "s",
+	entryLabel: "Arrivals",
+	doneLabel: "Done",
+	waitingLabel: "Waiting",
 	highlight: {
-		index: 0, label: "긴 작업"
+		index: 0, label: "Long job"
 	}
 } satisfies FigureInputs["queue"];
 
 export function DeploymentLatency(input: Partial<DiagramProps<"line">>) {
-	return <Line props={deploymentLatencyData} caption="배포 직후 p99 지연이 튀고, 롤백한 뒤에야 내려온다." {...input} />;
+	return <Line props={deploymentLatencyData} caption="p99 latency spikes after deployment and falls after rollback." {...input} />;
 }
 
 export function LatencyDistribution(input: Partial<DiagramProps<"distribution">>) {
-	return <Distribution props={latencyDistributionData} caption="평균은 B가 더 빠르지만, B의 p99는 A의 네 배다." {...input} />;
+	return <Distribution props={latencyDistributionData} caption="Compare the central response times with the much longer upper tail of server B." {...input} />;
 }
 
 export function ServiceFlow(input: Partial<DiagramProps<"flow">>) {
-	return <Flow props={serviceFlowData} caption="DB가 느려지면 API에서 나간 요청의 3분의 1이 타임아웃으로 사라진다." {...input} />;
+	return <Flow props={serviceFlowData} caption="The slow database causes one third of outgoing API requests to time out in this model." {...input} />;
 }
 
 export function WorkerQueues(input: Partial<DiagramProps<"queue">>) {
-	return <Queue props={workerQueuesData} caption="같은 작업을 두 정책으로 처리한다. 숫자는 원래 시간 단위의 실제 대기 시간이다." {...input} />;
+	return <Queue props={workerQueuesData} caption="Both policies process the same jobs; summaries report waits in the original time unit." {...input} />;
 }

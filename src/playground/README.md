@@ -141,7 +141,7 @@ APIs available in a Worker.
 `npm run test:playground:browser` uses a running `astro dev --background`
 server, or `PLAYGROUND_BASE`, and exercises real runtimes, cancellation,
 errors, approved scientific libraries, PNG plots, grammar replacement and
-navigation. The draft demo route is
-`/posts/build/browser-code/`. For a production check, temporarily include the
-demo as published in a local build, restore the source, then run the same
-browser tests against `astro preview` with `PLAYGROUND_BASE` set to its URL.
+navigation. The published example route is
+`/posts/build/browser-code/`. For a production check, run `npm run build`,
+start `astro preview`, then run the same browser tests with `PLAYGROUND_BASE`
+set to the preview URL.

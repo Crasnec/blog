@@ -4,7 +4,6 @@ published: 2026-10-20
 description: A weekday-by-hour heatmap reveals evening peaks and a Monday batch job hidden by average API latency.
 category: backend
 tags: [monitoring, latency, figures]
-draft: true
 ---
 
 import { WeeklyLatency } from "./_figures/HeatmapExamples.tsx";
@@ -20,3 +19,5 @@ This example shows one week of API p95 latency. Cells appear from hour 0 to hour
 In this example's synthetic workload, weekday evening bands represent predictable demand peaks. Monday at 09:00 is a separate spike from a scheduled settlement batch sharing the database. That hour barely changes the weekly average but is immediately visible in the heatmap.
 
 The lighter weekend rows reflect the workload's lower traffic and much smaller evening peaks.
+
+Keep the colour scale consistent when comparing weeks. An automatically rescaled quiet week can otherwise look as intense as a severe incident. Also keep the aggregation explicit: a cell here represents an hourly p95, and averaging those percentiles would not recover the p95 of all requests combined.

@@ -4,7 +4,6 @@ published: 2026-10-20
 description: Reusable data-driven figures and post-specific TSX compositions imported into MDX.
 category: build
 tags: [mdx, figures]
-draft: true
 ---
 
 import { DeploymentLatency, LatencyDistribution, ServiceFlow, WorkerQueues } from "./_figures/AnimatedExamples.tsx";
@@ -61,3 +60,5 @@ A drawing that does not fit an existing kind can use SVG directly inside TSX. `_
 This example passes different arrivals, service durations and labels to the same `queue` kind, with a workload independent of the checkout preset.
 
 <WorkerQueues />
+
+For more worked examples, read [the statistical graph guide](/posts/build/statistical-figures/), [sorting algorithms](/posts/build/figure-sort/), [pathfinding](/posts/build/figure-grid-search/), [tree height](/posts/build/figure-tree/), [hash ownership](/posts/build/figure-hash-ring/), [CPU scheduling](/posts/build/figure-gantt/), [memory fragmentation](/posts/build/figure-memory/), [TCP messages](/posts/build/figure-sequence/), [circuit breakers](/posts/build/figure-state-machine/), [latency heatmaps](/posts/build/figure-heatmap/) and [different input data](/posts/build/figure-data-inputs/). To edit code and generate plots yourself, open [the browser playground](/posts/build/browser-code/).

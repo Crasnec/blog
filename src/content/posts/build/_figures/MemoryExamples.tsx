@@ -48,9 +48,9 @@ const bestFitAllocationData = {
 } satisfies FigureInputs["memory"];
 
 export function FirstFitAllocation(input: Partial<DiagramProps<"memory">>) {
-	return <Memory props={firstFitAllocationData} caption="빈 공간은 13칸이 남았지만 가장 큰 빈 칸이 7칸이라, 9칸짜리 요청이 실패한다." {...input} />;
+	return <Memory props={firstFitAllocationData} caption="Thirteen cells are free, but the largest region has seven; a nine-cell request fails." {...input} />;
 }
 
 export function BestFitAllocation(input: Partial<DiagramProps<"memory">>) {
-	return <Memory props={bestFitAllocationData} caption="F가 뒤쪽의 작은 빈 칸으로 가면서 앞쪽 12칸이 통째로 남고, 9칸짜리 요청도 들어간다." {...input} />;
+	return <Memory props={bestFitAllocationData} caption="Placing F in the smaller rear region preserves twelve contiguous cells for the nine-cell request." {...input} />;
 }

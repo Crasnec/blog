@@ -20,7 +20,7 @@
  *       { id: "open", label: "OPEN", x: 1, y: 0.75 },
  *     ],
  *     start: "closed",
- *     events: [{ id: "fail", label: "실패", tone: "fail" }],
+ *     events: [{ id: "fail", label: "Failure", tone: "fail" }],
  *     transitions: [{ from: "closed", to: "open", on: "fail", count: 3 }],
  *     inputs: [{ at: 1, event: "fail" }, { at: 1.6, event: "fail" }, { at: 2.2, event: "fail" }],
  *   }} />

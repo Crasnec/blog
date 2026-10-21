@@ -175,13 +175,13 @@ function headerRows(frame: Frame, plan: Plan): 1 | 2 {
 	ctx.font = `700 12px ${palette.sans}`;
 	const titleW = ctx.measureText(headerTitle(plan)).width;
 	ctx.font = `700 12px ${palette.mono}`;
-	const countW = ctx.measureText(`옮겨진 키 ${String(plan.keys.length)} / ${String(plan.keys.length)} · 이상적 ${String(plan.keys.length)}`).width;
+	const countW = ctx.measureText(`Moved ${String(plan.keys.length)} / ${String(plan.keys.length)} · ideal ${String(plan.keys.length)}`).width;
 	return titleW + countW + 24 > width ? 2 : 1;
 }
 
 function headerTitle(plan: Plan): string {
-	if (plan.scheme === "modulo") return "나머지 연산 · hash % N";
-	return plan.vnodes > 1 ? `해시 링 · 서버마다 가상 노드 ${String(plan.vnodes)}개` : "해시 링 · 서버마다 점 하나";
+	if (plan.scheme === "modulo") return "Modulo · hash % N";
+	return plan.vnodes > 1 ? `Hash ring · ${String(plan.vnodes)} virtual nodes/server` : "Hash ring · one point/server";
 }
 
 function drawHeader(frame: Frame, plan: Plan) {
@@ -200,7 +200,7 @@ function drawHeader(frame: Frame, plan: Plan) {
 	const ideal = Math.round(total / plan.servers.length);
 	const verdict = progress(time, TIMES.verdict, 0.5);
 	if (verdict <= 0) {
-		const live = `옮겨진 키 ${String(landed)} / ${String(total)}`;
+		const live = `Moved ${String(landed)} / ${String(total)}`;
 		if (two) text(frame, live, countX, countY, { size: 12, mono: true, color: palette.inkMuted, align: "left" });
 		else label(frame, live, countX, countY, { size: 12, mono: true, color: palette.inkMuted, maxX: width });
 		return;
@@ -208,7 +208,7 @@ function drawHeader(frame: Frame, plan: Plan) {
 	// Close to the new server's fair share is good; far above means churn,
 	// far below means the new server is barely used.
 	const fair = Math.abs(plan.moved - ideal) <= Math.max(1, ideal * 0.5);
-	const final = `옮겨진 키 ${String(plan.moved)} / ${String(total)} · 이상적 ${String(ideal)}`;
+	const final = `Moved ${String(plan.moved)} / ${String(total)} · ideal ${String(ideal)}`;
 	const style = { size: 12, weight: 700, mono: true, color: fair ? palette.marker : palette.danger };
 	withAlpha(frame.ctx, verdict, () => {
 		if (two) text(frame, final, countX, countY, { ...style, align: "left" });
@@ -274,8 +274,8 @@ function drawRing(frame: Frame, plan: Plan, area: Rect) {
 
 	/* layer 4: the rule the ring follows, in the middle where it is empty */
 	if (radius >= 64) {
-		text(frame, "시계 방향으로", c.x, c.y - 3, { align: "center", size: 11, color: palette.inkFaint });
-		text(frame, "다음 서버가 주인", c.x, c.y + 13, { align: "center", size: 11, color: palette.inkFaint });
+		text(frame, "Clockwise to", c.x, c.y - 3, { align: "center", size: 11, color: palette.inkFaint });
+		text(frame, "the next server", c.x, c.y + 13, { align: "center", size: 11, color: palette.inkFaint });
 	}
 }
 
@@ -287,9 +287,9 @@ function drawModulo(frame: Frame, plan: Plan, area: Rect, narrow: boolean) {
 
 	/* layer 1: the rule, with N changing when the server is added */
 	const y = area.y + 22;
-	text(frame, "서버 = hash(키) %", area.x, y, { size: 13, weight: 600, color: palette.inkStrong });
+	text(frame, "Server = hash(key) %", area.x, y, { size: 13, weight: 600, color: palette.inkStrong });
 	ctx.font = `600 13px ${palette.sans}`;
-	const nx = area.x + ctx.measureText("서버 = hash(키) % ").width;
+	const nx = area.x + ctx.measureText("Server = hash(key) % ").width;
 	const pop = flash(time, TIMES.add, 0.6);
 	box(ctx, nx - 3, y - 15, 24, 21, 4, palette.paper, changed ? palette.marker : palette.rule, 1 + pop);
 	text(frame, String(n), nx + 9, y, {

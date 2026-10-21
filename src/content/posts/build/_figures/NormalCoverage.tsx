@@ -11,11 +11,11 @@ export default function NormalCoverage({ deviations = 1.96 }: { deviations?: num
 		const z = low + (high - low) * i / 120;
 		return `${i === 0 ? "M" : "L"}${x(z).toFixed(2)},${y(z).toFixed(2)}`;
 	}).join(" ");
-	const label = `표준정규분포에서 평균의 양옆 ${String(deviations)} 표준편차 안의 확률은 ${coverage}%다.`;
+	const label = `A standard normal variable falls within ${String(deviations)} standard deviations of its mean with probability ${coverage}%.`;
 	const labelX = (z: number) => z === 0 ? x(0) : z < 0 ? Math.min(x(z), x(0) - 72) : Math.max(x(z), x(0) + 72);
 	return (
 		<SvgFigure name="normal-coverage" label={label} caption={label} width={400} height={230} maxWidth={540}>
-			<text x={200} y={27} textAnchor="middle" fontSize={18} fill="var(--ink-strong)">중앙 {coverage}%</text>
+			<text x={200} y={27} textAnchor="middle" fontSize={18} fill="var(--ink-strong)">Central {coverage}%</text>
 			<path d={`${path(-deviations, deviations)} L${String(x(deviations))},180 L${String(x(-deviations))},180 Z`} fill="var(--marker)" fillOpacity={0.2} />
 			<path d={path(-4, 4)} fill="none" stroke="var(--ink-muted)" strokeWidth={2} />
 			<line x1={30} y1={180} x2={370} y2={180} stroke="var(--rule)" />
@@ -23,7 +23,7 @@ export default function NormalCoverage({ deviations = 1.96 }: { deviations?: num
 				<g key={z}>
 					<line x1={x(z)} y1={y(z)} x2={x(z)} y2={185} stroke={z === 0 ? "var(--rule)" : "var(--marker)"} strokeDasharray="3 3" />
 					<line x1={x(z)} y1={185} x2={labelX(z)} y2={191} stroke="var(--rule)" />
-					<text x={labelX(z)} y={209} textAnchor="middle" fontSize={18} fill="var(--ink-muted)">{z === 0 ? "평균" : `${z > 0 ? "+" : ""}${String(Number(z.toFixed(2)))}σ`}</text>
+					<text x={labelX(z)} y={209} textAnchor="middle" fontSize={18} fill="var(--ink-muted)">{z === 0 ? "Mean" : `${z > 0 ? "+" : ""}${String(Number(z.toFixed(2)))}σ`}</text>
 				</g>
 			))}
 		</SvgFigure>

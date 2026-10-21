@@ -4,7 +4,6 @@ published: 2026-10-20
 description: Model a circuit breaker that opens after consecutive failures, becomes half-open after a timeout and closes after a successful probe.
 category: backend
 tags: [figures, resilience]
-draft: true
 ---
 
 import { CircuitBreaker } from "./_figures/StateMachineExamples.tsx";
@@ -16,3 +15,7 @@ The strip beneath the state machine shows observed outcomes. As each point appea
 <CircuitBreaker />
 
 While the breaker is OPEN, requests do not reach the dependency and produce no outcome points. That gap is the recovery interval the breaker provides.
+
+Watch the first two failures: a success follows them, so they do not combine with later failures to trip this breaker. The rule counts consecutive failures. Other production policies may instead use a sliding error rate or require several successful probes; their state transition rules would need different inputs.
+
+The timeout is permission to test the dependency again, rather than evidence that it has recovered. In this trace the first probe fails and reopens the breaker. A later probe succeeds, allowing normal requests to resume.

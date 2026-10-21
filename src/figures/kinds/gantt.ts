@@ -22,7 +22,7 @@
  *   seed     seed for generated jobs (default 1)
  *   span     length of the time axis. Give several figures the same span so
  *            their bars are drawn to one scale. Default: the schedule's end.
- *   title    header label (default: the policy's Korean name)
+ *   title    header label (default: the policy name)
  */
 
 import {
@@ -67,9 +67,9 @@ const DURATION = 10;
 
 const POLICIES: readonly Policy[] = ["fcfs", "sjf", "rr"];
 const NAMES: Record<Policy, string> = {
-	fcfs: "FCFS · 도착 순서대로",
-	sjf: "SJF · 짧은 작업 먼저",
-	rr: "라운드 로빈",
+	fcfs: "FCFS · arrival order",
+	sjf: "SJF · shortest job first",
+	rr: "Round robin",
 };
 
 /* — 2. the scheduler ————————————————————————————————————————————————— */
@@ -89,7 +89,7 @@ interface Props {
 
 /* — 4. drawing ———————————————————————————————————————————————————————— */
 
-const HEADER = 30;
+const headerHeight = (narrow: boolean) => narrow ? 50 : 30;
 const AXIS = 24;
 const LEGEND = 20;
 const STRIP = 16;
@@ -101,7 +101,7 @@ export default defineFigure<Props>({
 	duration: DURATION,
 	height: 260,
 	heightFor: (width, props) =>
-		HEADER + props.jobs.length * laneHeight(width < 520) + stripsHeight(props.cores) + AXIS + LEGEND,
+		headerHeight(width < 520) + props.jobs.length * laneHeight(width < 520) + stripsHeight(props.cores) + AXIS + LEGEND,
 
 	decode(raw) {
 		const p = obj(raw, "props");
@@ -167,7 +167,7 @@ export default defineFigure<Props>({
 		const laneH = laneHeight(narrow);
 		const plot: Rect = {
 			x: labelW,
-			y: HEADER,
+			y: headerHeight(narrow),
 			w: width - labelW - resultW - 8,
 			h: jobs.length * laneH,
 		};
@@ -188,10 +188,10 @@ export default defineFigure<Props>({
 			if (verdict > 0) {
 				const waitAvg = mean(plan.outcomes.map((o) => o.wait));
 				const turnAvg = mean(plan.outcomes.map((o) => o.turnaround));
-				const parts = [`평균 대기 ${trimNumber(waitAvg)}`, `반환 ${trimNumber(turnAvg)}`];
-				if (props.policy === "rr") parts.push(`전환 ${String(plan.switches)}`);
+				const parts = [`Mean wait ${trimNumber(waitAvg)}`, `${narrow ? "turn" : "turnaround"} ${trimNumber(turnAvg)}`];
+				if (props.policy === "rr") parts.push(`switches ${String(plan.switches)}`);
 				withAlpha(ctx, verdict, () => {
-					label(frame, parts.join(" · "), width, 14, {
+					label(frame, parts.join(" · "), width, narrow ? 34 : 14, {
 						size: narrow ? 11 : 12,
 						weight: 700,
 						mono: true,
@@ -201,7 +201,7 @@ export default defineFigure<Props>({
 				});
 			} else {
 				const finished = plan.outcomes.filter((o) => o.done <= now + EPS).length;
-				label(frame, `t = ${trimNumber(Math.min(now, plan.end))} · 완료 ${String(finished)}/${String(jobs.length)}`, width, 14, {
+				label(frame, `t = ${trimNumber(Math.min(now, plan.end))} · done ${String(finished)}/${String(jobs.length)}`, width, narrow ? 34 : 14, {
 					size: 11,
 					mono: true,
 					color: palette.inkFaint,
@@ -275,7 +275,7 @@ export default defineFigure<Props>({
 				const shown = sweep >= 1 ? 1 : progress(now, outcome.done, span * 0.04);
 				if (shown > 0) {
 					withAlpha(ctx, shown, () => {
-						text(frame, `대기 ${trimNumber(outcome.wait)}`, width, laneY(i) + laneH / 2 + 4, {
+						text(frame, `wait ${trimNumber(outcome.wait)}`, width, laneY(i) + laneH / 2 + 4, {
 							align: "right",
 							size: 11,
 							mono: true,
@@ -289,7 +289,7 @@ export default defineFigure<Props>({
 			if (props.cores > 1) {
 				for (let c = 0; c < props.cores; c++) {
 					const y = stripsTop + c * (STRIP + 4);
-					text(frame, `코어 ${String(c + 1)}`, 0, y + STRIP - 4, { size: 11, mono: true, color: palette.inkFaint });
+					text(frame, `Core ${String(c + 1)}`, 0, y + STRIP - 4, { size: 11, mono: true, color: palette.inkFaint });
 					ctx.fillStyle = palette.ruleFaint;
 					ctx.fillRect(plot.x, y, plot.w, STRIP);
 					for (const s of plan.slices) {
@@ -316,10 +316,10 @@ export default defineFigure<Props>({
 			let lx = plot.x;
 			ctx.fillStyle = palette.inkMuted;
 			ctx.fillRect(lx, ly - 9, 14, 9);
-			text(frame, "실행", lx + 19, ly, { size: 11, color: palette.inkMuted });
+			text(frame, "Run", lx + 19, ly, { size: 11, color: palette.inkMuted });
 			lx += narrow ? 52 : 64;
 			hatch(ctx, { x: lx, y: ly - 9, w: 14, h: 9 }, palette.warn);
-			text(frame, "대기", lx + 19, ly, { size: 11, color: palette.inkMuted });
+			text(frame, "Wait", lx + 19, ly, { size: 11, color: palette.inkMuted });
 			lx += narrow ? 52 : 64;
 			ctx.beginPath();
 			ctx.fillStyle = palette.inkMuted;
@@ -328,9 +328,9 @@ export default defineFigure<Props>({
 			ctx.lineTo(lx + 7, ly - 4);
 			ctx.closePath();
 			ctx.fill();
-			text(frame, "도착", lx + 19, ly, { size: 11, color: palette.inkMuted });
+			text(frame, "Arrival", lx + 19, ly, { size: 11, color: palette.inkMuted });
 			if (!narrow) {
-				text(frame, "오른쪽 숫자 = 기다린 시간", width, ly, { align: "right", size: 11, color: palette.inkFaint });
+				text(frame, "Right-hand values: waiting time", width, ly, { align: "right", size: 11, color: palette.inkFaint });
 			}
 		});
 	},

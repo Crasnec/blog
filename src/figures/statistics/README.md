@@ -1,7 +1,7 @@
 # Statistical figures
 
-Thirty reusable kinds use the existing `<Figure>` runtime. The complete draft
-gallery is `/posts/build/statistical-figures/` in development. Its reproducible
+Thirty reusable kinds use the existing `<Figure>` runtime. The published guide
+is `/posts/build/statistical-figures/`. Its reproducible
 inputs live in `src/content/posts/build/_figures/statistics-data.ts`; change the data, not the drawing, to reuse a kind.
 
 ```mdx

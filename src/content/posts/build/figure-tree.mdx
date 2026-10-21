@@ -4,7 +4,6 @@ published: 2026-10-20
 description: Replay insertions to see how input order changes a binary search tree and why a heap stays shallow.
 category: build
 tags: [figures, algorithms, trees]
-draft: true
 ---
 
 import { ShuffledBST, SortedBST, SearchBST, SortedHeap } from "./_figures/TreeExamples.tsx";
@@ -30,3 +29,5 @@ Height determines worst-case search cost. Self-balancing trees such as AVL and r
 A max heap adds a value to the next available leaf, then swaps it upwards while it exceeds its parent. Filling positions from left to right keeps the tree complete, including for sorted input.
 
 <SortedHeap />
+
+A shallow heap does not provide the same ordering guarantee as a search tree. Each parent exceeds its children, but siblings and separate subtrees need not be ordered. A heap makes the maximum easy to retrieve; it does not make an arbitrary value as easy to find as in a balanced binary search tree.

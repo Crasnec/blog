@@ -34,13 +34,13 @@ const aStarMazeData = {
 } satisfies FigureInputs["grid-search"];
 
 export function BfsMaze(input: Partial<DiagramProps<"grid-search">>) {
-	return <GridSearch props={bfsMazeData} caption="BFS는 목표가 어느 쪽인지 모르고 사방으로 퍼진다. 가장 짧은 길을 찾지만 미로의 대부분을 들여다본다." {...input} />;
+	return <GridSearch props={bfsMazeData} caption="BFS expands in all directions, finding a shortest path while exploring much of the maze." {...input} />;
 }
 
 export function GreedyMaze(input: Partial<DiagramProps<"grid-search">>) {
-	return <GridSearch props={greedyMazeData} caption="탐욕 탐색은 가장 적은 칸만 보고 끝나지만, 찾은 길은 BFS의 최단 경로보다 열 칸이나 길다." {...input} />;
+	return <GridSearch props={greedyMazeData} caption="Greedy search explores fewer cells here but returns a longer path than BFS." {...input} />;
 }
 
 export function AStarMaze(input: Partial<DiagramProps<"grid-search">>) {
-	return <GridSearch props={aStarMazeData} caption="A*는 BFS와 같은 길이의 최단 경로를 찾으면서, 확인하는 칸은 BFS의 3분의 1도 안 된다." {...input} />;
+	return <GridSearch props={aStarMazeData} caption="A* matches the shortest path found by BFS while exploring fewer cells." {...input} />;
 }

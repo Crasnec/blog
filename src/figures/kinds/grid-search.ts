@@ -74,10 +74,10 @@ const DURATION = TIMES.search + TIMES.maxSearch + TIMES.pause + TIMES.path + 0.8
 const ALGORITHMS: readonly Algorithm[] = ["bfs", "dfs", "greedy", "astar"];
 
 const NAMES: Record<Algorithm, string> = {
-	bfs: "BFS · 너비 우선",
-	dfs: "DFS · 깊이 우선",
-	greedy: "탐욕 · 목표 쪽부터",
-	astar: "A* · 거리 + 추정",
+	bfs: "BFS · breadth first",
+	dfs: "DFS · depth first",
+	greedy: "Greedy · goal first",
+	astar: "A* · cost + estimate",
 };
 
 
@@ -188,8 +188,8 @@ export default defineFigure<Props>({
 			/* layer 1: header — what this run is, and how much it has done */
 			text(frame, props.title, 0, 15, { size: 12, weight: 700, color: palette.inkStrong });
 			const count = done
-				? `탐색 ${String(run.expanded.length)}칸 · ${run.path.length === 0 ? "경로 없음" : `경로 ${String(run.path.length - 1)}칸`}`
-				: `탐색 ${String(explored)}칸`;
+				? `Explored ${String(run.expanded.length)} · ${run.path.length === 0 ? "no path" : `path ${String(run.path.length - 1)}`}`
+				: `Explored ${String(explored)}`;
 			label(frame, count, width, 15, {
 				size: narrow ? 11 : 12,
 				weight: done ? 700 : 400,

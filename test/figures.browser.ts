@@ -141,7 +141,7 @@ void test("post-specific TSX figures render in MDX and reuse the canvas runtime"
 	assert.ok(bounds && bounds.width > 0 && bounds.x >= 0 && bounds.x + bounds.width <= 340);
 	const html = await (await page.request.get(new URL("/posts/build/animated-figures/", base).href)).text();
 	assert.match(html, /data-static-figure="normal-coverage"/u, "the bespoke SVG must exist in server-rendered HTML");
-	assert.match(html, /작업자별 대기열/u);
+	assert.match(html, /Dedicated queues/u);
 });
 
 void test("all remaining post examples use the shared runtime at desktop and phone widths", async () => {

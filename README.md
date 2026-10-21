@@ -15,6 +15,14 @@ The site includes:
 - Moderated comments stored in a separate GitHub repository
 - Automatic deployment to GitHub Pages
 
+## Example articles
+
+Published guides include [thirty statistical figures](https://crasnec.github.io/posts/build/statistical-figures/),
+[animated figures and TSX composition](https://crasnec.github.io/posts/build/animated-figures/),
+and [browser code execution with scientific Python](https://crasnec.github.io/posts/build/browser-code/).
+The algorithm examples cover sorting, pathfinding, trees, hashing, scheduling,
+memory allocation, sequence diagrams, circuit breakers and heatmaps.
+
 ## Requirements
 
 - Node.js 22.12 or newer

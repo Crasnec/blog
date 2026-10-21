@@ -61,7 +61,7 @@ export default defineFigure<Model>({
 		const services = nums(p.services, "props.services");
 		if (arrivals.length < 1 || arrivals.length > 14 || arrivals.some((at, i) => at < 0 || at > 1e6 || at < (arrivals[i - 1] ?? 0))) throw new Error("props.arrivals needs 1–14 ordered times from 0 to 1e6");
 		if (services.length !== arrivals.length || services.some((duration) => duration < 1e-6 || duration > 1e6)) throw new Error("props.services needs one duration from 1e-6 to 1e6 per arrival");
-		const policies = arr(p.policies ?? [{ policy: "per-server", label: "개별 대기열" }, { policy: "shared", label: "공유 대기열" }], "props.policies").map((v, i): { policy: QueuePolicy; label: string } => {
+		const policies = arr(p.policies ?? [{ policy: "per-server", label: "Dedicated queues" }, { policy: "shared", label: "Shared queue" }], "props.policies").map((v, i): { policy: QueuePolicy; label: string } => {
 			const path = `props.policies[${String(i)}]`;
 			const policy = obj(v, path);
 			const name = str(policy.policy, `${path}.policy`);
@@ -86,10 +86,10 @@ export default defineFigure<Model>({
 		return {
 			servers, count: arrivals.length, lanes, scale: (TIMES.verdict - TIMES.leave - TIMES.first) / last,
 			highlight, warnAfter, dangerAfter,
-			unit: maybe(p.unit, "props.unit", str) ?? "초",
-			entryLabel: maybe(p.entryLabel, "props.entryLabel", str) ?? "도착",
-			doneLabel: maybe(p.doneLabel, "props.doneLabel", str) ?? "완료",
-			waitingLabel: maybe(p.waitingLabel, "props.waitingLabel", str) ?? "대기",
+			unit: maybe(p.unit, "props.unit", str) ?? "s",
+			entryLabel: maybe(p.entryLabel, "props.entryLabel", str) ?? "Arrival",
+			doneLabel: maybe(p.doneLabel, "props.doneLabel", str) ?? "Done",
+			waitingLabel: maybe(p.waitingLabel, "props.waitingLabel", str) ?? "Wait",
 		};
 	},
 	draw(frame, model) {
@@ -135,7 +135,7 @@ function drawLane(frame: Frame, model: Model, lane: Model["lanes"][number], pane
 	const door = { x: body.x + 6, y: center(body).y };
 	fittedText(frame, lane.label, panel.x, panel.y + 13, panel.w, palette.inkStrong);
 	const verdict = progress(time, TIMES.verdict, 0.5);
-	const summary = verdict > 0 ? `평균 ${lane.average.toFixed(1)}${model.unit} · 최대 ${lane.worst.toFixed(1)}${model.unit}` : `${model.waitingLabel} ${String(lane.visits.filter((v) => time >= arriveAt(v) && time < startAt(v)).length)}`;
+	const summary = verdict > 0 ? `Mean ${lane.average.toFixed(1)}${model.unit} · max ${lane.worst.toFixed(1)}${model.unit}` : `${model.waitingLabel} ${String(lane.visits.filter((v) => time >= arriveAt(v) && time < startAt(v)).length)}`;
 	fittedText(frame, summary, panel.x, panel.y + 33, panel.w, verdict > 0 ? better ? palette.marker : palette.danger : palette.inkFaint);
 	for (const [i, server] of servers.entries()) {
 		const active = lane.visits.find((v) => v.server === i && time >= startAt(v) && time < endAt(v));

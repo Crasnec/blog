@@ -19,8 +19,8 @@ export function checkoutPreset(raw: JsonValue): QueueInput {
 		servers,
 		arrivals: arrivals(count, 0.3, seed),
 		services: Array.from({ length: count }, (_, i) => i === slow ? 4.5 : clamp(lognormal(rand, 0.95, 0.25), 0.6, 1.6)),
-		policies: [{ policy: "per-server", label: "계산대마다 줄" }, { policy: "shared", label: "한 줄 서기" }],
-		entryLabel: "입구", doneLabel: "계산 끝", waitingLabel: "기다리는 사람", unit: "초",
-		highlight: { index: slow, label: "장바구니 가득" },
+		policies: [{ policy: "per-server", label: "Dedicated queues" }, { policy: "shared", label: "Shared queue" }],
+	entryLabel: "Arrivals", doneLabel: "Done", waitingLabel: "Waiting", unit: "s",
+		highlight: { index: slow, label: "Full cart" },
 	};
 }
