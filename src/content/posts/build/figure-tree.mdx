@@ -1,0 +1,32 @@
+---
+title: Why a tree becomes unbalanced
+published: 2026-10-20
+description: Replay insertions to see how input order changes a binary search tree and why a heap stays shallow.
+category: build
+tags: [figures, algorithms, trees]
+draft: true
+---
+
+import { ShuffledBST, SortedBST, SearchBST, SortedHeap } from "./_figures/TreeExamples.tsx";
+
+These figures replay comparisons and movements recorded during real insertions. The current node uses the accent colour, with the compared values beside it. Traversed edges remain thicker.
+
+## Insertion order determines height
+
+A binary search tree compares each new value from the root down until it finds an empty position. Both examples insert the same eleven values. Comparisons take the same time, so an earlier finish reflects less work.
+
+<ShuffledBST />
+
+<SortedBST />
+
+Height determines worst-case search cost. Self-balancing trees such as AVL and red-black trees control that cost even when sorted input is common.
+
+## Search cost follows the path height
+
+<SearchBST />
+
+## A heap stays shallow regardless of insertion order
+
+A max heap adds a value to the next available leaf, then swaps it upwards while it exceeds its parent. Filling positions from left to right keeps the tree complete, including for sorted input.
+
+<SortedHeap />

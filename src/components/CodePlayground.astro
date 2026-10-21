@@ -1,0 +1,50 @@
+---
+import { t } from "../strings";
+import { decodeConfig, MAX_CODE, runtimeFor, type GrammarSource, type Runtime, type PythonPackage } from "../playground/contracts";
+import "../playground/style.css";
+
+interface Props {
+	code: string;
+	language?: string;
+	runtime?: Runtime | false;
+	title?: string;
+	grammars?: GrammarSource[];
+	/** Execution time after the runtime is ready; runtime loading has its own limit. */
+	timeout?: number;
+	/** Optional approved packages for dynamic imports; ordinary imports are detected. */
+	pythonPackages?: PythonPackage[];
+}
+
+const { code, language = "javascript", runtime = runtimeFor(language), title = language, grammars = [], timeout = 10_000, pythonPackages = [] } = Astro.props;
+if (typeof code !== "string" || code.length > MAX_CODE) throw new Error("CodePlayground code must be a string of at most 100000 characters");
+const config = decodeConfig(JSON.stringify({ language, runtime, grammars, timeout, label: title, pythonPackages }));
+---
+
+<section class="code-playground" data-code-playground data-config={JSON.stringify(config)} aria-label={title}>
+	<div class="playground-toolbar">
+		<strong class="playground-title">{title}</strong>
+		<span class="playground-language">{language}</span>
+		<div class="playground-actions">
+			{runtime && <button class="playground-run" type="button" disabled title="Ctrl/⌘ + Enter">{t("playground.run")}</button>}
+			{runtime && <button class="playground-stop" type="button" disabled>{t("playground.stop")}</button>}
+			<button class="playground-reset" type="button" disabled>{t("playground.reset")}</button>
+		</div>
+	</div>
+	<div class="playground-editor">
+		<textarea class="playground-fallback" aria-label={`${title}: ${t("playground.code")}`} readonly spellcheck="false">{code}</textarea>
+	</div>
+	{runtime === "python" && <p class="playground-libraries">{t("playground.pythonLibraries")}</p>}
+	<details class="playground-grammar">
+		<summary>{t("playground.grammar")}</summary>
+		<div class="playground-grammar-controls">
+			<label>{t("playground.grammarFile")}<input class="playground-grammar-file" type="file" accept=".json,.tmLanguage,.tmlanguage,.plist,.xml" multiple /></label>
+			<button class="playground-grammar-reset" type="button" disabled>{t("playground.grammarReset")}</button>
+		</div>
+		<p class="playground-grammar-status" role="status">{t("playground.grammarLoading")}</p>
+	</details>
+	{runtime && <div class="playground-results">
+		<div class="playground-output-heading"><span>{t("playground.output")}</span><span class="playground-status" role="status">{t("playground.idle")}</span></div>
+		<div class="playground-output" role="region" aria-label={`${title}: ${t("playground.output")}`} data-pagefind-ignore><span class="playground-output-placeholder">{t("playground.outputEmpty")}</span></div>
+	</div>}
+	<noscript><p>{t("playground.needsJs")}</p></noscript>
+</section>

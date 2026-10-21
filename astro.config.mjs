@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import { unified } from "@astrojs/markdown-remark";
 import mdx from "@astrojs/mdx";
+import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import expressiveCode from "astro-expressive-code";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
@@ -15,6 +16,7 @@ import {
 	themeDir,
 } from "./src/markdown.config.mjs";
 import { siteConfig } from "./src/config.ts";
+import pyodideAssets from "./scripts/pyodide-assets.mjs";
 
 export default defineConfig({
 	site: siteConfig.url,
@@ -37,6 +39,8 @@ export default defineConfig({
 			plugins: [pluginLineNumbers(), pluginCollapsibleSections()],
 		}),
 		mdx(),
+		react(),
+		pyodideAssets(),
 		sitemap({
 		}),
 	],

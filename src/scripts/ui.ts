@@ -340,6 +340,10 @@ async function init() {
 	wireSearch();
 	wireMenu();
 	onScroll();
+	if (document.querySelector("[data-code-playground]")) {
+		const { mountPlaygrounds } = await import("./playgrounds");
+		mountPlaygrounds();
+	}
 
 	if (document.querySelector("#contents")) {
 		const { mountContents } = await import("./contents");
@@ -359,6 +363,11 @@ async function init() {
 	if (document.querySelector(".diagram[data-mermaid]")) {
 		const { renderDiagrams } = await import("./diagrams");
 		await renderDiagrams();
+	}
+
+	if (document.querySelector(".figure[data-figure]")) {
+		const { mountFigures } = await import("./figures");
+		await mountFigures();
 	}
 
 	if (!globalsWired) {

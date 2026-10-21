@@ -1,0 +1,32 @@
+---
+title: Thirty statistical figures
+published: 2026-10-21
+description: Examples and input contracts for thirty animated statistical figures covering distributions, relationships, estimates, diagnostics, survival and classification.
+category: build
+tags: [figures, statistics, visualization]
+draft: true
+---
+
+import StatisticsExamples from "./_figures/StatisticsExamples.tsx";
+
+Every figure is computed from supplied observations or explicit estimates. Random examples use fixed seeds. Pass the `kind` shown beneath a heading to `<Figure>` to reuse that view with other data. Full input contracts and statistical conventions are documented in `src/figures/statistics/README.md`.
+
+## Distributions
+
+<StatisticsExamples category="distribution" />
+
+## Relationships between variables
+
+<StatisticsExamples category="relationship" />
+
+## Estimates and contingency tables
+
+<StatisticsExamples category="estimate" />
+
+## Regression and time-series diagnostics
+
+<StatisticsExamples category="diagnostic" />
+
+## Survival and classification
+
+<StatisticsExamples category="prediction" />

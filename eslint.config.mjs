@@ -3,10 +3,11 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import astroParser from "astro-eslint-parser";
 import astro from "eslint-plugin-astro";
 import globals from "globals";
+import jsxA11y from "eslint-plugin-jsx-a11y";
 import tseslint from "typescript-eslint";
 
-const scriptFiles = ["**/*.{js,cjs,mjs,ts,cts,mts}"];
-const typedFiles = ["**/*.{ts,cts,mts}"];
+const scriptFiles = ["**/*.{js,cjs,mjs,ts,cts,mts,tsx}"];
+const typedFiles = ["**/*.{ts,cts,mts,tsx}"];
 /** @type {import("eslint").Linter.RulesRecord} */
 const projectTypeRules = {
 	"@typescript-eslint/consistent-type-imports": [
@@ -72,7 +73,15 @@ export default defineConfig([
 	},
 
 	...astro.configs["flat/recommended"],
-	...astro.configs["flat/jsx-a11y-strict"],
+	...astro.configs["flat/jsx-a11y-strict"].map((config) => ({
+		...config,
+		files: config.files ?? ["**/*.astro"],
+	})),
+
+	{
+		...jsxA11y.flatConfigs.strict,
+		files: ["**/*.tsx"],
+	},
 
 	{
 		name: "project/astro",

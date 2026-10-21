@@ -1,0 +1,24 @@
+---
+title: CPU scheduling with Gantt charts
+published: 2026-10-20
+description: Schedule the same five jobs with FCFS, SJF and round robin, then compare their waiting times.
+category: backend
+tags: [scheduling, figures]
+draft: true
+---
+
+import { FcfsSchedule, SjfSchedule, RoundRobinSchedule } from "./_figures/GanttExamples.tsx";
+
+Five jobs arrive at one CPU. The first, P1, requires eight time units; the others require one to three. Each figure shows a real schedule under its policy, with one row per job. Solid bars show CPU time, and hatching shows time spent waiting after arrival. All three use the same time axis.
+
+<FcfsSchedule />
+
+FCFS runs jobs to completion in arrival order. Other jobs wait for P1 to finish: a long job holding up shorter followers is the convoy effect.
+
+<SjfSchedule />
+
+SJF chooses the shortest waiting job whenever the CPU becomes free. This example is non-preemptive, so P1 still runs to completion, but the changed order afterwards reduces mean waiting time.
+
+<RoundRobinSchedule />
+
+Round robin runs each job for at most a fixed quantum, then places unfinished work at the back of the queue. Short jobs can progress before a long job finishes, with additional context-switch overhead.

@@ -86,11 +86,13 @@ interface Style {
 type Child = Node | boolean | null | number | string | undefined | Child[];
 interface Node {
 	type: "div";
+	key: null;
 	props: { style: Style; children?: Child };
 }
 
 const box = (style: Style, children?: Child): Node => ({
 	type: "div",
+	key: null,
 	props: { style: { display: "flex", ...style }, children },
 });
 

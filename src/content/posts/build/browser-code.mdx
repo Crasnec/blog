@@ -1,0 +1,84 @@
+---
+title: Edit and run code in the browser
+published: 2026-10-21
+description: Run JavaScript, TypeScript and scientific Python, and highlight editable code with custom TextMate grammars.
+category: build
+tags: [javascript, typescript, python, editor]
+draft: true
+---
+
+import CodePlayground from "../../../components/CodePlayground.astro";
+import signalGrammar from "./_playground/signal.tmLanguage.json?raw";
+import signalValues from "./_playground/signal-values.tmLanguage.json?raw";
+
+Edit the source, then select **Run** or press **Ctrl/⌘ + Enter**. **Stop** cancels execution, and **Reset code** restores the original example. Each execution starts with a fresh environment.
+
+## JavaScript
+
+Console output appears below the editor. Top-level `await` is supported.
+
+<CodePlayground title="JavaScript · Mean" language="javascript" code={`const values = [2, 4, 4, 6, 9];
+const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+await Promise.resolve();
+console.log("Mean:", mean);
+console.log({ count: values.length, min: Math.min(...values) });`} />
+
+## TypeScript
+
+TypeScript is transpiled to JavaScript before execution. Syntax errors appear in the output panel; this editor does not perform type checking.
+
+<CodePlayground title="TypeScript · Summary statistics" language="typescript" code={`interface Summary { count: number; mean: number }
+const values: number[] = [2, 4, 4, 6, 9];
+const summarize = (xs: number[]): Summary => ({
+  count: xs.length,
+  mean: xs.reduce((sum, x) => sum + x, 0) / xs.length,
+});
+console.log(summarize(values));`} />
+
+## Python
+
+The first execution downloads the Python runtime. `print()` output and exceptions appear below the editor.
+
+<CodePlayground title="Python · Standard library" language="python" code={`from statistics import mean, median
+
+values = [2, 4, 4, 6, 9]
+print("Mean:", mean(values))
+print("Median:", median(values))
+print("Squares:", [value ** 2 for value in values])`} />
+
+## Scientific Python and plots
+
+NumPy, pandas, SciPy, Matplotlib and Seaborn are available. Ordinary imports load only the required approved packages and their dependencies. Package versions and SHA-256 digests are pinned; the browser downloads these files from this site. Standard-library examples do not load the scientific stack.
+
+Use `plt.show()` to display a plot. Open figures are also displayed at the end of a successful execution. Each plot can be downloaded as a PNG.
+
+<CodePlayground title="Python · Scientific libraries and plots" language="python" timeout={30000} code={`import numpy as np
+import pandas as pd
+from scipy import stats
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(42)
+samples = pd.DataFrame({"value": rng.normal(0, 1, 300)})
+print("Mean:", round(samples["value"].mean(), 3))
+low, high = stats.norm.interval(0.95)
+print(f"95% normal reference: [{low:.3f}, {high:.3f}]")
+
+sns.set_theme(style="whitegrid")
+fig, ax = plt.subplots(figsize=(6, 3), layout="constrained")
+sns.histplot(data=samples, x="value", bins=20, kde=True, ax=ax)
+ax.set(title="A reproducible sample", xlabel="Value")
+plt.show()`} />
+
+Plots are static images; GUI backends, interactive zoom and notebook widgets are not provided. Python runs in a browser Worker without access to the page DOM. No arbitrary npm packages, PyPI packages or wheel URLs are automatically installed. Execution stops at its time limit; **Stop** also works while libraries load.
+
+## Custom TextMate grammars
+
+This editor uses the grammar shipped with this example. Open **TextMate grammar** to load a JSON or XML/plist `.tmLanguage` file. When a grammar uses external `include` rules, select the main grammar first and supply its dependencies as well. Grammars change highlighting; they do not add an execution runtime.
+
+<CodePlayground title="Signal · Custom grammar" language="signal" runtime={false} grammars={[
+  { filename: "signal.tmLanguage.json", content: signalGrammar },
+  { filename: "signal-values.tmLanguage.json", content: signalValues },
+]} code={`# This grammar is defined alongside the example.
+series sample = [2, 4, 4, 6, 9]
+mean sample -> emit "Mean"`} />

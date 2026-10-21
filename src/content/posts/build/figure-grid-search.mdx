@@ -1,0 +1,32 @@
+---
+title: How pathfinding algorithms explore a maze
+published: 2026-10-20
+description: Compare how many cells BFS, greedy search and A* explore in the same maze.
+category: build
+tags: [algorithms, figures]
+draft: true
+---
+
+import { BfsMaze, GreedyMaze, AStarMaze } from "./_figures/GridSearchExamples.tsx";
+
+Each algorithm repeatedly chooses an unexplored cell and examines its neighbours until it reaches the goal. The choice of the next cell can dramatically change how much of the maze it explores.
+
+The three figures share a maze, from start S on the left to goal G on the right. Dark cells are walls. Filled cells have been explored; outlined cells are waiting in the frontier. Each algorithm explores one cell at the same pace. The upper-right counter shows explored cells, followed by the final path length.
+
+## BFS: visit cells by distance from the start
+
+BFS expands in waves from the start, so its first path to the goal is shortest on this unweighted grid. It also explores cells in directions away from the goal.
+
+<BfsMaze />
+
+## Greedy search: prefer cells that appear closest to the goal
+
+Greedy search uses only the estimated remaining distance, measured here by Manhattan distance. It explores fewer cells in this example, but ignores distance already travelled and can return a longer detour around a wall.
+
+<GreedyMaze />
+
+## A*: combine travelled distance and estimated remaining distance
+
+A* adds the distance travelled from the start to an estimate of the distance still required. Manhattan distance is consistent on this grid, so A* finds a shortest path while directing more of its search towards the goal.
+
+<AStarMaze />

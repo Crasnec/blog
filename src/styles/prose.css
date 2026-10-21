@@ -284,6 +284,58 @@
 	overflow-y: hidden;
 }
 
+/* — animated figures ——————————————————————————— */
+
+/*
+ * The frame matches a Mermaid diagram's so the two read as the same kind of
+ * thing. The canvas is sized by CSS and the runtime matches its backing store
+ * to it, so a figure is always as wide as the column.
+ */
+.figure {
+	margin-block: 2em;
+	padding: 1.25rem 1.25rem 1rem;
+	border: 1px solid var(--rule);
+	border-radius: var(--radius-2);
+	background: var(--paper-raised);
+}
+
+
+.figure canvas {
+	display: block;
+	width: 100%;
+	height: var(--figure-height, 260px);
+}
+
+/* The replay button shares the caption's row, so it never covers the drawing. */
+.figure figcaption {
+	display: flex;
+	align-items: center;
+	gap: var(--space-4);
+	min-height: 2.15rem;
+	margin-top: 0.9rem;
+	padding-top: 0.75rem;
+	border-top: 1px solid var(--rule-faint);
+}
+
+.figure figcaption:not(:has(span, :not([hidden]))) {
+	display: none;
+}
+
+.figure-replay {
+	flex: none;
+	margin-left: auto;
+	border: 1px solid var(--rule);
+}
+
+/* `.btn` sets a display, which would otherwise beat the attribute. */
+.figure-replay[hidden] {
+	display: none;
+}
+
+.figure-replay:hover {
+	border-color: var(--marker-line);
+}
+
 /* — diagrams ——————————————————————————————————— */
 
 .diagram {

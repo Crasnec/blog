@@ -1,0 +1,18 @@
+---
+title: The three states of a circuit breaker
+published: 2026-10-20
+description: Model a circuit breaker that opens after consecutive failures, becomes half-open after a timeout and closes after a successful probe.
+category: backend
+tags: [figures, resilience]
+draft: true
+---
+
+import { CircuitBreaker } from "./_figures/StateMachineExamples.tsx";
+
+A circuit breaker limits repeated calls to a slow or unavailable dependency. In **CLOSED**, requests pass through. After enough consecutive failures, **OPEN** rejects requests immediately. A timeout permits one probe in **HALF-OPEN**: success closes the breaker, while failure opens it again.
+
+The strip beneath the state machine shows observed outcomes. As each point appears, the corresponding transition is highlighted above it.
+
+<CircuitBreaker />
+
+While the breaker is OPEN, requests do not reach the dependency and produce no outcome points. That gap is the recovery interval the breaker provides.

@@ -29,3 +29,9 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Stills from npm run figures:shot
+.figures-shots*/
+
+# Verified Python wheels downloaded by the development/build integration
+.cache/python/

@@ -8,7 +8,16 @@ astro dev --background
 
 Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
 
+## Animated figures
+
+Posts can include canvas animations with `<Figure kind="…" props={…} />`.
+Before adding or changing one, read `src/figures/README.md`. It covers the
+ready-made kinds, how to write a new one, and how to check the result with
+`npm run figures:shot`. Always look at the screenshots before you finish.
+
 ## Documentation
+
+Write project documentation and example guides in English.
 
 Full documentation: https://docs.astro.build
 

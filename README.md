@@ -143,6 +143,23 @@ This operation cannot be undone.
 ```
 
 Supported kinds are `note`, `tip`, `important`, `warning`, and `caution`.
+
+Animated figures (a chart that draws itself, samples piling into a
+distribution, requests flowing between services) are placed with
+`<Figure kind="…" props={…} />` in an MDX post. See
+[`src/figures/README.md`](src/figures/README.md) for the available kinds, how
+to write a new one, and `npm run figures:shot`, which captures stills to check
+a figure without watching it.
+
+Editable code uses `<CodePlayground language="python" code={source} />` in MDX.
+JavaScript, TypeScript and Python run in browser Workers, with output, Stop and
+Reset controls. Editors also accept custom JSON or XML/plist TextMate grammars.
+See [`src/playground/README.md`](src/playground/README.md) for props, grammar
+dependencies, execution behaviour and browser tests.
+Python also supports approved NumPy, pandas, SciPy, Matplotlib and Seaborn
+packages loaded on import. Plots appear below the editor and can be downloaded
+as PNG files; package versions, checksums and dependency graphs are pinned.
+
 Inline and display mathematics are rendered with KaTeX.
 
 ## Locked posts

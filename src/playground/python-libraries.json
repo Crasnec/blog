@@ -1,0 +1,7 @@
+{
+  "numpy": "NumPy",
+  "pandas": "pandas",
+  "scipy": "SciPy",
+  "matplotlib": "Matplotlib",
+  "seaborn": "Seaborn"
+}

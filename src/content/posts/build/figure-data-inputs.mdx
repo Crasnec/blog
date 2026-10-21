@@ -1,0 +1,34 @@
+---
+title: Reusing figures with different data
+published: 2026-10-21
+description: Reuse typed TSX figures with signed values, zeros, constant matrices and real key names.
+category: build
+tags: [figures, mdx, components]
+draft: true
+---
+
+import { SignedLine, SignedDistribution, SignedSort, ConstantSort, ConstantHeatmap, NamedKeys, UnreachableMaze } from "./_figures/DataInputExamples.tsx";
+
+Import reusable figures from `src/components/figures` and supply their data through `props`. Post-specific TSX components provide samples and captions. These examples use the same computational models and renderers as the original demonstrations.
+
+## Negative and positive values
+
+<SignedLine />
+
+<SignedDistribution />
+
+<SignedSort />
+
+## Constant data
+
+<ConstantSort />
+
+<ConstantHeatmap />
+
+## Real key names
+
+<NamedKeys />
+
+## An unreachable goal
+
+<UnreachableMaze />
