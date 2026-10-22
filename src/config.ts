@@ -6,7 +6,7 @@
  * the codebase hard-codes these values.
  */
 
-import { translate, type Locale } from "./locales/index.ts";
+import type { Locale } from "./locales/index.ts";
 
 export const siteConfig = {
 	/** Interface language. Does not translate posts or change their URLs. */
@@ -30,43 +30,6 @@ export const siteConfig = {
 	/** Deepest heading level that reaches the contents (2 = h2 and h3). */
 	tocDepth: 2,
 } as const;
-
-/**
- * The categories a post can be filed under.
- *
- * A closed set, written here rather than invented in a post's frontmatter, and
- * that is the whole difference between a category and a tag. Tags are free: a
- * post names whatever it is about, and the tag index is only ever a report of
- * what the posts happened to say. A category is a decision about what this
- * blog is *for* — so adding one is an edit to this file rather
- * than a typo that got published.
- *
- * A post writes the key and the URL carries it; the names below are only ever
- * displayed, so renaming one here changes no post and breaks no link.
- *
- * Declaration order is display order. Sorting by post count would let the
- * least finished corner of the blog sink out of sight, and the order these are
- * meant to be read in is not the order they happened to be written in.
- */
-export const categories = {
-	backend: translate(siteConfig.locale, "category.backend"),
-	databases: translate(siteConfig.locale, "category.databases"),
-	build: translate(siteConfig.locale, "category.build"),
-	team: translate(siteConfig.locale, "category.team"),
-	statistics: translate(siteConfig.locale, "category.statistics"),
-} as const satisfies Record<string, string>;
-
-export type CategoryKey = keyof typeof categories;
-
-/**
- * Every key, in declaration order, as the tuple `z.enum` wants. The collection
- * schema is built from this, so a post filed under something that is not here
- * fails the build naming the categories that are.
- */
-export const CATEGORY_KEYS = Object.keys(categories) as [
-	CategoryKey,
-	...CategoryKey[],
-];
 
 export const profileConfig = {
 	name: "Crasnec",

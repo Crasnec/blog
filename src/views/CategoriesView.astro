@@ -6,14 +6,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { getCategories } from "../utils/content";
 import { sitePath } from "../utils/url";
 
-/**
- * The four areas, as rows rather than as the pills the tag index uses.
- *
- * There are few of them and they are named in prose — `데이터베이스`, not
- * `postgres` — so a row with the count at the end reads as a table of
- * contents, which is what this page is. Pills would say "here are some
- * keywords", and that is the other page.
- */
+/** Each nonempty post folder contributes one category and its count. */
 const categories = await getCategories();
 ---
 
@@ -34,7 +27,7 @@ const categories = await getCategories();
 					<li class="category-item">
 						<a
 							class="category-link"
-							href={sitePath(`/categories/${key}`)}
+							href={sitePath(`/categories/${encodeURIComponent(key)}`)}
 						>
 							<span class="category-name">{name}</span>
 							<span class="category-tally">{countLabel(count)}</span>

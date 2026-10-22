@@ -3,6 +3,12 @@
 Canvas figures that draw themselves when they scroll into view. A post places
 one with `<Figure>`; the drawing lives in `kinds/<name>.ts`.
 
+The example pages below are developer fixtures, excluded from the published
+blog. Start their server explicitly with
+`BLOG_POSTS_DIR=./src/fixtures/posts npm run astro -- dev --background`.
+Use this fixture server for `figures:shot` and the browser regression suite.
+For figures in real articles, use the ordinary server without the override.
+
 ```mdx
 import Figure from "../../../components/Figure.astro";
 
@@ -14,9 +20,9 @@ import Figure from "../../../components/Figure.astro";
 ```
 
 The import path climbs one `../` per directory between the post and `src/`.
-`src/content/posts/build/x.mdx` needs three.
+`src/fixtures/posts/build/x.mdx` needs three.
 
-`src/content/posts/build/animated-figures.mdx` introduces `line`,
+`src/fixtures/posts/build/animated-figures.mdx` introduces `line`,
 `distribution`, `flow`, `queue` and post-specific TSX compositions. Read it at `/posts/build/animated-figures/`.
 
 ## Typed components for all 44 reusable kinds
@@ -45,7 +51,7 @@ contains the surrounding prose. Repeated workloads such as the same maze,
 job list or allocation requests are defined once per post. Story components
 accept an optional full `props` replacement and caption/label/height overrides.
 They do not merge nested inputs. The statistical gallery's data is in
-`src/content/posts/build/_figures/statistics-data.ts`, outside the library.
+`src/fixtures/posts/build/_figures/statistics-data.ts`, outside the library.
 
 The boundaries are:
 
@@ -57,7 +63,7 @@ The boundaries are:
   workload helpers. New examples pass the resulting arrays to components.
 - `src/figures/statistics/`: the statistical models and renderers, with no
   example data. `kinds/` validates inputs and draws each kind's result.
-- `src/content/posts/build/_figures/`: post data, captions and TSX composition.
+- `src/fixtures/posts/build/_figures/`: post data, captions and TSX composition.
 
 The old `count`/`seed`, generated tree values, distribution `generate`,
 `daily-peak` heatmap shorthand and `checkout` alias remain compatible. The
@@ -83,7 +89,7 @@ shows a no-path result after exhausting the reachable cells when no path exists.
 Both `Figure.astro` and `Figure.tsx` accept the same props. A reusable kind
 accepts data and drawing options; it must not own a post's example workload,
 service names or narrative. Keep those in a TSX component beside the post.
-For example, from `src/content/posts/build/_figures/WorkerQueues.tsx`:
+For example, from `src/fixtures/posts/build/_figures/WorkerQueues.tsx`:
 
 ```tsx
 import Figure from "../../../../components/Figure";
@@ -153,7 +159,7 @@ density contours, pairplot, jointplot, forest, funnel, Bland–Altman, mosaic,
 residuals, scale–location, influence, ACF, PACF, lag, Kaplan–Meier, ROC,
 precision–recall and calibration. Their exact `kind` names, input contracts,
 limits and statistical conventions are in
-[`statistics/README.md`](statistics/README.md). The published guide at
+[`statistics/README.md`](statistics/README.md). The fixture guide at
 `/posts/build/statistical-figures/` contains a working example of all thirty.
 
 Write a new kind only when the idea is a mechanism none of these can show,
@@ -429,7 +435,7 @@ The script also exits non-zero and prints the message if a figure threw in
 the browser. Fix what you see, run it again, and look again.
 
 Model regressions run with `npm test`. To check manual replay with reduced
-motion and resizing held frames, start `astro dev --background`, then run
+motion and resizing held frames, start the fixture server described above, then run
 `npm run test:figures:browser`. It reads the running server's URL from
 `.astro/dev.json`; `FIGURES_BASE` overrides it. These browser tests need
 Playwright's Chromium, just like `figures:shot`.
@@ -447,7 +453,7 @@ larger round-robin quantum or smaller job bursts to keep the trace bounded.
   and accessible description. It renders HTML/SVG at build time.
 - `src/components/FigureExamples.tsx` renders a data-driven gallery of kinds.
 - `src/components/figures/index.tsx` exposes all 44 typed data components.
-- `src/content/posts/build/_figures/*.tsx` contains examples of post-specific
+- `src/fixtures/posts/build/_figures/*.tsx` contains examples of post-specific
   compositions and SVG drawings. These do not register new kinds.
 - `src/scripts/figures.ts` is the runtime: canvas sizing, the theme palette,
   play on scroll into view, pause when off screen, replay, reduced motion,

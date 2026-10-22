@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { DefinedFigure } from "../src/figures/kit.ts";
-import { statisticsExamples } from "../src/content/posts/build/_figures/statistics-data.ts";
+import { statisticsExamples } from "../src/fixtures/posts/build/_figures/statistics-data.ts";
 import {
 	autocorrelation, binaryCurves, boxSummary, calibrationBins, density,
 	densityContours, ecdf, hexBins, histogram, kaplanMeier, linearFit,

@@ -1,14 +1,14 @@
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
-import { CATEGORY_KEYS } from "./config";
+import { POSTS_DIRECTORY } from "./post-source";
 
 /**
  * A post's path below `src/content/posts/` becomes its URL below `/posts/`.
  * The recursive glob deliberately preserves nested directory segments.
  */
 const posts = defineCollection({
-	loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: "./src/content/posts" }),
+	loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: POSTS_DIRECTORY }),
 	schema: z.object({
 		title: z.string(),
 		published: z.coerce.date(),
@@ -19,14 +19,6 @@ const posts = defineCollection({
 
 		/** Article language for assistive technology; the interface keeps its own language. */
 		lang: z.string().optional(),
-
-		/**
-		 * The one area this post belongs to, by key. Required and closed: the set
-		 * lives in `src/config.ts`, so a post filed under something that is not
-		 * there fails the build naming the ones that are, rather than quietly
-		 * creating a category of one that nothing links to.
-		 */
-		category: z.enum(CATEGORY_KEYS),
 
 		/** Free, and as many as apply. What the post is about, not where it sits. */
 		tags: z.array(z.string()).default([]),

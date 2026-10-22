@@ -15,13 +15,27 @@ The site includes:
 - Moderated comments stored in a separate GitHub repository
 - Automatic deployment to GitHub Pages
 
-## Example articles
+## Articles and developer fixtures
 
-Published guides include [thirty statistical figures](https://crasnec.github.io/posts/build/statistical-figures/),
-[animated figures and TSX composition](https://crasnec.github.io/posts/build/animated-figures/),
-and [browser code execution with scientific Python](https://crasnec.github.io/posts/build/browser-code/).
-The algorithm examples cover sorting, pathfinding, trees, hashing, scheduling,
-memory allocation, sequence diagrams, circuit breakers and heatmaps.
+The published collection contains the fourteen-chapter [Think Stats series](https://crasnec.github.io/categories/statistics/).
+Its sources, notebook data and figure data live in `src/content/posts/Statistics/`.
+
+Runtime and figure demonstrations live in `src/fixtures/posts/build/`, outside
+the published collection. To serve these examples for browser regression tests,
+stop any normal development server and start the fixture site explicitly:
+
+```bash
+npm run astro -- dev stop
+BLOG_POSTS_DIR=./src/fixtures/posts npm run astro -- dev --background
+npm run test:playground:browser
+npm run test:figures:browser
+npm run test:locale:browser
+```
+
+Restart without `BLOG_POSTS_DIR` to return to the published articles. Ordinary
+builds, search results and the sitemap never include these fixtures.
+See [`src/playground/README.md`](src/playground/README.md) and
+[`src/figures/README.md`](src/figures/README.md) for component examples.
 
 ## Requirements
 
@@ -70,11 +84,11 @@ tests. The deployment workflow runs the complete check before building.
 
 `npm run build` creates the static site in `dist/` and then builds the Pagefind
 index. Use `npm run build:clean` after changing a remark or rehype plugin, the
-content schema, category definitions, or the active theme.
+content schema or the active theme.
 
 ## Configuration
 
-The interface locale, site metadata, categories, navigation, profile information, and comment limits
+The interface locale, site metadata, navigation, profile information, and comment limits
 live in [`src/config.ts`](src/config.ts).
 
 The active visual theme is selected in
@@ -102,9 +116,10 @@ The setting controls search, comments, locked-post controls,
 figure replay controls, code playground controls and status messages,
 CodeMirror's find/replace panel, post counts, reading
 times, document language, sharing metadata and the search index. Navigation and
-section names (Posts, Archive, Categories, Tags, About and Contents) and category
-names keep this blog's established English terminology. Category keys and post
-URLs stay the same. Custom category names can be set in `src/config.ts`.
+section names (Posts, Archive, Categories, Tags, About and Contents) keep this
+blog's established English terminology. Category names come directly from post
+folders and are excluded from localization. Changing the interface
+locale leaves category names and post URLs unchanged.
 
 The shared formatters in [`src/utils/format.ts`](src/utils/format.ts) apply to
 listings, archives, articles, comments and generated social images:
@@ -166,15 +181,22 @@ title: Cache invalidation without guesswork
 published: 2026-08-22
 updated: 2026-08-24
 description: A short summary used in listings and metadata.
-category: backend
 tags: [caching, performance]
 draft: false
 ---
 ```
 
-`category` must be one of the keys defined in `src/config.ts`. Tags are
-free-form. Drafts are visible during development and excluded from production
-builds.
+The first folder below `src/content/posts/` is the category. Its name is shown
+exactly as written and never translated. For example,
+`Statistics/nested/intro.mdx` belongs to **Statistics**; `nested` remains part of
+the post URL. Adding or moving a folder requires no configuration or frontmatter
+category field. Category URLs use the same lowercase folder slugs as Astro
+post URLs: spaces become hyphens, punctuation is removed and Unicode is
+preserved. Different
+folder names that produce the same slug cannot be separate categories.
+Renaming a folder can change its category and post URLs. Empty folders do not
+appear in the category list. Tags are free-form. Drafts are visible during
+development and excluded from production builds.
 
 ## Markdown features
 

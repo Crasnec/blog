@@ -1,0 +1,20 @@
+---
+title: Reading a TCP exchange on a sequence diagram
+published: 2026-10-20
+description: A TCP exchange illustrates sequence diagrams that show how long messages take to travel.
+tags: [figures, tcp]
+---
+
+import { TcpExchange } from "./_figures/SequenceExamples.tsx";
+
+Read a sequence diagram from top to bottom to see who sent what to whom. The `sequence` kind adds travel time: an arrow slopes from its send time to its arrival time, with a packet moving along it.
+
+This example establishes a TCP connection with a three-way handshake, then sends three segments. The second segment is lost. The server acknowledges only contiguous data, and the client resends the missing segment after its retransmission timer expires.
+
+<TcpExchange />
+
+An acknowledgement only advances when the receiver has a contiguous prefix of the stream. A later arrival cannot fill an earlier gap. Read the repeated acknowledgements alongside the missing segment, then follow the retransmission to see why several received segments can be acknowledged together.
+
+This is a simplified exchange: segment numbers identify the illustrated chunks rather than TCP byte offsets, and the drawing uses explicit message timings rather than a complete congestion-control simulation.
+
+`gap` is the interval between consecutive send times. Without it, a message departs when the previous message arrives. `latency` is travel time and defaults to 1. Choose any consistent unit; the timeline scales to fit the figure's height and animation duration.

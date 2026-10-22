@@ -23,13 +23,6 @@ export default defineConfig({
 	trailingSlash: "ignore",
 	redirects: {
 		"/posts/statistics/distribution-first": "/posts/statistics/think-stats-01",
-		"/posts/markdown-and-mdx-features":
-			"/posts/build/markdown-and-mdx-features",
-		"/posts/private-posts-and-comments":
-			"/posts/backend/private-posts-and-comments",
-		"/posts/welcome-to-the-blog": "/posts/build/welcome-to-the-blog",
-		"/posts/writing-and-publishing":
-			"/posts/team/writing-and-publishing",
 	},
 
 

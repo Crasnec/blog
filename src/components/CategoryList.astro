@@ -1,11 +1,10 @@
 ---
-import type { CategoryKey } from "../config";
 import { t } from "../strings";
 import { getCategories } from "../utils/content";
 import { sitePath } from "../utils/url";
 
 interface Props {
-	currentCategory?: CategoryKey | undefined;
+	currentCategory?: string | undefined;
 }
 
 const { currentCategory } = Astro.props;
@@ -24,7 +23,7 @@ const categories = await getCategories();
 								"widget-link bloom",
 								{ "is-current": key === currentCategory },
 							]}
-							href={sitePath(`/categories/${key}`)}
+							href={sitePath(`/categories/${encodeURIComponent(key)}`)}
 						>
 							{name}
 							<span class="count">{count}</span>

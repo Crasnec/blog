@@ -1,5 +1,6 @@
 import { type CollectionEntry, getCollection, render } from "astro:content";
-import { type CategoryKey, categories } from "../config";
+import { POSTS_DIRECTORY } from "../post-source";
+import { categoryFromFile, countCategories, type Category, type CategoryCount } from "./category";
 import { sitePath } from "./url";
 import { HTML_LANG } from "../strings";
 
@@ -53,6 +54,7 @@ export async function postMeta(entry: Post): Promise<PostMeta> {
 
 export interface PostRef {
 	entry: Post;
+	category: Category;
 	/**
 	 * Path below `src/content/posts`, without the extension.
 	 * Directory segments are preserved, e.g. `databases/postgres/indexing`.
@@ -68,8 +70,10 @@ const isPublished = (entry: Post) =>
 	import.meta.env.DEV || !entry.data.draft;
 
 function toRef(entry: Post): PostRef {
+	if (!entry.filePath) throw new Error(`Post "${entry.id}" has no source path for its category.`);
 	return {
 		entry,
+		category: categoryFromFile(entry.filePath, POSTS_DIRECTORY),
 		path: entry.id,
 		href: sitePath(`/posts/${entry.id}`),
 		key: entry.id,
@@ -82,7 +86,9 @@ const byNewest = (a: PostRef, b: PostRef) =>
 /** Every published post, newest first. */
 export async function getPosts(): Promise<PostRef[]> {
 	const entries = await getCollection("posts", isPublished);
-	return entries.map(toRef).sort(byNewest);
+	const posts = entries.map(toRef).sort(byNewest);
+	countCategories(posts.map(({ category }) => category));
+	return posts;
 }
 
 /**
@@ -124,63 +130,15 @@ export async function getPostsByTag(tag: string) {
 	return posts.filter(({ entry }) => entry.data.tags.includes(tag));
 }
 
-export interface CategoryCount {
-	key: CategoryKey;
-	/** What it is called — the key never reaches a reader. */
-	name: string;
-	count: number;
-}
-
-/**
- * What a category is called.
- *
- * The lookup cannot miss according to the types, and misses anyway when the
- * content store is warmer than `src/config.ts` — delete a category that posts
- * are still filed under and the schema will not re-run, so the stale key
- * arrives here. Saying so beats the `undefined` this would otherwise read a
- * name off, which surfaces a long way from the file that caused it.
- */
-export function categoryName(key: CategoryKey): string {
-	const lookup: Readonly<Partial<Record<string, string>>> = categories;
-	const name = lookup[key];
-
-	if (!name) {
-		throw new Error(
-			`No category "${key}". A post is filed under it, but src/config.ts ` +
-				`defines only: ${Object.keys(categories).join(", ")}. Add it back, ` +
-				"or refile the post — and run `npm run build:clean`, because a warm " +
-				"content store is why the schema did not catch this first.",
-		);
-	}
-
-	return name;
-}
-
-/**
- * The categories that have something in them, in declaration order.
- *
- * Empty ones are dropped, so a category nothing has been written in yet is
- * simply absent rather than a row promising posts that are not there. It is
- * also why the routes are built from this: an empty category never gets a page
- * to land on.
- */
+/** Nonempty category folders, sorted by their authored names without translation. */
 export async function getCategories(): Promise<CategoryCount[]> {
 	const posts = await getPosts();
-	const counts = new Map<CategoryKey, number>();
-
-	for (const { entry } of posts) {
-		const key = entry.data.category;
-		counts.set(key, (counts.get(key) ?? 0) + 1);
-	}
-
-	return (Object.keys(categories) as CategoryKey[])
-		.map((key) => ({ key, name: categoryName(key), count: counts.get(key) ?? 0 }))
-		.filter(({ count }) => count > 0);
+	return countCategories(posts.map(({ category }) => category));
 }
 
-export async function getPostsByCategory(key: CategoryKey) {
+export async function getPostsByCategory(key: string) {
 	const posts = await getPosts();
-	return posts.filter(({ entry }) => entry.data.category === key);
+	return posts.filter(({ category }) => category.key === key);
 }
 
 export interface YearGroup {

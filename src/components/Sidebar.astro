@@ -1,7 +1,6 @@
 ---
 import { t } from "../strings";
 import { yearLabel } from "../utils/format";
-import type { CategoryKey } from "../config";
 import {
 	getTags,
 	groupByYear,
@@ -16,17 +15,11 @@ interface Props {
 	/** Highlighted when the reader is already filtered to a topic. */
 	currentTag?: string;
 	/** Likewise, when they are filtered to an area. */
-	currentCategory?: CategoryKey;
+	currentCategory?: string;
 }
 
 const { currentTag, currentCategory } = Astro.props;
 
-/*
- * Categories come before tags: four named areas answer "what is here" in a way
- * twelve technology tags cannot, and a reader who wants the fine grain is
- * already looking further down. They are set as a list rather than as pills for
- * the same reason the years are — a short, closed set reads as a menu.
- */
 const tags = (await getTags()).slice(0, 12);
 const years = await groupByYear();
 ---

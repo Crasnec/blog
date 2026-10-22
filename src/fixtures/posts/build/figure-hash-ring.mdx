@@ -1,0 +1,28 @@
+---
+title: How many keys move when a server is added?
+published: 2026-10-20
+description: Compare key movement under modulo hashing and consistent hashing when a server is added.
+tags: [hashing, cache, distributed-systems]
+---
+
+import { ModuloPlacement, VirtualNodeRing, SingleNodeRing } from "./_figures/HashRingExamples.tsx";
+
+Suppose three cache servers, A, B and C, hold twenty-four keys before server D is added. The assignment rule determines how many keys change owners. A moved key starts with an empty entry on its new server.
+
+Every figure uses the same key names and hash function. The right-hand panels show each server's keys. Moved keys travel in the accent colour and leave their previous positions empty.
+
+## Modulo hashing: hash % N
+
+The simplest rule assigns a key using its hash modulo the number of servers. Changing the divisor from three to four changes many assignments.
+
+<ModuloPlacement />
+
+## A consistent hash ring
+
+A hash ring places servers and keys on the same circle. A key belongs to the next server clockwise. Adding a server changes ownership only in the intervals preceding its points. Multiple virtual nodes per server help distribute those intervals more evenly.
+
+<VirtualNodeRing />
+
+With one point per server, relatively few keys still move, but interval sizes depend more strongly on the hash positions. Here D lands just after C and receives only one key.
+
+<SingleNodeRing />

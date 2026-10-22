@@ -10,7 +10,7 @@ import Icon from "../components/Icon.astro";
 import Profile from "../components/Profile.astro";
 import SecretLock from "../components/SecretLock.astro";
 import type { PostRef } from "../utils/content";
-import { categoryName, getNeighbours, parsePostMeta } from "../utils/content";
+import { getNeighbours, parsePostMeta } from "../utils/content";
 import { cardPath } from "../utils/og";
 import { THEME } from "../theme.config.mjs";
 import BaseLayout from "./BaseLayout.astro";
@@ -81,11 +81,11 @@ const revisedLabel = revised ? t("post.updated", { date: revised }) : undefined;
 	publishedTime={entry.data.published}
 	modifiedTime={entry.data.updated}
 	card={cardPath(post)}
-	section={categoryName(entry.data.category)}
+	section={post.category.name}
 >
 	<aside id="sidebar" class="onload" slot="sidebar" aria-label={t("post.info")}>
 		<Profile />
-		<CategoryList currentCategory={entry.data.category} />
+		<CategoryList currentCategory={post.category.key} />
 		{!sealed && <Contents headings={headings} />}
 		<Colophon post={post} />
 	</aside>

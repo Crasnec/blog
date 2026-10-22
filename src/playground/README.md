@@ -36,7 +36,7 @@ Props:
   detected automatically.
 
 For a custom grammar, import it with Vite's `?raw` suffix and pass its text.
-See `src/content/posts/build/browser-code.mdx` for all three runtimes and a
+See `src/fixtures/posts/build/browser-code.mdx` for all three runtimes and a
 two-file TextMate grammar using an external `include`. The first supplied grammar
 is the entry point; include dependent grammars in the same author-controlled
 array. A grammar stays fixed when readers edit, reset or execute code.
@@ -212,6 +212,11 @@ References: [Pyodide JSPI and run_sync](https://blog.pyodide.org/posts/jspi/),
 
 ## Verification
 
+Example pages are developer fixtures rather than published articles. Stop the
+normal server and use
+`BLOG_POSTS_DIR=./src/fixtures/posts npm run astro -- dev --background`
+for the browser suite. Restart without the override to return to real posts.
+
 `npm run check` covers configuration, grammar parsing and TS compilation.
 `npm run test:playground:browser` uses a running `astro dev --background`
 server, or `PLAYGROUND_BASE`, and exercises real runtimes, cancellation,
@@ -219,8 +224,9 @@ errors, bundled and additional Python packages, npm imports, PNG plots, author-d
 navigation. Notebook regression tests additionally cover shared state, last-expression
 display, stale results, environment isolation, source reset, restart, edited
 notebook export, interactive input and stopping Run all after an error. The
-published example routes are `/posts/build/browser-code/` and
-`/posts/build/python-notebook/`. For a production check, run `npm run build`,
+fixture routes are `/posts/build/browser-code/` and
+`/posts/build/python-notebook/`. For a production fixture check, run
+`BLOG_POSTS_DIR=./src/fixtures/posts npm run build`,
 start `astro preview`, then run the same browser tests with `PLAYGROUND_BASE`
 set to the preview URL.
 
@@ -229,7 +235,7 @@ set to the preview URL.
 Place `PythonNotebook.astro` once, then give body `CodePlayground` components
 its `notebook` ID. IDs are author-controlled, unique per document, and only
 valid with the Python runtime. Cells with another ID and ordinary playgrounds
-have separate environments. The published guide is
+have separate environments. The fixture guide is
 `/posts/build/python-notebook/`.
 
 ```mdx
