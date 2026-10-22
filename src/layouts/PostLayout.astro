@@ -96,7 +96,7 @@ const revisedLabel = revised ? t("post.updated", { date: revised }) : undefined;
 		not — which is what keeps the index, archive and tag listings out of the
 		results instead of returning the same excerpt five times.
 	-->
-	<article data-pagefind-body={sealed ? undefined : true}>
+	<article lang={entry.data.lang} data-pagefind-body={sealed ? undefined : true}>
 		<header class="post-header onload">
 			<!-- The only place on the page that states when this was written. -->
 			<div class="post-header-meta" data-pagefind-ignore>

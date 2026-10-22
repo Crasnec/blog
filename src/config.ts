@@ -38,7 +38,7 @@ export const siteConfig = {
  * that is the whole difference between a category and a tag. Tags are free: a
  * post names whatever it is about, and the tag index is only ever a report of
  * what the posts happened to say. A category is a decision about what this
- * blog is *for* — so there are four, and a fifth is an edit to this file rather
+ * blog is *for* — so adding one is an edit to this file rather
  * than a typo that got published.
  *
  * A post writes the key and the URL carries it; the names below are only ever
@@ -53,6 +53,7 @@ export const categories = {
 	databases: translate(siteConfig.locale, "category.databases"),
 	build: translate(siteConfig.locale, "category.build"),
 	team: translate(siteConfig.locale, "category.team"),
+	statistics: translate(siteConfig.locale, "category.statistics"),
 } as const satisfies Record<string, string>;
 
 export type CategoryKey = keyof typeof categories;
@@ -60,7 +61,7 @@ export type CategoryKey = keyof typeof categories;
 /**
  * Every key, in declaration order, as the tuple `z.enum` wants. The collection
  * schema is built from this, so a post filed under something that is not here
- * fails the build naming the four that are.
+ * fails the build naming the categories that are.
  */
 export const CATEGORY_KEYS = Object.keys(categories) as [
 	CategoryKey,

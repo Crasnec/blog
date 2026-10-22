@@ -89,6 +89,7 @@ export const ko = {
 	"category.databases": "Databases",
 	"category.build": "Build tooling",
 	"category.team": "Team",
+	"category.statistics": "Statistics",
 	"diagram.failed": "다이어그램을 표시하지 못했습니다.",
 	"playground.packagesLoading": "{packages} 불러오는 중…",
 	"playground.inputLabel": "입력값",

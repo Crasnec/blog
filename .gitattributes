@@ -1,0 +1,2 @@
+# Preserve the upstream NSFG dictionary, including its original CRLF endings.
+public/labs/think-stats/2002FemPreg.dct -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

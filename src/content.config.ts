@@ -17,6 +17,9 @@ const posts = defineCollection({
 		/** Overrides the generated excerpt on index entries and in meta tags. */
 		description: z.string().optional(),
 
+		/** Article language for assistive technology; the interface keeps its own language. */
+		lang: z.string().optional(),
+
 		/**
 		 * The one area this post belongs to, by key. Required and closed: the set
 		 * lives in `src/config.ts`, so a post filed under something that is not

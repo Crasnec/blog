@@ -1,0 +1,472 @@
+[
+  {
+    "chapter": 2,
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap02.ipynb",
+    "source_sha256": "e49a03d69a4ffbca622b61110deb11525b6fd1f22e1fa80b1a23b388f7166157",
+    "figures": [
+      {
+        "cell_id": "24f2055e",
+        "file": "chap02-013-0.png",
+        "sha256": "38cccabec368062f7c957bc062b975b2eb398c88981d728edffb6662929d05a0",
+        "alt": "값 1, 2, 3, 5의 도수. 2만 두 번 나타나 막대 높이가 2이고 나머지는 1입니다."
+      },
+      {
+        "cell_id": "114aec3c",
+        "file": "chap02-038-0.png",
+        "sha256": "1225faefc9cc328f587038caa330467083abbfad0df65fe7ac30c19f7de66934",
+        "alt": "출생 체중의 파운드 부분별 도수. 7파운드가 가장 흔하고 양쪽으로 도수가 줄어듭니다."
+      },
+      {
+        "cell_id": "70fbced6",
+        "file": "chap02-044-0.png",
+        "sha256": "295e6c3c74a56a495b3c3b3770e02da72343f26ab49b06bd530b1b5532aa5951",
+        "alt": "출생 체중의 온스 부분별 도수. 0온스의 도수가 크고 1온스와 15온스는 작습니다."
+      },
+      {
+        "cell_id": "c2655abf",
+        "file": "chap02-048-0.png",
+        "sha256": "d36be578217dbc1d4ccb1b37fe09e25271eaad1f93339057d94107d4f917c49e",
+        "alt": "임신 종료 시 어머니 나이의 분포. 오른쪽 꼬리가 더 긴 비대칭 모양입니다."
+      },
+      {
+        "cell_id": "4be5468c",
+        "file": "chap02-050-0.png",
+        "sha256": "2b603baf7dd3e5c07f5a1eb73351efd3a220a91e2635cc45a7a3fc31ca327ab1",
+        "alt": "임신 기간의 도수분포표. 39주의 막대가 가장 높고 왼쪽 꼬리가 더 깁니다."
+      },
+      {
+        "cell_id": "feecd113",
+        "file": "chap02-068-0.png",
+        "sha256": "7476e6cd1892ee8b93ce13c513e3c5558cb2e14dd985a3621e7ec9166262e9dd",
+        "alt": "첫아이와 다른 아이의 임신 기간별 도수. 표본 수가 다르므로 막대 높이를 곧바로 비교할 수 없습니다."
+      }
+    ]
+  },
+  {
+    "chapter": 3,
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap03.ipynb",
+    "source_sha256": "1f976a9e74531a64a50f1e1edaccecaec7b422029d04f0f5d266c2360b30d01c",
+    "figures": [
+      {
+        "cell_id": "1c2b81d9",
+        "file": "chap03-069-0.png",
+        "sha256": "329dd2226fddec5739141f3e29482265fd24228ef2edf510fd2fa3aeaa0e7aab",
+        "alt": "수업 단위 분포와 학생이 관측한 수업 규모 분포. 학생이 관측한 분포에는 큰 수업의 비중이 높습니다."
+      },
+      {
+        "cell_id": "62c91cfa",
+        "file": "chap03-086-0.png",
+        "sha256": "969668e0953968aca7b4db5c4f02da3c9ebf8eea8585fd389fd31ff53c994bd5",
+        "alt": "첫아이와 다른 아이의 임신 기간 PMF. 확률로 정규화하여 표본 수가 다른 집단을 비교합니다."
+      },
+      {
+        "cell_id": "3f40b276",
+        "file": "chap03-094-0.png",
+        "sha256": "be639c1c1b2aa7c3bbb9e1dee6ed45bab8624e52be84059a787a7007b6377ac0",
+        "alt": "첫아이 확률에서 다른 아이 확률을 뺀 차이. 39주는 음수, 41주와 42주는 양수입니다."
+      }
+    ]
+  },
+  {
+    "chapter": 4,
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap04.ipynb",
+    "source_sha256": "563bcebba89565aed2fc18906c9192eb3c3a61d4617b771ea0d2f338c2a15569",
+    "figures": [
+      {
+        "cell_id": "a7bcf6ac",
+        "file": "chap04-050-0.png",
+        "sha256": "9d2e9ff444c6bf56e6b534478952beeb0821525d8775c45979726bd52003d32f",
+        "alt": "1, 2, 2, 3, 5의 누적분포함수. 2 이하의 비율은 0.6, 3과 4 이하의 비율은 0.8입니다."
+      },
+      {
+        "cell_id": "b647b551",
+        "file": "chap04-054-0.png",
+        "sha256": "2bc46a52e68ac6ac83090f0315cdd087e8549f3ac5e9b4acc021bfbf6c3616e7",
+        "alt": "달리기 속도의 누적분포함수. 저자의 속도를 나타내는 세로선에서 누적비율은 약 0.94입니다."
+      },
+      {
+        "cell_id": "87e7a30b",
+        "file": "chap04-071-0.png",
+        "sha256": "5ceff1964b7e595815042c6a25cb49238d959a616a431eca6c5a4520e4e9e8c4",
+        "alt": "첫아이와 다른 아이의 출생 체중 PMF. 봉우리와 골이 많아 전체 차이를 비교하기 어렵습니다."
+      },
+      {
+        "cell_id": "4089ef39",
+        "file": "chap04-075-0.png",
+        "sha256": "38f4c729cdfc8ab726197491c97cdd23e815aa9c30fc9369ef7c3f83edd2a453",
+        "alt": "출생 체중의 CDF 비교. 첫아이의 곡선이 대체로 왼쪽에 있어 체중이 조금 더 가볍습니다."
+      },
+      {
+        "cell_id": "3cdbfd37",
+        "file": "chap04-123-0.png",
+        "sha256": "f5dd82c9efd6929670f0fcb6a83cc6d2f724a42d92b438d5e2eabf2df4000d2a",
+        "alt": "원래 달리기 속도 자료와 역 CDF로 생성한 무작위 표본의 CDF 비교. 두 곡선이 비슷한 모양입니다."
+      },
+      {
+        "cell_id": "1e469506",
+        "file": "chap04-127-0.png",
+        "sha256": "52f3765a77c885aca02c14ff7ccc676cf5ecd89b5fc49c8c20618034fcb053f9",
+        "alt": "생성한 표본의 백분위 순위 CDF. 0에서 1로 증가하는 직선에 가깝습니다."
+      }
+    ]
+  },
+  {
+    "chapter": 5,
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap05.ipynb",
+    "source_sha256": "46eae8529e9fdaaf896fdb78cfdbd33b437b686b69666b8bbf5e7fd1a04c0b95",
+    "figures": [
+      {
+        "cell_id": "7c9814c2",
+        "file": "chap05-020-0.png",
+        "sha256": "08b871c8bbfdd217fe337feeadaa2984b89f506f7bdad8b02bf0d46d70f3c7fd",
+        "alt": "표적 25개와 명중 확률 0.9로 생성한 명중 횟수의 PMF. 봉우리는 22~23회 근처이고 왼쪽 꼬리가 깁니다."
+      },
+      {
+        "cell_id": "7a4138df",
+        "file": "chap05-026-0.png",
+        "sha256": "c851788dc1b44f61b20879c685e9f525105beb15524c952000ede59511b73994",
+        "alt": "사격 시뮬레이션과 이항 모형의 명중 횟수 PMF 비교. 작은 무작위 차이를 빼면 두 모양이 비슷합니다."
+      },
+      {
+        "cell_id": "ee862bb0",
+        "file": "chap05-041-0.png",
+        "sha256": "5ba25fda80b034b283df713496106e7b55e929e602dee01b8d19e0a15afc810c",
+        "alt": "올림픽 사격 예선 자료와 실제 명중률로 맞춘 이항분포의 비교. 높은 명중 횟수 쪽에 확률이 모입니다."
+      },
+      {
+        "cell_id": "8231e5fd",
+        "file": "chap05-056-0.png",
+        "sha256": "7345f1e5cdf82cf939c920fe4d073b1341499c127ae56ec6db528580c08f8b7e",
+        "alt": "경기당 평균 6골인 시뮬레이션과 포아송분포의 PMF 비교. 두 분포의 봉우리와 퍼짐이 비슷합니다."
+      },
+      {
+        "cell_id": "e97704a1",
+        "file": "chap05-073-0.png",
+        "sha256": "2757a443895f4d2f8f8c4977ebeaf5a8337a9bd48a364680d2822351c11db977",
+        "alt": "NHL 정규 시즌의 경기별 득점 수와 평균을 맞춘 포아송분포 비교. 대체로 비슷하지만 구간별 차이가 있습니다."
+      },
+      {
+        "cell_id": "09108861",
+        "file": "chap05-089-0.png",
+        "sha256": "08478961d3367ee9eeabdcf3debbd108f091e3f46e02d8ae784d9948ebb249df",
+        "alt": "시뮬레이션의 첫 골 시각 CDF와 지수 모형 비교. 두 곡선이 가깝게 겹칩니다."
+      },
+      {
+        "cell_id": "514f52fe",
+        "file": "chap05-100-0.png",
+        "sha256": "0c6bffdb53c411d3e52ea8a97a3859d64ec63495d7e950a75097c1c0031e81fe",
+        "alt": "NHL 자료의 첫 골 시각 CDF와 지수 모형 비교. 초반에는 실제 누적득점 비율이 모형보다 낮습니다."
+      },
+      {
+        "cell_id": "4e1fc84d",
+        "file": "chap05-115-0.png",
+        "sha256": "fd3fd1223c522241a9cfd160ee9602accaaa0b4110ff37b3ed8f9b3a81758123",
+        "alt": "하루에 1~3파운드씩 더하는 호박 성장 시뮬레이션과 정규 모형의 CDF 비교."
+      },
+      {
+        "cell_id": "519a5674",
+        "file": "chap05-128-0.png",
+        "sha256": "7519965a8284ad77c330c840869a26fcc01a1e6135f1a3e928b8b0feac502565",
+        "alt": "출생 체중 자료와 양 끝을 제외한 자료로 맞춘 정규 모형의 CDF. 가벼운 아기 쪽에서 차이가 있습니다."
+      },
+      {
+        "cell_id": "443e7661",
+        "file": "chap05-137-0.png",
+        "sha256": "fc31422af01f443ef5adfa55b650526b18895d13a5ef3fb95b2ebb2f33036761",
+        "alt": "비례 성장으로 생성한 호박 체중의 상용로그 분포와 정규 모형. 두 CDF가 거의 겹칩니다."
+      },
+      {
+        "cell_id": "fc748844",
+        "file": "chap05-145-0.png",
+        "sha256": "12ce2ebcee81043ddca2f3e0cac500efd089bfaea406e5ab9fd91185871f2faf",
+        "alt": "성인 체중과 정규 모형의 CDF 비교. 체중의 오른쪽 꼬리 때문에 곡선이 다릅니다."
+      },
+      {
+        "cell_id": "6d4d7124",
+        "file": "chap05-148-0.png",
+        "sha256": "fa5390b4b1362c72412c85fdbb1da08506bca81c65968411636a85ad12674500",
+        "alt": "성인 체중의 상용로그와 정규 모형의 CDF 비교. 체중 자체보다 정규 모형에 더 가깝습니다."
+      }
+    ]
+  },
+  {
+    "chapter": 6,
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap06.ipynb",
+    "source_sha256": "fff0df1e6ef9633181ac072fc959b9b1da822506b47729e2185b7b6f4ee4385d",
+    "figures": [
+      {
+        "cell_id": "f70ae409",
+        "file": "chap06-019-0.png",
+        "sha256": "8974be9a32a18639d89ff8f55a4c49784b7d7d99973a3601dd7a41d353848bc4",
+        "alt": "가족 구성원 수 자료의 PMF와 평균 약 2.2인 포아송 모형. 값별 확률의 차이가 드러납니다."
+      },
+      {
+        "cell_id": "001fc097",
+        "file": "chap06-023-0.png",
+        "sha256": "1ca6da206b32913a16766f7137989e704c4ee742df24768dba54d0119753b10d",
+        "alt": "같은 가족 구성원 수 자료와 포아송 모형의 CDF 비교. PMF보다 전체 차이가 작게 보입니다."
+      },
+      {
+        "cell_id": "89dc754a",
+        "file": "chap06-030-0.png",
+        "sha256": "0f059acc80b677d315b92b600192e4ee3a406565034d102e3ef8f9928250e72d",
+        "alt": "출생 체중 자료와 정규 모형의 CDF 비교. 가벼운 체중 구간에 차이가 있습니다."
+      },
+      {
+        "cell_id": "c8080871",
+        "file": "chap06-039-0.png",
+        "sha256": "c10589a8f2c883171d1f20e16d4eb39c8d58000526eb5720af1ee0180767ff81",
+        "alt": "출생 체중으로 맞춘 정규분포의 PDF. y축은 확률이 아닌 밀도이며 종 모양입니다."
+      },
+      {
+        "cell_id": "6d999a2f",
+        "file": "chap06-066-0.png",
+        "sha256": "891c14a2fdf668835672dca8501011151fcbcb99a025bb748b80f5d07c4e2d0a",
+        "alt": "경기당 득점률 6인 지수분포의 PDF. 시작점의 밀도는 6으로 1보다 크지만 전체 넓이는 1입니다."
+      },
+      {
+        "cell_id": "55f3831b",
+        "file": "chap06-079-0.png",
+        "sha256": "70e9e2294bad711a1792630bbc10fdd361111eff6e7a81ebaa19514be66ef015",
+        "alt": "출생 체중 PMF와 정규 PDF를 같은 축에 그린 잘못된 비교. 확률질량과 밀도의 단위가 다릅니다."
+      },
+      {
+        "cell_id": "36507db8",
+        "file": "chap06-083-0.png",
+        "sha256": "3e9332bab1e28655138571525bdec3f742e0194da9d94a7c8ec73d40e1e6bd7d",
+        "alt": "정규 PDF에서 만든 PMF와 출생 체중 PMF. 값의 간격과 개수가 달라 여전히 직접 비교하기 어렵습니다."
+      },
+      {
+        "cell_id": "e44b1ecd",
+        "file": "chap06-091-0.png",
+        "sha256": "c25c55034e4eff3184a5ca104ce90f90604f62bd11b11e366fd89460e5d48b24",
+        "alt": "출생 체중 표본 열 개의 확률질량을 점마다 막대로 표현한 그림."
+      },
+      {
+        "cell_id": "2bd8fe67",
+        "file": "chap06-093-0.png",
+        "sha256": "7c794efb7cdc35d7faa305bc8a3d16f4923e788570c7e1f2465c59dfe113f110",
+        "alt": "각 체중 표본을 중심으로 놓은 작은 정규 밀도 곡선. 각 곡선의 넓이는 표본 수의 역수입니다."
+      },
+      {
+        "cell_id": "065680cb",
+        "file": "chap06-095-0.png",
+        "sha256": "1c8ef212176ed8053a4b95e95923fddb26774e6782f924a6bbab43d021634950",
+        "alt": "작은 정규 밀도 곡선들을 쌓아 더한 그림. 전체 표본의 밀도 추정 곡선이 됩니다."
+      },
+      {
+        "cell_id": "b5a6b73f",
+        "file": "chap06-101-0.png",
+        "sha256": "195df5d8f92dbdfc4cc6278ffee89efe39b68e122d1bacba997e3467832fd8af",
+        "alt": "SciPy의 가우스 KDE로 추정한 출생 체중의 확률밀도 곡선."
+      },
+      {
+        "cell_id": "4d79028e",
+        "file": "chap06-105-0.png",
+        "sha256": "7de21eb81e07ccdc455c06cbede4a710f3dcccf932e610a8ebccfbd66f0ce499",
+        "alt": "출생 체중의 KDE와 정규 PDF 비교. 두 곡선이 같은 밀도 단위를 사용합니다."
+      },
+      {
+        "cell_id": "ee30688b",
+        "file": "chap06-115-0.png",
+        "sha256": "34c47d21f86b51bcbe9724195b1604a1c48627c75668d87ee61c3af66017371d",
+        "alt": "연속 출생 사이의 분 단위 간격을 나타내는 PMF. 짧은 간격이 많습니다."
+      },
+      {
+        "cell_id": "4466e8cc",
+        "file": "chap06-117-0.png",
+        "sha256": "49259d0bbb5c74840cdebdfc495c8a980099127d6d13523996f3b0a2388b42c6",
+        "alt": "같은 출생 간격의 CDF. 짧은 간격부터 누적확률이 빠르게 올라갑니다."
+      },
+      {
+        "cell_id": "a8a9a473",
+        "file": "chap06-125-0.png",
+        "sha256": "db882bf507531afc79d5a8cabd5520600b2e17dd8488038100e3b06eeebd8106",
+        "alt": "출생 간격 PMF의 확률을 가중치로 사용한 KDE 밀도 추정."
+      },
+      {
+        "cell_id": "fe493a82",
+        "file": "chap06-129-0.png",
+        "sha256": "e9f9c71e77c62efca7bc6272f6147da8d4cd8c9a3ed547b67cff6657c108bd54",
+        "alt": "출생 간격의 경험적 CDF와 평균이 같은 지수 모형 비교."
+      },
+      {
+        "cell_id": "6993364d",
+        "file": "chap06-132-0.png",
+        "sha256": "72161c6be9eb1c5efb4228cb597aff4fe3709d966fb152a7bffc5c379dbb78a0",
+        "alt": "연속 지수 CDF를 등간격 값에서 평가해 만든 이산 CDF의 계단 그림."
+      },
+      {
+        "cell_id": "bf96cbce",
+        "file": "chap06-134-0.png",
+        "sha256": "97909aa93ab8c5db17021272a8edc2a7848147119d26d96170454ab77343bc5b",
+        "alt": "이산 CDF의 점 사이를 선으로 이은 그림. 계단 대신 보간된 곡선으로 보입니다."
+      },
+      {
+        "cell_id": "76ca42c9",
+        "file": "chap06-158-0.png",
+        "sha256": "e1e1518c0e8a3a1fea3020ad16b832bf9512aed3a9cfe1a8d0cfdb0153488e3f",
+        "alt": "BRFSS 남성 응답자의 키 CDF와 양 끝을 제외한 자료로 맞춘 정규 모형의 비교."
+      },
+      {
+        "cell_id": "9890ea3b",
+        "file": "distribution-framework-original.png",
+        "source_asset": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/figs/distribution_framework.png",
+        "sha256": "03274d1fab654ca08d388faa6c192a391f03a2ae864e2c88b0f0716d9632b15b",
+        "alt": "PMF・CDF・PDF 사이의 변환"
+      }
+    ]
+  },
+  {
+    "chapter": 7,
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap07.ipynb",
+    "source_sha256": "6e1de40d20bc8ea7404fc78ff901900a2621dc3209c9d943a3c727243ec71aee",
+    "figures": [
+      {
+        "cell_id": "522fc615",
+        "file": "chap07-021-0.png",
+        "sha256": "b0fd46e79dc9a0bdfe8ddf325be1c8ef31034dfc0e0ede9f86b4c8150067e566",
+        "alt": "SAT 언어와 수학 점수의 기본 산점도. 점이 많이 겹쳐 가운데의 밀도가 충분히 드러나지 않습니다."
+      },
+      {
+        "cell_id": "d2144f57",
+        "file": "chap07-023-0.png",
+        "sha256": "b0066f1f072ef2c9b754d4e08550dd4df8deda95151f9df636b492b5d428be7c",
+        "alt": "표식 크기를 줄인 SAT 점수 산점도. 10점 단위 반올림으로 생긴 행과 열이 보입니다."
+      },
+      {
+        "cell_id": "d8e28af5",
+        "file": "chap07-028-0.png",
+        "sha256": "96f1534188f7b1b24cef10aa9f02bdbf86754284e7a9913e339ec30bbb35eed1",
+        "alt": "표준편차 3의 지터를 준 SAT 점수 산점도. 반올림 때문에 생긴 줄무늬가 흐려집니다."
+      },
+      {
+        "cell_id": "5d56ced6",
+        "file": "chap07-030-0.png",
+        "sha256": "bdccb51e8da7eb7dc4b0dc783d01315c85ad1cf035ae859491892a5dd3864c23",
+        "alt": "작은 표식, 지터, 투명도를 함께 사용한 SAT 점수 산점도. 점이 많은 구간이 더 짙습니다."
+      },
+      {
+        "cell_id": "a2e5e63b",
+        "file": "chap07-041-0.png",
+        "sha256": "4e8c0d312bb8eed9c4cf210d17fd1d3d99f41a812691562f3f180b526f87ab90",
+        "alt": "언어 점수의 십분위 집단별 수학 점수. 선은 중앙값, 음영은 10~90백분위수입니다."
+      },
+      {
+        "cell_id": "29caace7",
+        "file": "chap07-043-0.png",
+        "sha256": "6400177bf92a0783297f600deb3abcc26a9fec8cf4bb6f2cc33ded14479f2e0a",
+        "alt": "각 집단의 언어 점수 중앙값을 x축에 놓은 십분위 그림. 수학 점수 중앙값도 대체로 선형으로 증가합니다."
+      },
+      {
+        "cell_id": "4996f626",
+        "file": "chap07-048-0.png",
+        "sha256": "66de7947dbff46f521a8218a08b9d07235d7570584c5d3dbe65dc667c2fd7aab",
+        "alt": "NLSY 참가자의 PIAT 수학 점수 누적분포함수."
+      },
+      {
+        "cell_id": "d1c1aa8c",
+        "file": "chap07-050-0.png",
+        "sha256": "17385a2e17626ab4cc0e90a67009863bac4184b024dd02d6aad8d18f4fc89c64",
+        "alt": "PIAT 수학과 SAT 수학 점수의 산점도. PIAT 점수가 높을수록 SAT 수학도 높은 경향이 있습니다."
+      },
+      {
+        "cell_id": "98287e40",
+        "file": "chap07-052-0.png",
+        "sha256": "7e8186f55b62c3bbc72050705a774c375195b862ae7cce0ebc4ca923bb205071",
+        "alt": "PIAT 수학과 SAT 언어 점수의 산점도. 양의 관계가 있지만 SAT 수학보다 점들이 더 퍼져 있습니다."
+      },
+      {
+        "cell_id": "bcf617e3",
+        "file": "chap07-063-0.png",
+        "sha256": "4364af42480a45f79d9dd2098de55c8379ab4bff7ed7fb16b550d707edd46852",
+        "alt": "처음 100명의 PIAT 수학과 SAT 수학 표준점수. 두 시퀀스가 평균 위아래에서 비슷하게 움직입니다."
+      },
+      {
+        "cell_id": "bad6f48a",
+        "file": "chap07-077-0.png",
+        "sha256": "a12921a84ef7640de2a472892b3130d3f6966790dbebb0d333f67985d3ea2450",
+        "alt": "0, 0.3, 0.7, 0.99의 상관을 갖게 만든 자료의 산점도. 양의 상관이 클수록 점들이 우상향 직선에 모입니다."
+      },
+      {
+        "cell_id": "c4a1341e",
+        "file": "chap07-079-0.png",
+        "sha256": "73ba09f9591cac8238678c0f04b643a4b23519c32d301bcaa321dfb168579560",
+        "alt": "여러 음의 상관을 갖게 만든 산점도. 상관의 절댓값이 클수록 우하향 직선에 모입니다."
+      },
+      {
+        "cell_id": "f63a3bcd",
+        "file": "chap07-081-0.png",
+        "sha256": "fcb78472889b0caccec8089ce984bc2d9edf4c7ae021a47861b7e37772a52afe",
+        "alt": "절댓값, 제곱, 사인 형태의 비선형 관계. 뚜렷한 관계가 있어도 피어슨 상관은 0에 가까울 수 있습니다."
+      },
+      {
+        "cell_id": "fedad22f",
+        "file": "chap07-086-0.png",
+        "sha256": "7921425d5a300b571a6df434cd44510c346d221b94ae19361e2df975112ad0f5",
+        "alt": "세전 가족 총소득의 CDF. 약 60만 달러 부근의 계단은 상한 처리의 영향을 보여줍니다."
+      },
+      {
+        "cell_id": "7cbf80eb",
+        "file": "chap07-088-0.png",
+        "sha256": "7280bedfd97918f6ee3518b2dff67a5ff77041199435f035065c25d2cd717a8d",
+        "alt": "청소년기의 PIAT 수학 점수와 성인기 가족 소득의 산점도. 양의 관계와 큰 소득 차이가 함께 보입니다."
+      },
+      {
+        "cell_id": "4f02ffb9",
+        "file": "chap07-096-0.png",
+        "sha256": "65e0a515ecba0a8f7ebe844937d7fb4f30979274b1d5f921442508eeb23b3207",
+        "alt": "PIAT 수학 점수 순위와 소득 순위의 산점도. 원래 값보다 극단적인 값의 영향이 작습니다."
+      },
+      {
+        "cell_id": "4e9b2b0a",
+        "file": "chap07-110-0.png",
+        "sha256": "6400177bf92a0783297f600deb3abcc26a9fec8cf4bb6f2cc33ded14479f2e0a",
+        "alt": "SAT 언어 점수별 수학 점수의 십분위 그림. 제공된 함수로 앞 절의 결과를 다시 그립니다."
+      },
+      {
+        "cell_id": "b85e6394",
+        "file": "chap07-119-0.png",
+        "sha256": "05367617ff73a0428843ce3285a2ed5b4ccfceeacb53502b66c0f435cda10982",
+        "alt": "고등학교 평균학점 GPA의 누적분포함수. 연습문제에 제공된 자료 확인 그림입니다."
+      },
+      {
+        "cell_id": "e65548df",
+        "file": "chap07-129-0.png",
+        "sha256": "1ff12163dde36400411fce1de176d1374a2cc6d9c3d7321a73383755573444cd",
+        "alt": "응답자의 최종 학력 분포. 학위 종류별 확률을 막대로 표시합니다."
+      }
+    ]
+  },
+  {
+    "chapter": 8,
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap08.ipynb",
+    "source_sha256": "6b483c0b76d712c27cd45a9fb1c26352bce242905194791227d43a4acd57045d",
+    "figures": [
+      {
+        "cell_id": "76f5b8cd",
+        "file": "chap08-022-0.png",
+        "sha256": "5d418188a4061c1ee0376c468853d3a2c61e90b2d843b49917dd7ce46418c5d3",
+        "alt": "표본 크기에 따른 표본평균과 표본중앙값. 정규 모형에서 두 추정량 모두 실제 모평균 3.7에 가까워집니다."
+      },
+      {
+        "cell_id": "927782e5",
+        "file": "chap08-045-0.png",
+        "sha256": "bc39370f2dd10b73c29671b6eb2550501767fa80cded6bfb1c539f32cebd6ae0",
+        "alt": "2%의 체중이 파운드 수치로 잘못 기록된 모형의 KDE. 3.7kg 외에 약 8kg에도 작은 봉우리가 생깁니다."
+      },
+      {
+        "cell_id": "bac75512",
+        "file": "chap08-078-0.png",
+        "sha256": "c7954a7baeed7d49b1869cfa2a76fb7dc4406edecba7bc3dc729a3fce30f6431",
+        "alt": "실제 턱끈펭귄 체중의 밀도 추정. 수직 점선은 약 3.73kg인 표본평균입니다."
+      },
+      {
+        "cell_id": "f9bdc14e",
+        "file": "chap08-086-0.png",
+        "sha256": "97b0dddd1fcd96dae712d0a1f2b0d6ef1926e9f4053a390d1aef2ded21f0c7e0",
+        "alt": "모수적 재표집으로 얻은 표본평균들의 분포. 개별 체중 분포보다 좁고, 그 표준편차가 평균의 표준오차입니다."
+      }
+    ]
+  }
+]

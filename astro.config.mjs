@@ -22,6 +22,7 @@ export default defineConfig({
 	site: siteConfig.url,
 	trailingSlash: "ignore",
 	redirects: {
+		"/posts/statistics/distribution-first": "/posts/statistics/think-stats-01",
 		"/posts/markdown-and-mdx-features":
 			"/posts/build/markdown-and-mdx-features",
 		"/posts/private-posts-and-comments":

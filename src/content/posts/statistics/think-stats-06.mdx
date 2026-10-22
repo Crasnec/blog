@@ -1,0 +1,830 @@
+---
+title: 'Think Stats 6장: 확률밀도함수'
+published: 2026-10-22
+description: '확률밀도와 구간의 확률, 커널 밀도 추정과 분포 표현의 변환을 다루는 Think Stats 3판 6장 한국어 번역.'
+category: statistics
+lang: ko
+tags: [statistics, think-stats, python, translation]
+---
+
+import CodePlayground from '../../../components/CodePlayground.astro';
+import Figure from '../../../components/Figure.astro';
+import plots from './_figures/plots.json';
+import densityCode from '../../../../public/labs/think-stats/chap06-density.py?raw';
+import bandwidthCode from '../../../../public/labs/think-stats/chap06-bandwidth.py?raw';
+import chapterCode from '../../../../public/labs/think-stats/chap06-browser.py?raw';
+
+Allen B. Downey의 《Think Stats》 3판, 6장 「Probability Density Functions」의 한국어 번역입니다. [원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/nb/chap06.ipynb)을 바탕으로 옮겼습니다.
+
+<a href="/labs/think-stats/chap06-ko.ipynb" download="think-stats-06-ko.ipynb">한국어 노트북 내려받기</a> · [원문 웹판](https://allendowney.github.io/ThinkStats/chap06.html)
+
+실행창은 각각 독립적으로 실행됩니다. 입력을 바꾸면 그 아래의 숫자와 그림이 바뀝니다. 코드 조각은 본문 설명을 위한 것이며, 전체 원문 셀은 내려받는 노트북에 있습니다.
+
+
+앞 장에서는 이항분포, 포아송분포, 지수분포, 정규분포 같은 이론분포로 자료를 설명했습니다.
+
+이항분포와 포아송분포는 **이산적**(discrete)입니다. 명중·실패 횟수나 득점 수처럼 가능한 결과가 서로 구별되는 개별 값이라는 뜻입니다. 이산분포에서는 각 결과에 확률질량이 대응합니다.
+
+지수분포와 정규분포는 **연속적**(continuous)입니다. 가능한 값의 범위 안에서 어느 지점이든 결과가 될 수 있습니다. 연속분포에서는 각 결과에 **확률밀도**(probability density)가 대응합니다. 확률밀도는 추상적이어서 처음에는 어렵게 느끼는 사람이 많습니다. 한 단계씩 살펴보겠습니다. 먼저 분포를 비교하는 일부터 다시 생각해 보겠습니다.
+
+
+## 분포 비교하기
+
+앞 장에서 이산분포를 비교할 때는 막대그래프로 확률질량함수(PMF)를 그렸습니다. 연속분포를 비교할 때는 선 그래프로 누적분포함수(CDF)를 그렸습니다.
+
+이산분포에도 CDF를 사용할 수 있습니다. 예를 들어 다음은 `lam=2.2`인 포아송분포의 PMF입니다. NSFG 자료에서 가구의 가족 구성원 수 분포를 잘 설명하는 모형입니다.
+
+이하 코드에서는 1장에서와 같은 방식으로 읽고 정제한 자료를 사용합니다.
+
+`read_fem_resp`로 응답자 자료 파일을 읽을 수 있습니다.
+
+```python
+from nsfg import read_fem_resp
+
+resp = read_fem_resp()
+```
+
+이어서 25세 이상 응답자의 가구 구성원 수를 선택하겠습니다.
+
+```python
+older = resp.query("age >= 25")
+num_family = older["numfmhh"]
+```
+
+응답의 분포를 나타내는 `Pmf`를 만듭니다.
+
+```python
+from empiricaldist import Pmf
+
+pmf_family = Pmf.from_seq(num_family, name="data")
+```
+
+다음은 평균이 비슷한 포아송분포를 나타내는 `Pmf`입니다.
+
+```python
+from thinkstats import poisson_pmf
+
+lam = 2.2
+ks = np.arange(11)
+ps = poisson_pmf(ks, lam)
+
+pmf_poisson = Pmf(ps, ks, name="Poisson model")
+```
+
+자료의 분포를 포아송 모형과 비교하면 다음과 같습니다.
+
+```python
+from thinkstats import two_bar_plots
+
+two_bar_plots(pmf_family, pmf_poisson)
+decorate(xlabel="Number of family members")
+```
+
+![가족 구성원 수 자료의 PMF와 평균 약 2.2인 포아송 모형. 값별 확률의 차이가 드러납니다.](/labs/think-stats/figures/chap06-019-0.png)
+
+PMF를 비교하면 모형이 자료에 잘 맞지만 일부 차이가 있다는 것을 알 수 있습니다.
+
+그 차이가 어느 정도인지 파악하려면 CDF를 비교하는 것이 도움이 됩니다. `make_cdf`로 자료와 모형의 CDF를 구할 수 있습니다.
+
+```python
+cdf_family = pmf_family.make_cdf()
+cdf_poisson = pmf_poisson.make_cdf()
+```
+
+결과는 다음과 같습니다.
+
+```python
+from thinkstats import two_cdf_plots
+
+two_cdf_plots(cdf_poisson, cdf_family)
+decorate(xlabel="Number of family members")
+```
+
+![같은 가족 구성원 수 자료와 포아송 모형의 CDF 비교. PMF보다 전체 차이가 작게 보입니다.](/labs/think-stats/figures/chap06-023-0.png)
+
+CDF를 비교하면 차이가 덜 두드러지지만, 두 분포가 어디에서 어떻게 다른지 볼 수 있습니다. PMF는 작은 차이를 강조하는 경향이 있습니다. CDF가 전체 모습을 파악하는 데 더 나을 때가 있습니다.
+
+CDF는 연속적인 자료에도 잘 맞습니다. 예로 NSFG 임신 파일에 있는 출생 체중의 분포를 다시 살펴보겠습니다.
+
+```python
+from nsfg import read_fem_preg
+
+preg = read_fem_preg()
+birth_weights = preg["totalwgt_lb"].dropna()
+```
+
+앞 장에서 정규 모형을 자료에 맞출 때 사용한 코드입니다.
+
+```python
+from scipy.stats import trimboth
+from thinkstats import make_normal_model
+
+trimmed = trimboth(birth_weights, 0.01)
+cdf_model = make_normal_model(trimmed)
+```
+
+자료의 분포와 정규 모형을 비교합니다.
+
+```python
+from empiricaldist import Cdf
+
+cdf_birth_weight = Cdf.from_seq(birth_weights, name="sample")
+two_cdf_plots(cdf_model, cdf_birth_weight, xlabel="Birth weight (pounds)")
+```
+
+![출생 체중 자료와 정규 모형의 CDF 비교. 가벼운 체중 구간에 차이가 있습니다.](/labs/think-stats/figures/chap06-030-0.png)
+
+앞 장에서 보았듯, 가장 가벼운 아기들이 있는 구간을 제외하면 정규 모형이 자료에 잘 맞습니다.
+
+제 생각에는 대개 자료와 모형을 비교하는 가장 좋은 방법은 CDF입니다. 하지만 CDF에 익숙하지 않은 독자에게는 확률밀도함수라는 방법이 하나 더 있습니다.
+
+## 확률밀도
+
+정규분포의 **확률밀도함수**(probability density function, PDF)부터 시작하겠습니다. `mu`와 `sigma`가 주어졌을 때 값 `xs`의 밀도를 계산하는 함수입니다.
+
+```python
+def normal_pdf(xs, mu, sigma):
+    """Evaluates the normal probability density function."""
+    z = (xs - mu) / sigma
+    return np.exp(-(z**2) / 2) / sigma / np.sqrt(2 * np.pi)
+```
+
+`mu`와 `sigma`에는 양 끝을 제외한 출생 체중의 평균과 표준편차를 사용하겠습니다.
+
+```python
+m, s = np.mean(trimmed), np.std(trimmed)
+```
+
+이제 여러 체중 값에서 `normal_pdf`를 계산합니다.
+
+```python
+low = m - 4 * s
+high = m + 4 * s
+qs = np.linspace(low, high, 201)
+ps = normal_pdf(qs, m, s)
+```
+
+그래프로 그립니다.
+
+```python
+plt.plot(qs, ps, label="normal model", ls=":", color="gray")
+decorate(xlabel="Birth weight (pounds)", ylabel="Density")
+```
+
+<Figure kind="line" props={plots["chap06-039-0"]} caption="출생 체중으로 맞춘 정규분포의 PDF. y축은 확률이 아닌 밀도이며 종 모양입니다. 가로축은 체중(lb)입니다." />
+
+결과는 정규분포의 특징인 종 모양입니다.
+
+`normal_pdf`를 계산해 얻는 값은 확률밀도입니다. 예를 들어 밀도가 가장 높은 지점인 평균에서 밀도함수를 계산하면 다음과 같습니다.
+
+```python
+normal_pdf(m, m, s)
+```
+
+```text
+np.float64(0.32093416297880123)
+```
+
+확률밀도는 그 값만으로는 의미를 읽기 어렵습니다. 특히 확률 자체가 아닙니다. 무작위로 고른 출생 체중이 `m`과 같을 확률이 32%라고 말하면 틀립니다. 연속 모형에서 출생 체중이 정말 정확히 `m` 또는 다른 특정 값 하나와 같을 확률은 0입니다.
+
+하지만 두 값 사이에서 곡선 아래의 넓이를 구하면, 결과가 그 구간에 들어갈 확률을 계산할 수 있습니다.
+
+`normal_pdf` 함수로도 할 수 있지만, `thinkstats` 모듈의 `NormalPdf` 클래스를 쓰는 것이 편리합니다. 다음과 같이 NSFG 출생 체중 자료에서 구한 평균·표준편차로 `NormalPdf` 객체를 만듭니다.
+
+```python
+from thinkstats import NormalPdf
+
+pdf_model = NormalPdf(m, s, name="normal model")
+pdf_model
+```
+
+```text
+NormalPdf(7.280883100022579, 1.2430657948614345, name='normal model')
+```
+
+이 객체를 함수처럼 호출하면 정규분포의 PDF를 계산합니다.
+
+```python
+pdf_model(m)
+```
+
+```text
+np.float64(0.32093416297880123)
+```
+
+PDF 아래의 넓이는 다음 함수로 계산할 수 있습니다. `NormalPdf` 객체와 구간의 아래·위 경계인 `low`, `high`를 받습니다. 두 경계 사이의 등간격 값에서 정규 PDF를 계산하고, SciPy의 `simpson`으로 곡선 아래 넓이를 추정합니다. `simpson`이라는 이름은 심프슨 방법이라는 알고리즘을 사용하기 때문에 붙었습니다.
+
+```python
+from scipy.integrate import simpson
+
+
+def area_under(pdf, low, high):
+    qs = np.linspace(low, high, 501)
+    ps = pdf(qs)
+    return simpson(y=ps, x=qs)
+```
+
+그래프의 가장 낮은 값부터 가장 높은 값까지 넓이를 구하면 1에 가까운 결과가 나옵니다.
+
+```python
+area_under(pdf_model, 2, 12)
+```
+
+```text
+np.float64(0.9999158086616793)
+```
+
+구간을 음의 무한대부터 양의 무한대까지 늘리면 전체 넓이는 정확히 1입니다.
+
+0처럼 평균보다 충분히 낮은 값에서 시작하면 출생 체중이 8.5파운드 이하일 비율을 계산할 수 있습니다.
+
+```python
+area_under(pdf_model, 0, 8.5)
+```
+
+```text
+np.float64(0.8366380335513807)
+```
+
+“주어진 값 이하인 비율”은 CDF의 정의였습니다. 따라서 정규분포의 CDF로도 같은 결과를 계산할 수 있습니다.
+
+```python
+from scipy.stats import norm
+
+norm.cdf(8.5, m, s)
+```
+
+```text
+np.float64(0.8366380358092718)
+```
+
+같은 방식으로 밀도 곡선 아래의 넓이를 이용해 출생 체중이 6~8파운드 사이일 비율을 구할 수 있습니다.
+
+```python
+area_under(pdf_model, 6, 8)
+```
+
+```text
+np.float64(0.5671317752927691)
+```
+
+또는 CDF로 8 미만인 비율에서 6 미만인 비율을 빼도 같은 결과가 나옵니다.
+
+```python
+norm.cdf(8, m, s) - norm.cdf(6, m, s)
+```
+
+```text
+np.float64(0.5671317752921801)
+```
+
+따라서 CDF는 PDF 곡선 아래의 넓이입니다. 미적분을 안다면 CDF는 PDF의 적분이라고 말할 수 있습니다. 반대로 PDF는 CDF의 미분입니다.
+
+**브라우저 실습: 밀도가 1보다 클 수 있을까?**
+
+평균 0, 표준편차 0.2인 정규분포는 0에서의 밀도가 약 1.995입니다. 그래도 평균에서 ±1표준편차 안에 들어갈 확률은 약 0.683입니다.
+
+<CodePlayground title="6장 · 밀도가 1보다 클 수 있을까?" code={densityCode} language="python" timeout={60000} />
+
+## 지수분포의 PDF
+
+확률밀도를 이해하려면 다른 예를 보는 것이 도움이 될 수 있습니다. 앞 장에서는 하키 경기의 첫 골까지 걸리는 시간을 지수분포로 설명했습니다. 다음 함수로 지수 CDF를 계산했습니다. `lam`은 단위 시간당 득점률입니다.
+
+```python
+def exponential_cdf(x, lam):
+    """Compute the exponential CDF.
+
+    x: float or sequence of floats
+    lam: rate parameter
+
+    returns: float or NumPy array of cumulative probability
+    """
+    return 1 - np.exp(-lam * x)
+```
+
+지수분포의 PDF는 다음과 같이 계산할 수 있습니다.
+
+```python
+def exponential_pdf(x, lam):
+    """Evaluates the exponential PDF.
+
+    x: float or sequence of floats
+    lam: rate parameter
+
+    returns: float or NumPy array of probability density
+    """
+    return lam * np.exp(-lam * x)
+```
+
+`thinkstats`에는 이 함수로 지수 PDF를 계산하는 `ExponentialPdf` 객체가 있습니다. 경기당 득점률이 6인 지수분포를 나타내는 데 사용할 수 있습니다.
+
+```python
+from thinkstats import ExponentialPdf
+
+lam = 6
+pdf_expo = ExponentialPdf(lam, name="exponential model")
+pdf_expo
+```
+
+```text
+ExponentialPdf(6, name='exponential model')
+```
+
+`ExponentialPdf`의 `plot` 함수로 PDF를 그릴 수 있습니다. 앞 장의 초 단위와 달리 여기서 시간 단위는 경기입니다.
+
+```python
+qs = np.linspace(0, 1.5, 201)
+pdf_expo.plot(qs, ls=":", color="gray")
+decorate(xlabel="Time (games)", ylabel="Density")
+```
+
+<Figure kind="line" props={plots["chap06-066-0"]} caption="경기당 득점률 6인 지수분포의 PDF. 시작점의 밀도는 6으로 1보다 크지만 전체 넓이는 1입니다. 가로축은 시간(경기 단위)입니다." />
+
+y축을 보면 일부 밀도가 1보다 큽니다. 확률밀도가 확률 자체가 아니라는 점을 다시 보여줍니다. 반면 밀도 곡선 아래의 넓이는 확률이므로 1을 넘을 수 없습니다.
+
+0부터 1.5경기까지 넓이를 구하면 1에 가까운 것을 확인할 수 있습니다.
+
+```python
+area_under(pdf_expo, 0, 1.5)
+```
+
+```text
+np.float64(0.999876590779019)
+```
+
+적분 구간을 훨씬 멀리 늘렸을 때 수치 계산 결과가 1보다 약간 커질 수도 있습니다. 넓이를 수치적으로 근사하기 때문입니다. 수학적으로 전체 구간의 넓이는 정확히 1입니다. 지수 CDF로도 확인할 수 있습니다.
+
+> 번역자 주: 아래의 7경기는 유한한 구간입니다. 정확한 누적확률은 `1 - exp(-42)`로 1보다 조금 작지만, 부동소수점 계산에서는 1로 반올림됩니다. 정확히 1이 되는 적분 범위는 0부터 무한대까지입니다.
+
+```python
+from thinkstats import exponential_cdf
+
+exponential_cdf(7, lam)
+```
+
+```text
+np.float64(1.0)
+```
+
+밀도 곡선 아래의 넓이로 첫 골의 시간이 어떤 구간에 들어갈 확률을 계산할 수 있습니다. 예를 들어 다음은 60분짜리 경기의 첫 1분 안에 골이 나올 확률입니다.
+
+```python
+area_under(pdf_expo, 0, 1 / 60)
+```
+
+```text
+np.float64(0.09516258196404043)
+```
+
+지수 CDF로도 같은 결과를 구할 수 있습니다.
+
+```python
+exponential_cdf(1 / 60, lam)
+```
+
+```text
+np.float64(0.09516258196404048)
+```
+
+PDF를 계산하면 확률밀도가 나옵니다. 그 자체가 확률은 아닙니다. 하지만 PDF 아래의 넓이는 값이 그 구간에 들어갈 확률입니다. 구간의 양 끝에서 CDF를 계산해 차이를 구해도 같은 확률을 얻습니다.
+
+입력란에 파운드 단위 구간의 아래·위 경계와 KDE 대역폭 계수를 넣습니다. 빈칸이면 6~8파운드와 Scott 규칙을 씁니다. 음영의 넓이가 구간의 확률이며, 곡선의 높이는 밀도입니다. 대역폭을 바꾸면 추정 곡선의 모양이 달라지지만 원자료의 경험적 구간 비율은 그대로입니다. 정규 모형과 KDE에서 계산한 확률은 경험적 비율과 다를 수 있습니다.
+
+<CodePlayground title="Think Stats 6장 · 확률밀도함수" code={chapterCode} language="python" timeout={60000} />
+
+## PMF와 PDF 비교하기
+
+표본의 PMF와 이론 모형의 PDF를 비교하는 것은 흔히 하는 실수입니다. 예를 들어 출생 체중 분포를 정규 모형과 비교하려 한다고 하겠습니다. 다음 `Pmf`는 자료의 분포를 나타냅니다.
+
+```python
+pmf_birth_weight = Pmf.from_seq(birth_weights, name="data")
+```
+
+평균과 표준편차로 만든 정규분포의 PDF인 `pdf_model`도 이미 있습니다. 같은 좌표축에 그리면 다음과 같습니다.
+
+```python
+pdf_model.plot(ls=":", color="gray")
+pmf_birth_weight.plot()
+
+decorate(xlabel="Birth weight (pounds)", ylabel="PMF? Density?")
+```
+
+![출생 체중 PMF와 정규 PDF를 같은 축에 그린 잘못된 비교. 확률질량과 밀도의 단위가 다릅니다.](/labs/think-stats/figures/chap06-079-0.png)
+
+결과가 좋지 않습니다. 한 가지 이유는 단위가 다르다는 것입니다. PMF에는 확률질량이, PDF에는 확률밀도가 들어 있으므로 직접 비교할 수 없고, 같은 축에 그려서도 안 됩니다.
+
+첫 번째 해결 시도로, 이산적인 여러 지점에서 PDF를 계산해 정규분포를 근사하는 `Pmf`를 만들 수 있습니다. `NormalPdf`의 `make_pmf` 메서드가 이 일을 합니다.
+
+```python
+pmf_model = pdf_model.make_pmf()
+```
+
+결과는 확률질량을 담은 정규화된 `Pmf`이므로, 적어도 자료의 PMF와 같은 축에 그릴 수는 있습니다.
+
+```python
+pmf_model.plot(ls=":", color="gray")
+pmf_birth_weight.plot()
+
+decorate(xlabel="Birth weight (pounds)", ylabel="PMF")
+```
+
+![정규 PDF에서 만든 PMF와 출생 체중 PMF. 값의 간격과 개수가 달라 여전히 직접 비교하기 어렵습니다.](/labs/think-stats/figures/chap06-083-0.png)
+
+하지만 여전히 분포를 비교하는 좋은 방법은 아닙니다. 두 `Pmf` 객체에 들어 있는 값의 개수가 다르고, `pmf_birth_weight`의 값들은 등간격도 아니므로 확률질량을 제대로 비교하기 어렵습니다.
+
+```python
+len(pmf_model), len(pmf_birth_weight)
+```
+
+```text
+(201, 184)
+```
+
+자료의 `Pmf`에 잡음이 많다는 문제도 있습니다. 다른 방법을 시도해 보겠습니다.
+
+## 커널 밀도 추정
+
+모형으로 PMF를 만드는 대신, 자료로 PDF를 만들 수 있습니다. 과정을 보여주려고 작은 표본부터 시작하겠습니다.
+
+```python
+# Set the random seed so we get the same results every time
+np.random.seed(3)
+```
+
+```python
+n = 10
+sample = birth_weights.sample(n)
+```
+
+이 표본의 `Pmf`는 다음과 같습니다.
+
+```python
+for weight in sample:
+    pmf = Pmf.from_seq([weight]) / n
+    pmf.bar(width=0.08, alpha=0.5)
+
+xlim = [1.5, 12.5]
+decorate(xlabel="Birth weight (pounds)", ylabel="PMF", xlim=xlim)
+```
+
+![출생 체중 표본 열 개의 확률질량을 점마다 막대로 표현한 그림.](/labs/think-stats/figures/chap06-091-0.png)
+
+이 방식은 자료를 이산적인 것으로 취급해, 각 확률질량을 한 점에 모아 놓습니다. 하지만 출생 체중은 실제로 연속적이므로 측정값 사이의 값도 가능합니다. 이 가능성을 나타내기 위해 이산적인 확률질량을 연속적인 확률밀도로 바꿀 수 있습니다.
+
+```python
+qs = np.linspace(2, 12, 201)
+
+for weight in sample:
+    ps = NormalPdf(weight, 0.75)(qs) / n
+    plt.plot(qs, ps, alpha=0.5)
+
+decorate(xlabel="Birth weight (pounds)", ylabel="PDF", xlim=xlim)
+```
+
+![각 체중 표본을 중심으로 놓은 작은 정규 밀도 곡선. 각 곡선의 넓이는 표본 수의 역수입니다.](/labs/think-stats/figures/chap06-093-0.png)
+
+표본의 각 체중마다 그 관측 체중을 평균으로 하는 `NormalPdf`를 만듭니다. 이제 이 밀도들을 더하겠습니다.
+
+```python
+low_ps = np.zeros_like(qs)
+
+for weight in sample:
+    ps = NormalPdf(weight, 0.75)(qs) / n
+    high_ps = low_ps + ps
+    plt.fill_between(qs, low_ps, high_ps, alpha=0.5, lw=1, ec="white")
+    low_ps = high_ps
+
+decorate(xlabel="Birth weight (pounds)", ylabel="PDF", xlim=xlim)
+```
+
+![작은 정규 밀도 곡선들을 쌓아 더한 그림. 전체 표본의 밀도 추정 곡선이 됩니다.](/labs/think-stats/figures/chap06-095-0.png)
+
+각 데이터 지점의 확률밀도를 더한 결과는 전체 표본의 확률밀도 추정값입니다. 이 과정을 **커널 밀도 추정**(kernel density estimation, KDE)이라고 합니다. 여기서 “커널”은 더한 작은 밀도함수 하나를 뜻합니다. 사용한 커널이 가우스분포라고도 하는 정규분포이므로, 더 구체적으로는 가우스 KDE를 구했다고 말할 수 있습니다.
+
+SciPy의 `gaussian_kde`가 이 알고리즘을 구현합니다. 출생 체중의 분포를 다음과 같이 추정할 수 있습니다.
+
+```python
+from scipy.stats import gaussian_kde
+
+kde = gaussian_kde(birth_weights)
+```
+
+결과는 추정한 PDF를 나타내는 객체입니다. 함수처럼 호출해 밀도를 계산할 수 있습니다.
+
+```python
+ps = kde(qs)
+```
+
+그림으로 나타내면 다음과 같습니다.
+
+```python
+plt.plot(qs, ps)
+
+decorate(xlabel="Birth weight (pounds)", ylabel="Density")
+```
+
+<Figure kind="line" props={plots["chap06-101-0"]} caption="SciPy의 가우스 KDE로 추정한 출생 체중의 확률밀도 곡선. 가로축은 체중(lb)입니다." />
+
+`thinkstats`의 `Pdf` 객체는 `gaussian_kde`의 결과와 밀도를 계산할 범위인 정의역을 받습니다. 다음과 같이 만듭니다.
+
+```python
+from thinkstats import Pdf
+
+domain = np.min(birth_weights), np.max(birth_weights)
+kde_birth_weights = Pdf(kde, domain, name="data")
+```
+
+`Pdf`의 `plot` 메서드로 표본의 추정 PDF와 정규분포의 PDF를 비교할 수 있습니다.
+
+```python
+pdf_model.plot(ls=":", color="gray")
+kde_birth_weights.plot()
+
+decorate(xlabel="Birth weight (pounds)", ylabel="Density")
+```
+
+<Figure kind="line" props={plots["chap06-105-0"]} caption="출생 체중의 KDE와 정규 PDF 비교. 두 곡선이 같은 밀도 단위를 사용합니다. 가로축은 체중(lb)입니다." />
+
+커널 밀도 추정으로 데이터셋의 분포와 이론 모형을 비교할 수 있습니다. 어떤 독자에게는 이렇게 비교를 시각화하는 것이 좋습니다. 하지만 CDF에 익숙한 독자에게는 CDF 비교가 더 나을 때가 많습니다.
+
+**브라우저 실습: 커널의 너비 바꾸기**
+
+다섯 관측값에 같은 너비의 커널을 놓습니다. h를 0.5에서 0.1이나 1로 바꾸어 곡선의 굴곡과 [0, 4] 안의 추정 확률을 비교하세요. 전체 넓이는 1로 유지됩니다.
+
+<Figure kind="kde" props={plots["bandwidth"]} caption="기본값 h=0.5의 밀도 곡선입니다. 아래 실행창에서 h를 바꾸면 실행 결과의 그림이 달라집니다." />
+
+<CodePlayground title="6장 · 커널의 너비 바꾸기" code={bandwidthCode} language="python" timeout={60000} />
+
+## 분포를 표현하는 체계
+
+이제 분포를 나타내는 PMF, CDF, PDF를 모두 살펴보았습니다. 다음 그림은 이 표현들과 서로 바꾸는 방법을 보여줍니다. 예를 들어 `Pmf`가 있으면 `cumsum`으로 확률의 누적합을 구해 같은 분포의 `Cdf`를 얻을 수 있습니다.
+
+![PMF는 누적합으로 이산 CDF가 되고, 차분으로 되돌릴 수 있습니다. KDE는 PDF를 추정하며, 연속 CDF와 PDF는 적분과 미분으로 연결됩니다.](/labs/think-stats/figures/distribution-framework-original.png)
+
+이 변환을 보여주려고 새 자료를 사용하겠습니다. 자료 설명에 따르면 “호주 브리즈번의 한 병원에서 24시간 동안 태어난 아기 44명의 출생 시각, 성별, 출생 체중”을 담고 있습니다. 내려받는 방법은 이 장의 노트북에 있습니다.
+
+파일에 실린 출처와 설명은 다음과 같습니다.
+
+> 출처: Steele, S. (1997년 12월 21일), 「Babies by the Dozen for Christmas: 24-Hour Baby Boom」, 《The Sunday Mail》(브리즈번), 7쪽.
+>
+> 자료의 배경: 1997년 12월 18일 호주 퀸즐랜드주 브리즈번의 Mater Mothers' Hospital에서 24시간 동안 신기록인 44명의 아기가 태어났습니다. 《The Sunday Mail》은 각 아기의 출생 시각, 성별, 그램 단위 출생 체중을 기록했습니다.
+>
+> 자료에 관한 추가 설명은 《Journal of Statistics Education》의 “Datasets and Stories”에 실린 Dunn(1999)의 「A Simple Dataset for Demonstrating Common Distributions」에서 볼 수 있습니다.
+>
+> [원자료 내려받기](https://jse.amstat.org/datasets/babyboom.txt)
+
+자료는 다음과 같이 읽을 수 있습니다.
+
+```python
+from thinkstats import read_baby_boom
+
+boom = read_baby_boom()
+boom.head()
+```
+
+| 값 | time | sex | weight_g | minutes |
+| --- | --- | --- | --- | --- |
+| 0 | 5 | 1 | 3837 | 5 |
+| 1 | 104 | 1 | 3334 | 64 |
+| 2 | 118 | 2 | 3554 | 78 |
+| 3 | 155 | 2 | 3838 | 115 |
+| 4 | 257 | 2 | 3625 | 177 |
+
+`minutes` 열에는 각 아기의 출생 시각이 자정 이후 몇 분인지 기록되어 있습니다. 따라서 `diff` 메서드로 연속한 출생 사이의 간격을 구할 수 있습니다.
+
+```python
+diffs = boom["minutes"].diff().dropna()
+```
+
+하루 중 어느 분에나 출생할 가능성이 같다면, 간격이 지수분포를 따를 것으로 예상할 수 있습니다. 현실에서 그 가정은 정확히 맞지 않지만, 지수분포가 여전히 좋은 모형일 수 있습니다.
+
+확인하기 위해 간격의 분포를 나타내는 `Pmf`부터 만들겠습니다.
+
+```python
+pmf_diffs = Pmf.from_seq(diffs, name="data")
+pmf_diffs.bar(width=1)
+
+decorate(xlabel="Interval (minutes)", ylabel="PMF")
+```
+
+![연속 출생 사이의 분 단위 간격을 나타내는 PMF. 짧은 간격이 많습니다.](/labs/think-stats/figures/chap06-115-0.png)
+
+이어서 `make_cdf`로 누적확률을 계산해 `Cdf` 객체에 저장할 수 있습니다.
+
+```python
+cdf_diffs = pmf_diffs.make_cdf()
+cdf_diffs.step()
+
+decorate(xlabel="Interval (minutes)", ylabel="CDF")
+```
+
+![같은 출생 간격의 CDF. 짧은 간격부터 누적확률이 빠르게 올라갑니다.](/labs/think-stats/figures/chap06-117-0.png)
+
+`Pmf`와 `Cdf`는 어느 하나가 주어지면 다른 하나를 구할 수 있다는 점에서 동등합니다. 이를 보이려고 `make_pmf`를 사용하겠습니다. `Cdf`에서 연속한 누적확률의 차이를 구해 `Pmf`를 반환하는 메서드입니다.
+
+```python
+pmf_diffs2 = cdf_diffs.make_pmf()
+```
+
+결과는 원래 `Pmf`와 같아야 하지만 작은 부동소수점 오차가 있을 수 있습니다. `allclose`로 원래 `Pmf`와 충분히 가까운지 확인할 수 있습니다.
+
+```python
+np.allclose(pmf_diffs, pmf_diffs2)
+```
+
+```text
+True
+```
+
+충분히 가깝습니다.
+
+`Pmf`의 확률을 가중치로 삼아 `gaussian_kde`를 호출하면 밀도함수를 추정할 수 있습니다.
+
+```python
+kde = gaussian_kde(pmf_diffs.qs, weights=pmf_diffs.ps)
+```
+
+결과를 그리려면 `kde`로 `Pdf` 객체를 만든 뒤 `plot`을 호출하면 됩니다.
+
+```python
+domain = np.min(pmf_diffs.qs), np.max(pmf_diffs.qs)
+kde_diffs = Pdf(kde, domain=domain, name="estimated density")
+
+kde_diffs.plot(ls=":", color="gray")
+decorate(xlabel="Interval (minutes)", ylabel="Density")
+```
+
+<Figure kind="line" props={plots["chap06-125-0"]} caption="출생 간격 PMF의 확률을 가중치로 사용한 KDE 밀도 추정. 가로축은 출생 간격(분)입니다." />
+
+추정한 밀도가 지수 모형을 따르는지 알아보려면, 자료와 평균이 같은 `ExponentialCdf`를 만들 수 있습니다.
+
+```python
+from thinkstats import ExponentialCdf
+
+m = diffs.mean()
+lam = 1 / m
+cdf_model = ExponentialCdf(lam, name="exponential CDF")
+```
+
+자료의 CDF와 비교하면 다음과 같습니다.
+
+```python
+cdf_model.plot(ls=":", color="gray")
+cdf_diffs.step()
+
+decorate(xlabel="Interval (minutes)", ylabel="CDF")
+```
+
+![출생 간격의 경험적 CDF와 평균이 같은 지수 모형 비교.](/labs/think-stats/figures/chap06-129-0.png)
+
+지수 모형은 자료의 CDF에 잘 맞습니다.
+
+`ExponentialCdf`에서 `make_cdf`를 사용하면 CDF를 **이산화**(discretize)할 수 있습니다. 등간격 값들에서 CDF를 계산해 이산적인 근사를 만든다는 뜻입니다.
+
+```python
+qs = np.linspace(0, 160)
+discrete_cdf_model = cdf_model.make_cdf(qs)
+discrete_cdf_model.step(color="gray")
+
+decorate(xlabel="Interval (minutes)", ylabel="CDF")
+```
+
+![연속 지수 CDF를 등간격 값에서 평가해 만든 이산 CDF의 계단 그림.](/labs/think-stats/figures/chap06-132-0.png)
+
+이산 CDF에서 연속 CDF로 가려면 계단 사이를 보간할 수 있습니다. `step` 대신 `plot`을 쓰면 이런 모습으로 그려집니다.
+
+```python
+discrete_cdf_model.plot(color="gray")
+
+decorate(xlabel="Interval (minutes)", ylabel="CDF")
+```
+
+<Figure kind="line" props={plots["chap06-134-0"]} caption="이산 CDF의 점 사이를 선으로 이은 그림. 계단 대신 보간된 곡선으로 보입니다. 가로축은 출생 간격(분)입니다." />
+
+마지막으로 PDF는 연속 CDF의 미분이고, CDF는 PDF의 적분입니다.
+
+이를 보이려고 SymPy로 지수분포의 CDF를 정의하고 미분하겠습니다.
+
+```python
+import sympy as sp
+
+x = sp.Symbol("x", real=True, positive=True)
+λ = sp.Symbol("λ", real=True, positive=True)
+
+cdf = 1 - sp.exp(-λ * x)
+cdf
+```
+
+$$
+\displaystyle 1 - e^{- x λ}
+$$
+
+```python
+pdf = sp.diff(cdf, x)
+pdf
+```
+
+$$
+\displaystyle λ e^{- x λ}
+$$
+
+결과를 적분하면 상수항을 제외하고 CDF를 되찾습니다. 부정적분에서는 적분상수가 정해지지 않습니다.
+
+> 번역자 주: 아래 결과에 1을 더하면 CDF인 `1 - exp(-λx)`가 됩니다. `F(0)=0`이라는 조건으로 이 상수를 정할 수 있습니다.
+
+```python
+sp.integrate(pdf, x)
+```
+
+$$
+\displaystyle - e^{- x λ}
+$$
+
+이 예제는 PMF, CDF, PDF를 각각 `Pmf`, `Cdf`, `Pdf` 객체로 표현하고, 서로 변환하는 과정을 보여줍니다.
+
+## 용어 정리
+
+- **연속적**(continuous): 수직선의 어떤 범위 안에서 어느 값이든 가질 수 있는 성질. 체중, 거리, 시간처럼 현실에서 측정하는 대부분의 양은 연속적입니다.
+- **이산적**(discrete): 정수나 범주처럼 서로 구별되는 값만 가질 수 있는 성질. 정확한 개수와 범주형 변수는 이산적입니다.
+- **확률밀도함수**(probability density function, PDF): 연속변수의 값에 따라 확률밀도가 어떻게 분포하는지 나타내는 함수. 어느 구간에서 PDF 아래의 넓이는 변수가 그 구간에 들어갈 확률입니다.
+- **확률밀도**(probability density): 특정 지점에서 PDF의 값. 그 자체가 확률은 아니지만 확률을 구하는 데 쓸 수 있습니다.
+- **커널 밀도 추정**(kernel density estimation, KDE): 표본으로 PDF를 추정하는 방법.
+- **이산화**(discretize): 연속적인 양을 이산적인 수준이나 범주로 나누어 근사하는 것.
+
+## 연습문제
+
+### 연습문제 6.1
+
+월드컵 축구에서 첫 골까지 걸리는 시간이 경기당 `lam=2.5`골인 지수분포로 잘 설명된다고 하겠습니다. 이 분포의 `ExponentialPdf`를 만들고 `area_under`로 첫 골이 전반전 안에 나올 확률을 구하세요. 이어서 `ExponentialCdf`로 같은 확률을 구해 결과가 일치하는지 확인하세요.
+
+`ExponentialPdf`로 첫 골이 후반전에 나올 확률을 구하세요. 이어서 `ExponentialCdf`로 같은 확률을 구하고 결과가 일치하는지 확인하세요.
+
+### 연습문제 6.2
+
+원문에서는 공연단 Blue Man Group의 지원 조건을 남성, 키 5피트 10인치~6피트 1인치, 즉 약 178~185cm라고 소개합니다. 미국 성인 남성 중 이 키 조건에 맞는 비율을 알아보겠습니다.
+
+BRFSS 남성 응답자의 키는 평균 178cm, 표준편차 7cm인 정규분포로 잘 설명됩니다.
+
+```python
+from thinkstats import read_brfss
+
+brfss = read_brfss()
+male = brfss.query("sex == 1")
+heights = male["htm3"].dropna()
+```
+
+```python
+from scipy.stats import trimboth
+
+trimmed = trimboth(heights, 0.01)
+m, s = np.mean(trimmed), np.std(trimmed)
+m, s
+```
+
+```text
+(np.float64(178.10278947124948), np.float64(7.017054887136004))
+```
+
+다음 `NormalCdf`는 양 끝을 제외한 자료와 평균·표준편차가 같은 정규분포를 나타냅니다.
+
+```python
+from thinkstats import NormalCdf
+
+cdf_normal_model = NormalCdf(m, s, name='normal model')
+```
+
+자료의 CDF와 비교하면 다음과 같습니다.
+
+```python
+cdf_height = Cdf.from_seq(heights, name="data")
+cdf_normal_model.plot(ls=":", color="gray")
+cdf_height.step()
+
+xlim = [140, 210]
+decorate(xlabel="Height (cm)", ylabel="CDF", xlim=xlim)
+```
+
+![BRFSS 남성 응답자의 키 CDF와 양 끝을 제외한 자료로 맞춘 정규 모형의 비교.](/labs/think-stats/figures/chap06-158-0.png)
+
+`gaussian_kde`로 남성 키의 PDF를 근사하는 `Pdf`를 만드세요. 힌트: 추정 밀도의 매끄러운 정도를 조절하는 `bw_method` 인수를 살펴보세요. 추정 밀도를 그리고, 평균이 `m`, 표준편차가 `s`인 `NormalPdf`와 비교하세요.
+
+`NormalPdf`와 `area_under`로 정규 모형에서 키가 178~185cm인 사람의 비율을 구하세요. `NormalCdf`로 같은 비율을 구하고 일치하는지 확인하세요. 마지막으로 자료의 경험적 `Cdf`로 데이터셋에서 같은 범위에 속하는 사람의 비율을 구하세요.
+
+## 번역과 실행에 관하여
+
+원문 셀의 출력과 원본 PNG 그림은 [같은 판의 실행된 원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap06.ipynb)에서 가져왔습니다. 시드가 고정된 난수 예제는 같은 실행 순서에서 재현됩니다. 시드가 없는 예제의 그림은 실행마다 달라질 수 있습니다. 연습문제의 해답은 넣지 않았습니다. 원문 설명과 코드가 어긋나는 곳에는 번역자 주를 붙였습니다.
+
+[Think Stats: Exploratory Data Analysis in Python, 3rd Edition](https://allendowney.github.io/ThinkStats/index.html)
+
+Copyright 2024 [Allen B. Downey](https://allendowney.com)
+
+코드 라이선스: [MIT](https://mit-license.org/)
+
+본문·그림과 한국어 번역 라이선스: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
+원문 코드가 불러오는 보조 모듈 `thinkstats.py`, `nsfg.py` 등은 각 파일의 라이선스 고지를 따릅니다. 블로그 실습은 이 모듈들을 재배포하지 않습니다.
+
+《Think Stats》 3판은 [Bookshop.org](https://bookshop.org/a/98697/9781098190255)와 [Amazon](https://amzn.to/42lmxwu)에서 구할 수 있습니다. 두 링크는 원저자의 제휴 링크입니다. 책이 도움이 되었다면 Green Tea Press의 [무료 공개 교육 자료 제작을 후원](https://greenteapress.com/support/?book=ts3)하는 것도 생각해 주세요.
+
+
+[← 5장](/posts/statistics/think-stats-05) · [7장 →](/posts/statistics/think-stats-07)

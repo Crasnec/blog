@@ -1,0 +1,925 @@
+---
+title: 'Think Stats 5장: 분포 모형'
+published: 2026-10-22
+description: '이항·포아송·지수·정규·로그정규분포를 시뮬레이션과 실제 자료로 비교하는 Think Stats 3판 5장 한국어 번역.'
+category: statistics
+lang: ko
+tags: [statistics, think-stats, python, translation]
+---
+
+import CodePlayground from '../../../components/CodePlayground.astro';
+import Figure from '../../../components/Figure.astro';
+import plots from './_figures/plots.json';
+import poissonCode from '../../../../public/labs/think-stats/chap05-poisson.py?raw';
+import exponentialCode from '../../../../public/labs/think-stats/chap05-exponential.py?raw';
+import chapterCode from '../../../../public/labs/think-stats/chap05-browser.py?raw';
+
+Allen B. Downey의 《Think Stats》 3판, 5장 「Modeling Distributions」의 한국어 번역입니다. [원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/nb/chap05.ipynb)을 바탕으로 옮겼습니다.
+
+<a href="/labs/think-stats/chap05-ko.ipynb" download="think-stats-05-ko.ipynb">한국어 노트북 내려받기</a> · [원문 웹판](https://allendowney.github.io/ThinkStats/chap05.html)
+
+실행창은 각각 독립적으로 실행됩니다. 입력을 바꾸면 그 아래의 숫자와 그림이 바뀝니다. 코드 조각은 본문 설명을 위한 것이며, 전체 원문 셀은 내려받는 노트북에 있습니다.
+
+
+지금까지 사용한 분포는 경험적 관측, 즉 데이터에 바탕을 두므로 경험분포라고 합니다. 현실의 많은 데이터셋은 대개 간단한 수학 함수에 바탕을 둔 이론분포로 가깝게 나타낼 수 있습니다. 이 장에서는 이런 이론분포 몇 가지와, 그 분포로 설명할 수 있는 자료를 소개합니다.
+
+다음과 같은 예를 살펴보겠습니다.
+
+- 스키트 사격 경기의 명중 횟수와 실패 횟수는 이항분포로 잘 설명됩니다.
+- 아이스하키나 축구 같은 경기에서 득점 수는 포아송분포를, 득점 사이의 시간은 지수분포를 따릅니다.
+- 출생 체중은 가우스분포라고도 하는 정규분포를 따르고, 성인의 체중은 로그정규분포를 따릅니다.
+
+이 분포나 운동 경기에 익숙하지 않아도 필요한 내용을 설명하겠습니다. 각 예제에서는 간단한 모형에 따른 시뮬레이션부터 시작해, 결과가 이론분포를 따르는지 확인합니다. 그런 다음 실제 자료가 모형과 얼마나 잘 맞는지 살펴보겠습니다.
+
+
+## 이항분포
+
+첫 번째 예는 공중으로 날아가는 점토 표적을 산탄총으로 맞히는 스키트 사격입니다. 원문에서 다루는 올림픽을 포함한 국제 경기에서는 라운드당 표적 25개씩 다섯 라운드를 치르며, 승자를 가리기 위해 필요하면 추가 라운드를 진행합니다.
+
+이 경기를 설명하는 모형으로, 모든 참가자가 모든 표적을 맞힐 확률이 똑같이 `p`라고 가정하겠습니다. 물론 단순화한 모형입니다. 실제로는 선수마다 명중 확률이 다르고, 같은 선수도 시도에 따라 달라질 수 있습니다. 하지만 현실적이지 않은 이 모형도 놀랍도록 정확한 예측을 한다는 것을 보게 될 것입니다.
+
+다음 함수로 모형을 시뮬레이션하겠습니다. 표적 수 `n`과 각 표적의 명중 확률 `p`를 받아, 명중과 실패를 나타내는 1과 0의 시퀀스를 반환합니다.
+
+```python
+def flip(n, p):
+    choices = [1, 0]
+    probs = [p, 1 - p]
+    return np.random.choice(choices, n, p=probs)
+```
+
+각 표적의 명중 확률이 90%일 때 표적 25개로 된 한 라운드를 시뮬레이션하는 예입니다.
+
+```python
+# Seed the random number generator so we get the same results every time
+np.random.seed(1)
+```
+
+```python
+flip(25, 0.9)
+```
+
+```text
+array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+       1, 1, 1])
+```
+
+더 긴 시퀀스를 생성하고 결과의 `Pmf`를 구하면, 1과 0의 비율이 대략 예상대로인지 확인할 수 있습니다.
+
+```python
+from empiricaldist import Pmf
+
+seq = flip(1000, 0.9)
+pmf = Pmf.from_seq(seq)
+pmf
+```
+
+| 값 | probs |
+| --- | --- |
+| 0 | 0.101 |
+| 1 | 0.899 |
+
+이제 `flip`으로 스키트 사격 한 라운드를 시뮬레이션하고 명중 횟수를 반환할 수 있습니다.
+
+```python
+def simulate_round(n, p):
+    seq = flip(n, p)
+    return seq.sum()
+```
+
+큰 대회에서 선수 200명이 다섯 라운드씩 사격하고, 모두의 명중 확률이 `p=0.9`라고 하겠습니다. `simulate_round`를 1,000번 호출하면 이런 대회를 시뮬레이션할 수 있습니다.
+
+```python
+n = 25
+p = 0.9
+results_sim = [simulate_round(n, p) for i in range(1000)]
+```
+
+평균 점수는 `n`과 `p`의 곱인 `22.5`에 가깝습니다.
+
+```python
+np.mean(results_sim), n * p
+```
+
+```text
+(np.float64(22.522), 22.5)
+```
+
+결과의 분포는 다음과 같습니다.
+
+```python
+from empiricaldist import Pmf
+
+pmf_sim = Pmf.from_seq(results_sim, name="simulation results")
+
+pmf_sim.bar()
+decorate(xlabel="Hits", ylabel="PMF")
+```
+
+![표적 25개와 명중 확률 0.9로 생성한 명중 횟수의 PMF. 봉우리는 22~23회 근처이고 왼쪽 꼬리가 깁니다.](/labs/think-stats/figures/chap05-020-0.png)
+
+봉우리는 평균 근처에 있고, 분포는 왼쪽으로 치우쳐 있습니다.
+
+시뮬레이션을 하지 않고 이 분포를 예측할 수도 있습니다. 수학적으로 이 결과는 **이항분포**(binomial distribution)를 따르며, 그 PMF는 쉽게 계산할 수 있습니다.
+
+```python
+from scipy.special import comb
+
+
+def binomial_pmf(k, n, p):
+    return comb(n, k) * (p**k) * ((1 - p) ** (n - k))
+```
+
+SciPy의 `comb` 함수는 `n`개 중 `k`개를 고르는 조합의 수를 계산합니다. 영어로는 흔히 “n choose k”라고 읽습니다.
+
+`binomial_pmf`는 `p`가 주어졌을 때 `n`번 시도해 `k`번 명중할 확률을 계산합니다. 여러 `k` 값으로 함수를 호출하면 결과의 분포를 나타내는 `Pmf`를 만들 수 있습니다.
+
+```python
+ks = np.arange(16, n + 1)
+ps = binomial_pmf(ks, n, p)
+pmf_binom = Pmf(ps, ks, name="binomial model")
+```
+
+시뮬레이션 결과와 비교하면 다음과 같습니다.
+
+```python
+from thinkstats import two_bar_plots
+
+two_bar_plots(pmf_sim, pmf_binom)
+decorate(xlabel="Hits", ylabel="PMF")
+```
+
+![사격 시뮬레이션과 이항 모형의 명중 횟수 PMF 비교. 작은 무작위 차이를 빼면 두 모양이 비슷합니다.](/labs/think-stats/figures/chap05-026-0.png)
+
+두 분포는 비슷하고, 시뮬레이션의 우연한 변동 때문에 작은 차이가 있습니다. 시뮬레이션과 모형이 같은 가정, 특히 매 시도의 성공 확률이 같다는 가정에 바탕을 두므로 놀라운 일은 아닙니다. 모형을 더 엄격히 확인하려면 실제 자료와 비교해야 합니다.
+
+2020년 하계 올림픽 남자 스키트 사격의 위키백과 문서에서 예선 결과 표를 가져올 수 있습니다. 자료를 내려받는 방법은 이 장의 노트북에 있습니다.
+
+이 자료는 2024년 7월 15일 [2020년 하계 올림픽 남자 스키트 사격 문서](https://en.wikipedia.org/wiki/Shooting_at_the_2020_Summer_Olympics_–_Men%27s_skeet)에서 내려받았습니다.
+
+```python
+filename = "Shooting_at_the_2020_Summer_Olympics_Mens_skeet"
+```
+
+```python
+tables = pd.read_html(filename)
+table = tables[6]
+table.head()
+```
+
+| 값 | Rank | Athlete | Country | 1 | 2 | 3 | 4 | 5 | Total[3] | Shoot-off | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 0 | 1 | Éric Delaunay | France | 25 | 25 | 25 | 24 | 25 | 124 | +6 | Q, OR |
+| 1 | 2 | Tammaro Cassandro | Italy | 24 | 25 | 25 | 25 | 25 | 124 | +5 | Q, OR |
+| 2 | 3 | Eetu Kallioinen | Finland | 25 | 25 | 24 | 25 | 24 | 123 | NaN | Q |
+| 3 | 4 | Vincent Hancock | United States | 25 | 25 | 25 | 25 | 22 | 122 | +8 | Q |
+| 4 | 5 | Abdullah Al-Rashidi | Kuwait | 25 | 25 | 24 | 25 | 23 | 122 | +7 | Q |
+
+표에는 선수 한 명당 한 행이 있고, 다섯 라운드 각각에 해당하는 열이 있습니다. 결과가 든 열들을 선택하고 NumPy의 `flatten`으로 하나의 배열에 모으겠습니다.
+
+```python
+columns = ["1", "2", "3", "4", "5"]
+results = table[columns].values.flatten()
+```
+
+선수 30명이 25발씩 150라운드를 치렀으므로, 총 3,750번 시도해 3,575번 명중했습니다.
+
+> 번역자 주: 원문 문장에서는 시도 횟수와 명중 횟수가 뒤바뀌어 있습니다. 아래 코드의 출력에 맞춰 바로잡았습니다.
+
+```python
+total_shots = 25 * len(results)
+total_hits = results.sum()
+n, total_shots, total_hits
+```
+
+```text
+(25, 3750, np.int64(3575))
+```
+
+따라서 전체 성공률은 95.3%입니다.
+
+```python
+p = total_hits / total_shots
+p
+```
+
+```text
+np.float64(0.9533333333333334)
+```
+
+이제 `n=25`와 방금 구한 `p`를 사용해 이항분포를 나타내는 `Pmf`를 계산하겠습니다.
+
+```python
+ps = binomial_pmf(ks, n, p)
+pmf_binom = Pmf(ps, ks, name="binomial model")
+```
+
+실제 결과의 `Pmf`와 비교할 수 있습니다.
+
+```python
+pmf_results = Pmf.from_seq(results, name="actual results")
+
+two_bar_plots(pmf_results, pmf_binom)
+decorate(xlabel="Hits", ylabel="PMF")
+```
+
+![올림픽 사격 예선 자료와 실제 명중률로 맞춘 이항분포의 비교. 높은 명중 횟수 쪽에 확률이 모입니다.](/labs/think-stats/figures/chap05-041-0.png)
+
+모든 선수의 실력이 똑같고 변하지 않는다는 비현실적인 가정에도 불구하고, 이항 모형은 자료의 분포에 잘 맞습니다.
+
+입력란에 한 라운드의 표적 수와 명중 확률을 넣으면 이항분포와 1,000라운드의 시뮬레이션을 비교합니다. 빈칸이면 25개와 0.9를 씁니다. 이때 이론 평균은 22.5회입니다. 시도들은 독립이고 명중 확률은 일정하다고 가정합니다. 시뮬레이션의 시드를 고정했으므로 같은 입력에는 같은 결과가 나옵니다.
+
+<CodePlayground title="Think Stats 5장 · 분포 모형" code={chapterCode} language="python" timeout={60000} />
+
+## 포아송분포
+
+운동 경기의 결과가 예측 가능한 패턴을 따르는 다른 예로, 아이스하키 경기의 득점 수를 살펴보겠습니다.
+
+60분, 즉 3,600초짜리 경기를 시뮬레이션하는 것부터 시작합니다. 두 팀을 합쳐 한 경기에서 평균 6골을 넣고, 매초 득점할 확률 `p`가 같다고 가정하겠습니다.
+
+```python
+n = 3600
+m = 6
+p = m / 3600
+p
+```
+
+```text
+0.0016666666666666668
+```
+
+다음 함수는 `n`초를 시뮬레이션하고 총득점 수를 반환합니다.
+
+```python
+def simulate_goals(n, p):
+    return flip(n, p).sum()
+```
+
+많은 경기를 시뮬레이션하면 경기당 평균 득점 수가 6에 가까운지 확인할 수 있습니다.
+
+```python
+goals = [simulate_goals(n, p) for i in range(1001)]
+np.mean(goals)
+```
+
+```text
+np.float64(6.021978021978022)
+```
+
+이 결과를 이항분포로 설명할 수도 있지만, `n`이 크고 `p`가 작으면 **포아송분포**(Poisson distribution)로도 잘 설명됩니다. 포아송분포는 보통 그리스 문자 λ, “람다”로 나타내는 값 하나로 정해집니다. 코드에서는 `lam`을 사용합니다. `lambda`는 Python 예약어여서 변수 이름으로 쓸 수 없기 때문입니다. `lam`은 득점률을 나타내며, 이 예에서는 경기당 6골입니다.
+
+포아송분포의 PMF도 쉽게 계산할 수 있습니다. `lam`이 주어지면 다음 함수로 한 경기에서 `k`골이 나올 확률을 계산합니다.
+
+```python
+from scipy.special import factorial
+
+
+def poisson_pmf(k, lam):
+    """Compute the Poisson PMF.
+
+    k (int or array-like): The number of occurrences
+    lam (float): The rate parameter (λ) of the Poisson distribution
+
+    returns: float or ndarray
+    """
+    return (lam**k) * np.exp(-lam) / factorial(k)
+```
+
+SciPy의 `factorial` 함수는 `1`부터 `k`까지의 정수를 모두 곱합니다.
+
+여러 `k` 값으로 `poisson_pmf`를 호출하면 결과의 분포를 나타내는 `Pmf`를 만들 수 있습니다.
+
+```python
+lam = 6
+ks = np.arange(20)
+ps = poisson_pmf(ks, lam)
+pmf_poisson = Pmf(ps, ks, name="Poisson model")
+```
+
+분포의 평균이 6에 가까운지 확인할 수 있습니다.
+
+```python
+pmf_poisson.normalize()
+pmf_poisson.mean()
+```
+
+```text
+np.float64(5.999925498375129)
+```
+
+다음 그림은 시뮬레이션 결과와 평균이 같은 포아송분포를 비교합니다.
+
+```python
+pmf_sim = Pmf.from_seq(goals, name="simulation")
+
+two_bar_plots(pmf_sim, pmf_poisson)
+decorate(xlabel="Goals", ylabel="PMF")
+```
+
+![경기당 평균 6골인 시뮬레이션과 포아송분포의 PMF 비교. 두 분포의 봉우리와 퍼짐이 비슷합니다.](/labs/think-stats/figures/chap05-056-0.png)
+
+우연한 변동으로 생긴 작은 차이를 빼면 두 분포는 비슷합니다. 시뮬레이션과 포아송 모형 모두 경기의 매초 득점 확률이 같다고 가정하므로 놀라운 일은 아닙니다. 더 엄격히 확인하려면 실제 자료에 얼마나 잘 맞는지 보아야 합니다.
+
+저는 HockeyReference에서 북미아이스하키리그(NHL) 2023~2024 정규 시즌의 모든 경기 결과를 내려받았습니다. 플레이오프는 포함하지 않았습니다. 연장전과 승부치기를 제외하고, 정규 경기 시간 60분 동안의 득점 정보를 추출했습니다. 결과는 경기마다 키 하나가 있는 HDF 파일에 들어 있습니다. 각 키에는 경기 시작 후 몇 초에 골이 들어갔는지 나타내는 목록이 있습니다. 자료를 내려받는 방법은 이 장의 노트북에 있습니다.
+
+원자료는 2024년 7월 16일 [HockeyReference의 NHL 2023~2024 경기 결과](https://www.hockey-reference.com/leagues/NHL_2024_games.html)에서 내려받았습니다.
+
+파일의 키들은 다음과 같이 읽습니다.
+
+```python
+filename = "nhl_2023_2024.hdf"
+
+with pd.HDFStore(filename, "r") as store:
+    keys = store.keys()
+
+len(keys), keys[0]
+```
+
+```text
+(1312, '/202310100PIT')
+```
+
+정규 시즌에는 1,312경기가 있었습니다. 각 키에는 경기 날짜와 홈 팀의 세 글자 약어가 들어 있습니다. `read_hdf`로 키를 조회하면 득점 시각 목록을 얻을 수 있습니다.
+
+```python
+times = pd.read_hdf(filename, key=keys[0])
+times
+```
+
+```text
+0     424
+1    1916
+2    2137
+3    3005
+4    3329
+5    3513
+dtype: int64
+```
+
+파일에서 처음 조회한 경기에서는 여섯 골이 나왔습니다. 첫 골은 시작 424초 뒤, 마지막 골은 3,513초 뒤로, 종료까지 87초를 남긴 때였습니다.
+
+```python
+3600 - times[5]
+```
+
+```text
+np.int64(87)
+```
+
+다음 반복문은 모든 경기 결과를 읽고, 경기마다 득점 수를 세어 목록에 저장합니다.
+
+```python
+goals = []
+
+for key in keys:
+    times = pd.read_hdf(filename, key=key)
+    n = len(times)
+    goals.append(n)
+```
+
+경기당 평균 득점 수는 6을 조금 넘습니다.
+
+```python
+lam = np.mean(goals)
+lam
+```
+
+```text
+np.float64(6.0182926829268295)
+```
+
+`poisson_pmf`로 자료와 평균이 같은 포아송분포의 `Pmf`를 만들 수 있습니다.
+
+```python
+ps = poisson_pmf(ks, lam)
+pmf_poisson = Pmf(ps, ks, name="Poisson model")
+```
+
+자료의 PMF와 비교하면 다음과 같습니다.
+
+```python
+pmf_goals = Pmf.from_seq(goals, name="goals scored")
+
+two_bar_plots(pmf_goals, pmf_poisson)
+decorate(xlabel="Goals", ylabel="PMF")
+```
+
+![NHL 정규 시즌의 경기별 득점 수와 평균을 맞춘 포아송분포 비교. 대체로 비슷하지만 구간별 차이가 있습니다.](/labs/think-stats/figures/chap05-073-0.png)
+
+포아송분포는 자료에 잘 맞습니다. 아이스하키의 득점 과정을 설명하는 좋은 모형일 수 있다는 뜻입니다.
+
+**브라우저 실습: 평균 득점 수 바꾸기**
+
+경기당 평균을 바꾸면 포아송 모형의 평균과 분산이 함께 바뀝니다. 기본값 6에서 0골일 확률은 약 0.002479입니다. 1000경기 시뮬레이션의 평균·분산은 모형 값과 정확히 같지는 않습니다.
+
+<CodePlayground title="5장 · 평균 득점 수 바꾸기" code={poissonCode} language="python" timeout={60000} />
+
+## 지수분포
+
+앞 절에서는 매초 득점 확률이 같은 단순한 아이스하키 경기 모형을 시뮬레이션했습니다. 같은 모형에서 첫 골까지의 시간은 **지수분포**(exponential distribution)를 따릅니다.
+
+이를 보이려고 다시 두 팀이 평균 6골을 넣는다고 가정하고, 매초 득점할 확률을 구하겠습니다.
+
+```python
+n = 3600
+m = 6
+p = m / 3600
+p
+```
+
+```text
+0.0016666666666666668
+```
+
+다음 함수는 `n`초를 시뮬레이션하고 `argmax`로 첫 골의 시각을 찾습니다.
+
+```python
+def simulate_first_goal(n, p):
+    return flip(n, p).argmax()
+```
+
+`flip`의 결과는 1과 0의 시퀀스이므로 최댓값은 거의 항상 1입니다. 골이 하나라도 있으면 `argmax`는 첫 번째 골의 인덱스를 반환합니다. 골이 없으면 0을 반환하지만, 드물게 일어나므로 여기서는 무시하겠습니다.
+
+`simulate_first_goal`로 1,001경기를 시뮬레이션하고 첫 골까지 걸린 시간을 목록으로 만들겠습니다.
+
+```python
+np.random.seed(3)
+```
+
+```python
+first_goal_times = [simulate_first_goal(n, p) for i in range(1001)]
+mean = np.mean(first_goal_times)
+mean
+```
+
+```text
+np.float64(597.7902097902098)
+```
+
+첫 골까지의 평균 시간은 600초, 즉 10분에 가깝습니다. 60분짜리 경기에서 평균 6골을 기대한다면 평균 10분마다 한 골을 기대할 수 있으니 자연스러운 결과입니다.
+
+`n`이 크고 `p`가 작을 때, 첫 골까지의 시간 분포가 지수분포에 가까워진다는 것을 수학적으로 보일 수 있습니다.
+
+시뮬레이션에서 서로 다른 시간 값이 많이 생기므로 PMF 대신 CDF로 분포를 비교하겠습니다. 지수분포의 CDF는 쉽게 계산할 수 있습니다.
+
+> 번역자 주: 위 시뮬레이션은 초 단위의 이산 모형이며 경기 종료 시점에서 끊깁니다. 무득점 경기의 0 반환도 포함합니다. 여기서 지수분포는 이런 단순화에 대한 연속 근사입니다.
+
+```python
+def exponential_cdf(x, lam):
+    """Compute the exponential CDF.
+
+    x: float or sequence of floats
+    lam: rate parameter
+
+    returns: float or NumPy array of cumulative probability
+    """
+    return 1 - np.exp(-lam * x)
+```
+
+`lam`은 단위 시간당 평균 사건 수입니다. 여기서는 초당 득점 수입니다. 시뮬레이션 결과의 평균으로 `lam`을 구할 수 있습니다.
+
+```python
+lam = 1 / mean
+lam
+```
+
+```text
+np.float64(0.0016728276636563566)
+```
+
+여러 시간 값으로 함수를 호출하면 첫 골 시각의 분포를 근사할 수 있습니다. NumPy의 `linspace`는 등간격 배열을 만듭니다. 여기서는 0과 3,600을 모두 포함해 201개 값을 만듭니다.
+
+```python
+from empiricaldist import Cdf
+
+ts = np.linspace(0, 3600, 201)
+ps = exponential_cdf(ts, lam)
+cdf_expo = Cdf(ps, ts, name="exponential model")
+```
+
+다음 그림은 시뮬레이션 결과와 방금 계산한 지수분포를 비교합니다.
+
+```python
+cdf_sim = Cdf.from_seq(first_goal_times, name="simulation")
+
+cdf_expo.plot(ls=":", color="gray")
+cdf_sim.plot()
+
+decorate(xlabel="Time of first goal (seconds)", ylabel="CDF")
+```
+
+![시뮬레이션의 첫 골 시각 CDF와 지수 모형 비교. 두 곡선이 가깝게 겹칩니다.](/labs/think-stats/figures/chap05-089-0.png)
+
+지수 모형은 시뮬레이션 결과에 아주 잘 맞습니다. 하지만 실제 자료에 얼마나 잘 맞는지가 더 엄격한 확인입니다.
+
+다음 반복문은 모든 경기 결과를 읽고 첫 골의 시각을 목록에 저장합니다. 골이 없으면 `nan`을 넣습니다.
+
+```python
+filename = "nhl_2023_2024.hdf"
+
+with pd.HDFStore(filename, "r") as store:
+    keys = store.keys()
+```
+
+```python
+firsts = []
+
+for key in keys:
+    times = pd.read_hdf(filename, key=key)
+    if len(times) > 0:
+        firsts.append(times[0])
+    else:
+        firsts.append(np.nan)
+```
+
+득점률을 추정할 때는 `nan`을 제외하고 시간의 평균을 구하는 `nanmean`을 사용할 수 있습니다.
+
+```python
+lam = 1 / np.nanmean(firsts)
+lam
+```
+
+```text
+np.float64(0.0015121567467720825)
+```
+
+이제 자료에서 추정한 득점률로 지수분포의 CDF를 계산할 수 있습니다.
+
+```python
+ps = exponential_cdf(ts, lam)
+cdf_expo = Cdf(ps, ts, name="exponential model")
+```
+
+자료의 CDF를 계산할 때는 `dropna=False`를 전달해 `nan` 값들을 끝에 포함하겠습니다.
+
+```python
+cdf_firsts = Cdf.from_seq(firsts, name="data", dropna=False)
+cdf_firsts.tail()
+```
+
+| 값 | probs |
+| --- | --- |
+| 3286.0 | 0.996951 |
+| 3581.0 | 0.997713 |
+| NaN | 1.000000 |
+
+다음 그림은 지수분포와 자료의 분포를 비교합니다.
+
+```python
+cdf_expo.plot(ls=":", color="gray")
+cdf_firsts.plot()
+
+decorate(xlabel="Time of first goal (seconds)", ylabel="CDF")
+```
+
+![NHL 자료의 첫 골 시각 CDF와 지수 모형 비교. 초반에는 실제 누적득점 비율이 모형보다 낮습니다.](/labs/think-stats/figures/chap05-100-0.png)
+
+일부 구간에서는 자료가 모형에서 벗어납니다. 처음 1,000초 동안의 득점이 모형의 예측보다 적어 보입니다. 그래도 모형은 자료에 잘 맞습니다.
+
+득점 수의 포아송 모형과 시간의 지수 모형에는 경기의 어느 초에서든 득점할 가능성이 같다는 공통 가정이 있습니다. 하키 팬에게 물어보면 아니라고 할 것이고, 그 말이 맞습니다. 현실은 이런 가정을 여러 면에서 어깁니다. 그런데도 이론분포는 실제 자료에 놀랄 만큼 잘 맞는 일이 많습니다.
+
+**브라우저 실습: 첫 골까지 기다리는 시간**
+
+득점률 6은 평균 대기 시간 10분에 해당합니다. 첫 1분 안에 득점할 확률은 약 0.095163입니다. 득점률을 2로 바꾸면 평균 대기 시간은 30분이 됩니다.
+
+<Figure kind="line" props={plots["exponential-models"]} caption="가로축은 분, 세로축은 누적확률입니다. 득점률 6인 모형이 득점률 2보다 첫 골을 더 빨리 예측합니다." />
+
+<CodePlayground title="5장 · 첫 골까지 기다리는 시간" code={exponentialCode} language="python" timeout={60000} />
+
+## 정규분포
+
+현실에서 측정하는 많은 값은 가우스분포나 “종 모양 곡선”이라고도 하는 **정규분포**(normal distribution)를 따릅니다. 이 분포가 어디서 나오는지 보려고 거대한 호박이 자라는 모형을 생각해 보겠습니다. 날씨가 나쁘면 하루에 1파운드, 보통이면 2파운드, 좋으면 3파운드씩 자란다고 하겠습니다. 매일 날씨가 나쁨·보통·좋음 중 하나일 확률은 같다고 가정합니다.
+
+다음 함수는 이 모형을 `n`일 동안 시뮬레이션하고 체중 증가량의 합을 반환합니다.
+
+```python
+def simulate_growth(n):
+    choices = [1, 2, 3]
+    gains = np.random.choice(choices, n)
+    return gains.sum()
+```
+
+NumPy `random` 모듈의 `choice` 함수는 값의 시퀀스에서 무작위로 `n`개를 선택한 배열을 만듭니다. 여기서는 `choices`가 그 시퀀스입니다.
+
+서로 다른 장소와 날씨에서 1,001명이 호박을 기른다고 하겠습니다. 100일의 성장 과정을 시뮬레이션하면 1,001개의 체중 목록을 얻습니다.
+
+```python
+sim_weights = [simulate_growth(100) for i in range(1001)]
+m, s = np.mean(sim_weights), np.std(sim_weights)
+m, s
+```
+
+```text
+(np.float64(199.37062937062936), np.float64(8.388630840376777))
+```
+
+평균은 200파운드에 가깝고 표준편차는 약 8파운드입니다. 체중이 정규분포를 따르는지 알아보려고 다음 함수를 사용하겠습니다. 표본을 받아 그 표본과 평균·표준편차가 같은 정규분포의 `Cdf`를 만듭니다. 평균보다 4표준편차 낮은 값부터 4표준편차 높은 값까지 계산합니다.
+
+```python
+from scipy.stats import norm
+
+
+def make_normal_model(data):
+    m, s = np.mean(data), np.std(data)
+    low, high = m - 4 * s, m + 4 * s
+    qs = np.linspace(low, high, 201)
+    ps = norm.cdf(qs, m, s)
+    return Cdf(ps, qs, name="normal model")
+```
+
+사용법은 다음과 같습니다.
+
+```python
+cdf_model = make_normal_model(sim_weights)
+```
+
+이제 시뮬레이션 결과의 분포를 나타내는 `Cdf`를 만들겠습니다.
+
+```python
+cdf_sim_weights = Cdf.from_seq(sim_weights, name="simulation")
+```
+
+다음 함수로 두 분포를 비교하겠습니다. `cdf_model`과 `cdf_data`는 `Cdf` 객체입니다. `xlabel`은 문자열이고, `options`는 `cdf_data`를 그리는 방식을 정하는 옵션 사전입니다.
+
+```python
+def two_cdf_plots(cdf_model, cdf_data, xlabel="", **options):
+    cdf_model.plot(ls=":", color="gray")
+    cdf_data.plot(**options)
+    decorate(xlabel=xlabel, ylabel="CDF")
+```
+
+결과는 다음과 같습니다.
+
+```python
+two_cdf_plots(cdf_model, cdf_sim_weights, xlabel="Weight (pounds)")
+```
+
+![하루에 1~3파운드씩 더하는 호박 성장 시뮬레이션과 정규 모형의 CDF 비교.](/labs/think-stats/figures/chap05-115-0.png)
+
+정규 모형은 체중의 분포에 아주 잘 맞습니다. 일반적으로 무작위 요인을 충분히 많이 더하면 그 합은 정규분포에 가까워지는 경향이 있습니다. [14장](https://allendowney.github.io/ThinkStats/chap14.html)에서 다시 다룰 중심극한정리의 결과입니다.
+
+먼저 정규분포가 실제 자료에 얼마나 잘 맞는지 보겠습니다. 미국 가족성장조사(NSFG)의 출생 체중 분포를 예로 사용하겠습니다. `read_fem_preg`로 자료를 읽고, 파운드 단위 출생 체중인 `totalwgt_lb`를 선택합니다.
+
+이하 코드에서는 1장에서와 같은 방식으로 읽고 정제한 자료를 사용합니다.
+
+```python
+import nsfg
+
+preg = nsfg.read_fem_preg()
+birth_weights = preg["totalwgt_lb"].dropna()
+```
+
+출생 체중의 평균은 약 7.27파운드이고 표준편차는 1.4파운드입니다. 하지만 앞에서 보았듯, 자료에는 오류로 보이는 이상치가 있습니다.
+
+```python
+m, s = np.mean(birth_weights), np.std(birth_weights)
+m, s
+```
+
+```text
+(np.float64(7.265628457623368), np.float64(1.40821553384062))
+```
+
+이상치가 평균과 표준편차의 추정에 미치는 영향을 줄이려고 SciPy의 `trimboth`로 양 끝의 값을 제외하겠습니다. `0.01`은 양쪽에서 각각 1%씩 제외한다는 뜻입니다.
+
+```python
+from scipy.stats import trimboth
+
+trimmed = trimboth(birth_weights, 0.01)
+m, s = np.mean(trimmed), np.std(trimmed)
+m, s
+```
+
+```text
+(np.float64(7.280883100022579), np.float64(1.2430657948614345))
+```
+
+양 끝을 제외한 자료의 평균은 조금 높아지고 표준편차는 상당히 낮아집니다. 이 자료로 정규 모형을 만들겠습니다.
+
+> 번역자 주: 원문은 평균이 낮아진다고 설명하지만, 출력은 약 7.2656에서 7.2809로 높아집니다. 출력에 맞춰 옮겼습니다.
+
+```python
+cdf_model = make_normal_model(trimmed)
+```
+
+자료의 `Cdf`와 비교합니다.
+
+```python
+cdf_birth_weight = Cdf.from_seq(birth_weights, name='data')
+
+two_cdf_plots(cdf_model, cdf_birth_weight, xlabel="Birth weight (pounds)")
+```
+
+![출생 체중 자료와 양 끝을 제외한 자료로 맞춘 정규 모형의 CDF. 가벼운 아기 쪽에서 차이가 있습니다.](/labs/think-stats/figures/chap05-128-0.png)
+
+5파운드 미만을 빼면 정규 모형은 자료에 잘 맞습니다. 그 구간에서는 자료의 분포가 모형보다 왼쪽에 있습니다. 가장 가벼운 아기들이 정규분포에서 예상한 것보다 더 가볍다는 뜻입니다. 현실은 대개 간단한 수학 모형보다 복잡합니다.
+
+## 로그정규분포
+
+앞 절에서는 날씨에 따라 하루에 1~3파운드씩 호박이 자란다고 가정했습니다. 이번에는 성장량이 현재 체중에 비례한다고 하겠습니다. 큰 호박이 작은 호박보다 하루에 더 많이 자라는 것으로, 아마 더 현실적인 가정일 것입니다.
+
+다음 함수는 이런 비례 성장을 시뮬레이션합니다. 날씨가 나쁘면 체중의 3%, 보통이면 5%, 좋으면 7%씩 자랍니다. 이번에도 매일 세 날씨의 확률이 같다고 가정합니다.
+
+```python
+def simulate_proportionate_growth(n):
+    choices = [1.03, 1.05, 1.07]
+    gains = np.random.choice(choices, n)
+    return gains.prod()
+```
+
+호박의 체중이 3% 늘면 나중 체중은 처음 체중에 1.03을 곱한 값입니다. 따라서 무작위 성장 배율을 골라 모두 곱하면 100일 뒤의 체중을 계산할 수 있습니다.
+
+이 함수를 1,001번 호출해 호박 1,001개의 체중을 저장하겠습니다.
+
+```python
+sim_weights = [simulate_proportionate_growth(100) for i in range(1001)]
+np.mean(sim_weights), np.std(sim_weights)
+```
+
+```text
+(np.float64(130.80183363824722), np.float64(20.956047434921466))
+```
+
+평균 체중은 약 131파운드이고 표준편차는 약 21파운드입니다. 앞 모형보다 호박은 작지만 체중의 변동은 큽니다.
+
+이 체중들은 **로그정규분포**(lognormal distribution)를 따른다는 것을 수학적으로 보일 수 있습니다. 체중에 로그를 취한 값이 정규분포를 따른다는 뜻입니다. 확인하려고 로그값의 평균과 표준편차를 구하겠습니다. 로그의 밑은 무엇이든 쓸 수 있지만, 결과를 해석하기 쉽도록 밑이 10인 로그를 사용하겠습니다.
+
+```python
+log_sim_weights = np.log10(sim_weights)
+m, s = np.mean(log_sim_weights), np.std(log_sim_weights)
+m, s
+```
+
+```text
+(np.float64(2.1111299372609933), np.float64(0.06898607064749827))
+```
+
+이제 로그값의 분포와 평균·표준편차가 같은 정규분포를 비교하겠습니다.
+
+```python
+cdf_model = make_normal_model(log_sim_weights)
+cdf_log_sim_weights = Cdf.from_seq(log_sim_weights, name="simulation")
+
+two_cdf_plots(
+    cdf_model, cdf_log_sim_weights, xlabel="Pumpkin weight (log10 pounds)"
+)
+```
+
+![비례 성장으로 생성한 호박 체중의 상용로그 분포와 정규 모형. 두 CDF가 거의 겹칩니다.](/labs/think-stats/figures/chap05-137-0.png)
+
+예상대로 모형은 시뮬레이션 결과에 아주 잘 맞습니다.
+
+사람도 호박과 비슷해서 해마다 늘어나는 체중이 현재 체중에 비례한다면, 성인 체중도 로그정규분포를 따를 것으로 예상할 수 있습니다. 확인해 보겠습니다.
+
+미국 만성질환예방·건강증진센터는 행동위험요인감시체계(BRFSS)의 일부로 해마다 조사를 실시합니다. 2008년에는 414,509명을 대상으로 인구학적 특성, 건강, 건강 위험에 관해 물었습니다. 수집한 자료에는 398,484명의 체중이 있습니다. 내려받는 방법은 이 장의 노트북에 있습니다.
+
+`thinkstats` 모듈에는 BRFSS 자료를 읽고 Pandas `DataFrame`을 반환하는 함수가 있습니다.
+
+```python
+from thinkstats import read_brfss
+
+brfss = read_brfss()
+```
+
+성인의 킬로그램 단위 체중은 `wtkg2` 열에 기록되어 있습니다.
+
+```python
+adult_weights = brfss["wtkg2"].dropna()
+m, s = np.mean(adult_weights), np.std(adult_weights)
+m, s
+```
+
+```text
+(np.float64(78.9924529968581), np.float64(19.546132387397257))
+```
+
+평균은 약 79kg입니다. 로그를 구하기 전에 체중이 정규분포를 따르는지 먼저 보겠습니다.
+
+```python
+cdf_model = make_normal_model(adult_weights)
+cdf_adult_weights = Cdf.from_seq(adult_weights, name="adult weight")
+
+two_cdf_plots(cdf_model, cdf_adult_weights, xlabel="Adult weight (kilograms)")
+```
+
+![성인 체중과 정규 모형의 CDF 비교. 체중의 오른쪽 꼬리 때문에 곡선이 다릅니다.](/labs/think-stats/figures/chap05-145-0.png)
+
+목적에 따라서는 정규분포가 이 자료를 충분히 잘 설명할 수 있습니다. 하지만 더 나은 모형이 있는지 보겠습니다.
+
+다음은 체중의 로그값 분포와 평균·표준편차가 같은 정규 모형입니다.
+
+```python
+log_adult_weights = np.log10(adult_weights)
+cdf_model = make_normal_model(log_adult_weights)
+
+cdf_log_adult_weights = Cdf.from_seq(log_adult_weights, name="log adult weight")
+```
+
+```python
+two_cdf_plots(cdf_model, cdf_log_adult_weights, xlabel="Adult weight (log10 kg)")
+```
+
+![성인 체중의 상용로그와 정규 모형의 CDF 비교. 체중 자체보다 정규 모형에 더 가깝습니다.](/labs/think-stats/figures/chap05-148-0.png)
+
+정규 모형은 체중 자체보다 로그값에 더 잘 맞습니다. 체중 증가를 설명할 때 일정한 양을 더하는 모형보다 비례 성장 모형이 더 나을 수 있다는 뜻입니다.
+
+## 왜 모형을 만들까?
+
+이 장의 시작에서 현실의 많은 현상을 이론분포로 설명할 수 있다고 했습니다. 하지만 왜 여기에 관심을 가져야 하는지는 분명하지 않았을 수 있습니다.
+
+모든 모형이 그렇듯 이론분포도 추상화입니다. 관련이 없다고 여긴 세부 사항을 생략한다는 뜻입니다. 예를 들어 관측한 분포에는 측정 오류나 특정 표본만의 특이한 점이 있을 수 있습니다. 이론 모형은 그런 개별적인 특성을 무시합니다.
+
+이론 모형은 데이터 압축의 한 형태이기도 합니다. 모형이 자료에 잘 맞으면 적은 수의 숫자로 많은 양의 자료를 요약할 수 있습니다.
+
+자연 현상의 자료가 이론분포에 맞는다는 것이 놀라울 때도 있지만, 이런 관측은 실제 체계를 이해하는 단서가 될 수 있습니다. 관측된 분포가 왜 특정한 형태인지 설명할 수도 있습니다. 예를 들어 앞 절에서 성인 체중이 로그정규분포로 잘 설명된다는 것을 보았습니다. 해마다 체중이 변하는 양이 현재 체중에 비례할 수 있음을 시사합니다.
+
+또한 이론분포는 [14장](https://allendowney.github.io/ThinkStats/chap14.html)에서 보겠듯 수학적으로 분석하기 좋습니다.
+
+하지만 모든 모형은 불완전하다는 점을 기억해야 합니다. 현실의 자료는 이론분포에 완벽하게 들어맞지 않습니다. 사람들은 때때로 자료가 모형에서 만들어진 것처럼 말합니다. 사람의 키는 정규분포이고 소득은 로그정규분포라고 하는 식입니다. 이 말을 문자 그대로 받아들이면 참일 수 없습니다. 현실과 수학 모형 사이에는 언제나 차이가 있습니다.
+
+모형은 현실의 관련 있는 면을 담고 필요 없는 세부 사항을 생략할 때 유용합니다. 무엇이 관련 있고 무엇이 불필요한지는 모형을 어디에 쓰려는지에 따라 달라집니다.
+
+## 용어 정리
+
+- **이항분포**(binomial distribution): 성공과 실패가 이어지는 시도에서 성공 횟수를 설명할 때 자주 쓰는 이론분포.
+- **포아송분포**(Poisson distribution): 일정 시간 동안 일어나는 사건 수를 설명할 때 자주 쓰는 이론분포.
+- **지수분포**(exponential distribution): 사건 사이의 시간을 설명할 때 자주 쓰는 이론분포.
+- **정규분포**(normal distribution): 대칭적인 종 모양 곡선을 따르는 자료를 설명할 때 자주 쓰는 이론분포.
+- **로그정규분포**(lognormal distribution): 오른쪽으로 치우친 종 모양의 자료를 설명할 때 자주 쓰는 이론분포.
+
+## 연습문제
+
+### 연습문제 5.1
+
+NSFG 응답자 파일의 `numfmhh` 열에는 각 응답자의 가구에 사는 가족 구성원 수가 기록되어 있습니다. `read_fem_resp`로 파일을 읽고, `query`로 면접 당시 25세 이상이었던 응답자를 선택할 수 있습니다.
+
+```python
+from nsfg import read_fem_resp
+
+resp = read_fem_resp()
+```
+
+```python
+older = resp.query("age >= 25")
+num_family = older["numfmhh"]
+```
+
+25세 이상 응답자의 `numfmhh`로 `Pmf`를 만들고, 평균이 같은 포아송분포와 비교하세요. 포아송 모형은 자료에 얼마나 잘 맞나요?
+
+### 연습문제 5.2
+
+이 장 앞부분에서 하키의 첫 골까지 걸리는 시간이 지수분포를 따르는 것을 보았습니다. 득점 모형이 맞다면 이전 골 뒤로 얼마나 지났는지와 상관없이 어느 때나 득점할 가능성이 같습니다. 그렇다면 골과 골 사이의 시간도 지수분포를 따를 것으로 예상할 수 있습니다.
+
+다음 반복문은 하키 자료를 다시 읽고, 두 골 이상 나온 경기에서 연속 득점 사이의 시간을 구해 목록에 모읍니다.
+
+```python
+filename = "nhl_2023_2024.hdf"
+
+with pd.HDFStore(filename, "r") as store:
+    keys = store.keys()
+```
+
+```python
+intervals = []
+
+for key in keys:
+    times = pd.read_hdf(filename, key=key)
+    if len(times) > 1:
+        intervals.extend(times.diff().dropna())
+```
+
+관측한 득점 간격과 평균이 같은 지수분포의 CDF를 `exponential_cdf`로 계산하세요. 모형과 자료의 CDF를 비교하세요.
+
+### 연습문제 5.3
+
+사람의 키 분포는 정규분포와 로그정규분포 중 어디에 더 가까울까요? 알아보기 위해 다음과 같이 BRFSS에서 키를 선택할 수 있습니다.
+
+```python
+adult_heights = brfss["htm3"].dropna()
+m, s = np.mean(adult_heights), np.std(adult_heights)
+m, s
+```
+
+```text
+(np.float64(168.82518961012298), np.float64(10.35264015645592))
+```
+
+이 값들의 CDF를 구하고, 평균과 표준편차가 같은 정규분포와 비교하세요. 이어서 키에 로그를 취하고, 로그값의 분포를 정규분포와 비교하세요. 눈으로 비교했을 때 어느 모형이 자료에 더 잘 맞나요?
+
+## 번역과 실행에 관하여
+
+원문 셀의 출력과 원본 PNG 그림은 [같은 판의 실행된 원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap05.ipynb)에서 가져왔습니다. 시드가 고정된 난수 예제는 같은 실행 순서에서 재현됩니다. 시드가 없는 예제의 그림은 실행마다 달라질 수 있습니다. 연습문제의 해답은 넣지 않았습니다. 원문 설명과 코드가 어긋나는 곳에는 번역자 주를 붙였습니다.
+
+[Think Stats: Exploratory Data Analysis in Python, 3rd Edition](https://allendowney.github.io/ThinkStats/index.html)
+
+Copyright 2024 [Allen B. Downey](https://allendowney.com)
+
+코드 라이선스: [MIT](https://mit-license.org/)
+
+본문·그림과 한국어 번역 라이선스: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
+원문 코드가 불러오는 보조 모듈 `thinkstats.py`, `nsfg.py` 등은 각 파일의 라이선스 고지를 따릅니다. 블로그 실습은 이 모듈들을 재배포하지 않습니다.
+
+《Think Stats》 3판은 [Bookshop.org](https://bookshop.org/a/98697/9781098190255)와 [Amazon](https://amzn.to/42lmxwu)에서 구할 수 있습니다. 두 링크는 원저자의 제휴 링크입니다. 책이 도움이 되었다면 Green Tea Press의 [무료 공개 교육 자료 제작을 후원](https://greenteapress.com/support/?book=ts3)하는 것도 생각해 주세요.
+
+
+[← 4장](/posts/statistics/think-stats-04) · [6장 →](/posts/statistics/think-stats-06)

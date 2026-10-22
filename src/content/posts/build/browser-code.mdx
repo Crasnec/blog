@@ -43,11 +43,20 @@ The first execution downloads the Python runtime. `print()` output and exception
 values = [2, 4, 4, 6, 9]
 print("Mean:", mean(values))
 print("Median:", median(values))
-print("Squares:", [value ** 2 for value in values])`} />
+print("Squares:", [value ** 2 for value in values])
+name = await read_input("Your name: ")
+print("Hello,", name)`} />
+
+Enter a value below the output and press **Enter** or **Send** to continue.
+Python's regular `input(prompt)` also works when the browser supports pausing
+Python execution (JSPI). Use `await read_input(prompt)` in other browsers.
+JavaScript and TypeScript provide `await input(prompt)`. **End input (EOF)**
+ends the input stream; Python raises `EOFError`, while JavaScript returns
+`null`. Waiting for your response does not consume the execution time limit.
 
 ## Scientific Python and plots
 
-NumPy, pandas, SciPy, Matplotlib and Seaborn are available. Ordinary imports load only the required approved packages and their dependencies. Package versions and SHA-256 digests are pinned; the browser downloads these files from this site. Standard-library examples do not load the scientific stack.
+NumPy, pandas, SciPy, Matplotlib, Seaborn, empiricaldist, statadict, statsmodels and IPython are available. Ordinary imports load only the required approved packages and their dependencies. Package versions and SHA-256 digests are pinned; the browser downloads these files from this site. Standard-library examples do not load the scientific stack.
 
 Use `plt.show()` to display a plot. Open figures are also displayed at the end of a successful execution. Each plot can be downloaded as a PNG.
 
@@ -73,7 +82,9 @@ Plots are static images; GUI backends, interactive zoom and notebook widgets are
 
 ## Custom TextMate grammars
 
-This editor uses the grammar shipped with this example. Open **TextMate grammar** to load a JSON or XML/plist `.tmLanguage` file. When a grammar uses external `include` rules, select the main grammar first and supply its dependencies as well. Grammars change highlighting; they do not add an execution runtime.
+The author specifies the grammar in MDX using the `grammars` prop. Import a JSON or XML/plist `.tmLanguage` file with `?raw`, and pass its filename and contents. Put the main grammar first, followed by any dependencies referenced with external `include` rules. Readers can edit the code; the author's grammar stays fixed. Grammars change highlighting; they do not add an execution runtime.
+
+This example uses two author-supplied grammar files:
 
 <CodePlayground title="Signal · Custom grammar" language="signal" runtime={false} grammars={[
   { filename: "signal.tmLanguage.json", content: signalGrammar },

@@ -101,6 +101,7 @@ export const en = {
 	"category.databases": "Databases",
 	"category.build": "Build tooling",
 	"category.team": "Team",
+	"category.statistics": "Statistics",
 	"diagram.failed": "Diagram could not be rendered.",
 	"playground.packagesLoading": "Loading {packages}…",
 	"playground.inputLabel": "Input",
