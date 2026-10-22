@@ -45,6 +45,17 @@
 	animation-delay: 40ms;
 }
 
+/* Route changes keep the nameplate visible without replaying its entrance. */
+html[data-navigated] #masthead {
+	opacity: 1;
+	animation: none;
+}
+
+html[data-navigated] .masthead-mark::before {
+	animation: none;
+	transform: scaleX(1);
+}
+
 #sidebar {
 	animation-delay: 100ms;
 }

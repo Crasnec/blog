@@ -401,6 +401,7 @@ async function init() {
 		 * <html> along with everything else the new document brings.
 		 */
 		document.addEventListener("astro:after-swap", () => {
+			document.documentElement.dataset.navigated = "true";
 			const root = document.documentElement.style;
 			root.setProperty("--content-delay", "0ms");
 			root.setProperty("--onload-dur", "0ms");

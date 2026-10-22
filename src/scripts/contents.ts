@@ -21,10 +21,8 @@ export function mountContents() {
 	teardown();
 
 	const root = document.getElementById("contents");
-	const scrollEl = root?.querySelector<HTMLElement>(".contents-scroll");
-	if (!root || !scrollEl) return;
+	if (!root) return;
 
-	const scroller = scrollEl;
 	const items = [...root.querySelectorAll<HTMLAnchorElement>(".contents-item")];
 	if (items.length === 0) return;
 
@@ -71,19 +69,6 @@ export function mountContents() {
 		const item = items[marked];
 		if (!item) return;
 		item.classList.add("is-active");
-		keepVisible(item);
-	}
-
-	/** Scrolls the rail so the marked item stays in view, never the page. */
-	function keepVisible(item: HTMLElement) {
-		const box = scroller.getBoundingClientRect();
-		const { top, bottom } = item.getBoundingClientRect();
-		if (top >= box.top && bottom <= box.bottom) return;
-
-		scroller.scrollTo({
-			top: scroller.scrollTop + (top - box.top) - box.height / 3,
-			behavior: "smooth",
-		});
 	}
 
 	observer = new IntersectionObserver(
