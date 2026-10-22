@@ -23,6 +23,8 @@ Props:
 - `grammars`: `{filename, content}[]`, first entry is the main TextMate grammar.
   JSON and XML/plist are accepted. Include dependent grammars in the same
   array, with unique `scopeName` values. At most 16 files totalling 1 MB.
+  Authors specify these in MDX; readers cannot upload or replace them.
+  Invalid grammar syntax or duplicate scopes fail the page build.
 - `timeout`: execution limit in milliseconds, from 100 to 60,000; default 10,000.
   Loading the runtime and libraries has a separate 180-second limit. Stop
   works while loading.
@@ -32,9 +34,11 @@ Props:
 
 For a custom grammar, import it with Vite's `?raw` suffix and pass its text.
 See `src/content/posts/build/browser-code.mdx` for all three runtimes and a
-two-file TextMate grammar using an external `include`. Readers can also load
-grammar files locally; these files are not uploaded. Reset grammar restores
-the author's original grammar set. Highlighting and execution are independent.
+two-file TextMate grammar using an external `include`. The first supplied grammar
+is the entry point; include dependent grammars in the same author-controlled
+array. A grammar stays fixed when readers edit, reset or execute code.
+Highlighting and execution are independent. There are no grammar upload or
+replacement controls in the reader interface.
 
 TextMate tokenization uses Shiki's Oniguruma WASM engine in its own Worker,
 including repository rules, begin/end state across lines, captures and external
@@ -56,7 +60,7 @@ running hostile code with access to browser Worker APIs.
 
 ## Python libraries and plots
 
-Python provides its standard library and five approved scientific packages:
+Python provides its standard library and nine approved packages:
 
 | Import | Pinned version | Distribution |
 | --- | --- | --- |
@@ -65,15 +69,19 @@ Python provides its standard library and five approved scientific packages:
 | `scipy` | 1.18.0 | Pyodide 314.0.7 |
 | `matplotlib` | 3.10.8 | Pyodide 314.0.7 |
 | `seaborn` | 0.13.2 | Official pure-Python PyPI wheel |
+| `empiricaldist` | 0.10.0 | Official pure-Python PyPI wheel |
+| `statadict` | 1.1.0 | Official pure-Python PyPI wheel |
+| `statsmodels` | 0.14.6 | Pyodide 314.0.7 |
+| `IPython` | 9.12.0 | Pyodide 314.0.7 |
 
 The approved roots are defined in `python-libraries.json`. The versioned npm
 runtime's lockfile fixes native wheel versions, dependency metadata and
-SHA-256 digests. Seaborn is absent from that catalog, so
-`scripts/python-packages.mjs` adds its explicitly pinned official PyPI wheel
-and dependencies. The Seaborn profile includes SciPy for statistical plots.
-The resulting fifteen-wheel dependency graph is roughly
-31 MB in this release, in addition to the runtime; readers fetch only the
-packages needed by their code. No new npm dependencies are needed.
+SHA-256 digests. `python-wheels.json` pins official PyPI wheels for Seaborn,
+empiricaldist and statadict, which are absent from that catalog. Their native
+dependencies come from Pyodide. Dependency keys use normalized Python package
+names, including IPython's `prompt_toolkit` dependency. The resulting closed
+graph contains thirty wheels; readers fetch only those required by their code.
+No new npm dependencies are needed.
 
 At development-server startup and build time, `python-packages.mjs` downloads
 approved wheels into the ignored `.cache/python/<version>/` directory. Cached
@@ -87,7 +95,7 @@ allows subsequent builds without downloading wheels again.
 
 Before executing source, `pyodide.code.find_imports` inspects its imports
 without running it. Only approved roots are passed to `loadPackage`; the
-reduced lockfile determines their dependencies. Standard-library examples
+reduced lockfile determines their dependencies. `from IPython.display import HTML` resolves to Pyodide's lowercase `ipython` package key. Standard-library examples
 do not download scientific wheels. For a dynamic import, declare it explicitly:
 
 ```mdx
@@ -99,7 +107,7 @@ print(np.arange(4))`} />
 Matplotlib uses its non-interactive Agg backend in the Worker. `plt.show()`
 serializes open figures to PNG, sends them over the private output channel,
 and closes them. Remaining open figures are also captured after successful
-execution. This supports Seaborn plots without giving the renderer ownership
+execution. This supports Seaborn and empiricaldist plots without giving the renderer ownership
 of the page DOM. Figures are displayed in source order alongside text, with
 accessible descriptions and PNG download links. Image object URLs remain
 valid after execution and are revoked on rerun, reset or navigation.
@@ -115,8 +123,7 @@ desktop backends, notebook widgets and animation export are not provided.
 Readers can set figure size, DPI and styles through normal Matplotlib APIs;
 generated images retain their plot colours when the site theme changes.
 
-`print` and stderr are captured; use `print` for values. Interactive `input`
-is unavailable. There is no `micropip`, arbitrary PyPI resolution, reader wheel
+`print` and stderr are captured; use `print` for values. There is no `micropip`, arbitrary PyPI resolution, reader wheel
 URL installer or `loadPackagesFromImports` call. Other native packages must
 have compatible Pyodide builds. Adding a package requires an explicit change
 to the approved roots or a pinned pure-Python wheel, review of its dependency
@@ -135,12 +142,35 @@ results stay in the page and are not saved to browser storage or sent to a
 code-execution server. User code can make its own network requests using the
 APIs available in a Worker.
 
+## Interactive input
+
+Python `input(prompt)` displays a labelled line input below the output and
+resumes the existing execution after submission. It uses Pyodide's `run_sync`
+and requires WebAssembly JavaScript Promise Integration (JSPI). A runtime check
+reports a useful error in unsupported browsers. `await read_input(prompt)` is
+also available and works without JSPI; use it in async functions or at the top
+level. Source is not rewritten or replayed. `sys.stdin` streaming APIs are not
+connected to the line-input UI. IPython HTML values remain text; this is not a
+Jupyter kernel or rich display renderer.
+
+JavaScript and TypeScript use `await input(prompt)`; EOF returns `null`.
+Python raises `EOFError` on EOF. Empty strings, Unicode, and repeated requests
+are supported. A private MessagePort matches one outstanding request to a
+numbered reply. Input is bounded to 16,000 characters and rendered as text.
+Readers submit using Enter or Send, or choose End input (EOF). Stop, Reset and
+navigation terminate the pending execution and hide the input. Waiting for a
+reader pauses the execution deadline; active execution time is cumulative
+across submissions, so asking again does not reset the execution time budget.
+
+References: [Pyodide JSPI and run_sync](https://blog.pyodide.org/posts/jspi/),
+[Pyodide streams](https://pyodide.org/en/stable/usage/streams.html).
+
 ## Verification
 
 `npm run check` covers configuration, grammar parsing and TS compilation.
 `npm run test:playground:browser` uses a running `astro dev --background`
 server, or `PLAYGROUND_BASE`, and exercises real runtimes, cancellation,
-errors, approved scientific libraries, PNG plots, grammar replacement and
+errors, approved scientific libraries, PNG plots, author-defined grammars and
 navigation. The published example route is
 `/posts/build/browser-code/`. For a production check, run `npm run build`,
 start `astro preview`, then run the same browser tests with `PLAYGROUND_BASE`

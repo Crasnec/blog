@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createCssVariablesTheme, createHighlighterCore } from "shiki/core";
 import { createOnigurumaEngine } from "shiki/engine/oniguruma";
-import { decodeConfig, runtimeFor } from "../src/playground/contracts.ts";
+import { decodeConfig, pythonPackageForImport, runtimeFor } from "../src/playground/contracts.ts";
 import { parseGrammars } from "../src/playground/grammar.ts";
 import { formatValue, outputChannel } from "../src/playground/output.ts";
 import { transpileTypeScript } from "../src/playground/transpile.ts";
@@ -29,7 +29,7 @@ void test("playground config infers supported runtimes and rejects malformed bou
 		assert.throws(() => decodeConfig(JSON.stringify({ ...config, ...change })));
 	}
 	assert.throws(() => decodeConfig(JSON.stringify({ ...config, grammars: [{ filename: "x", content: "x".repeat(1_000_001) }] })), /1 MB/);
-	assert.throws(() => decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages: ["micropip"] })), /Only NumPy/);
+	assert.throws(() => decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages: ["micropip"] })), /Only registered/);
 	assert.throws(() => decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages: ["numpy", "numpy"] })), /unique/);
 	assert.throws(() => decodeConfig(JSON.stringify({ ...config, pythonPackages: ["numpy"] })), /Python runtime/);
 	assert.deepEqual(decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages: ["numpy", "seaborn"] })).pythonPackages, ["numpy", "seaborn"]);
@@ -44,6 +44,12 @@ void test("scientific packages resolve a closed, pinned dependency graph from of
 		assert.ok(["cdn.jsdelivr.net", "files.pythonhosted.org"].includes(new URL(entry.url).hostname));
 		assert.ok(entry.depends.every((name) => Object.hasOwn(distribution.lock.packages, name)));
 	}
+	assert.equal(pythonPackageForImport("IPython"), "ipython");
+	assert.equal(pythonPackageForImport("empiricaldist"), "empiricaldist");
+	assert.equal(pythonPackageForImport("micropip"), undefined);
+	assert.equal(pythonPackageForImport("statistics"), undefined);
+	assert.deepEqual(distribution.lock.packages.empiricaldist?.depends, ["numpy", "pandas", "scipy", "matplotlib"]);
+	for (const name of ["statadict", "statsmodels", "ipython"]) assert.ok(supportedPackages.includes(name));
 	const data = new TextEncoder().encode("abc");
 	assert.equal(verifyPackage(data, "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"), true);
 	assert.equal(verifyPackage(data, "0".repeat(64)), false);
@@ -105,5 +111,28 @@ void test("console formatting and limits handle mixed values without interpretin
 	try {
 		const send = outputChannel(channel.port1);
 		assert.throws(() => { send({ type: "output", level: "log", text: "x".repeat(64_001) }); }, /Output limit/);
+	} finally { channel.port1.close(); channel.port2.close(); }
+});
+
+void test("input channel matches replies without replaying or accepting stale input", async () => {
+	const { inputChannel } = await import("../src/playground/input.ts");
+	const channel = new MessageChannel();
+	const requests: { id: number; prompt: string }[] = [];
+	const ask = inputChannel(channel.port1, (message) => {
+		if (message.type === "input") requests.push(message);
+	});
+	try {
+		const first = ask("이름: ");
+		assert.equal(requests[0]?.prompt, "이름: ");
+		await assert.rejects(ask("concurrent"), /previous input/);
+		channel.port2.postMessage({ type: "input", id: 999, value: "stale" });
+		channel.port2.postMessage({ type: "input", id: 1, value: "한글" });
+		assert.equal(await first, "한글");
+		const empty = ask();
+		channel.port2.postMessage({ type: "input", id: 2, value: "" });
+		assert.equal(await empty, "");
+		const eof = ask();
+		channel.port2.postMessage({ type: "input", id: 3, value: null });
+		assert.equal(await eof, null);
 	} finally { channel.port1.close(); channel.port2.close(); }
 });

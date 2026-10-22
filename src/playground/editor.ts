@@ -4,7 +4,7 @@ import { EditorView, Decoration, keymap, type DecorationSet } from "@codemirror/
 import { indentWithTab } from "@codemirror/commands";
 import { LOCALE, t } from "../strings.ts";
 import { editorPhrases } from "../locales/editor.ts";
-import { MAX_CODE, MAX_GRAMMAR, type GrammarSource, type HighlightRequest, type HighlightResponse, type HighlightToken, type PlaygroundConfig } from "./contracts.ts";
+import { MAX_CODE, type HighlightRequest, type HighlightResponse, type HighlightToken, type PlaygroundConfig } from "./contracts.ts";
 
 const setTokens = StateEffect.define<HighlightToken[]>();
 const highlights = StateField.define<DecorationSet>({
@@ -31,11 +31,9 @@ function required<T extends Element>(element: T | null): T {
 export function mountEditor(root: HTMLElement, config: PlaygroundConfig, run: () => void) {
 	const parent = required(root.querySelector<HTMLElement>(".playground-editor"));
 	const fallback = required(root.querySelector<HTMLTextAreaElement>("textarea"));
-	const note = required(root.querySelector<HTMLElement>(".playground-grammar-status"));
-	const upload = required(root.querySelector<HTMLInputElement>(".playground-grammar-file"));
-	const reset = required(root.querySelector<HTMLButtonElement>(".playground-grammar-reset"));
+	const note = required(root.querySelector<HTMLElement>(".playground-highlight-status"));
 	const original = fallback.value;
-	let grammars = config.grammars;
+	const grammars = config.grammars;
 	let worker: Worker | undefined;
 	let version = 0;
 	let debounce: ReturnType<typeof setTimeout> | undefined;
@@ -44,7 +42,6 @@ export function mountEditor(root: HTMLElement, config: PlaygroundConfig, run: ()
 	let busy = false;
 	let queued = false;
 	let blocked = false;
-	let uploadVersion = 0;
 	const view = new EditorView({
 		parent,
 		state: EditorState.create({
@@ -65,7 +62,8 @@ export function mountEditor(root: HTMLElement, config: PlaygroundConfig, run: ()
 	}
 	function fail(message: string) {
 		stopHighlight(); blocked = true;
-		note.textContent = `${t("playground.grammarError")} ${message}`;
+		note.textContent = `${t("playground.highlightError")} ${message}`;
+		note.hidden = false;
 		root.dataset.highlight = "error";
 	}
 	function schedule() {
@@ -84,7 +82,7 @@ export function mountEditor(root: HTMLElement, config: PlaygroundConfig, run: ()
 				if (response.id === version) {
 					if ("error" in response) { fail(response.error); return; }
 					view.dispatch({ effects: setTokens.of(response.tokens) });
-					note.textContent = `${t("playground.grammarActive")} ${response.name}`;
+					note.textContent = ""; note.hidden = true;
 					root.dataset.highlight = "ready";
 				}
 				if (queued) { queued = false; highlight(); }
@@ -92,36 +90,15 @@ export function mountEditor(root: HTMLElement, config: PlaygroundConfig, run: ()
 			worker.onerror = (event) => { event.preventDefault(); fail(event.message); };
 		}
 		busy = true;
-		watchdog = setTimeout(() => { fail(t("playground.grammarTimeout")); }, 15_000);
+		watchdog = setTimeout(() => { fail(t("playground.highlightTimeout")); }, 15_000);
 		const request: HighlightRequest = { id: version, code: view.state.doc.toString(), language: config.language, grammars };
 		worker.postMessage(request);
 	}
-	function replaceGrammars(sources: GrammarSource[]) {
-		stopHighlight(); blocked = false; queued = false;
-		grammars = sources;
-		view.dispatch({ effects: setTokens.of([]) });
-		note.textContent = t("playground.grammarLoading");
-		schedule();
-	}
-	async function loadFiles() {
-		const mine = ++uploadVersion;
-		try {
-			const files = [...(upload.files ?? [])];
-			if (!files.length) return;
-			if (files.length > 16 || files.reduce((sum, file) => sum + file.size, 0) > MAX_GRAMMAR) throw new Error(t("playground.grammarLimit"));
-			const sources = await Promise.all(files.map(async (file) => ({ filename: file.name, content: await file.text() })));
-			if (mine === uploadVersion && !disposed) replaceGrammars(sources);
-		} catch (error) {
-			if (mine === uploadVersion && !disposed) note.textContent = `${t("playground.grammarError")} ${error instanceof Error ? error.message : String(error)}`;
-		}
-	}
-	upload.addEventListener("change", () => { void loadFiles(); });
-	reset.disabled = false;
-	reset.addEventListener("click", () => { ++uploadVersion; upload.value = ""; replaceGrammars(config.grammars); });
+
 	schedule();
 	return {
 		code: () => view.state.doc.toString(),
 		reset: () => { view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: original } }); },
-		destroy: () => { disposed = true; ++uploadVersion; clearTimeout(debounce); stopHighlight(); view.destroy(); },
+		destroy: () => { disposed = true; clearTimeout(debounce); stopHighlight(); view.destroy(); },
 	};
 }

@@ -4,22 +4,13 @@ import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import libraries from "../src/playground/python-libraries.json" with { type: "json" };
+import wheels from "../src/playground/python-wheels.json" with { type: "json" };
 
 /** @typedef {{name: string, version: string, file_name: string, sha256: string, depends: string[], imports: string[], install_dir: string, package_type: string}} PythonPackage */
 /** @typedef {{info: object, packages: Record<string, PythonPackage>}} PythonLock */
 
 export const supportedPackages = Object.keys(libraries);
 const runtimeRoot = dirname(fileURLToPath(import.meta.resolve("pyodide")));
-
-// Seaborn's official pure-Python wheel is not in Pyodide's package catalog.
-// Pin its PyPI artifact and digest; its native dependencies come from Pyodide.
-const seaborn = {
-	name: "seaborn", version: "0.13.2", file_name: "seaborn-0.13.2-py3-none-any.whl",
-	sha256: "636f8336facf092165e27924f223d3c62ca560b1f2bb5dff7ab7fad265361987",
-	depends: ["numpy", "pandas", "matplotlib", "scipy"], imports: ["seaborn"],
-	install_dir: "site", package_type: "package",
-};
-const seabornURL = "https://files.pythonhosted.org/packages/83/11/00d3c3dfc25ad54e731d91449895a79e4bf2384dc3ac01809010ba88f6d5/seaborn-0.13.2-py3-none-any.whl";
 
 /** Resolve only the approved roots and their pinned transitive dependencies. */
 export function pythonDistribution() {
@@ -28,16 +19,24 @@ export function pythonDistribution() {
 	/** @type {PythonLock} */
 	const source = JSON.parse(readFileSync(join(runtimeRoot, "pyodide-lock.json"), "utf8"));
 	/** @type {Record<string, PythonPackage>} */
-	const catalog = { ...source.packages, seaborn };
+	const catalog = { ...source.packages };
+	for (const { url, ...entry } of wheels) {
+		if (new URL(url).origin !== "https://files.pythonhosted.org") throw new Error(`Invalid Python wheel source: ${url}`);
+		catalog[entry.name] = entry;
+	}
+	const wheelURLs = new Map(wheels.map((entry) => [entry.file_name, entry.url]));
 	/** @type {Record<string, PythonPackage>} */
 	const packages = {};
 	/** @param {string} name */
 	function add(name) {
+		name = name.toLowerCase().replace(/[-_.]+/g, "-");
 		if (Object.hasOwn(packages, name)) return;
 		const entry = catalog[name];
 		if (!entry || !/^[a-zA-Z0-9][a-zA-Z0-9._+-]*\.whl$/.test(entry.file_name) || !/^[a-f0-9]{64}$/.test(entry.sha256)) throw new Error(`Invalid pinned Python package: ${name}`);
-		packages[name] = entry;
-		for (const dependency of entry.depends) add(dependency);
+		// Normalize dependency keys using Python package-name conventions.
+		const depends = entry.depends.map((dependency) => dependency.toLowerCase().replace(/[-_.]+/g, "-"));
+		packages[name] = { ...entry, depends };
+		for (const dependency of depends) add(dependency);
 	}
 	for (const name of supportedPackages) add(name);
 	const cache = fileURLToPath(new URL(`../.cache/python/${metadata.version}/`, import.meta.url));
@@ -47,7 +46,7 @@ export function pythonDistribution() {
 		lock: { ...source, packages },
 		files: Object.values(packages).map((entry) => ({
 			...entry, path: join(cache, entry.file_name),
-			url: entry.name === "seaborn" ? seabornURL : new URL(entry.file_name, base).href,
+			url: wheelURLs.get(entry.file_name) ?? new URL(entry.file_name, base).href,
 		})),
 	};
 }

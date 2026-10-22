@@ -1,0 +1,51 @@
+[
+	{
+		"name": "seaborn",
+		"version": "0.13.2",
+		"file_name": "seaborn-0.13.2-py3-none-any.whl",
+		"sha256": "636f8336facf092165e27924f223d3c62ca560b1f2bb5dff7ab7fad265361987",
+		"depends": [
+			"numpy",
+			"pandas",
+			"matplotlib",
+			"scipy"
+		],
+		"imports": [
+			"seaborn"
+		],
+		"install_dir": "site",
+		"package_type": "package",
+		"url": "https://files.pythonhosted.org/packages/83/11/00d3c3dfc25ad54e731d91449895a79e4bf2384dc3ac01809010ba88f6d5/seaborn-0.13.2-py3-none-any.whl"
+	},
+	{
+		"name": "empiricaldist",
+		"version": "0.10.0",
+		"file_name": "empiricaldist-0.10.0-py3-none-any.whl",
+		"sha256": "bfef0a8c5751f36e4993fb6cc6f8b13e883093d43d066acdbc829f825127d164",
+		"depends": [
+			"numpy",
+			"pandas",
+			"scipy",
+			"matplotlib"
+		],
+		"imports": [
+			"empiricaldist"
+		],
+		"install_dir": "site",
+		"package_type": "package",
+		"url": "https://files.pythonhosted.org/packages/50/f7/0b94125b4186d46a880812a0b75ea985ae00d2849394f5fff6974009c8ff/empiricaldist-0.10.0-py3-none-any.whl"
+	},
+	{
+		"name": "statadict",
+		"version": "1.1.0",
+		"file_name": "statadict-1.1.0-py3-none-any.whl",
+		"sha256": "67d739f46cc9495c200126d59259243d11bdde35eba9b57b69ac85eeb8a7578f",
+		"depends": [],
+		"imports": [
+			"statadict"
+		],
+		"install_dir": "site",
+		"package_type": "package",
+		"url": "https://files.pythonhosted.org/packages/51/03/eb50a0bafb5afabcae3efb57e0fdd477ff1016dddc6953727e46b34d6637/statadict-1.1.0-py3-none-any.whl"
+	}
+]

@@ -27,7 +27,7 @@
 	--playground-keyword: oklch(0.8 0.12 310);
 	--playground-function: oklch(0.8 0.1 245);
 }
-.playground-toolbar, .playground-actions, .playground-output-heading, .playground-grammar-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.playground-toolbar, .playground-actions, .playground-output-heading { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
 .playground-toolbar { padding: 0.65rem 0.85rem; border-bottom: 1px solid var(--rule); }
 .playground-title { color: var(--ink-strong); }
 .playground-language { color: var(--ink-muted); font-family: var(--font-mono); font-size: 0.75rem; }
@@ -51,13 +51,7 @@
 .code-playground .cm-panels { background: var(--paper); color: var(--ink); }
 .code-playground .cm-tooltip { background: var(--paper-raised); border: 1px solid var(--rule); color: var(--ink); }
 .code-playground .cm-editor.cm-focused { outline: 2px solid var(--marker); outline-offset: -2px; }
-.playground-grammar { border-top: 1px solid var(--rule); padding: 0.55rem 0.85rem; }
-.playground-grammar summary { cursor: pointer; color: var(--ink-muted); }
-.playground-grammar-controls { margin-block: 0.65rem; justify-content: space-between; }
-.playground-grammar-controls label { display: grid; gap: 0.35rem; min-width: 0; max-width: 100%; }
-.playground-grammar-controls input { max-width: 100%; font: inherit; }
-.playground-grammar-status { margin: 0.4rem 0 0; overflow-wrap: anywhere; font-size: 0.75rem; color: var(--ink-muted); }
-.code-playground[data-highlight="error"] .playground-grammar-status { color: var(--danger); }
+.playground-highlight-status:not([hidden]) { margin: 0; padding: 0.55rem 0.85rem; border-top: 1px solid var(--rule); overflow-wrap: anywhere; font-size: 0.75rem; color: var(--danger); }
 .playground-results { border-top: 1px solid var(--rule-strong); }
 .playground-output-heading { justify-content: space-between; padding: 0.5rem 0.85rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-muted); }
 .code-playground .playground-output { margin: 0; padding: 0.4rem 0.85rem 0.85rem; min-height: 3.5rem; max-height: 18rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; border: 0; border-radius: 0; background: var(--paper); color: var(--ink); font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.6; }
@@ -72,5 +66,11 @@
 .playground-output-line.is-warn, .code-playground[data-run-state="timeout"] .playground-status { color: var(--warn); }
 @media (max-width: 520px) {
 	.playground-actions { width: 100%; margin-inline-start: 0; }
-	.playground-grammar-controls { align-items: flex-start; }
 }
+
+.playground-input[hidden] { display: none; }
+.playground-input { display: flex; align-items: end; gap: 0.65rem; flex-wrap: wrap; padding: 0.75rem 0.85rem; border-top: 1px solid var(--rule); }
+.playground-input-label { display: grid; gap: 0.35rem; flex: 1 1 12rem; min-width: 0; overflow-wrap: anywhere; }
+.playground-input-value { width: 100%; min-width: 0; border: 1px solid var(--rule-strong); background: var(--paper-sunk); color: var(--ink); padding: 0.45rem; font: inherit; }
+.playground-input-value:focus-visible { outline: 2px solid var(--marker); outline-offset: 2px; }
+.playground-input-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; }

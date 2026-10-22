@@ -1,8 +1,9 @@
 import type * as Pyodide from "pyodide";
 import { t } from "../strings.ts";
 import type { RunRequest } from "./contracts.ts";
-import { isPythonPackage } from "./contracts.ts";
+import { pythonPackageForImport } from "./contracts.ts";
 import { parseJson } from "../utils/json.ts";
+import { inputChannel, installPythonInput } from "./input.ts";
 import { outputChannel } from "./output.ts";
 import { installPlotCapture, installWarningCapture, pngFromBase64 } from "./python-plots.ts";
 
@@ -18,7 +19,7 @@ async function run(request: RunRequest) {
 		const python = await loadPyodide({
 			indexURL: request.assets,
 			packageBaseUrl: request.assets,
-			stdin: () => { throw new Error(t("playground.inputUnavailable")); },
+			stdin: () => { throw new Error(t("playground.stdinUnavailable")); },
 			stdout: (text) => { send({ type: "output", level: "log", text }); },
 			stderr: (text) => { send({ type: "output", level: "error", text }); },
 		});
@@ -26,14 +27,20 @@ async function run(request: RunRequest) {
 		// load, and their dependency graph is fixed by the reduced local lockfile.
 		python.registerJsModule("_playground", {
 			source: request.code,
+			request_input: inputChannel(request.port, send),
+			input_unsupported: t("playground.inputUnsupported"),
 			emit_png: (encoded: string, title: string) => { send({ type: "plot", png: pngFromBase64(encoded), alt: typeof title === "string" ? title.slice(0, 300) : "Matplotlib figure" }); },
 			emit_warning: (text: string) => { send({ type: "output", level: "warn", text }); },
 		});
 		python.runPython(installWarningCapture);
+		python.runPython(installPythonInput);
 		const imported = parseJson(python.runPython('import json as __pg_json\nfrom _playground import source as __pg_source\nfrom pyodide.code import find_imports as __pg_find_imports\n__pg_json.dumps(__pg_find_imports(__pg_source))') as string);
 		const packages = new Set(request.pythonPackages);
 		if (!Array.isArray(imported)) throw new Error("Could not inspect Python imports");
-		for (const name of imported) if (typeof name === "string" && isPythonPackage(name)) packages.add(name);
+		for (const name of imported) {
+			const entry = typeof name === "string" ? pythonPackageForImport(name) : undefined;
+			if (entry) packages.add(entry);
+		}
 		if (packages.size) {
 			send({ type: "status", text: t("playground.packagesLoading", { packages: [...packages].join(", ") }) });
 			await python.loadPackage([...packages], {
@@ -42,7 +49,7 @@ async function run(request: RunRequest) {
 				errorCallback: (text) => { send({ type: "output", level: "warn", text }); },
 			});
 		}
-		const plots = packages.has("matplotlib") || packages.has("seaborn");
+		const plots = packages.has("matplotlib") || packages.has("seaborn") || packages.has("empiricaldist");
 		if (plots) {
 			python.runPython(installPlotCapture);
 		}

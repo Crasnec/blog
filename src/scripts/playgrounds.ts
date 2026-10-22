@@ -1,5 +1,5 @@
 import { t } from "../strings";
-import { decodeConfig, MAX_OUTPUT, MAX_PLOTS, MAX_PNG, MAX_PLOT_TOTAL, type RunRequest, type RunResponse } from "../playground/contracts";
+import { decodeConfig, MAX_INPUT, MAX_OUTPUT, MAX_PLOTS, MAX_PNG, MAX_PLOT_TOTAL, type InputResponse, type RunRequest, type RunResponse } from "../playground/contracts";
 import { mountEditor } from "../playground/editor";
 
 const mounted = new Map<HTMLElement, () => void>();
@@ -11,6 +11,12 @@ function mount(root: HTMLElement) {
 	const resetButton = root.querySelector<HTMLButtonElement>(".playground-reset");
 	const output = root.querySelector<HTMLElement>(".playground-output");
 	const status = root.querySelector<HTMLElement>(".playground-status");
+	const inputForm = root.querySelector<HTMLFormElement>(".playground-input");
+	const inputField = root.querySelector<HTMLInputElement>(".playground-input-value");
+	const inputPrompt = root.querySelector<HTMLElement>(".playground-input-prompt");
+	let pendingInput: { id: number; prompt: string } | undefined;
+	let remaining = config.timeout;
+	let activeSince = 0;
 	let worker: Worker | undefined;
 	let port: MessagePort | undefined;
 	let timer: ReturnType<typeof setTimeout> | undefined;
@@ -25,7 +31,9 @@ function mount(root: HTMLElement) {
 		output?.replaceChildren(); outputSize = 0; outputLines = 0;
 	}
 	function finish(message: string, state: string) {
-		clearTimeout(timer); worker?.terminate(); worker = undefined;
+		clearTimeout(timer); pendingInput = undefined;
+		if (inputForm) inputForm.hidden = true;
+		worker?.terminate(); worker = undefined;
 		port?.close(); port = undefined;
 		if (status) status.textContent = message;
 		if (runButton) runButton.disabled = false;
@@ -57,6 +65,34 @@ function mount(root: HTMLElement) {
 		const link = document.createElement("a"); link.href = url; link.download = `plot-${String(plotURLs.length)}.png`; link.textContent = t("playground.downloadPlot");
 		figure.append(image, link); output.append(figure);
 	}
+	function resumeClock() {
+		activeSince = performance.now();
+		timer = setTimeout(() => { finish(t("playground.timedOut"), "timeout"); }, Math.max(0, remaining));
+	}
+	function requestInput(id: number, prompt: string) {
+		if (pendingInput || !inputForm || !inputField || !inputPrompt) return;
+		clearTimeout(timer); remaining -= performance.now() - activeSince;
+		pendingInput = { id, prompt };
+		inputPrompt.textContent = prompt || t("playground.inputLabel");
+		inputField.value = ""; inputForm.hidden = false;
+		root.dataset.runState = "input";
+		if (status) status.textContent = t("playground.inputWaiting");
+		inputField.focus();
+	}
+	function submitInput(value: string | null) {
+		if (!pendingInput || !port || (value !== null && value.length > MAX_INPUT)) return;
+		const { id, prompt } = pendingInput; pendingInput = undefined;
+		if (inputForm) inputForm.hidden = true;
+		append(`${prompt}${value ?? t("playground.inputEof")}`, "log");
+		if (!worker) return;
+		root.dataset.runState = "running";
+		if (status) status.textContent = t("playground.running");
+		resumeClock();
+		const response: InputResponse = { type: "input", id, value };
+		port.postMessage(response);
+	}
+	inputForm?.addEventListener("submit", (event) => { event.preventDefault(); submitInput(inputField?.value ?? ""); });
+	root.querySelector(".playground-input-eof")?.addEventListener("click", () => { submitInput(null); });
 	function run() {
 		if (disposed || worker || !config.runtime) return;
 		clearOutput();
@@ -73,13 +109,14 @@ function mount(root: HTMLElement) {
 			port.onmessage = (event: MessageEvent<RunResponse>) => {
 				const response = event.data;
 				switch (response.type) {
+					case "input": requestInput(response.id, response.prompt); break;
 					case "output": append(response.text, response.level); break;
 					case "plot": appendPlot(response.png, response.alt); break;
 					case "status": if (status) status.textContent = response.text; break;
 					case "ready":
 						clearTimeout(timer); root.dataset.runState = "running";
 						if (status) status.textContent = t("playground.running");
-						timer = setTimeout(() => { finish(t("playground.timedOut"), "timeout"); }, config.timeout);
+						remaining = config.timeout; resumeClock();
 						break;
 					case "error": append(response.text, "error"); finish(t("playground.failed"), "error"); break;
 					case "done": finish(t("playground.done"), "done"); break;
@@ -113,8 +150,8 @@ export function mountPlaygrounds() {
 		if (mounted.has(root)) continue;
 		try { mounted.set(root, mount(root)); }
 		catch (error) {
-			const status = root.querySelector(".playground-grammar-status");
-			if (status) status.textContent = error instanceof Error ? error.message : String(error);
+			const status = root.querySelector<HTMLElement>(".playground-highlight-status");
+			if (status) { status.textContent = error instanceof Error ? error.message : String(error); status.hidden = false; }
 		}
 	}
 }

@@ -30,13 +30,18 @@ after(async () => { await browser.close(); assert.deepEqual(errors, []); });
 async function edit(root: Locator, code: string) {
 	const editor = root.locator(".cm-content");
 	await editor.fill(code);
-	await page.waitForFunction(({ label, text }) => [...document.querySelectorAll("[data-code-playground]")].some((el) => el.getAttribute("aria-label") === label && el.querySelector(".cm-content")?.textContent === text), { label: await root.getAttribute("aria-label"), text: code.replaceAll("\n", "") });
+	try {
+		await page.waitForFunction(({ label, text }) => [...document.querySelectorAll("[data-code-playground]")].some((el) => el.getAttribute("aria-label") === label && el.querySelector(".cm-content")?.textContent === text), { label: await root.getAttribute("aria-label"), text: code.replaceAll("\n", "") });
+	} catch (error) {
+		console.error("Editor content mismatch", { expected: code, actual: await editor.textContent(), html: await editor.innerHTML() });
+		throw error;
+	}
 }
 async function execute(root: Locator, code: string, expected: "done" | "error" | "timeout" = "done") {
 	await edit(root, code);
 	await root.locator(".playground-run").click();
 	await root.locator("xpath=self::*[@data-run-state='done' or @data-run-state='error' or @data-run-state='timeout']").waitFor({ timeout: 185_000 });
-	const result = (await root.locator(".playground-output").innerText()).trim();
+	const result = (await root.locator(".playground-output-line").allTextContents()).join("").trim();
 	assert.equal(await root.getAttribute("data-run-state"), expected, result);
 	return result;
 }
@@ -100,6 +105,97 @@ void test("approved scientific libraries load on demand and produce downloadable
 	} finally { page.off("request", record); }
 });
 
+
+void test("Think Stats packages import, compute and capture empiricaldist plots", async () => {
+	const root = playground("python");
+	const requests: string[] = [];
+	const record = (request: Request) => { if (request.url().includes(".whl")) requests.push(request.url()); };
+	page.on("request", record);
+	try {
+		const result = await execute(root, String.raw`from empiricaldist import FreqTab
+from statadict import parse_stata_dict
+from pathlib import Path
+import statsmodels.api as sm
+from IPython.display import HTML
+freq = FreqTab.from_seq([1, 1, 2, 3])
+print("frequency:", int(freq[1]))
+print("slope:", round(float(sm.OLS([1, 3, 5], sm.add_constant([0, 1, 2])).fit().params[1]), 6))
+Path("example.dct").write_text('dictionary {\n  _column(1) int example %2f "Example"\n}')
+dct = parse_stata_dict("example.dct")
+print("dictionary:", dct.names)
+print("html:", HTML("<b>example</b>").data)
+freq.plot()`);
+		assert.match(result, /frequency: 2/);
+		assert.match(result, /slope: 2\.0/);
+		assert.match(result, /dictionary: \['example'\]/);
+		assert.match(result, /html: <b>example<\/b>/);
+		assert.equal(await root.locator(".playground-output b").count(), 0);
+		assert.equal(await root.locator(".playground-plot img").count(), 1);
+		await root.locator(".playground-plot img").evaluate(async (img: HTMLImageElement) => { await img.decode(); });
+		for (const name of ["empiricaldist", "statadict", "statsmodels", "ipython"]) assert.ok(requests.some((url) => url.includes(`/${name}-`)), name);
+		assert.ok(requests.every((url) => new URL(url).origin === new URL(base).origin));
+	} finally { page.off("request", record); }
+});
+
+async function submitLine(root: Locator, value: string) {
+	await root.locator("xpath=self::*[@data-run-state='input']").waitFor({ timeout: 185_000 });
+	await root.locator(".playground-input-value").fill(value);
+	await root.locator(".playground-input-value").press("Enter");
+}
+
+void test("Python input resumes nested calls with Unicode, empty strings and EOF", async () => {
+	const root = playground("python");
+	await edit(root, `def ask():
+    return input("이름: ")
+print("before")
+name = ask()
+empty = input("빈 값: ")
+print(repr((name, empty)))
+try:
+    input("end: ")
+except EOFError:
+    print("EOF received")`);
+	await root.locator(".playground-run").click();
+	await submitLine(root, "한글 <b>text</b>");
+	await submitLine(root, "");
+	await root.locator("xpath=self::*[@data-run-state='input']").waitFor();
+	await root.locator(".playground-input-eof").click();
+	await root.locator("xpath=self::*[@data-run-state='done']").waitFor();
+	const result = (await root.locator(".playground-output-line").allTextContents()).join("");
+	assert.match(result, /\('한글 <b>text<\/b>', ''\)/);
+	assert.match(result, /EOF received/);
+	assert.equal(result.match(/before/g)?.length, 1, "execution must resume rather than replay");
+	assert.equal(await root.locator(".playground-output b").count(), 0);
+	assert.equal(await root.locator(".playground-input").isVisible(), false);
+});
+
+void test("async Python input works without synchronous input and Stop clears pending input", async () => {
+	const root = playground("python");
+	await edit(root, 'print(await read_input("Value: "))');
+	await root.locator(".playground-run").click();
+	await submitLine(root, "async value");
+	await root.locator("xpath=self::*[@data-run-state='done']").waitFor();
+	assert.match((await root.locator(".playground-output-line").allTextContents()).join(""), /async value/);
+	await root.locator(".playground-run").click();
+	await root.locator("xpath=self::*[@data-run-state='input']").waitFor();
+	await root.locator(".playground-stop").click();
+	assert.equal(await root.locator(".playground-input").isVisible(), false);
+	assert.equal(await root.getAttribute("data-run-state"), "stopped");
+	assert.match(await execute(root, 'print("after input stop")'), /after input stop/);
+});
+
+void test("waiting for a JavaScript input does not consume execution time", async () => {
+	const root = playground("javascript");
+	await edit(root, 'const text = await input("Value: "); console.log("received", text);');
+	await root.locator(".playground-run").click();
+	await root.locator("xpath=self::*[@data-run-state='input']").waitFor();
+	await new Promise((resolve) => setTimeout(resolve, 10_500));
+	assert.equal(await root.getAttribute("data-run-state"), "input");
+	await submitLine(root, "42");
+	await root.locator("xpath=self::*[@data-run-state='done']").waitFor();
+	assert.match((await root.locator(".playground-output-line").allTextContents()).join(""), /received 42/);
+});
+
 void test("Stop interrupts infinite JavaScript and Python loops and allows another execution", async () => {
 	for (const language of ["javascript", "python"]) {
 		const root = playground(language);
@@ -122,21 +218,16 @@ void test("execution timeout, console flood and runtime errors leave the editor 
 	assert.match(await root.locator(".cm-content").innerText(), /const values/);
 });
 
-void test("XML TextMate grammars can replace highlighting and malformed grammars can be reset", async () => {
+void test("author-supplied grammars highlight edited code without reader upload controls", async () => {
 	const root = playground("signal");
-	await root.locator("summary").click();
-	await edit(root, "SPECIAL α");
-	const xml = '<?xml version="1.0"?><plist version="1.0"><dict><key>scopeName</key><string>source.xml-test</string><key>patterns</key><array><dict><key>name</key><string>keyword.control</string><key>match</key><string>SPECIAL</string></dict></array></dict></plist>';
-	const upload = root.locator("input[type=file]");
-	await upload.setInputFiles({ name: "custom.tmLanguage", mimeType: "text/xml", buffer: Buffer.from(xml) });
-	await page.waitForFunction(() => [...document.querySelectorAll("[data-code-playground]")].some((el) => el.getAttribute("data-highlight") === "ready" && el.querySelector(".playground-grammar-status")?.textContent.includes("custom.tmLanguage")));
-	const token = root.locator('[data-textmate-token][style*="token-keyword"]').first();
-	assert.equal(await token.innerText(), "SPECIAL");
-	await upload.setInputFiles({ name: "broken.json", mimeType: "application/json", buffer: Buffer.from("{") });
-	await root.locator("xpath=self::*[@data-highlight='error']").waitFor();
-	assert.equal(await root.locator(".cm-content").innerText(), "SPECIAL α");
-	await root.locator(".playground-grammar-reset").click();
-	await root.locator("xpath=self::*[@data-highlight='ready']").waitFor();
+	assert.equal(await page.locator('[data-code-playground] input[type="file"]').count(), 0);
+	assert.equal(await root.locator("details").count(), 0);
+	await edit(root, 'series check = [42]\nmean check -> emit "value"');
+	await root.locator('[data-textmate-token][style*="token-constant"]').filter({ hasText: /^42$/ }).waitFor();
+	assert.equal(await root.locator('[data-textmate-token][style*="token-keyword"]').first().innerText(), "series");
+	assert.equal(await root.locator('[data-textmate-token][style*="token-constant"]').first().innerText(), "42");
+	assert.match((await root.locator('[data-textmate-token][style*="token-string"]').allTextContents()).join(""), /value/);
+	assert.equal(await root.locator(".playground-highlight-status").isVisible(), false);
 });
 
 void test("theme changes and mobile layout preserve edited content", async () => {

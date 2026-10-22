@@ -1,10 +1,12 @@
 import type { RunRequest } from "./contracts.ts";
+import { inputChannel } from "./input.ts";
 import { formatValue, outputChannel } from "./output.ts";
 
 self.addEventListener("message", (event: MessageEvent<RunRequest>) => { void run(event.data); }, { once: true });
 
 async function run(request: RunRequest) {
 	const send = outputChannel(request.port);
+	Object.assign(globalThis, { input: inputChannel(request.port, send) });
 	for (const level of ["log", "info", "debug", "warn", "error"] as const) {
 		console[level] = (...values: Parameters<typeof formatValue>[0][]) => {
 			// Vite's worker HMR connection logs are infrastructure, not code output.

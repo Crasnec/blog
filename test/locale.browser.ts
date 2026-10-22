@@ -90,7 +90,7 @@ void test("localized replay controls retain the same figure geometry throughout 
 	assert.deepEqual(await size(), finished);
 });
 
-void test("playground execution, find panel and grammar feedback follow the configured locale", async () => {
+void test("playground execution and find panel follow the locale with author-defined grammars", async () => {
 	await page.goto(new URL("posts/build/browser-code/", base).href, { waitUntil: "networkidle" });
 	const editor = page.locator('[data-code-playground][data-ready="true"]').first();
 	await editor.waitFor();
@@ -102,9 +102,8 @@ void test("playground execution, find panel and grammar feedback follow the conf
 	await editor.locator(".cm-content").press("Control+f");
 	await editor.getByRole("textbox", { name: messages.find, exact: true }).waitFor();
 	await editor.getByRole("textbox", { name: messages.find, exact: true }).press("Escape");
-	await editor.locator(".playground-grammar summary").click();
-	await editor.locator('input[type="file"]').setInputFiles(Array.from({ length: 17 }, (_, index) => ({ name: `grammar-${String(index)}.json`, mimeType: "application/json", buffer: Buffer.from("{}") })));
-	await page.waitForFunction((text) => document.querySelector(".playground-grammar-status")?.textContent.includes(text), translate(locale, "playground.grammarLimit"));
+	assert.equal(await editor.locator('input[type="file"]').count(), 0);
+	assert.equal(await editor.locator(".playground-highlight-status").isVisible(), false);
 	const overflow = await editor.evaluate((element) => element.getBoundingClientRect().right > innerWidth);
 	assert.equal(overflow, false);
 });

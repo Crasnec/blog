@@ -1,6 +1,7 @@
 ---
 import { t } from "../strings";
-import { decodeConfig, MAX_CODE, runtimeFor, type GrammarSource, type Runtime, type PythonPackage } from "../playground/contracts";
+import { decodeConfig, MAX_CODE, MAX_INPUT, runtimeFor, type GrammarSource, type Runtime, type PythonPackage } from "../playground/contracts";
+import { parseGrammars } from "../playground/grammar";
 import "../playground/style.css";
 
 interface Props {
@@ -18,6 +19,8 @@ interface Props {
 const { code, language = "javascript", runtime = runtimeFor(language), title = language, grammars = [], timeout = 10_000, pythonPackages = [] } = Astro.props;
 if (typeof code !== "string" || code.length > MAX_CODE) throw new Error("CodePlayground code must be a string of at most 100000 characters");
 const config = decodeConfig(JSON.stringify({ language, runtime, grammars, timeout, label: title, pythonPackages }));
+// Author-supplied grammars fail during the build rather than on a reader's page.
+parseGrammars(config.grammars);
 ---
 
 <section class="code-playground" data-code-playground data-config={JSON.stringify(config)} aria-label={title}>
@@ -34,17 +37,14 @@ const config = decodeConfig(JSON.stringify({ language, runtime, grammars, timeou
 		<textarea class="playground-fallback" aria-label={`${title}: ${t("playground.code")}`} readonly spellcheck="false">{code}</textarea>
 	</div>
 	{runtime === "python" && <p class="playground-libraries">{t("playground.pythonLibraries")}</p>}
-	<details class="playground-grammar">
-		<summary>{t("playground.grammar")}</summary>
-		<div class="playground-grammar-controls">
-			<label>{t("playground.grammarFile")}<input class="playground-grammar-file" type="file" accept=".json,.tmLanguage,.tmlanguage,.plist,.xml" multiple /></label>
-			<button class="playground-grammar-reset" type="button" disabled>{t("playground.grammarReset")}</button>
-		</div>
-		<p class="playground-grammar-status" role="status">{t("playground.grammarLoading")}</p>
-	</details>
+	<p class="playground-highlight-status" role="status" hidden></p>
 	{runtime && <div class="playground-results">
 		<div class="playground-output-heading"><span>{t("playground.output")}</span><span class="playground-status" role="status">{t("playground.idle")}</span></div>
 		<div class="playground-output" role="region" aria-label={`${title}: ${t("playground.output")}`} data-pagefind-ignore><span class="playground-output-placeholder">{t("playground.outputEmpty")}</span></div>
+		<form class="playground-input" hidden>
+			<label class="playground-input-label"><span class="playground-input-prompt">{t("playground.inputLabel")}</span><input class="playground-input-value" type="text" maxlength={MAX_INPUT} autocomplete="off" spellcheck="false" /></label>
+			<div class="playground-input-actions"><button type="submit">{t("playground.inputSend")}</button><button type="button" class="playground-input-eof">{t("playground.inputEof")}</button></div>
+		</form>
 	</div>}
 	<noscript><p>{t("playground.needsJs")}</p></noscript>
 </section>
