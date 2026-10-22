@@ -220,9 +220,12 @@ JavaScript, TypeScript and Python run in browser Workers, with output, Stop and
 Reset controls. Editors also accept custom JSON or XML/plist TextMate grammars.
 See [`src/playground/README.md`](src/playground/README.md) for props, grammar
 dependencies, execution behaviour and browser tests.
-Python also supports approved NumPy, pandas, SciPy, Matplotlib and Seaborn
-packages loaded on import. Plots appear below the editor and can be downloaded
-as PNG files; package versions, checksums and dependency graphs are pinned.
+Python loads packages from the full Pyodide catalog and supports compatible
+PyPI wheels through `micropip.install()` or the author's `pythonPackages` prop.
+Common scientific packages remain bundled locally with pinned hashes.
+JavaScript and TypeScript resolve browser-compatible npm imports through esm.sh.
+Plots appear below the editor and can be downloaded as PNG files. Silent runs
+keep a compact output area with a visible completion status.
 
 Inline and display mathematics are rendered with KaTeX.
 

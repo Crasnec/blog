@@ -18,7 +18,8 @@ async function run(request: RunRequest) {
 	self.addEventListener("error", (event) => { event.preventDefault(); send({ type: "error", text: event.message }); });
 	let url: string | undefined;
 	try {
-		const code = request.runtime === "typescript" ? (await import("./transpile.ts")).transpileTypeScript(request.code) : request.code;
+		let code = request.runtime === "typescript" ? (await import("./transpile.ts")).transpileTypeScript(request.code) : request.code;
+		if (/\b(?:import|export)\b/u.test(code)) code = (await import("./module-imports.ts")).rewriteModuleImports(code);
 		send({ type: "ready" });
 		url = URL.createObjectURL(new Blob([code], { type: "text/javascript" }));
 		await import(/* @vite-ignore */ url);

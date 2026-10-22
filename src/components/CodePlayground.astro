@@ -46,7 +46,7 @@ parseGrammars(config.grammars);
 	<p class="playground-highlight-status" role="status" hidden></p>
 	{runtime && <div class="playground-results">
 		<div class="playground-output-heading"><span>{t("playground.output")}</span><span class="playground-status" role="status">{t("playground.idle")}</span></div>
-		<div class="playground-output" role="region" aria-label={`${title}: ${t("playground.output")}`} data-pagefind-ignore>{Astro.slots.has("default") ? <div class="playground-reference"><p class="notebook-reference-label">{t("notebook.reference")}</p><slot /></div> : <span class="playground-output-placeholder">{t("playground.outputEmpty")}</span>}</div>
+		<div class="playground-output" role="region" aria-label={`${title}: ${t("playground.output")}`} data-pagefind-ignore>{Astro.slots.has("default") && <div class="playground-reference"><p class="notebook-reference-label">{t("notebook.reference")}</p><slot /></div>}</div>
 		<form class="playground-input" hidden>
 			<label class="playground-input-label"><span class="playground-input-prompt">{t("playground.inputLabel")}</span><input class="playground-input-value" type="text" maxlength={MAX_INPUT} autocomplete="off" spellcheck="false" /></label>
 			<div class="playground-input-actions"><button type="submit">{t("playground.inputSend")}</button><button type="button" class="playground-input-eof">{t("playground.inputEof")}</button></div>

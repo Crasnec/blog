@@ -44,7 +44,7 @@ function mount(root: HTMLElement) {
 		if (inputForm) inputForm.hidden = true;
 		if (!notebook) { worker?.terminate(); port?.close(); }
 		worker = undefined; port = undefined;
-		if (status) status.textContent = message;
+		if (status) status.textContent = state === "done" && !output?.hasChildNodes() ? t("playground.doneEmpty") : message;
 		if (runButton) runButton.disabled = false;
 		if (stopButton) stopButton.disabled = true;
 		root.dataset.runState = state;
@@ -52,7 +52,6 @@ function mount(root: HTMLElement) {
 	}
 	function append(text: string, level: string) {
 		if (!output) return;
-		output.querySelector(".playground-output-placeholder")?.remove();
 		if (++outputLines > 500 || outputSize + text.length > MAX_OUTPUT) {
 			abort(t("playground.outputLimit"), "error"); return;
 		}
@@ -67,7 +66,6 @@ function mount(root: HTMLElement) {
 		if (!output) return;
 		plotBytes += png.byteLength;
 		if (plotURLs.length >= MAX_PLOTS || png.byteLength > MAX_PNG || plotBytes > MAX_PLOT_TOTAL) { abort(t("playground.plotLimit"), "error"); return; }
-		output.querySelector(".playground-output-placeholder")?.remove();
 		const url = URL.createObjectURL(new Blob([png], { type: "image/png" }));
 		plotURLs.push(url);
 		const figure = document.createElement("figure"); figure.className = "playground-plot";

@@ -28,9 +28,12 @@ Props:
 - `timeout`: execution limit in milliseconds, from 100 to 60,000; default 10,000.
   Loading the runtime and libraries has a separate 180-second limit. Stop
   works while loading.
-- `pythonPackages`: optional array of approved package names to preload for
-  dynamic imports. Ordinary imports are detected automatically. Names must be
-  unique and require the Python runtime.
+- `pythonPackages`: optional array of micropip requirements to install before
+  execution, including package names, version constraints, and compatible wheel
+  URLs. Use distribution names such as `beautifulsoup4`, not import names such
+  as `bs4`. Up to 50 unique, nonempty strings of at most 2,048 characters each;
+  this prop requires the Python runtime. Imports from the Pyodide catalog are
+  detected automatically.
 
 For a custom grammar, import it with Vite's `?raw` suffix and pass its text.
 See `src/content/posts/build/browser-code.mdx` for all three runtimes and a
@@ -53,14 +56,34 @@ ECMAScript modules, supporting top-level `await`. Use `console.log`, `info`,
 `debug`, `warn` or `error` for output. TypeScript uses the official compiler's
 `transpileModule` with syntax diagnostics; it does not perform type checking.
 Workers have browser APIs rather than Node.js APIs or access to the page DOM.
-There is no npm resolution, bundling of user imports or automatic installation.
-Browser-supported absolute URL imports follow the browser's normal rules.
+JavaScript and TypeScript resolve npm names in static imports, re-exports and
+string-literal dynamic imports through [esm.sh](https://esm.sh/). Versioned names,
+scoped packages, subpaths and the optional `npm:` prefix work in both languages:
+
+```javascript
+import { mean } from "lodash-es@4.17.21";
+const { hex } = await import("npm:@scure/base@1.2.6");
+console.log(mean([2, 4, 6]), hex.encode(new Uint8Array([1, 2, 255])));
+```
+
+Imports are parsed with the existing TypeScript compiler; strings, comments,
+regular expressions and import options are preserved. The parser loads only
+when source contains an import or export. Explicit URLs retain normal browser
+behaviour. For a computed dynamic URL, use `await import("https://esm.sh/" + name)`.
+Dependencies load from esm.sh when Run is selected and count toward the active
+execution deadline. Pin versions in published examples for reproducibility.
+Worker-compatible packages work; DOM-dependent libraries, native Node addons,
+and Node built-in modules do not gain a Node.js environment. `node:` imports
+report that limitation explicitly. TypeScript still performs syntax transpilation
+without fetching declarations or checking external types.
 Worker isolation prevents page UI blocking; it is not a security boundary for
 running hostile code with access to browser Worker APIs.
 
 ## Python libraries and plots
 
-Python provides its standard library and eleven approved packages:
+Python provides its standard library, the full versioned Pyodide package catalog,
+and `micropip` for installing compatible packages from PyPI or wheel URLs.
+These common packages are bundled locally with their dependencies:
 
 | Import | Pinned version | Distribution |
 | --- | --- | --- |
@@ -76,35 +99,54 @@ Python provides its standard library and eleven approved packages:
 | `lxml` | 6.1.3 | Pyodide 314.0.7 |
 | `sympy` | 1.14.0 | Pyodide 314.0.7 |
 
-The approved roots are defined in `python-libraries.json`. The versioned npm
+The bundled roots are defined in `python-libraries.json`. The versioned npm
 runtime's lockfile fixes native wheel versions, dependency metadata and
 SHA-256 digests. `python-wheels.json` pins official PyPI wheels for Seaborn,
 empiricaldist and statadict, which are absent from that catalog. Their native
 dependencies come from Pyodide. Dependency keys use normalized Python package
 names, including IPython's `prompt_toolkit` dependency. The resulting closed
-graph contains thirty-three wheels; readers fetch only those required by their code.
-No new npm dependencies are needed.
+graph, plus micropip, contains thirty-four wheels; readers fetch only those
+required by their code. No new npm dependencies are needed.
 
 At development-server startup and build time, `python-packages.mjs` downloads
-approved wheels into the ignored `.cache/python/<version>/` directory. Cached
+bundled wheels into the ignored `.cache/python/<version>/` directory. Cached
 and downloaded files must pass SHA-256 verification. Downloads use fixed
 official distribution URLs, bounded concurrency and a timeout, with atomic
 cache writes. `pyodide-assets.mjs` serves and copies the five runtime files,
-approved wheels and a reduced lockfile containing only that dependency graph.
-Browsers load same-origin files with Pyodide integrity checks enabled; there
-is no browser CDN fallback or general-purpose package installer. A warm cache
-allows subsequent builds without downloading wheels again.
+bundled wheels and a full lockfile. Bundled wheels retain relative, same-origin
+URLs; other catalog entries use absolute URLs on the official, versioned Pyodide
+CDN. Both paths retain catalog SHA-256 checks. A warm cache allows subsequent
+builds without downloading bundled wheels again.
 
 Before executing source, `pyodide.code.find_imports` inspects its imports
-without running it. Only approved roots are passed to `loadPackage`; the
-reduced lockfile determines their dependencies. `from IPython.display import HTML` resolves to Pyodide's lowercase `ipython` package key. Standard-library examples
-do not download scientific wheels. For a dynamic import, declare it explicitly:
+without running it. `loadPackagesFromImports` resolves imports throughout the
+full catalog, including aliases such as `PIL`, `yaml`, and `IPython`.
+Standard-library examples do not download scientific wheels. Requirements in
+`pythonPackages` are installed with micropip during the separate runtime-loading
+deadline, before source executes. For example:
 
 ```mdx
-<CodePlayground language="python" pythonPackages={["numpy"]}
-  code={`np = __import__("numpy")
-print(np.arange(4))`} />
+<CodePlayground language="python" pythonPackages={["humanize==4.13.0"]}
+  code={`import humanize
+print(humanize.intcomma(1234567))`} />
 ```
+
+Readers can also install packages directly in a cell:
+
+```python
+import micropip
+await micropip.install("humanize==4.13.0")
+import humanize
+print(humanize.intcomma(1234567))
+```
+
+Imports alone automatically load packages present in the Pyodide catalog;
+other PyPI distributions require `micropip.install()` or `pythonPackages`.
+Pure Python wheels and matching Pyodide/Emscripten wheels are supported.
+Ordinary Linux, macOS and Windows native wheels cannot run in this runtime.
+PyPI metadata and wheels require network access and CORS; micropip verifies
+PyPI wheel hashes. Installs written inside source use the cell's active deadline.
+Notebook installs persist until Python is restarted; standalone runs start fresh.
 
 Matplotlib uses its non-interactive Agg backend in the Worker. `plt.show()`
 serializes open figures to PNG, sends them over the private output channel,
@@ -125,13 +167,14 @@ desktop backends, notebook widgets and animation export are not provided.
 Readers can set figure size, DPI and styles through normal Matplotlib APIs;
 generated images retain their plot colours when the site theme changes.
 
-`print` and stderr are captured; standalone scripts use `print` for values. There is no `micropip`, arbitrary PyPI resolution, reader wheel
-URL installer or `loadPackagesFromImports` call. Other native packages must
-have compatible Pyodide builds. Adding a package requires an explicit change
-to the approved roots or a pinned pure-Python wheel, review of its dependency
-graph and provenance, a successful browser import and meaningful numerical or
-plot tests. Source code retains normal Worker network APIs; this package
-policy is not a security sandbox for hostile programs.
+`print` and stderr are captured; standalone scripts use `print` for values.
+Source code retains normal Worker network APIs. Worker isolation keeps
+execution off the page UI thread; it does not provide a security boundary
+for hostile code.
+
+Empty output bodies stay collapsed before, during and after execution in all
+three languages. The status row remains visible and reports "Finished · no output"
+after a silent run. Reset clears results without reopening an empty output box.
 
 References: [Pyodide package loading](https://pyodide.org/en/stable/usage/loading-packages.html),
 [self-hosting specific wheels](https://pyodide.org/en/stable/usage/working-with-bundlers.html#option-2-bundle-specific-packages-locally),
@@ -172,7 +215,7 @@ References: [Pyodide JSPI and run_sync](https://blog.pyodide.org/posts/jspi/),
 `npm run check` covers configuration, grammar parsing and TS compilation.
 `npm run test:playground:browser` uses a running `astro dev --background`
 server, or `PLAYGROUND_BASE`, and exercises real runtimes, cancellation,
-errors, approved scientific libraries, PNG plots, author-defined grammars and
+errors, bundled and additional Python packages, npm imports, PNG plots, author-defined grammars and
 navigation. Notebook regression tests additionally cover shared state, last-expression
 display, stale results, environment isolation, source reset, restart, edited
 notebook export, interactive input and stopping Run all after an error. The
@@ -201,7 +244,7 @@ import CodePlayground from '../../../components/CodePlayground.astro';
 ```
 
 One persistent Python worker handles a notebook serially. Its namespace and
-virtual files persist between cells; the worker loads once and approved
+virtual files persist between cells; the worker loads once and installed
 packages are cached for subsequent cells. Results are not replayed to rebuild
 state. Last expressions and `display()` automatically produce readable text;
 DataFrames and model tables retain their text data. HTML display objects are

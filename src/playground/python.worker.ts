@@ -1,6 +1,6 @@
 import type * as Pyodide from "pyodide";
 import { t } from "../strings.ts";
-import { MAX_CODE, pythonPackageForImport, type InputResponse, type CellRequest, type RunRequest, type RunResponse } from "./contracts.ts";
+import { MAX_CODE, type InputResponse, type CellRequest, type RunRequest, type RunResponse } from "./contracts.ts";
 import { parseJson } from "../utils/json.ts";
 import { inputChannel, installPythonInput } from "./input.ts";
 import { outputChannel } from "./output.ts";
@@ -21,7 +21,7 @@ async function start(request: RunRequest) {
 			stdout: (text) => { send({ type: "output", level: "log", text }); },
 			stderr: (text) => { send({ type: "output", level: "error", text }); },
 		});
-		const source = { code: "" };
+		const source = { code: "", requirements: "[]" };
 		python.registerJsModule("_playground", {
 			source,
 			request_input: inputChannel(request.port, send), input_unsupported: t("playground.inputUnsupported"),
@@ -32,7 +32,6 @@ async function start(request: RunRequest) {
 		python.runPython(installPythonInput);
 		let plots = false;
 		let busy = false;
-		const loaded = new Set<string>();
 		async function execute(cell: Pick<CellRequest, "code" | "pythonPackages">) {
 			if (busy) return;
 			busy = true;
@@ -42,19 +41,17 @@ async function start(request: RunRequest) {
 				source.code = cell.code;
 				python.runPython("from _playground import source as __pg_bridge\n__pg_source = __pg_bridge.code");
 				const imported = parseJson(python.runPython('import json as __pg_json\nfrom pyodide.code import find_imports as __pg_find_imports\n__pg_json.dumps(__pg_find_imports(__pg_source))') as string);
-				const packages = new Set(cell.pythonPackages);
 				if (!Array.isArray(imported)) throw new Error("Could not inspect Python imports");
-				for (const name of imported) {
-					const entry = typeof name === "string" ? pythonPackageForImport(name) : undefined;
-					if (entry) packages.add(entry);
+				const options = { checkIntegrity: true, messageCallback: () => { /* Preserve the localized status. */ }, errorCallback: (text: string) => { send({ type: "output", level: "warn", text }); } };
+				const packages = [...new Set([...cell.pythonPackages, ...imported.filter((name): name is string => typeof name === "string")])];
+				if (packages.length) send({ type: "status", text: t("playground.packagesLoading", { packages: packages.join(", ") }) });
+				if (cell.pythonPackages.length) {
+					await python.loadPackage("micropip", options);
+					source.requirements = JSON.stringify(cell.pythonPackages);
+					await python.runPythonAsync("import micropip as __pg_micropip\nawait __pg_micropip.install(__pg_json.loads(__pg_bridge.requirements))");
 				}
-				const needed = [...packages].filter((name) => !loaded.has(name));
-				if (needed.length) {
-					send({ type: "status", text: t("playground.packagesLoading", { packages: needed.join(", ") }) });
-					await python.loadPackage(needed, { checkIntegrity: true, messageCallback: () => { /* Preserve the localized status. */ }, errorCallback: (text) => { send({ type: "output", level: "warn", text }); } });
-					for (const name of needed) loaded.add(name);
-				}
-				if (!plots && ["matplotlib", "seaborn", "empiricaldist"].some((name) => loaded.has(name))) {
+				await python.loadPackagesFromImports(cell.code, options);
+				if (!plots && Object.hasOwn(python.loadedPackages, "matplotlib")) {
 					python.runPython(installPlotCapture); plots = true;
 				}
 				if (request.persistent) python.runPython(installNotebookDisplay);

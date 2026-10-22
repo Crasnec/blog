@@ -1,14 +1,8 @@
 import { isJsonObject, parseJson } from "../utils/json.ts";
-import libraries from "./python-libraries.json" with { type: "json" };
 
 export type Runtime = "javascript" | "typescript" | "python";
-export type PythonPackage = keyof typeof libraries;
-export const isPythonPackage = (name: string): name is PythonPackage => Object.hasOwn(libraries, name);
-/** Pyodide's package key differs from IPython's case-sensitive import name. */
-export function pythonPackageForImport(name: string): PythonPackage | undefined {
-	if (name === "IPython") return "ipython";
-	return isPythonPackage(name) ? name : undefined;
-}
+/** A micropip requirement: a package name, version constraint, or wheel URL. */
+export type PythonPackage = string;
 export interface GrammarSource { filename: string; content: string }
 export interface PlaygroundConfig {
 	language: string;
@@ -49,9 +43,9 @@ export function decodeConfig(source: string): PlaygroundConfig {
 	});
 	if (grammars.reduce((total, grammar) => total + grammar.content.length, 0) > MAX_GRAMMAR) throw new Error("TextMate grammars exceed 1 MB");
 	const requested = value.pythonPackages ?? [];
-	if (!Array.isArray(requested)) throw new Error("pythonPackages must be an array");
+	if (!Array.isArray(requested) || requested.length > 50) throw new Error("pythonPackages must be an array of at most 50 requirements");
 	const pythonPackages = requested.map((name) => {
-		if (typeof name !== "string" || !isPythonPackage(name)) throw new Error("Only registered Python packages can be preloaded");
+		if (typeof name !== "string" || !name.trim() || name.length > 2048 || /[\r\n\0]/u.test(name)) throw new Error("Each Python requirement must be a nonempty string of at most 2048 characters");
 		return name;
 	});
 	if (new Set(pythonPackages).size !== pythonPackages.length || (runtime !== "python" && pythonPackages.length)) throw new Error("pythonPackages must be unique and require the Python runtime");

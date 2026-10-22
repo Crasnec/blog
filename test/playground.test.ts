@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createCssVariablesTheme, createHighlighterCore } from "shiki/core";
 import { createOnigurumaEngine } from "shiki/engine/oniguruma";
-import { decodeConfig, pythonPackageForImport, runtimeFor } from "../src/playground/contracts.ts";
+import { decodeConfig, runtimeFor } from "../src/playground/contracts.ts";
+import { resolveModuleSpecifier, rewriteModuleImports } from "../src/playground/module-imports.ts";
 import { parseGrammars } from "../src/playground/grammar.ts";
 import { formatValue, outputChannel } from "../src/playground/output.ts";
 import { transpileTypeScript } from "../src/playground/transpile.ts";
@@ -29,10 +30,14 @@ void test("playground config infers supported runtimes and rejects malformed bou
 		assert.throws(() => decodeConfig(JSON.stringify({ ...config, ...change })));
 	}
 	assert.throws(() => decodeConfig(JSON.stringify({ ...config, grammars: [{ filename: "x", content: "x".repeat(1_000_001) }] })), /1 MB/);
-	assert.throws(() => decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages: ["micropip"] })), /Only registered/);
+	for (const pythonPackages of [[""], ["bad\nrequirement"], [2], ["x".repeat(2049)], Array.from({ length: 51 }, (_, index) => `package-${String(index)}`)]) {
+		assert.throws(() => decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages })));
+	}
 	assert.throws(() => decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages: ["numpy", "numpy"] })), /unique/);
 	assert.throws(() => decodeConfig(JSON.stringify({ ...config, pythonPackages: ["numpy"] })), /Python runtime/);
 	assert.deepEqual(decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages: ["numpy", "seaborn"] })).pythonPackages, ["numpy", "seaborn"]);
+	const requirements = ["micropip", "humanize==4.13.0", "beautifulsoup4>=4", "https://example.com/demo-1.0-py3-none-any.whl"];
+	assert.deepEqual(decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages: requirements })).pythonPackages, requirements);
 });
 
 void test("notebook configuration is explicit, Python-only and bounded", () => {
@@ -42,24 +47,44 @@ void test("notebook configuration is explicit, Python-only and bounded", () => {
  assert.throws(() => decodeConfig(JSON.stringify({ ...base, notebook: "chapter", runtime: "javascript" })));
 });
 
-void test("scientific packages resolve a closed, pinned dependency graph from official sources", () => {
+void test("common wheels stay pinned locally and the full Pyodide catalog loads from versioned URLs", () => {
 	const distribution = pythonDistribution();
 	for (const name of supportedPackages) assert.ok(Object.hasOwn(distribution.lock.packages, name));
-	assert.equal(Object.hasOwn(distribution.lock.packages, "micropip"), false);
+	assert.ok(Object.hasOwn(distribution.lock.packages, "micropip"));
+	for (const name of ["regex", "pyyaml", "scikit-learn"]) {
+		const entry = distribution.lock.packages[name];
+		assert.ok(entry, name);
+		assert.ok(entry.file_name.startsWith(`https://cdn.jsdelivr.net/pyodide/v${distribution.version}/full/`));
+		assert.match(entry.sha256, /^[a-f0-9]{64}$/u);
+		for (const dependency of entry.depends) assert.ok(Object.hasOwn(distribution.lock.packages, dependency));
+	}
+	assert.ok(distribution.lock.packages.pillow?.imports.includes("PIL"));
+	assert.ok(distribution.files.some((entry) => entry.file_name === distribution.lock.packages.pillow?.file_name));
+	assert.ok(distribution.lock.packages.pyyaml?.imports.includes("yaml"));
 	for (const entry of distribution.files) {
 		assert.match(entry.sha256, /^[a-f0-9]{64}$/);
 		assert.ok(["cdn.jsdelivr.net", "files.pythonhosted.org"].includes(new URL(entry.url).hostname));
 		assert.ok(entry.depends.every((name) => Object.hasOwn(distribution.lock.packages, name)));
 	}
-	assert.equal(pythonPackageForImport("IPython"), "ipython");
-	assert.equal(pythonPackageForImport("empiricaldist"), "empiricaldist");
-	assert.equal(pythonPackageForImport("micropip"), undefined);
-	assert.equal(pythonPackageForImport("statistics"), undefined);
 	assert.deepEqual(distribution.lock.packages.empiricaldist?.depends, ["numpy", "pandas", "scipy", "matplotlib"]);
 	for (const name of ["statadict", "statsmodels", "ipython"]) assert.ok(supportedPackages.includes(name));
 	const data = new TextEncoder().encode("abc");
 	assert.equal(verifyPackage(data, "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"), true);
 	assert.equal(verifyPackage(data, "0".repeat(64)), false);
+});
+
+void test("npm imports resolve without changing strings, comments, URLs, or import options", () => {
+	assert.equal(resolveModuleSpecifier("lodash-es@4.17.21"), "https://esm.sh/lodash-es@4.17.21?target=es2022");
+	assert.equal(resolveModuleSpecifier("npm:@scure/base@1.2.6"), "https://esm.sh/@scure/base@1.2.6?target=es2022");
+	assert.equal(resolveModuleSpecifier("lodash-es/mean?target=es2024"), "https://esm.sh/lodash-es/mean?target=es2024");
+	for (const source of ["https://example.com/module.js", "data:text/javascript,export default 4", "./relative.js"]) assert.equal(resolveModuleSpecifier(source), source);
+	assert.throws(() => rewriteModuleImports('import fs from "node:fs"'), /Node.js built-in/u);
+	const untouched = '// import "fake-comment"\nconst text = `import "fake-string"`;\nconst regex = /import "fake-regex"/;';
+	assert.equal(rewriteModuleImports(untouched), untouched);
+	const rewritten = rewriteModuleImports('import {mean} from "lodash-es@4.17.21";\nexport {hex} from "@scure/base@1.2.6";\nconst mod = await import(`nanoid@5.1.5`, {with: {type: "json"}});');
+	assert.match(rewritten, /from "https:\/\/esm.sh\/lodash-es@4.17.21\?target=es2022"/u);
+	assert.match(rewritten, /from "https:\/\/esm.sh\/@scure\/base@1.2.6\?target=es2022"/u);
+	assert.match(rewritten, /import\("https:\/\/esm.sh\/nanoid@5.1.5\?target=es2022", \{with: \{type: "json"\}\}\)/u);
 });
 
 void test("plot transport rejects non-PNG data, oversized images and excess figures", () => {

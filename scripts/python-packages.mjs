@@ -12,7 +12,7 @@ import wheels from "../src/playground/python-wheels.json" with { type: "json" };
 export const supportedPackages = Object.keys(libraries);
 const runtimeRoot = dirname(fileURLToPath(import.meta.resolve("pyodide")));
 
-/** Resolve only the approved roots and their pinned transitive dependencies. */
+/** Bundle common packages locally and expose the complete versioned catalog. */
 export function pythonDistribution() {
 	/** @type {{version: string}} */
 	const metadata = JSON.parse(readFileSync(join(runtimeRoot, "package.json"), "utf8"));
@@ -38,12 +38,16 @@ export function pythonDistribution() {
 		packages[name] = { ...entry, depends };
 		for (const dependency of depends) add(dependency);
 	}
-	for (const name of supportedPackages) add(name);
+	for (const name of [...supportedPackages, "micropip"]) add(name);
 	const cache = fileURLToPath(new URL(`../.cache/python/${metadata.version}/`, import.meta.url));
 	const base = `https://cdn.jsdelivr.net/pyodide/v${metadata.version}/full/`;
 	return {
 		version: metadata.version, cache, runtimeRoot,
-		lock: { ...source, packages },
+		lock: { ...source, packages: Object.fromEntries(Object.entries(catalog).map(([name, entry]) => [name, {
+			...entry,
+			// Bundled wheels remain same-origin; other packages load on demand.
+			file_name: Object.hasOwn(packages, name) ? entry.file_name : new URL(entry.file_name, base).href,
+		}])) },
 		files: Object.values(packages).map((entry) => ({
 			...entry, path: join(cache, entry.file_name),
 			url: wheelURLs.get(entry.file_name) ?? new URL(entry.file_name, base).href,

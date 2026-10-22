@@ -15,6 +15,7 @@ Edit the source, then select **Run** or press **Ctrl/⌘ + Enter**. **Stop** can
 ## JavaScript
 
 Console output appears below the editor. Top-level `await` is supported.
+Runs without output keep the result area compact and show a completion status.
 
 <CodePlayground title="JavaScript · Mean" language="javascript" code={`const values = [2, 4, 4, 6, 9];
 const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
@@ -22,9 +23,22 @@ await Promise.resolve();
 console.log("Mean:", mean);
 console.log({ count: values.length, min: Math.min(...values) });`} />
 
+Browser-compatible npm packages can be imported by name. The runtime resolves
+them through esm.sh; published examples should include a version. Static
+imports, re-exports and string-literal dynamic imports are supported:
+
+```javascript
+import { mean } from "lodash-es@4.17.21";
+const { hex } = await import("npm:@scure/base@1.2.6");
+console.log(mean([2, 4, 6]));
+console.log(hex.encode(new Uint8Array([1, 2, 255])));
+```
+
 ## TypeScript
 
 TypeScript is transpiled to JavaScript before execution. Syntax errors appear in the output panel; this editor does not perform type checking.
+It supports the same npm import syntax as JavaScript. Both run in a browser
+Worker; Node built-ins, native Node addons and access to the page DOM are unavailable.
 
 <CodePlayground title="TypeScript · Summary statistics" language="typescript" code={`interface Summary { count: number; mean: number }
 const values: number[] = [2, 4, 4, 6, 9];
@@ -56,7 +70,7 @@ ends the input stream; Python raises `EOFError`, while JavaScript returns
 
 ## Scientific Python and plots
 
-NumPy, pandas, SciPy, Matplotlib, Seaborn, empiricaldist, statadict, statsmodels and IPython are available. Ordinary imports load only the required approved packages and their dependencies. Package versions and SHA-256 digests are pinned; the browser downloads these files from this site. Standard-library examples do not load the scientific stack.
+NumPy, pandas, SciPy, Matplotlib, Seaborn, empiricaldist, statadict, statsmodels and IPython are bundled locally. Imports also load packages from the full Pyodide catalog, such as Pillow (`PIL`) and PyYAML (`yaml`), using versioned CDN URLs and verified hashes. Standard-library examples do not load the scientific stack.
 
 Use `plt.show()` to display a plot. Open figures are also displayed at the end of a successful execution. Each plot can be downloaded as a PNG.
 
@@ -78,7 +92,25 @@ sns.histplot(data=samples, x="value", bins=20, kde=True, ax=ax)
 ax.set(title="A reproducible sample", xlabel="Value")
 plt.show()`} />
 
-Plots are static images; GUI backends, interactive zoom and notebook widgets are not provided. Python runs in a browser Worker without access to the page DOM. No arbitrary npm packages, PyPI packages or wheel URLs are automatically installed. Execution stops at its time limit; **Stop** also works while libraries load.
+Plots are static images; GUI backends, interactive zoom and notebook widgets are not provided. Python runs in a browser Worker without access to the page DOM. Execution stops at its time limit; **Stop** also works while libraries load.
+
+For other compatible PyPI packages, install them in the cell:
+
+```python
+import micropip
+await micropip.install("humanize==4.13.0")
+import humanize
+print(humanize.intcomma(1234567))
+```
+
+Authors can install requirements before the cell starts with
+`pythonPackages={["humanize==4.13.0"]}`. Both methods support pure Python wheels
+and compatible Pyodide wheels; ordinary desktop native binaries cannot run in
+the browser. Notebook cells keep installed packages until Python is restarted.
+
+References: [Pyodide package loading](https://pyodide.org/en/stable/usage/loading-packages.html),
+[micropip installation](https://micropip.pyodide.org/en/stable/project/api.html),
+and [esm.sh imports](https://esm.sh/).
 
 ## Custom TextMate grammars
 
@@ -92,6 +124,14 @@ This example uses two author-supplied grammar files:
 ]} code={`# This grammar is defined alongside the example.
 series sample = [2, 4, 4, 6, 9]
 mean sample -> emit "Mean"`} />
+
+## Preload an additional Python package
+
+This example installs its author-specified requirement before executing the
+editable source. Readers can use `micropip.install()` for further packages.
+
+<CodePlayground title="Python · Additional packages" language="python" pythonPackages={["humanize==4.13.0"]} code={`import humanize
+print(humanize.intcomma(1234567))`} />
 
 
 ## Linked Python notebook cells

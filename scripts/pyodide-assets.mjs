@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { pythonDistribution, preparePythonPackages } from "./python-packages.mjs";
 
-// Only the pinned runtime, approved wheels and a reduced lockfile are served.
+// Serve the pinned runtime, bundled wheels, and full catalog with CDN URLs.
 const files = new Map([
 	["pyodide.mjs", "text/javascript"],
 	["pyodide.asm.mjs", "text/javascript"], ["pyodide.asm.wasm", "application/wasm"],

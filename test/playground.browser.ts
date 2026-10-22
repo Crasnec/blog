@@ -9,6 +9,7 @@ let page: Page;
 let base: string;
 const errors: string[] = [];
 const demo = "/posts/build/browser-code/";
+const demoEditors = 6;
 const playground = (language: string) => page.locator(`[data-code-playground][data-config*='"language":"${language}"']`).first();
 
 before(async () => {
@@ -23,7 +24,7 @@ before(async () => {
 	page.setDefaultTimeout(20_000);
 	page.on("pageerror", (error) => errors.push(error.message));
 	await page.goto(new URL(demo, base).href);
-	await page.locator('[data-code-playground][data-ready="true"]').nth(4).waitFor();
+	await page.locator('[data-code-playground][data-ready="true"]').nth(demoEditors - 1).waitFor();
 });
 after(async () => { await browser.close(); assert.deepEqual(errors, []); });
 
@@ -47,8 +48,8 @@ async function execute(root: Locator, code: string, expected: "done" | "error" |
 }
 
 void test("editors highlight their initial source without executing it", async () => {
-	await page.waitForFunction(() => document.querySelectorAll('[data-highlight="ready"]').length === 5);
-	assert.equal(await page.locator(".cm-editor").count(), 5);
+	await page.waitForFunction((expected) => document.querySelectorAll('[data-highlight="ready"]').length === expected, demoEditors);
+	assert.equal(await page.locator(".cm-editor").count(), demoEditors);
 	assert.equal(await page.locator("[data-run-state]").count(), 0);
 	assert.ok(await playground("signal").locator("[data-textmate-token]").count() > 0);
 });
@@ -77,6 +78,26 @@ void test("Python runs its real standard library, reports exceptions and starts 
 	assert.match(await execute(root, 'import warnings\nwarnings.warn("example warning", UserWarning)'), /UserWarning: example warning/);
 	assert.equal(await root.locator(".playground-output-line.is-warn").count(), 1);
 	assert.equal(await root.locator(".playground-output-line.is-error").count(), 0);
+});
+
+void test("JavaScript and TypeScript import npm packages with versions, scopes, and dynamic imports", async () => {
+	const result = await execute(playground("javascript"), 'import {mean} from "lodash-es@4.17.21";\nconst {hex} = await import("npm:@scure/base@1.2.6");\nconsole.log(mean([2, 4, 6]));\nconsole.log(hex.encode(new Uint8Array([1, 2, 255])));');
+	assert.match(result, /4\n0102ff/u);
+	assert.equal(await execute(playground("typescript"), 'import {mean} from "lodash-es@4.17.21";\nconst values: number[] = [3, 6, 9];\nconsole.log(mean(values));'), "6");
+	assert.match(await execute(playground("javascript"), 'import fs from "node:fs";', "error"), /Node.js built-in/u);
+});
+
+void test("Python imports additional native packages and installs pure Python wheels from PyPI", async () => {
+	const root = page.locator('[data-code-playground][data-config*=\'"language":"python"\']').nth(1);
+	assert.match(await execute(root, 'import yaml\nfrom PIL import Image\nprint(yaml.safe_load("value: 7")["value"])\nprint(Image.new("RGB", (2, 3)).size)'), /7\n\(2, 3\)/u);
+	assert.equal(await execute(root, 'import micropip\nawait micropip.install("humanize==4.13.0")\nimport humanize\nprint(humanize.intcomma(1234567))'), "1,234,567");
+	const preloaded = page.locator('[data-code-playground][aria-label="Python · Additional packages"]');
+	await preloaded.locator(".playground-run").click();
+	await preloaded.locator("xpath=self::*[@data-run-state='done' or @data-run-state='error']").waitFor({ timeout: 185_000 });
+	assert.equal(await preloaded.getAttribute("data-run-state"), "done", await preloaded.locator(".playground-output").innerText());
+	assert.equal((await preloaded.locator(".playground-output").innerText()).trim(), "1,234,567");
+	// Leave the original scientific example ready for the following plot test.
+	await root.locator(".playground-reset").click();
 });
 
 void test("approved scientific libraries load on demand and produce downloadable PNG plots", async () => {
@@ -256,8 +277,48 @@ void test("navigation disposes active Workers and mounts editors again without d
 	assert.equal(page.workers().length, 0);
 	await page.goBack();
 	await page.locator('[data-code-playground][data-ready="true"]').nth(4).waitFor();
-	assert.equal(await page.locator(".cm-editor").count(), 5);
+	assert.equal(await page.locator(".cm-editor").count(), demoEditors);
 	assert.match(await execute(playground("javascript"), 'console.log("after navigation")'), /after navigation/);
+});
+
+async function assertNoOutputLayout(root: Locator, run: () => Promise<string>) {
+	const observations = await root.evaluateHandle(async (element) => {
+		await document.fonts.ready;
+		await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => { resolve(); })));
+		const heights = [element.getBoundingClientRect().height];
+		const observer = new ResizeObserver(() => { heights.push(element.getBoundingClientRect().height); });
+		observer.observe(element);
+		return { heights, observer };
+	});
+	try {
+		await run();
+		await root.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => { resolve(); }))));
+		const heights = await observations.evaluate(({ heights }) => heights);
+		assert.ok(Math.max(...heights) - Math.min(...heights) < 1, `A silent execution changed the cell height: ${heights.join(", ")}`);
+		assert.equal(await root.locator(".playground-output").isVisible(), false);
+		assert.equal(await root.locator(".playground-status").isVisible(), true);
+		assert.match(await root.locator(".playground-status").innerText(), /출력 없음|no output/u);
+	} finally {
+		await observations.evaluate(({ observer }) => { observer.disconnect(); });
+		await observations.dispose();
+	}
+}
+
+void test("silent standalone executions keep their height and completion status", async () => {
+	await page.goto(new URL(demo, base).href);
+	await page.locator('[data-code-playground][data-ready="true"]').nth(4).waitFor();
+	for (const [language, code] of [
+		["javascript", "await new Promise(resolve => setTimeout(resolve, 150));"],
+		["typescript", "const value: number = 3; await new Promise(resolve => setTimeout(resolve, 150));"],
+		["python", "import asyncio\nawait asyncio.sleep(0.15)\nvalue = 3"],
+	] as const) {
+		const root = playground(language);
+		await edit(root, code);
+		await assertNoOutputLayout(root, () => execute(root, code));
+		await root.locator(".playground-reset").click();
+		assert.equal(await root.locator(".playground-output").isVisible(), false);
+		assert.equal(await root.locator(".playground-status").isVisible(), true);
+	}
 });
 
 const notebookDemo = "/posts/build/python-notebook/";
@@ -278,6 +339,20 @@ async function notebookRun(cell: Locator, expected = "done") {
 	assert.equal(await cell.getAttribute("data-run-state"), expected, output);
 	return output;
 }
+
+void test("silent notebook cells keep their height on first execution and rerun", async () => {
+	const cells = await notebookCells();
+	const first = cells.nth(0), second = cells.nth(1);
+	await page.setViewportSize({ width: 390, height: 844 });
+	await notebookEdit(first, "import asyncio\nawait asyncio.sleep(0.15)\nvalues = [2, 4, 6]");
+	await assertNoOutputLayout(first, () => notebookRun(first));
+	await assertNoOutputLayout(first, () => notebookRun(first));
+	assert.equal(await first.locator(".notebook-execution").innerText(), "[2]");
+	assert.match(await notebookRun(second), /5\.0/u, "A silent cell must still update the shared environment");
+	await first.locator(".playground-reset").click();
+	assert.equal(await first.locator(".playground-output").isVisible(), false);
+	assert.equal(await first.locator(".playground-status").isVisible(), true);
+});
 
 void test("notebook cells share state, mark edited results stale and restart independently", async () => {
 	const cells = await notebookCells();
