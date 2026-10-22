@@ -8,3 +8,7 @@ node_modules/
 comments-repo/
 public/
 secrets/
+# Generated chart and notebook data retain their serialized representation.
+# The spacing check still inspects these files for indentation tabs.
+src/content/posts/**/_figures/*.json
+src/content/posts/**/_notebooks/*.json

@@ -7,176 +7,176 @@
  */
 
 :root {
-	--page-width: 80rem;
-	--sidebar-width: 15rem;
-	--step-5: clamp(3rem, 9vw, 8.5rem);
-	--tracking-tight: -0.035em;
-	--tracking-label: 0.06em;
+    --page-width: 80rem;
+    --sidebar-width: 15rem;
+    --step-5: clamp(3rem, 9vw, 8.5rem);
+    --tracking-tight: -0.035em;
+    --tracking-label: 0.06em;
 }
 
 /* — navbar and masthead ———————————————————————— */
 
 #navbar-wrapper::after {
-	border-bottom-width: 3px;
-	border-bottom-color: var(--rule-strong);
+    border-bottom-width: 3px;
+    border-bottom-color: var(--rule-strong);
 }
 
 .navbar-mark,
 .navbar-links .btn {
-	font-family: var(--font-sans);
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 /* The bar spans the text column, not the shell's gutters. */
 #masthead {
-	width: calc(100% - 2 * var(--page-pad));
-	max-width: calc(var(--page-width) - 2 * var(--page-pad));
-	padding-inline: 0;
-	padding-bottom: var(--space-5);
-	border-bottom: 6px solid var(--rule-strong);
+    width: calc(100% - 2 * var(--page-pad));
+    max-width: calc(var(--page-width) - 2 * var(--page-pad));
+    padding-inline: 0;
+    padding-bottom: var(--space-5);
+    border-bottom: 6px solid var(--rule-strong);
 }
 
 .masthead-title {
-	line-height: 0.86;
+    line-height: 0.86;
 }
 
 .masthead-mark {
-	font-family: var(--font-sans);
-	font-weight: 700;
-	letter-spacing: -0.055em;
-	text-transform: uppercase;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    letter-spacing: -0.055em;
+    text-transform: uppercase;
 }
 
 .masthead-mark::before {
-	height: 0.42em;
+    height: 0.42em;
 }
 
 .masthead-sub {
-	max-width: none;
-	font-weight: 500;
-	color: var(--ink-strong);
+    max-width: none;
+    font-weight: 500;
+    color: var(--ink-strong);
 }
 
 /* — sidebar ———————————————————————————————————— */
 
 .widget + .widget {
-	border-top: 3px solid var(--rule-strong);
+    border-top: 3px solid var(--rule-strong);
 }
 
 .widget-title {
-	display: inline-block;
-	padding: 0.3rem 0.5rem;
-	background: var(--ink-strong);
-	color: var(--paper);
+    display: inline-block;
+    padding: 0.3rem 0.5rem;
+    background: var(--ink-strong);
+    color: var(--paper);
 }
 
 .widget-link,
 .category-link {
-	font-family: var(--font-sans);
-	font-weight: 500;
+    font-family: var(--font-sans);
+    font-weight: 500;
 }
 
 .profile-avatar {
-	border-radius: 0;
-	filter: grayscale(1) contrast(1.1);
+    border-radius: 0;
+    filter: grayscale(1) contrast(1.1);
 }
 
 .profile-name {
-	font-family: var(--font-sans);
-	font-weight: 700;
+    font-family: var(--font-sans);
+    font-weight: 700;
 }
 
 .tag {
-	border-color: var(--rule-strong);
+    border-color: var(--rule-strong);
 }
 
 /* — numbered entries ——————————————————————————— */
 
 .entry-list {
-	counter-reset: entry;
-	border-top: 3px solid var(--rule-strong);
+    counter-reset: entry;
+    border-top: 3px solid var(--rule-strong);
 }
 
 .entry {
-	counter-increment: entry;
-	border-top-color: var(--rule-strong);
+    counter-increment: entry;
+    border-top-color: var(--rule-strong);
 }
 
 .entry::before {
-	inset: 0;
-	background: var(--marker-wash-strong);
+    inset: 0;
+    background: var(--marker-wash-strong);
 }
 
 .entry-link {
-	grid-template-columns: 5.5rem minmax(0, 1fr) 7rem;
-	padding-block: var(--space-5) var(--space-6);
+    grid-template-columns: 5.5rem minmax(0, 1fr) 7rem;
+    padding-block: var(--space-5) var(--space-6);
 }
 
 .entry-link::before {
-	content: counter(entry, decimal-leading-zero);
-	font-size: var(--step-4);
-	font-weight: 700;
-	line-height: 0.9;
-	letter-spacing: -0.05em;
-	color: var(--ink-strong);
+    content: counter(entry, decimal-leading-zero);
+    font-size: var(--step-4);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    color: var(--ink-strong);
 }
 
 .entry-aside {
-	order: 3;
-	align-items: flex-end;
-	padding-top: 0.5rem;
+    order: 3;
+    align-items: flex-end;
+    padding-top: 0.5rem;
 }
 
 .entry-title {
-	font-size: var(--step-3);
-	font-weight: 700;
-	letter-spacing: -0.03em;
+    font-size: var(--step-3);
+    font-weight: 700;
+    letter-spacing: -0.03em;
 }
 
 .entry-excerpt {
-	color: var(--ink);
+    color: var(--ink);
 }
 
 .category-mark {
-	padding: 0.1rem 0.4rem;
-	background: var(--ink-strong);
-	color: var(--paper);
-	font-weight: 700;
+    padding: 0.1rem 0.4rem;
+    background: var(--ink-strong);
+    color: var(--paper);
+    font-weight: 700;
 }
 
 @media (max-width: 640px) {
-	.entry-link {
-		grid-template-columns: 3.5rem minmax(0, 1fr);
-	}
+    .entry-link {
+        grid-template-columns: 3.5rem minmax(0, 1fr);
+    }
 
-	.entry-link::before {
-		grid-row: span 2;
-		font-size: var(--step-3);
-	}
+    .entry-link::before {
+        grid-row: span 2;
+        font-size: var(--step-3);
+    }
 
-	.entry-aside {
-		order: 0;
-		align-items: center;
-	}
+    .entry-aside {
+        order: 0;
+        align-items: center;
+    }
 }
 
 /* — post ——————————————————————————————————————— */
 
 .post-header {
-	padding-bottom: var(--space-5);
-	border-bottom: 3px solid var(--rule-strong);
+    padding-bottom: var(--space-5);
+    border-bottom: 3px solid var(--rule-strong);
 }
 
 .post-title {
-	font-size: clamp(2.4rem, 5vw, 4.75rem);
-	font-weight: 700;
-	line-height: 0.95;
+    font-size: clamp(2.4rem, 5vw, 4.75rem);
+    font-weight: 700;
+    line-height: 0.95;
 }
 
 .prose h2 {
-	padding-top: var(--space-3);
-	border-top: 3px solid var(--rule-strong);
-	font-weight: 700;
+    padding-top: var(--space-3);
+    border-top: 3px solid var(--rule-strong);
+    font-weight: 700;
 }

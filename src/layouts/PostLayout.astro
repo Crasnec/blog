@@ -71,11 +71,11 @@ const revisedLabel = revised ? t("post.updated", { date: revised }) : undefined;
     </aside>
 
     <!--
-		`data-pagefind-body` scopes the search index to article text. Because at
-		least one page on the site declares it, Pagefind drops every page that does
-		not — which is what keeps the index, archive and tag listings out of the
-		results instead of returning the same excerpt five times.
-	-->
+        `data-pagefind-body` scopes the search index to article text. Because at
+        least one page on the site declares it, Pagefind drops every page that does
+        not — which is what keeps the index, archive and tag listings out of the
+        results instead of returning the same excerpt five times.
+    -->
     <article lang={entry.data.lang} data-pagefind-body={sealed ? undefined : true}>
         <header class="post-header onload">
             <CategoryBreadcrumbs category={post.category} />
@@ -104,7 +104,7 @@ const revisedLabel = revised ? t("post.updated", { date: revised }) : undefined;
         {series && <SeriesContents series={series} currentId={entry.id} />}
 
         <!-- Only where the sidebar has dropped below the article, and never on a
-		     locked post: the outline is part of what is being kept back. -->
+             locked post: the outline is part of what is being kept back. -->
         {!sealed && (
             <div data-pagefind-ignore>
                 <Contents headings={headings} variant="inline" />

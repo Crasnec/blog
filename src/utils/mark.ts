@@ -18,9 +18,9 @@ function svg(size?: number): string {
     const box = size === undefined ? "" : ` width="${String(size)}" height="${String(size)}"`;
 
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"${box}>
-	<rect width="32" height="32" rx="6" fill="${dark.bg}" />
-	<rect x="7" y="9" width="13" height="3" rx="1.5" fill="${dark.inkMuted}" />
-	<rect x="7" y="17" width="18" height="7" rx="1.5" fill="${dark.accent}" />
+    <rect width="32" height="32" rx="6" fill="${dark.bg}" />
+    <rect x="7" y="9" width="13" height="3" rx="1.5" fill="${dark.inkMuted}" />
+    <rect x="7" y="17" width="18" height="7" rx="1.5" fill="${dark.accent}" />
 </svg>
 `;
 }

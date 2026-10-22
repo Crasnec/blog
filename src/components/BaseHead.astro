@@ -80,10 +80,10 @@ const schema = article
 <meta name="twitter:image" content={cardUrl} />
 
 <!--
-	All three are generated from the theme's own colours by `src/utils/mark.ts`,
-	so swapping a theme cannot leave the old one sitting in the tab. The `.ico`
-	is there for the browsers that request that path regardless of what is
-	linked here, and for the ones that will not take an SVG.
+    All three are generated from the theme's own colours by `src/utils/mark.ts`,
+    so swapping a theme cannot leave the old one sitting in the tab. The `.ico`
+    is there for the browsers that request that path regardless of what is
+    linked here, and for the ones that will not take an SVG.
 -->
 <link rel="icon" href={sitePath("/favicon.svg")} type="image/svg+xml" sizes="any" />
 <link rel="alternate icon" href={sitePath("/favicon.ico")} sizes="32x32" />
@@ -91,9 +91,9 @@ const schema = article
 
 <script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />
 <!--
-	Theme is resolved before first paint so the page never flashes the wrong
-	one. It runs again after every view transition, because the swap replaces
-	the documentElement's class list.
+    Theme is resolved before first paint so the page never flashes the wrong
+    one. It runs again after every view transition, because the swap replaces
+    the documentElement's class list.
 -->
 <script is:inline>
     (() => {

@@ -1,13 +1,13 @@
 {
-	"numpy": "NumPy",
-	"pandas": "pandas",
-	"scipy": "SciPy",
-	"matplotlib": "Matplotlib",
-	"seaborn": "Seaborn",
-	"empiricaldist": "empiricaldist",
-	"statadict": "statadict",
-	"statsmodels": "statsmodels",
-	"ipython": "IPython",
-	"lxml": "lxml",
-	"sympy": "SymPy"
+    "numpy": "NumPy",
+    "pandas": "pandas",
+    "scipy": "SciPy",
+    "matplotlib": "Matplotlib",
+    "seaborn": "Seaborn",
+    "empiricaldist": "empiricaldist",
+    "statadict": "statadict",
+    "statsmodels": "statsmodels",
+    "ipython": "IPython",
+    "lxml": "lxml",
+    "sympy": "SymPy"
 }

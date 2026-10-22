@@ -1,13 +1,13 @@
 {
-  "name": "Signal",
-  "scopeName": "source.signal",
-  "patterns": [
-    { "include": "#comments" },
-    { "include": "source.signal-values" },
-    { "name": "keyword.control.signal", "match": "\\b(series|mean|emit)\\b" },
-    { "name": "keyword.operator.signal", "match": "->|=" }
-  ],
-  "repository": {
-    "comments": { "name": "comment.line.signal", "match": "#.*$" }
-  }
+    "name": "Signal",
+    "scopeName": "source.signal",
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "source.signal-values" },
+        { "name": "keyword.control.signal", "match": "\\b(series|mean|emit)\\b" },
+        { "name": "keyword.operator.signal", "match": "->|=" }
+    ],
+    "repository": {
+        "comments": { "name": "comment.line.signal", "match": "#.*$" }
+    }
 }

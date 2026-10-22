@@ -114,8 +114,9 @@ composition, search failures, and mobile section links.
 
 ## Code style
 
-Linted JavaScript, TypeScript, TSX and Astro code uses four spaces for each
-indentation level, semicolons, and a maximum line length of 100 characters.
+Authored project files use spaces for indentation, and `.editorconfig` selects
+four spaces for every file type. JavaScript, TypeScript, TSX and Astro code also
+uses semicolons and a maximum line length of 100 characters.
 Lines containing URLs, strings, template literals or regular expressions are
 exempt from the length limit. Comments otherwise follow the same 100-character
 limit. Control-flow bodies use braces and span multiple lines. Adjacent function
@@ -126,16 +127,24 @@ bodies and object-literal callbacks remain allowed. Type-safety and accessibilit
 checks remain enabled.
 
 ```bash
-npm run lint:fix  # Format, then apply ESLint fixes
-npm run lint      # Enforce code style, type-safety, and accessibility checks
+npm run lint:fix     # Format source, styles and configuration, then apply ESLint fixes
+npm run lint         # Check indentation, formatting, type-safety and accessibility
+npm run lint:spacing # Check authored text for indentation tabs
+npm run lint:format  # Check stylesheet and configuration formatting
 ```
 
-Prettier's 100-column setting helps wrap code; ESLint enforces the actual limit
-with the exceptions above. A few long comments may still require manual line
-breaks. `.editorconfig` also requests four-space indentation in editors.
-Markdown, MDX articles, notebook data, downloadable Python sources and static
-assets are excluded from the formatting command. Embedded code strings are
-preserved. The same settings apply to the blog template.
+Prettier formats CSS and other stylesheets, JSON/JSONC, YAML, HTML and SVG as
+well as source code. Its 100-column setting helps wrap code; ESLint enforces
+the JavaScript/TypeScript limit with the exceptions above. A few long comments
+may still require manual line breaks.
+
+The spacing check covers tracked and unignored new text files, including
+Markdown/MDX, Astro comments, downloadable Python sources and notebook data.
+It reports indentation tabs without rewriting string values or data separators.
+Upstream study inputs are explicitly excluded in `.spacingignore` to retain
+their original bytes and checksums. Generated chart/notebook JSON, article prose
+and embedded code strings retain their contents instead of being reformatted.
+The same settings apply to the blog template.
 
 ## Configuration
 

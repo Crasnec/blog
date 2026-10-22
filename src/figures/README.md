@@ -13,9 +13,9 @@ For figures in real articles, use the ordinary server without the override.
 import Figure from "../../../components/Figure.astro";
 
 <Figure
-	kind="line"
-	caption="p99 spikes after deployment and falls only after rollback."
-	props={{ series: [{ label: "p99", values: [180, 190, 640, 720, 300, 185] }] }}
+    kind="line"
+    caption="p99 spikes after deployment and falls only after rollback."
+    props={{ series: [{ label: "p99", values: [180, 190, 640, 720, 300, 185] }] }}
 />
 ```
 
@@ -334,24 +334,24 @@ The bare minimum of a kind looks like this:
 import { defineFigure, ease, num, obj, progress, text, dot } from "../kit";
 
 interface Props {
-	workers: number;
+    workers: number;
 }
 
 export default defineFigure<Props>({
-	duration: 6, // seconds, then it holds on the last frame
-	loop: false, // true restarts after a pause, for steady-state motion
-	height: 240,
+    duration: 6, // seconds, then it holds on the last frame
+    loop: false, // true restarts after a pause, for steady-state motion
+    height: 240,
 
-	decode(raw) {
-		const p = obj(raw, "props");
-		return { workers: num(p.workers, "props.workers") };
-	},
+    decode(raw) {
+        const p = obj(raw, "props");
+        return { workers: num(p.workers, "props.workers") };
+    },
 
-	draw(frame, props) {
-		const { ctx, width, height, time, palette } = frame;
-		const t = ease.out(progress(time, 0.5, 2)); // 0→1 between 0.5s and 2.5s
-		// …paint the whole picture for this moment…
-	},
+    draw(frame, props) {
+        const { ctx, width, height, time, palette } = frame;
+        const t = ease.out(progress(time, 0.5, 2)); // 0→1 between 0.5s and 2.5s
+        // …paint the whole picture for this moment…
+    },
 });
 ```
 
