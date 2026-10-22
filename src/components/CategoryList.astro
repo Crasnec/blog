@@ -4,18 +4,16 @@ import { getCategories } from "../utils/content";
 import CategoryTree from "./CategoryTree.astro";
 
 interface Props {
-	currentCategory?: string | undefined;
+    currentCategory?: string | undefined;
 }
 
 const { currentCategory } = Astro.props;
 const categories = await getCategories();
 ---
 
-{
-	categories.length > 0 && (
-		<section class="widget">
-			<span class="widget-title">{t("categories.title")}</span>
-			<CategoryTree categories={categories} currentCategory={currentCategory} />
-		</section>
-	)
-}
+{categories.length > 0 && (
+    <section class="widget">
+        <span class="widget-title">{t("categories.title")}</span>
+        <CategoryTree categories={categories} currentCategory={currentCategory} />
+    </section>
+)}

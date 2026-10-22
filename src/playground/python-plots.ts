@@ -2,12 +2,17 @@ import { MAX_PNG } from "./contracts.ts";
 
 /** Keep raster bytes out of HTML; plots travel on the private worker channel. */
 export function pngFromBase64(encoded: string): ArrayBuffer {
-	if (typeof encoded !== "string" || encoded.length > Math.ceil(MAX_PNG / 3) * 4) throw new Error("Plot exceeds the 4 MB image limit");
-	const binary = atob(encoded);
-	const data = new Uint8Array(binary.length);
-	for (let index = 0; index < binary.length; index++) data[index] = binary.charCodeAt(index);
-	if (data.byteLength > MAX_PNG || ![137, 80, 78, 71, 13, 10, 26, 10].every((byte, index) => data[index] === byte)) throw new Error("Plot output must be a PNG image");
-	return data.buffer;
+    if (typeof encoded !== "string" || encoded.length > Math.ceil(MAX_PNG / 3) * 4)
+        throw new Error("Plot exceeds the 4 MB image limit");
+    const binary = atob(encoded);
+    const data = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index++) data[index] = binary.charCodeAt(index);
+    if (
+        data.byteLength > MAX_PNG ||
+        ![137, 80, 78, 71, 13, 10, 26, 10].every((byte, index) => data[index] === byte)
+    )
+        throw new Error("Plot output must be a PNG image");
+    return data.buffer;
 }
 
 /** Keep structured Python warnings distinct from execution errors. */

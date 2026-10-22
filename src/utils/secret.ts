@@ -72,17 +72,17 @@ const INFO = "sealed-post/v3";
  * never edit it again. `npm run secret:open` gets the Markdown back out.
  */
 export interface SecretSource {
-	/** The rendered body, as the build would have rendered it. */
-	html: string;
-	/** The Markdown it came from, so sealing is reversible. */
-	md: string;
+    /** The rendered body, as the build would have rendered it. */
+    html: string;
+    /** The Markdown it came from, so sealing is reversible. */
+    md: string;
 }
 
 /** Committed in the clear. Sealing needs this and nothing else. */
 export interface PublicKeyFile {
-	v: number;
-	alg: "ECDH-P-256";
-	key: JsonWebKey;
+    v: number;
+    alg: "ECDH-P-256";
+    key: JsonWebKey;
 }
 
 /**
@@ -91,108 +91,104 @@ export interface PublicKeyFile {
  * passphrase opens and nothing else does.
  */
 export interface PrivateKeyFile {
-	v: number;
-	/** PBKDF2 iterations, carried so an old file still opens. */
-	it: number;
-	salt: string;
-	iv: string;
-	data: string;
+    v: number;
+    /** PBKDF2 iterations, carried so an old file still opens. */
+    it: number;
+    salt: string;
+    iv: string;
+    data: string;
 }
 
 export interface SecretPayload {
-	v: number;
-	/** The seal's own public key, in the clear. Fresh every time. */
-	epk: string;
-	iv: string;
-	data: string;
-	/**
-	 * Which theme drew the code blocks, in the clear.
-	 *
-	 * A sealed body is rendered once and never again, so it keeps the syntax
-	 * colours of the theme that was active when it was sealed. Recording the
-	 * name is what lets the build notice that the site has since moved on and
-	 * say so, rather than serving one post in the old palette in silence.
-	 */
-	theme: string;
+    v: number;
+    /** The seal's own public key, in the clear. Fresh every time. */
+    epk: string;
+    iv: string;
+    data: string;
+    /**
+     * Which theme drew the code blocks, in the clear.
+     *
+     * A sealed body is rendered once and never again, so it keeps the syntax
+     * colours of the theme that was active when it was sealed. Recording the
+     * name is what lets the build notice that the site has since moved on and
+     * say so, rather than serving one post in the old palette in silence.
+     */
+    theme: string;
 }
 
 const isPositiveInteger = (value: JsonValue | undefined): value is number =>
-	typeof value === "number" && Number.isSafeInteger(value) && value > 0;
+    typeof value === "number" && Number.isSafeInteger(value) && value > 0;
 
 export function parseSecretSource(value: JsonValue): SecretSource | null {
-	if (
-		!isJsonObject(value) ||
-		typeof value.html !== "string" ||
-		typeof value.md !== "string"
-	) {
-		return null;
-	}
-	return { html: value.html, md: value.md };
+    if (!isJsonObject(value) || typeof value.html !== "string" || typeof value.md !== "string") {
+        return null;
+    }
+    return { html: value.html, md: value.md };
 }
 
 export function parsePrivateKeyFile(value: JsonValue): PrivateKeyFile | null {
-	if (
-		!isJsonObject(value) ||
-		!isPositiveInteger(value.v) ||
-		!isPositiveInteger(value.it) ||
-		typeof value.salt !== "string" ||
-		typeof value.iv !== "string" ||
-		typeof value.data !== "string"
-	) {
-		return null;
-	}
-	return {
-		v: value.v,
-		it: value.it,
-		salt: value.salt,
-		iv: value.iv,
-		data: value.data,
-	};
+    if (
+        !isJsonObject(value) ||
+        !isPositiveInteger(value.v) ||
+        !isPositiveInteger(value.it) ||
+        typeof value.salt !== "string" ||
+        typeof value.iv !== "string" ||
+        typeof value.data !== "string"
+    ) {
+        return null;
+    }
+    return {
+        v: value.v,
+        it: value.it,
+        salt: value.salt,
+        iv: value.iv,
+        data: value.data,
+    };
 }
 
 export function parsePublicKeyFile(value: JsonValue): PublicKeyFile | null {
-	if (
-		!isJsonObject(value) ||
-		!isPositiveInteger(value.v) ||
-		value.alg !== "ECDH-P-256" ||
-		!isJsonObject(value.key) ||
-		value.key.kty !== "EC" ||
-		value.key.crv !== "P-256" ||
-		typeof value.key.x !== "string" ||
-		typeof value.key.y !== "string"
-	) {
-		return null;
-	}
-	return {
-		v: value.v,
-		alg: value.alg,
-		key: {
-			kty: value.key.kty,
-			crv: value.key.crv,
-			x: value.key.x,
-			y: value.key.y,
-		},
-	};
+    if (
+        !isJsonObject(value) ||
+        !isPositiveInteger(value.v) ||
+        value.alg !== "ECDH-P-256" ||
+        !isJsonObject(value.key) ||
+        value.key.kty !== "EC" ||
+        value.key.crv !== "P-256" ||
+        typeof value.key.x !== "string" ||
+        typeof value.key.y !== "string"
+    ) {
+        return null;
+    }
+    return {
+        v: value.v,
+        alg: value.alg,
+        key: {
+            kty: value.key.kty,
+            crv: value.key.crv,
+            x: value.key.x,
+            y: value.key.y,
+        },
+    };
 }
 
 export function parseSecretPayload(value: JsonValue): SecretPayload | null {
-	if (
-		!isJsonObject(value) ||
-		!isPositiveInteger(value.v) ||
-		typeof value.epk !== "string" ||
-		typeof value.iv !== "string" ||
-		typeof value.data !== "string" ||
-		typeof value.theme !== "string"
-	) {
-		return null;
-	}
-	return {
-		v: value.v,
-		epk: value.epk,
-		iv: value.iv,
-		data: value.data,
-		theme: value.theme,
-	};
+    if (
+        !isJsonObject(value) ||
+        !isPositiveInteger(value.v) ||
+        typeof value.epk !== "string" ||
+        typeof value.iv !== "string" ||
+        typeof value.data !== "string" ||
+        typeof value.theme !== "string"
+    ) {
+        return null;
+    }
+    return {
+        v: value.v,
+        epk: value.epk,
+        iv: value.iv,
+        data: value.data,
+        theme: value.theme,
+    };
 }
 
 const encoder = new TextEncoder();
@@ -203,40 +199,40 @@ const encoder = new TextEncoder();
  * stack on the exact posts most worth encrypting.
  */
 function toBase64(bytes: ArrayBuffer): string {
-	const view = new Uint8Array(bytes);
-	let binary = "";
+    const view = new Uint8Array(bytes);
+    let binary = "";
 
-	for (let i = 0; i < view.length; i += 0x8000) {
-		binary += String.fromCharCode(...view.subarray(i, i + 0x8000));
-	}
+    for (let i = 0; i < view.length; i += 0x8000) {
+        binary += String.fromCharCode(...view.subarray(i, i + 0x8000));
+    }
 
-	return btoa(binary);
+    return btoa(binary);
 }
 
 export const fromBase64 = (value: string): Uint8Array =>
-	Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
+    Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
 
 /** The key that wraps the private key. Slow on purpose; run once per open. */
 async function wrapKey(
-	passphrase: string,
-	salt: Uint8Array,
-	iterations: number,
+    passphrase: string,
+    salt: Uint8Array,
+    iterations: number,
 ): Promise<CryptoKey> {
-	const material = await crypto.subtle.importKey(
-		"raw",
-		encoder.encode(passphrase),
-		"PBKDF2",
-		false,
-		["deriveKey"],
-	);
+    const material = await crypto.subtle.importKey(
+        "raw",
+        encoder.encode(passphrase),
+        "PBKDF2",
+        false,
+        ["deriveKey"],
+    );
 
-	return crypto.subtle.deriveKey(
-		{ name: "PBKDF2", salt: salt as BufferSource, iterations, hash: "SHA-256" },
-		material,
-		{ name: "AES-GCM", length: 256 },
-		false,
-		["encrypt", "decrypt"],
-	);
+    return crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt: salt as BufferSource, iterations, hash: "SHA-256" },
+        material,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt", "decrypt"],
+    );
 }
 
 /**
@@ -248,35 +244,35 @@ async function wrapKey(
  * second copy anywhere by design.
  */
 export async function generateKeys(passphrase: string): Promise<{
-	pub: PublicKeyFile;
-	priv: PrivateKeyFile;
+    pub: PublicKeyFile;
+    priv: PrivateKeyFile;
 }> {
-	const pair = await crypto.subtle.generateKey(CURVE, true, ["deriveBits"]);
+    const pair = await crypto.subtle.generateKey(CURVE, true, ["deriveBits"]);
 
-	const salt = crypto.getRandomValues(new Uint8Array(SALT_BYTES));
-	const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
+    const salt = crypto.getRandomValues(new Uint8Array(SALT_BYTES));
+    const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
 
-	const pkcs8 = await crypto.subtle.exportKey("pkcs8", pair.privateKey);
-	const sealedKey = await crypto.subtle.encrypt(
-		{ name: "AES-GCM", iv: iv as BufferSource },
-		await wrapKey(passphrase, salt, ITERATIONS),
-		pkcs8,
-	);
+    const pkcs8 = await crypto.subtle.exportKey("pkcs8", pair.privateKey);
+    const sealedKey = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: iv as BufferSource },
+        await wrapKey(passphrase, salt, ITERATIONS),
+        pkcs8,
+    );
 
-	return {
-		pub: {
-			v: VERSION,
-			alg: "ECDH-P-256",
-			key: await crypto.subtle.exportKey("jwk", pair.publicKey),
-		},
-		priv: {
-			v: VERSION,
-			it: ITERATIONS,
-			salt: toBase64(salt.buffer),
-			iv: toBase64(iv.buffer),
-			data: toBase64(sealedKey),
-		},
-	};
+    return {
+        pub: {
+            v: VERSION,
+            alg: "ECDH-P-256",
+            key: await crypto.subtle.exportKey("jwk", pair.publicKey),
+        },
+        priv: {
+            v: VERSION,
+            it: ITERATIONS,
+            salt: toBase64(salt.buffer),
+            iv: toBase64(iv.buffer),
+            data: toBase64(sealedKey),
+        },
+    };
 }
 
 /**
@@ -292,39 +288,39 @@ export async function generateKeys(passphrase: string): Promise<{
  * can have.
  */
 export async function rewrap(
-	priv: PrivateKeyFile,
-	from: string,
-	to: string,
+    priv: PrivateKeyFile,
+    from: string,
+    to: string,
 ): Promise<PrivateKeyFile | null> {
-	if (priv.v !== VERSION) return null;
+    if (priv.v !== VERSION) return null;
 
-	let pkcs8: ArrayBuffer;
-	try {
-		pkcs8 = await crypto.subtle.decrypt(
-			{ name: "AES-GCM", iv: fromBase64(priv.iv) as BufferSource },
-			await wrapKey(from, fromBase64(priv.salt), priv.it),
-			fromBase64(priv.data) as BufferSource,
-		);
-	} catch {
-		return null;
-	}
+    let pkcs8: ArrayBuffer;
+    try {
+        pkcs8 = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv: fromBase64(priv.iv) as BufferSource },
+            await wrapKey(from, fromBase64(priv.salt), priv.it),
+            fromBase64(priv.data) as BufferSource,
+        );
+    } catch {
+        return null;
+    }
 
-	const salt = crypto.getRandomValues(new Uint8Array(SALT_BYTES));
-	const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
+    const salt = crypto.getRandomValues(new Uint8Array(SALT_BYTES));
+    const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
 
-	return {
-		v: VERSION,
-		it: ITERATIONS,
-		salt: toBase64(salt.buffer),
-		iv: toBase64(iv.buffer),
-		data: toBase64(
-			await crypto.subtle.encrypt(
-				{ name: "AES-GCM", iv: iv as BufferSource },
-				await wrapKey(to, salt, ITERATIONS),
-				pkcs8,
-			),
-		),
-	};
+    return {
+        v: VERSION,
+        it: ITERATIONS,
+        salt: toBase64(salt.buffer),
+        iv: toBase64(iv.buffer),
+        data: toBase64(
+            await crypto.subtle.encrypt(
+                { name: "AES-GCM", iv: iv as BufferSource },
+                await wrapKey(to, salt, ITERATIONS),
+                pkcs8,
+            ),
+        ),
+    };
 }
 
 /**
@@ -333,33 +329,23 @@ export async function rewrap(
  * The seal's own public key is the HKDF salt, so every seal derives its own key
  * even though the recipient's is fixed for the life of the repository.
  */
-async function shared(
-	mine: CryptoKey,
-	theirs: CryptoKey,
-	epk: Uint8Array,
-): Promise<CryptoKey> {
-	const bits = await crypto.subtle.deriveBits(
-		{ name: "ECDH", public: theirs },
-		mine,
-		256,
-	);
+async function shared(mine: CryptoKey, theirs: CryptoKey, epk: Uint8Array): Promise<CryptoKey> {
+    const bits = await crypto.subtle.deriveBits({ name: "ECDH", public: theirs }, mine, 256);
 
-	const material = await crypto.subtle.importKey("raw", bits, "HKDF", false, [
-		"deriveKey",
-	]);
+    const material = await crypto.subtle.importKey("raw", bits, "HKDF", false, ["deriveKey"]);
 
-	return crypto.subtle.deriveKey(
-		{
-			name: "HKDF",
-			hash: "SHA-256",
-			salt: epk as BufferSource,
-			info: encoder.encode(INFO),
-		},
-		material,
-		{ name: "AES-GCM", length: 256 },
-		false,
-		["encrypt", "decrypt"],
-	);
+    return crypto.subtle.deriveKey(
+        {
+            name: "HKDF",
+            hash: "SHA-256",
+            salt: epk as BufferSource,
+            info: encoder.encode(INFO),
+        },
+        material,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt", "decrypt"],
+    );
 }
 
 /**
@@ -371,34 +357,32 @@ async function shared(
  * a file, because the alternative is a post committed in the clear.
  */
 export async function sealTo(
-	pub: PublicKeyFile,
-	source: SecretSource,
-	theme: string,
+    pub: PublicKeyFile,
+    source: SecretSource,
+    theme: string,
 ): Promise<SecretPayload> {
-	if (pub.v !== VERSION) {
-		throw new Error(
-			`public key is v${String(pub.v)}, this build seals v${String(VERSION)}`,
-		);
-	}
+    if (pub.v !== VERSION) {
+        throw new Error(`public key is v${String(pub.v)}, this build seals v${String(VERSION)}`);
+    }
 
-	const recipient = await crypto.subtle.importKey("jwk", pub.key, CURVE, false, []);
-	const once = await crypto.subtle.generateKey(CURVE, true, ["deriveBits"]);
-	const epk = new Uint8Array(await crypto.subtle.exportKey("raw", once.publicKey));
+    const recipient = await crypto.subtle.importKey("jwk", pub.key, CURVE, false, []);
+    const once = await crypto.subtle.generateKey(CURVE, true, ["deriveBits"]);
+    const epk = new Uint8Array(await crypto.subtle.exportKey("raw", once.publicKey));
 
-	const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
-	const data = await crypto.subtle.encrypt(
-		{ name: "AES-GCM", iv: iv as BufferSource },
-		await shared(once.privateKey, recipient, epk),
-		encoder.encode(JSON.stringify(source)),
-	);
+    const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
+    const data = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: iv as BufferSource },
+        await shared(once.privateKey, recipient, epk),
+        encoder.encode(JSON.stringify(source)),
+    );
 
-	return {
-		v: VERSION,
-		epk: toBase64(epk.buffer),
-		iv: toBase64(iv.buffer),
-		data: toBase64(data),
-		theme,
-	};
+    return {
+        v: VERSION,
+        epk: toBase64(epk.buffer),
+        iv: toBase64(iv.buffer),
+        data: toBase64(data),
+        theme,
+    };
 }
 
 /**
@@ -409,34 +393,32 @@ export async function sealTo(
  * plausible rubbish — there is no way to tell the reader "nearly".
  */
 export async function openWith(
-	priv: PrivateKeyFile,
-	passphrase: string,
-	payload: SecretPayload,
+    priv: PrivateKeyFile,
+    passphrase: string,
+    payload: SecretPayload,
 ): Promise<SecretSource | null> {
-	if (priv.v !== VERSION || payload.v !== VERSION) return null;
+    if (priv.v !== VERSION || payload.v !== VERSION) return null;
 
-	try {
-		const pkcs8 = await crypto.subtle.decrypt(
-			{ name: "AES-GCM", iv: fromBase64(priv.iv) as BufferSource },
-			await wrapKey(passphrase, fromBase64(priv.salt), priv.it),
-			fromBase64(priv.data) as BufferSource,
-		);
+    try {
+        const pkcs8 = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv: fromBase64(priv.iv) as BufferSource },
+            await wrapKey(passphrase, fromBase64(priv.salt), priv.it),
+            fromBase64(priv.data) as BufferSource,
+        );
 
-		const mine = await crypto.subtle.importKey("pkcs8", pkcs8, CURVE, false, [
-			"deriveBits",
-		]);
+        const mine = await crypto.subtle.importKey("pkcs8", pkcs8, CURVE, false, ["deriveBits"]);
 
-		const epk = fromBase64(payload.epk);
-		const theirs = await crypto.subtle.importKey("raw", epk as BufferSource, CURVE, false, []);
+        const epk = fromBase64(payload.epk);
+        const theirs = await crypto.subtle.importKey("raw", epk as BufferSource, CURVE, false, []);
 
-		const plain = await crypto.subtle.decrypt(
-			{ name: "AES-GCM", iv: fromBase64(payload.iv) as BufferSource },
-			await shared(mine, theirs, epk),
-			fromBase64(payload.data) as BufferSource,
-		);
+        const plain = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv: fromBase64(payload.iv) as BufferSource },
+            await shared(mine, theirs, epk),
+            fromBase64(payload.data) as BufferSource,
+        );
 
-		return parseSecretSource(parseJson(new TextDecoder().decode(plain)));
-	} catch {
-		return null;
-	}
+        return parseSecretSource(parseJson(new TextDecoder().decode(plain)));
+    } catch {
+        return null;
+    }
 }

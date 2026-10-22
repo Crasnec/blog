@@ -23,15 +23,15 @@ const repo = process.env.PUBLIC_COMMENTS_REPO?.trim();
 const ifMissing = process.argv.includes("--if-missing");
 
 if (!repo) {
-	// Comments are optional. A checkout without them still has to build.
-	if (!existsSync(DIR)) mkdirSync(DIR, { recursive: true });
-	console.log("comments: PUBLIC_COMMENTS_REPO is not set — building without comments");
-	process.exit(0);
+    // Comments are optional. A checkout without them still has to build.
+    if (!existsSync(DIR)) mkdirSync(DIR, { recursive: true });
+    console.log("comments: PUBLIC_COMMENTS_REPO is not set — building without comments");
+    process.exit(0);
 }
 
 if (ifMissing && existsSync(`${DIR}/.git`)) {
-	console.log(`comments: ${DIR} already present — skipping fetch`);
-	process.exit(0);
+    console.log(`comments: ${DIR} already present — skipping fetch`);
+    process.exit(0);
 }
 
 const url = repo.startsWith("http") ? repo : `https://github.com/${repo}.git`;
@@ -39,22 +39,22 @@ const url = repo.startsWith("http") ? repo : `https://github.com/${repo}.git`;
 const TMP = `${DIR}.tmp`;
 
 try {
-	// Clone aside and swap, so a failed fetch leaves the copy already on disk
-	// alone instead of deleting it on the way to erroring out.
-	rmSync(TMP, { recursive: true, force: true });
-	execFileSync("git", ["clone", "--depth", "1", "--quiet", url, TMP], {
-		stdio: ["ignore", "inherit", "inherit"],
-	});
-	rmSync(DIR, { recursive: true, force: true });
-	renameSync(TMP, DIR);
-	console.log(`comments: fetched from ${repo}`);
+    // Clone aside and swap, so a failed fetch leaves the copy already on disk
+    // alone instead of deleting it on the way to erroring out.
+    rmSync(TMP, { recursive: true, force: true });
+    execFileSync("git", ["clone", "--depth", "1", "--quiet", url, TMP], {
+        stdio: ["ignore", "inherit", "inherit"],
+    });
+    rmSync(DIR, { recursive: true, force: true });
+    renameSync(TMP, DIR);
+    console.log(`comments: fetched from ${repo}`);
 } catch (error) {
-	rmSync(TMP, { recursive: true, force: true });
-	console.error(`comments: could not fetch ${repo}`);
-	console.error(error instanceof Error ? error.message : error);
+    rmSync(TMP, { recursive: true, force: true });
+    console.error(`comments: could not fetch ${repo}`);
+    console.error(error instanceof Error ? error.message : error);
 
-	// Strict for a build, forgiving for dev — see the note at the top.
-	if (!ifMissing) process.exit(1);
-	if (!existsSync(DIR)) mkdirSync(DIR, { recursive: true });
-	console.warn("comments: carrying on with whatever is already on disk");
+    // Strict for a build, forgiving for dev — see the note at the top.
+    if (!ifMissing) process.exit(1);
+    if (!existsSync(DIR)) mkdirSync(DIR, { recursive: true });
+    console.warn("comments: carrying on with whatever is already on disk");
 }

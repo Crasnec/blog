@@ -8,163 +8,333 @@ import { parseGrammars } from "../src/playground/grammar.ts";
 import { formatValue, outputChannel } from "../src/playground/output.ts";
 import { transpileTypeScript } from "../src/playground/transpile.ts";
 import { pngFromBase64 } from "../src/playground/python-plots.ts";
-import { pythonDistribution, supportedPackages, verifyPackage } from "../scripts/python-packages.mjs";
+import {
+    pythonDistribution,
+    supportedPackages,
+    verifyPackage,
+} from "../scripts/python-packages.mjs";
 
 const grammar = {
-	scopeName: "source.example", patterns: [
-		{ include: "#keywords" }, { include: "source.values" },
-		{ name: "string.quoted", begin: '"', end: '"' },
-	],
-	repository: { keywords: { name: "keyword.control", match: "\\bemit\\b" } },
+    scopeName: "source.example",
+    patterns: [
+        { include: "#keywords" },
+        { include: "source.values" },
+        { name: "string.quoted", begin: '"', end: '"' },
+    ],
+    repository: { keywords: { name: "keyword.control", match: "\\bemit\\b" } },
 };
-const xml = '<?xml version="1.0"?><plist version="1.0"><dict><key>scopeName</key><string>source.values</string><key>patterns</key><array><dict><key>name</key><string>constant.numeric</string><key>match</key><string>[0-9]+</string></dict></array></dict></plist>';
+const xml =
+    '<?xml version="1.0"?><plist version="1.0"><dict><key>scopeName</key><string>source.values</string><key>patterns</key><array><dict><key>name</key><string>constant.numeric</string><key>match</key><string>[0-9]+</string></dict></array></dict></plist>';
 
 void test("playground config infers supported runtimes and rejects malformed boundaries", () => {
-	assert.equal(runtimeFor("JS"), "javascript");
-	assert.equal(runtimeFor("ts"), "typescript");
-	assert.equal(runtimeFor("py"), "python");
-	assert.equal(runtimeFor("signal"), false);
-	const config = { language: "signal", label: "Custom", runtime: false, timeout: 500, grammars: [], pythonPackages: [] };
-	assert.deepEqual(decodeConfig(JSON.stringify(config)), config);
-	for (const change of [{ runtime: "shell" }, { timeout: 0 }, { timeout: 60_001 }, { grammars: [null] }, { language: "" }, { grammars: Array.from({ length: 17 }, () => ({ filename: "x", content: "" })) }]) {
-		assert.throws(() => decodeConfig(JSON.stringify({ ...config, ...change })));
-	}
-	assert.throws(() => decodeConfig(JSON.stringify({ ...config, grammars: [{ filename: "x", content: "x".repeat(1_000_001) }] })), /1 MB/);
-	for (const pythonPackages of [[""], ["bad\nrequirement"], [2], ["x".repeat(2049)], Array.from({ length: 51 }, (_, index) => `package-${String(index)}`)]) {
-		assert.throws(() => decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages })));
-	}
-	assert.throws(() => decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages: ["numpy", "numpy"] })), /unique/);
-	assert.throws(() => decodeConfig(JSON.stringify({ ...config, pythonPackages: ["numpy"] })), /Python runtime/);
-	assert.deepEqual(decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages: ["numpy", "seaborn"] })).pythonPackages, ["numpy", "seaborn"]);
-	const requirements = ["micropip", "humanize==4.13.0", "beautifulsoup4>=4", "https://example.com/demo-1.0-py3-none-any.whl"];
-	assert.deepEqual(decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages: requirements })).pythonPackages, requirements);
+    assert.equal(runtimeFor("JS"), "javascript");
+    assert.equal(runtimeFor("ts"), "typescript");
+    assert.equal(runtimeFor("py"), "python");
+    assert.equal(runtimeFor("signal"), false);
+    const config = {
+        language: "signal",
+        label: "Custom",
+        runtime: false,
+        timeout: 500,
+        grammars: [],
+        pythonPackages: [],
+    };
+    assert.deepEqual(decodeConfig(JSON.stringify(config)), config);
+    for (const change of [
+        { runtime: "shell" },
+        { timeout: 0 },
+        { timeout: 60_001 },
+        { grammars: [null] },
+        { language: "" },
+        { grammars: Array.from({ length: 17 }, () => ({ filename: "x", content: "" })) },
+    ]) {
+        assert.throws(() => decodeConfig(JSON.stringify({ ...config, ...change })));
+    }
+    assert.throws(
+        () =>
+            decodeConfig(
+                JSON.stringify({
+                    ...config,
+                    grammars: [{ filename: "x", content: "x".repeat(1_000_001) }],
+                }),
+            ),
+        /1 MB/,
+    );
+    for (const pythonPackages of [
+        [""],
+        ["bad\nrequirement"],
+        [2],
+        ["x".repeat(2049)],
+        Array.from({ length: 51 }, (_, index) => `package-${String(index)}`),
+    ]) {
+        assert.throws(() =>
+            decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages })),
+        );
+    }
+    assert.throws(
+        () =>
+            decodeConfig(
+                JSON.stringify({
+                    ...config,
+                    runtime: "python",
+                    pythonPackages: ["numpy", "numpy"],
+                }),
+            ),
+        /unique/,
+    );
+    assert.throws(
+        () => decodeConfig(JSON.stringify({ ...config, pythonPackages: ["numpy"] })),
+        /Python runtime/,
+    );
+    assert.deepEqual(
+        decodeConfig(
+            JSON.stringify({ ...config, runtime: "python", pythonPackages: ["numpy", "seaborn"] }),
+        ).pythonPackages,
+        ["numpy", "seaborn"],
+    );
+    const requirements = [
+        "micropip",
+        "humanize==4.13.0",
+        "beautifulsoup4>=4",
+        "https://example.com/demo-1.0-py3-none-any.whl",
+    ];
+    assert.deepEqual(
+        decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages: requirements }))
+            .pythonPackages,
+        requirements,
+    );
 });
 
 void test("notebook configuration is explicit, Python-only and bounded", () => {
- const base = { language: "python", label: "Cell", runtime: "python", timeout: 1000, grammars: [], pythonPackages: [] };
- assert.equal(decodeConfig(JSON.stringify({ ...base, notebook: "chapter-01" })).notebook, "chapter-01");
- for (const notebook of ["", "1chapter", "bad id", "x".repeat(81), 2]) assert.throws(() => decodeConfig(JSON.stringify({ ...base, notebook })));
- assert.throws(() => decodeConfig(JSON.stringify({ ...base, notebook: "chapter", runtime: "javascript" })));
+    const base = {
+        language: "python",
+        label: "Cell",
+        runtime: "python",
+        timeout: 1000,
+        grammars: [],
+        pythonPackages: [],
+    };
+    assert.equal(
+        decodeConfig(JSON.stringify({ ...base, notebook: "chapter-01" })).notebook,
+        "chapter-01",
+    );
+    for (const notebook of ["", "1chapter", "bad id", "x".repeat(81), 2])
+        assert.throws(() => decodeConfig(JSON.stringify({ ...base, notebook })));
+    assert.throws(() =>
+        decodeConfig(JSON.stringify({ ...base, notebook: "chapter", runtime: "javascript" })),
+    );
 });
 
 void test("common wheels stay pinned locally and the full Pyodide catalog loads from versioned URLs", () => {
-	const distribution = pythonDistribution();
-	for (const name of supportedPackages) assert.ok(Object.hasOwn(distribution.lock.packages, name));
-	assert.ok(Object.hasOwn(distribution.lock.packages, "micropip"));
-	for (const name of ["regex", "pyyaml", "scikit-learn"]) {
-		const entry = distribution.lock.packages[name];
-		assert.ok(entry, name);
-		assert.ok(entry.file_name.startsWith(`https://cdn.jsdelivr.net/pyodide/v${distribution.version}/full/`));
-		assert.match(entry.sha256, /^[a-f0-9]{64}$/u);
-		for (const dependency of entry.depends) assert.ok(Object.hasOwn(distribution.lock.packages, dependency));
-	}
-	assert.ok(distribution.lock.packages.pillow?.imports.includes("PIL"));
-	assert.ok(distribution.files.some((entry) => entry.file_name === distribution.lock.packages.pillow?.file_name));
-	assert.ok(distribution.lock.packages.pyyaml?.imports.includes("yaml"));
-	for (const entry of distribution.files) {
-		assert.match(entry.sha256, /^[a-f0-9]{64}$/);
-		assert.ok(["cdn.jsdelivr.net", "files.pythonhosted.org"].includes(new URL(entry.url).hostname));
-		assert.ok(entry.depends.every((name) => Object.hasOwn(distribution.lock.packages, name)));
-	}
-	assert.deepEqual(distribution.lock.packages.empiricaldist?.depends, ["numpy", "pandas", "scipy", "matplotlib"]);
-	for (const name of ["statadict", "statsmodels", "ipython"]) assert.ok(supportedPackages.includes(name));
-	const data = new TextEncoder().encode("abc");
-	assert.equal(verifyPackage(data, "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"), true);
-	assert.equal(verifyPackage(data, "0".repeat(64)), false);
+    const distribution = pythonDistribution();
+    for (const name of supportedPackages)
+        assert.ok(Object.hasOwn(distribution.lock.packages, name));
+    assert.ok(Object.hasOwn(distribution.lock.packages, "micropip"));
+    for (const name of ["regex", "pyyaml", "scikit-learn"]) {
+        const entry = distribution.lock.packages[name];
+        assert.ok(entry, name);
+        assert.ok(
+            entry.file_name.startsWith(
+                `https://cdn.jsdelivr.net/pyodide/v${distribution.version}/full/`,
+            ),
+        );
+        assert.match(entry.sha256, /^[a-f0-9]{64}$/u);
+        for (const dependency of entry.depends)
+            assert.ok(Object.hasOwn(distribution.lock.packages, dependency));
+    }
+    assert.ok(distribution.lock.packages.pillow?.imports.includes("PIL"));
+    assert.ok(
+        distribution.files.some(
+            (entry) => entry.file_name === distribution.lock.packages.pillow?.file_name,
+        ),
+    );
+    assert.ok(distribution.lock.packages.pyyaml?.imports.includes("yaml"));
+    for (const entry of distribution.files) {
+        assert.match(entry.sha256, /^[a-f0-9]{64}$/);
+        assert.ok(
+            ["cdn.jsdelivr.net", "files.pythonhosted.org"].includes(new URL(entry.url).hostname),
+        );
+        assert.ok(entry.depends.every((name) => Object.hasOwn(distribution.lock.packages, name)));
+    }
+    assert.deepEqual(distribution.lock.packages.empiricaldist?.depends, [
+        "numpy",
+        "pandas",
+        "scipy",
+        "matplotlib",
+    ]);
+    for (const name of ["statadict", "statsmodels", "ipython"])
+        assert.ok(supportedPackages.includes(name));
+    const data = new TextEncoder().encode("abc");
+    assert.equal(
+        verifyPackage(data, "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"),
+        true,
+    );
+    assert.equal(verifyPackage(data, "0".repeat(64)), false);
 });
 
 void test("npm imports resolve without changing strings, comments, URLs, or import options", () => {
-	assert.equal(resolveModuleSpecifier("lodash-es@4.17.21"), "https://esm.sh/lodash-es@4.17.21?target=es2022");
-	assert.equal(resolveModuleSpecifier("npm:@scure/base@1.2.6"), "https://esm.sh/@scure/base@1.2.6?target=es2022");
-	assert.equal(resolveModuleSpecifier("lodash-es/mean?target=es2024"), "https://esm.sh/lodash-es/mean?target=es2024");
-	for (const source of ["https://example.com/module.js", "data:text/javascript,export default 4", "./relative.js"]) assert.equal(resolveModuleSpecifier(source), source);
-	assert.throws(() => rewriteModuleImports('import fs from "node:fs"'), /Node.js built-in/u);
-	const untouched = '// import "fake-comment"\nconst text = `import "fake-string"`;\nconst regex = /import "fake-regex"/;';
-	assert.equal(rewriteModuleImports(untouched), untouched);
-	const rewritten = rewriteModuleImports('import {mean} from "lodash-es@4.17.21";\nexport {hex} from "@scure/base@1.2.6";\nconst mod = await import(`nanoid@5.1.5`, {with: {type: "json"}});');
-	assert.match(rewritten, /from "https:\/\/esm.sh\/lodash-es@4.17.21\?target=es2022"/u);
-	assert.match(rewritten, /from "https:\/\/esm.sh\/@scure\/base@1.2.6\?target=es2022"/u);
-	assert.match(rewritten, /import\("https:\/\/esm.sh\/nanoid@5.1.5\?target=es2022", \{with: \{type: "json"\}\}\)/u);
+    assert.equal(
+        resolveModuleSpecifier("lodash-es@4.17.21"),
+        "https://esm.sh/lodash-es@4.17.21?target=es2022",
+    );
+    assert.equal(
+        resolveModuleSpecifier("npm:@scure/base@1.2.6"),
+        "https://esm.sh/@scure/base@1.2.6?target=es2022",
+    );
+    assert.equal(
+        resolveModuleSpecifier("lodash-es/mean?target=es2024"),
+        "https://esm.sh/lodash-es/mean?target=es2024",
+    );
+    for (const source of [
+        "https://example.com/module.js",
+        "data:text/javascript,export default 4",
+        "./relative.js",
+    ])
+        assert.equal(resolveModuleSpecifier(source), source);
+    assert.throws(() => rewriteModuleImports('import fs from "node:fs"'), /Node.js built-in/u);
+    const untouched =
+        '// import "fake-comment"\nconst text = `import "fake-string"`;\nconst regex = /import "fake-regex"/;';
+    assert.equal(rewriteModuleImports(untouched), untouched);
+    const rewritten = rewriteModuleImports(
+        'import {mean} from "lodash-es@4.17.21";\nexport {hex} from "@scure/base@1.2.6";\nconst mod = await import(`nanoid@5.1.5`, {with: {type: "json"}});',
+    );
+    assert.match(rewritten, /from "https:\/\/esm.sh\/lodash-es@4.17.21\?target=es2022"/u);
+    assert.match(rewritten, /from "https:\/\/esm.sh\/@scure\/base@1.2.6\?target=es2022"/u);
+    assert.match(
+        rewritten,
+        /import\("https:\/\/esm.sh\/nanoid@5.1.5\?target=es2022", \{with: \{type: "json"\}\}\)/u,
+    );
 });
 
 void test("plot transport rejects non-PNG data, oversized images and excess figures", () => {
-	assert.throws(() => pngFromBase64(btoa("<svg onload=alert(1)>")), /PNG image/);
-	assert.throws(() => pngFromBase64("A".repeat(5_333_337)), /4 MB/);
-	const header = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
-	assert.deepEqual(new Uint8Array(pngFromBase64(Buffer.from(header).toString("base64"))), header);
-	const channel = new MessageChannel();
-	try {
-		const send = outputChannel(channel.port1);
-		for (let index = 0; index < 8; index++) send({ type: "plot", png: header.slice().buffer, alt: "Plot" });
-		assert.throws(() => { send({ type: "plot", png: header.slice().buffer, alt: "Excess plot" }); }, /Plot limit/);
-	} finally { channel.port1.close(); channel.port2.close(); }
+    assert.throws(() => pngFromBase64(btoa("<svg onload=alert(1)>")), /PNG image/);
+    assert.throws(() => pngFromBase64("A".repeat(5_333_337)), /4 MB/);
+    const header = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+    assert.deepEqual(new Uint8Array(pngFromBase64(Buffer.from(header).toString("base64"))), header);
+    const channel = new MessageChannel();
+    try {
+        const send = outputChannel(channel.port1);
+        for (let index = 0; index < 8; index++)
+            send({ type: "plot", png: header.slice().buffer, alt: "Plot" });
+        assert.throws(() => {
+            send({ type: "plot", png: header.slice().buffer, alt: "Excess plot" });
+        }, /Plot limit/);
+    } finally {
+        channel.port1.close();
+        channel.port2.close();
+    }
 });
 
 void test("TextMate parses JSON and XML and preserves repository and external include rules", async () => {
-	const grammars = parseGrammars([{ filename: "example.json", content: JSON.stringify(grammar) }, { filename: "values.tmLanguage", content: xml }]);
-	assert.equal(grammars[0]?.scopeName, "source.example");
-	assert.equal(grammars[1]?.scopeName, "source.values");
-	const highlighter = await createHighlighterCore({
-		engine: createOnigurumaEngine(import("shiki/wasm")),
-		themes: [createCssVariablesTheme()], langs: grammars,
-	});
-	try {
-		const tokens = highlighter.codeToTokensBase('emit 42 "first\nsecond"', { lang: "custom-0", theme: "css-variables" });
-		const all = tokens.flat();
-		assert.ok(all.some((token) => token.content === "emit" && token.color?.includes("token-keyword")));
-		assert.ok(all.some((token) => token.content === "42" && token.color?.includes("token-constant")));
-		assert.ok(tokens[1]?.some((token) => token.content.includes("second") && token.color?.includes("token-string")), "begin/end scope must persist across lines");
-		for (const token of all) assert.equal('emit 42 "first\nsecond"'.slice(token.offset, token.offset + token.content.length), token.content);
-	} finally { highlighter.dispose(); }
+    const grammars = parseGrammars([
+        { filename: "example.json", content: JSON.stringify(grammar) },
+        { filename: "values.tmLanguage", content: xml },
+    ]);
+    assert.equal(grammars[0]?.scopeName, "source.example");
+    assert.equal(grammars[1]?.scopeName, "source.values");
+    const highlighter = await createHighlighterCore({
+        engine: createOnigurumaEngine(import("shiki/wasm")),
+        themes: [createCssVariablesTheme()],
+        langs: grammars,
+    });
+    try {
+        const tokens = highlighter.codeToTokensBase('emit 42 "first\nsecond"', {
+            lang: "custom-0",
+            theme: "css-variables",
+        });
+        const all = tokens.flat();
+        assert.ok(
+            all.some((token) => token.content === "emit" && token.color?.includes("token-keyword")),
+        );
+        assert.ok(
+            all.some((token) => token.content === "42" && token.color?.includes("token-constant")),
+        );
+        assert.ok(
+            tokens[1]?.some(
+                (token) =>
+                    token.content.includes("second") && token.color?.includes("token-string"),
+            ),
+            "begin/end scope must persist across lines",
+        );
+        for (const token of all)
+            assert.equal(
+                'emit 42 "first\nsecond"'.slice(token.offset, token.offset + token.content.length),
+                token.content,
+            );
+    } finally {
+        highlighter.dispose();
+    }
 });
 
 void test("invalid or duplicate TextMate grammars fail with useful errors", () => {
-	assert.throws(() => parseGrammars([{ filename: "broken.json", content: "{" }]));
-	assert.throws(() => parseGrammars([{ filename: "empty.json", content: "{}" }]), /scopeName and patterns/);
-	assert.throws(() => parseGrammars([{ filename: "a.json", content: JSON.stringify(grammar) }, { filename: "b.json", content: JSON.stringify(grammar) }]), /duplicate scope/);
+    assert.throws(() => parseGrammars([{ filename: "broken.json", content: "{" }]));
+    assert.throws(
+        () => parseGrammars([{ filename: "empty.json", content: "{}" }]),
+        /scopeName and patterns/,
+    );
+    assert.throws(
+        () =>
+            parseGrammars([
+                { filename: "a.json", content: JSON.stringify(grammar) },
+                { filename: "b.json", content: JSON.stringify(grammar) },
+            ]),
+        /duplicate scope/,
+    );
 });
 
 void test("TypeScript compiles non-erasable syntax and preserves async ECMAScript modules", async () => {
-	const code = transpileTypeScript("enum Count { Two = 2 }; const n: Count = Count.Two; export const result: number = await Promise.resolve(n * 3);");
-	const loaded = await import(`data:text/javascript;base64,${Buffer.from(code).toString("base64")}`) as { result: number };
-	assert.equal(loaded.result, 6);
-	assert.throws(() => transpileTypeScript("const = ;"), /1:/);
+    const code = transpileTypeScript(
+        "enum Count { Two = 2 }; const n: Count = Count.Two; export const result: number = await Promise.resolve(n * 3);",
+    );
+    const loaded = (await import(
+        `data:text/javascript;base64,${Buffer.from(code).toString("base64")}`
+    )) as { result: number };
+    assert.equal(loaded.result, 6);
+    assert.throws(() => transpileTypeScript("const = ;"), /1:/);
 });
 
 void test("console formatting and limits handle mixed values without interpreting HTML", () => {
-	assert.equal(formatValue(undefined), "undefined");
-	assert.equal(formatValue(42n), "42");
-	assert.equal(formatValue('<img onerror="alert(1)">'), '<img onerror="alert(1)">');
-	const circular: { value: bigint; self?: object } = { value: 2n };
-	circular.self = circular;
-	assert.match(formatValue(circular), /Circular/);
-	assert.match(formatValue(circular), /2n/);
-	const channel = new MessageChannel();
-	try {
-		const send = outputChannel(channel.port1);
-		assert.throws(() => { send({ type: "output", level: "log", text: "x".repeat(64_001) }); }, /Output limit/);
-	} finally { channel.port1.close(); channel.port2.close(); }
+    assert.equal(formatValue(undefined), "undefined");
+    assert.equal(formatValue(42n), "42");
+    assert.equal(formatValue('<img onerror="alert(1)">'), '<img onerror="alert(1)">');
+    const circular: { value: bigint; self?: object } = { value: 2n };
+    circular.self = circular;
+    assert.match(formatValue(circular), /Circular/);
+    assert.match(formatValue(circular), /2n/);
+    const channel = new MessageChannel();
+    try {
+        const send = outputChannel(channel.port1);
+        assert.throws(() => {
+            send({ type: "output", level: "log", text: "x".repeat(64_001) });
+        }, /Output limit/);
+    } finally {
+        channel.port1.close();
+        channel.port2.close();
+    }
 });
 
 void test("input channel matches replies without replaying or accepting stale input", async () => {
-	const { inputChannel } = await import("../src/playground/input.ts");
-	const channel = new MessageChannel();
-	const requests: { id: number; prompt: string }[] = [];
-	const ask = inputChannel(channel.port1, (message) => {
-		if (message.type === "input") requests.push(message);
-	});
-	try {
-		const first = ask("이름: ");
-		assert.equal(requests[0]?.prompt, "이름: ");
-		await assert.rejects(ask("concurrent"), /previous input/);
-		channel.port2.postMessage({ type: "input", id: 999, value: "stale" });
-		channel.port2.postMessage({ type: "input", id: 1, value: "한글" });
-		assert.equal(await first, "한글");
-		const empty = ask();
-		channel.port2.postMessage({ type: "input", id: 2, value: "" });
-		assert.equal(await empty, "");
-		const eof = ask();
-		channel.port2.postMessage({ type: "input", id: 3, value: null });
-		assert.equal(await eof, null);
-	} finally { channel.port1.close(); channel.port2.close(); }
+    const { inputChannel } = await import("../src/playground/input.ts");
+    const channel = new MessageChannel();
+    const requests: { id: number; prompt: string }[] = [];
+    const ask = inputChannel(channel.port1, (message) => {
+        if (message.type === "input") requests.push(message);
+    });
+    try {
+        const first = ask("이름: ");
+        assert.equal(requests[0]?.prompt, "이름: ");
+        await assert.rejects(ask("concurrent"), /previous input/);
+        channel.port2.postMessage({ type: "input", id: 999, value: "stale" });
+        channel.port2.postMessage({ type: "input", id: 1, value: "한글" });
+        assert.equal(await first, "한글");
+        const empty = ask();
+        channel.port2.postMessage({ type: "input", id: 2, value: "" });
+        assert.equal(await empty, "");
+        const eof = ask();
+        channel.port2.postMessage({ type: "input", id: 3, value: null });
+        assert.equal(await eof, null);
+    } finally {
+        channel.port1.close();
+        channel.port2.close();
+    }
 });

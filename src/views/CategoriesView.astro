@@ -5,23 +5,18 @@ import Sidebar from "../components/Sidebar.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getCategories } from "../utils/content";
 
-/** The folder tree, with each parent's count including descendant posts. */
 const categories = await getCategories();
 ---
 
-<BaseLayout
-	title={t("categories.title")}
->
-	<Sidebar slot="sidebar" />
+<BaseLayout title={t("categories.title")}>
+    <Sidebar slot="sidebar" />
 
-	<!-- The masthead already says this. Kept for the document outline. -->
-	<h1 class="visually-hidden">{t("categories.title")}</h1>
+    <!-- The masthead already says this. Kept for the document outline. -->
+    <h1 class="visually-hidden">{t("categories.title")}</h1>
 
-	{
-		categories.length === 0 ? (
-			<p class="empty-note">{t("index.empty")}</p>
-		) : (
-			<CategoryTree categories={categories} variant="index" />
-		)
-	}
+    {categories.length === 0 ? (
+        <p class="empty-note">{t("index.empty")}</p>
+    ) : (
+        <CategoryTree categories={categories} variant="index" />
+    )}
 </BaseLayout>

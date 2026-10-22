@@ -5,8 +5,8 @@ import IndexView from "../views/IndexView.astro";
 import { getPosts } from "../utils/content";
 
 export const getStaticPaths = (async ({ paginate }) => {
-	const posts = await getPosts();
-	return paginate(posts, { pageSize: siteConfig.postsPerPage });
+    const posts = await getPosts();
+    return paginate(posts, { pageSize: siteConfig.postsPerPage });
 }) satisfies GetStaticPaths;
 
 const { page } = Astro.props;

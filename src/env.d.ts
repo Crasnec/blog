@@ -2,10 +2,10 @@
 /// <reference types="astro/client" />
 
 interface ViteTypeOptions {
-	strictImportMetaEnv: true;
+    strictImportMetaEnv: true;
 }
 
 interface ImportMetaEnv {
-	readonly PUBLIC_COMMENTS_REPO?: string;
-	readonly PUBLIC_COMMENTS_TOKEN?: string;
+    readonly PUBLIC_COMMENTS_REPO?: string;
+    readonly PUBLIC_COMMENTS_TOKEN?: string;
 }

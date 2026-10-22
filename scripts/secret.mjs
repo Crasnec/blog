@@ -30,29 +30,26 @@ import { dirname, relative, resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { pathToFileURL } from "node:url";
 
-import {
-	createMarkdownProcessor,
-	parseFrontmatter,
-} from "@astrojs/markdown-remark";
+import { createMarkdownProcessor, parseFrontmatter } from "@astrojs/markdown-remark";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import rehypeExpressiveCode from "rehype-expressive-code";
 import { stringify } from "yaml";
 
 import {
-	expressiveCodeOptions,
-	rehypePlugins,
-	remarkPlugins,
-	themeName,
+    expressiveCodeOptions,
+    rehypePlugins,
+    remarkPlugins,
+    themeName,
 } from "../src/markdown.config.mjs";
 import {
-	generateKeys,
-	openWith,
-	parsePrivateKeyFile,
-	parsePublicKeyFile,
-	parseSecretPayload,
-	rewrap,
-	sealTo,
+    generateKeys,
+    openWith,
+    parsePrivateKeyFile,
+    parsePublicKeyFile,
+    parseSecretPayload,
+    rewrap,
+    sealTo,
 } from "../src/utils/secret.ts";
 import { parseJson } from "../src/utils/json.ts";
 
@@ -79,19 +76,17 @@ const PRIVATE_KEY = `${KEY_DIR}/private.json`;
  * @returns {Promise<T>}
  */
 async function readKey(which, decode) {
-	try {
-		const value = parseJson(
-			await readFile(resolve(ROOT.pathname, which), "utf8"),
-		);
-		const decoded = decode(value);
-		if (decoded) return decoded;
-		fail(`${which} has an invalid key structure.`);
-	} catch {
-		fail(
-			`no ${which}. Run \`npm run secret:keygen\` once to make a keypair, ` +
-				"and commit both halves.",
-		);
-	}
+    try {
+        const value = parseJson(await readFile(resolve(ROOT.pathname, which), "utf8"));
+        const decoded = decode(value);
+        if (decoded) return decoded;
+        fail(`${which} has an invalid key structure.`);
+    } catch {
+        fail(
+            `no ${which}. Run \`npm run secret:keygen\` once to make a keypair, ` +
+                "and commit both halves.",
+        );
+    }
 }
 
 /**
@@ -101,24 +96,17 @@ async function readKey(which, decode) {
  * quietly copying it into a public file is the one mistake that cannot be
  * taken back.
  */
-const PUBLIC_KEYS = new Set([
-	"title",
-	"published",
-	"updated",
-	"category",
-	"tags",
-	"draft",
-]);
+const PUBLIC_KEYS = new Set(["title", "published", "updated", "category", "tags", "draft"]);
 
 /** Refused by name, with a reason, because each is derived from the body. */
 const LEAKY_KEYS = {
-	description:
-		"a description is a summary of the body — write the post so its title " +
-		"and tags carry it, or accept that the summary is public and put it in " +
-		"the title instead",
-	secret:
-		"the passphrase never belongs in a file; sealing asks for it on the " +
-		"terminal and forgets it",
+    description:
+        "a description is a summary of the body — write the post so its title " +
+        "and tags carry it, or accept that the summary is public and put it in " +
+        "the title instead",
+    secret:
+        "the passphrase never belongs in a file; sealing asks for it on the " +
+        "terminal and forgets it",
 };
 
 /*
@@ -127,24 +115,23 @@ const LEAKY_KEYS = {
  * read by people, so they go back the way they were written.
  */
 /** @param {FrontmatterValue} value */
-const asWritten = (value) =>
-	value instanceof Date ? value.toISOString().slice(0, 10) : value;
+const asWritten = (value) => (value instanceof Date ? value.toISOString().slice(0, 10) : value);
 
 /** @param {Record<string, FrontmatterValue>} frontmatter */
 const publicFrontmatter = (frontmatter) =>
-	Object.fromEntries(
-		Object.entries(frontmatter)
-			.filter(([key]) => key !== "sealed")
-			.map(([key, value]) => [key, asWritten(value)]),
-	);
+    Object.fromEntries(
+        Object.entries(frontmatter)
+            .filter(([key]) => key !== "sealed")
+            .map(([key, value]) => [key, asWritten(value)]),
+    );
 
 /**
  * @param {string} message
  * @returns {never}
  */
 const fail = (message) => {
-	console.error(`\nsecret: ${message}\n`);
-	process.exit(1);
+    console.error(`\nsecret: ${message}\n`);
+    process.exit(1);
 };
 
 /**
@@ -152,52 +139,53 @@ const fail = (message) => {
  * @returns {Promise<string>}
  */
 async function askHidden(question) {
-	if (!process.stdin.isTTY) {
-		fail(
-			"no terminal to ask for a passphrase on. Set SECRET_PASSPHRASE if you " +
-				"are scripting this.",
-		);
-	}
+    if (!process.stdin.isTTY) {
+        fail(
+            "no terminal to ask for a passphrase on. Set SECRET_PASSPHRASE if you " +
+                "are scripting this.",
+        );
+    }
 
-	const rl = /** @type {import("node:readline").Interface & { _writeToOutput(chunk: string): void }} */ (
-		createInterface({
-			input: process.stdin,
-			output: process.stdout,
-			terminal: true,
-		})
-	);
+    const rl =
+        /** @type {import("node:readline").Interface & { _writeToOutput(chunk: string): void }} */ (
+            createInterface({
+                input: process.stdin,
+                output: process.stdout,
+                terminal: true,
+            })
+        );
 
-	let muted = false;
-	rl._writeToOutput = (chunk) => {
-		if (!muted) process.stdout.write(chunk);
-	};
+    let muted = false;
+    rl._writeToOutput = (chunk) => {
+        if (!muted) process.stdout.write(chunk);
+    };
 
-	const answer = await new Promise((done) => {
-		rl.question(question, done);
-		muted = true;
-	});
+    const answer = await new Promise((done) => {
+        rl.question(question, done);
+        muted = true;
+    });
 
-	process.stdout.write("\n");
-	rl.close();
-	return answer;
+    process.stdout.write("\n");
+    rl.close();
+    return answer;
 }
 
 /** @param {"keygen" | "rekey" | "open"} action */
 async function passphraseFor(action) {
-	const fromEnv = process.env.SECRET_PASSPHRASE;
-	if (fromEnv) return fromEnv;
+    const fromEnv = process.env.SECRET_PASSPHRASE;
+    if (fromEnv) return fromEnv;
 
-	const first = await askHidden("passphrase: ");
-	if (!first) fail("no passphrase given.");
+    const first = await askHidden("passphrase: ");
+    if (!first) fail("no passphrase given.");
 
-	if (action === "keygen" || action === "rekey") {
-		// A mistyped passphrase locks every post that will ever be sealed to
-		// this key, and there is no second copy of it anywhere.
-		const again = await askHidden("again: ");
-		if (first !== again) fail("the two passphrases do not match.");
-	}
+    if (action === "keygen" || action === "rekey") {
+        // A mistyped passphrase locks every post that will ever be sealed to
+        // this key, and there is no second copy of it anywhere.
+        const again = await askHidden("again: ");
+        if (first !== again) fail("the two passphrases do not match.");
+    }
 
-	return first;
+    return first;
 }
 
 /** Nested paths are preserved between `secrets/` and `src/content/posts/`. */
@@ -206,22 +194,21 @@ async function passphraseFor(action) {
  * @param {"seal" | "open"} direction
  */
 function counterpart(input, direction) {
-	const rel = relative(
-		resolve(ROOT.pathname),
-		resolve(process.cwd(), input),
-	).replaceAll("\\", "/");
+    const rel = relative(resolve(ROOT.pathname), resolve(process.cwd(), input)).replaceAll(
+        "\\",
+        "/",
+    );
 
-	const [from, to] =
-		direction === "seal" ? [PLAIN_DIR, SEALED_DIR] : [SEALED_DIR, PLAIN_DIR];
+    const [from, to] = direction === "seal" ? [PLAIN_DIR, SEALED_DIR] : [SEALED_DIR, PLAIN_DIR];
 
-	if (!rel.startsWith(`${from}/`)) {
-		fail(`expected a path under ${from}/, got ${rel || input}`);
-	}
+    if (!rel.startsWith(`${from}/`)) {
+        fail(`expected a path under ${from}/, got ${rel || input}`);
+    }
 
-	return {
-		rel,
-		out: `${to}/${rel.slice(from.length + 1)}`,
-	};
+    return {
+        rel,
+        out: `${to}/${rel.slice(from.length + 1)}`,
+    };
 }
 
 /** @type {Awaited<ReturnType<typeof createMarkdownProcessor>> | undefined} */
@@ -240,109 +227,111 @@ let processor;
  * @param {URL} fileURL
  */
 async function render(markdown, fileURL) {
-	processor ??= await createMarkdownProcessor({
-		syntaxHighlight: false,
-		remarkPlugins,
-		rehypePlugins: [
-			...rehypePlugins,
-			[
-				rehypeExpressiveCode,
-				{
-					...expressiveCodeOptions,
-					plugins: [pluginLineNumbers(), pluginCollapsibleSections()],
-					frames: { showCopyToClipboardButton: false },
-				},
-			],
-		],
-	});
+    processor ??= await createMarkdownProcessor({
+        syntaxHighlight: false,
+        remarkPlugins,
+        rehypePlugins: [
+            ...rehypePlugins,
+            [
+                rehypeExpressiveCode,
+                {
+                    ...expressiveCodeOptions,
+                    plugins: [pluginLineNumbers(), pluginCollapsibleSections()],
+                    frames: { showCopyToClipboardButton: false },
+                },
+            ],
+        ],
+    });
 
-	// The path is what tells `remarkBlocks` which locale to label admonitions in.
-	const { code } = await processor.render(markdown, { fileURL });
-	return code;
+    // The path is what tells `remarkBlocks` which locale to label admonitions in.
+    const { code } = await processor.render(markdown, { fileURL });
+    return code;
 }
 
 /** @param {string} input */
 async function doSeal(input) {
-	const { rel, out } = counterpart(input, "seal");
-	const source = await readFile(resolve(ROOT.pathname, rel), "utf8");
-	const { frontmatter, content } = parseFrontmatter(source);
+    const { rel, out } = counterpart(input, "seal");
+    const source = await readFile(resolve(ROOT.pathname, rel), "utf8");
+    const { frontmatter, content } = parseFrontmatter(source);
 
-	for (const [key, why] of Object.entries(LEAKY_KEYS)) {
-		if (key in frontmatter) fail(`remove \`${key}\` from ${rel}: ${why}.`);
-	}
+    for (const [key, why] of Object.entries(LEAKY_KEYS)) {
+        if (key in frontmatter) fail(`remove \`${key}\` from ${rel}: ${why}.`);
+    }
 
-	const unsupported = Object.keys(frontmatter).filter((k) => !PUBLIC_KEYS.has(k));
-	if (unsupported.length > 0) {
-		fail(
-			`${rel} has frontmatter this script does not know is safe to publish: ` +
-				`${unsupported.join(", ")}. A sealed post's frontmatter is committed in ` +
-				"the clear, so add it to PUBLIC_KEYS in scripts/secret.mjs only if " +
-				"you are certain it gives nothing away.",
-		);
-	}
+    const unsupported = Object.keys(frontmatter).filter((k) => !PUBLIC_KEYS.has(k));
+    if (unsupported.length > 0) {
+        fail(
+            `${rel} has frontmatter this script does not know is safe to publish: ` +
+                `${unsupported.join(", ")}. A sealed post's frontmatter is committed in ` +
+                "the clear, so add it to PUBLIC_KEYS in scripts/secret.mjs only if " +
+                "you are certain it gives nothing away.",
+        );
+    }
 
-	const md = content.replace(/^\n+/, "");
-	if (!md.trim()) fail(`${rel} has no body to seal.`);
+    const md = content.replace(/^\n+/, "");
+    if (!md.trim()) fail(`${rel} has no body to seal.`);
 
-	const outPath = resolve(ROOT.pathname, out);
-	const html = await render(md, pathToFileURL(outPath));
-	const payload = await sealTo(
-		await readKey(PUBLIC_KEY, parsePublicKeyFile),
-		{ html, md },
-		themeName,
-	);
+    const outPath = resolve(ROOT.pathname, out);
+    const html = await render(md, pathToFileURL(outPath));
+    const payload = await sealTo(
+        await readKey(PUBLIC_KEY, parsePublicKeyFile),
+        { html, md },
+        themeName,
+    );
 
-	// lineWidth 0 so YAML never folds the base64 — a wrapped line would join
-	// back with a space and the payload would no longer decode.
-	const head = stringify(
-		{ ...publicFrontmatter(frontmatter), sealed: payload },
-		{ lineWidth: 0 },
-	);
+    // lineWidth 0 so YAML never folds the base64 — a wrapped line would join
+    // back with a space and the payload would no longer decode.
+    const head = stringify(
+        { ...publicFrontmatter(frontmatter), sealed: payload },
+        { lineWidth: 0 },
+    );
 
-	await mkdir(dirname(outPath), { recursive: true });
-	await writeFile(
-		outPath,
-		`---\n${head}---\n\n<!-- Sealed. The body is ciphertext in the frontmatter above; ` +
-			`\`npm run secret:open ${out}\` writes the Markdown back to ${PLAIN_DIR}/. -->\n`,
-		"utf8",
-	);
+    await mkdir(dirname(outPath), { recursive: true });
+    await writeFile(
+        outPath,
+        `---\n${head}---\n\n<!-- Sealed. The body is ciphertext in the frontmatter above; ` +
+            `\`npm run secret:open ${out}\` writes the Markdown back to ${PLAIN_DIR}/. -->\n`,
+        "utf8",
+    );
 
-	console.log(`\nsealed  ${rel}\n     →  ${out}  (${themeName}, ${payload.data.length} base64 chars)\n`);
+    console.log(
+        `\nsealed  ${rel}\n     →  ${out}  (${themeName}, ${payload.data.length} base64 chars)\n`,
+    );
 }
 
 /** @param {string} input */
 async function doOpen(input) {
-	const { rel, out } = counterpart(input, "open");
-	const source = await readFile(resolve(ROOT.pathname, rel), "utf8");
-	const { frontmatter } = parseFrontmatter(source);
+    const { rel, out } = counterpart(input, "open");
+    const source = await readFile(resolve(ROOT.pathname, rel), "utf8");
+    const { frontmatter } = parseFrontmatter(source);
 
-	const sealed = parseSecretPayload(parseJson(JSON.stringify(frontmatter.sealed)));
-	if (!sealed) fail(`${rel} is not a valid sealed post.`);
+    const sealed = parseSecretPayload(parseJson(JSON.stringify(frontmatter.sealed)));
+    if (!sealed) fail(`${rel} is not a valid sealed post.`);
 
-	const passphrase = await passphraseFor("open");
-	const opened = await openWith(
-		await readKey(PRIVATE_KEY, parsePrivateKeyFile),
-		passphrase,
-		sealed,
-	);
+    const passphrase = await passphraseFor("open");
+    const opened = await openWith(
+        await readKey(PRIVATE_KEY, parsePrivateKeyFile),
+        passphrase,
+        sealed,
+    );
 
-	if (!opened) {
-		fail(
-			"could not open it. Either the passphrase is wrong, or the payload was " +
-				`sealed by an older scheme (this one is v${sealed.v}).`,
-		);
-	}
+    if (!opened) {
+        fail(
+            "could not open it. Either the passphrase is wrong, or the payload was " +
+                `sealed by an older scheme (this one is v${sealed.v}).`,
+        );
+    }
 
-	const outPath = resolve(ROOT.pathname, out);
+    const outPath = resolve(ROOT.pathname, out);
 
-	await mkdir(dirname(outPath), { recursive: true });
-	await writeFile(
-		outPath,
-		`---\n${stringify(publicFrontmatter(frontmatter), { lineWidth: 0 })}---\n\n${opened.md}`,
-		"utf8",
-	);
+    await mkdir(dirname(outPath), { recursive: true });
+    await writeFile(
+        outPath,
+        `---\n${stringify(publicFrontmatter(frontmatter), { lineWidth: 0 })}---\n\n${opened.md}`,
+        "utf8",
+    );
 
-	console.log(`\nopened  ${rel}\n     →  ${out}  (gitignored — do not commit it)\n`);
+    console.log(`\nopened  ${rel}\n     →  ${out}  (gitignored — do not commit it)\n`);
 }
 
 /**
@@ -351,40 +340,37 @@ async function doOpen(input) {
  * sealed again before it is thrown away.
  */
 async function doKeygen() {
-	const existing = await readFile(
-		resolve(ROOT.pathname, PUBLIC_KEY),
-		"utf8",
-	).catch(() => null);
+    const existing = await readFile(resolve(ROOT.pathname, PUBLIC_KEY), "utf8").catch(() => null);
 
-	if (existing) {
-		fail(
-			`${PUBLIC_KEY} already exists. A second keypair cannot open anything ` +
-				"sealed to the first, so open every locked post first, delete " +
-				`${KEY_DIR}/, and seal them again.`,
-		);
-	}
+    if (existing) {
+        fail(
+            `${PUBLIC_KEY} already exists. A second keypair cannot open anything ` +
+                "sealed to the first, so open every locked post first, delete " +
+                `${KEY_DIR}/, and seal them again.`,
+        );
+    }
 
-	const passphrase = await passphraseFor("keygen");
-	const { pub, priv } = await generateKeys(passphrase);
+    const passphrase = await passphraseFor("keygen");
+    const { pub, priv } = await generateKeys(passphrase);
 
-	await mkdir(resolve(ROOT.pathname, KEY_DIR), { recursive: true });
-	await writeFile(
-		resolve(ROOT.pathname, PUBLIC_KEY),
-		`${JSON.stringify(pub, null, 2)}\n`,
-		"utf8",
-	);
-	await writeFile(
-		resolve(ROOT.pathname, PRIVATE_KEY),
-		`${JSON.stringify(priv, null, 2)}\n`,
-		"utf8",
-	);
+    await mkdir(resolve(ROOT.pathname, KEY_DIR), { recursive: true });
+    await writeFile(
+        resolve(ROOT.pathname, PUBLIC_KEY),
+        `${JSON.stringify(pub, null, 2)}\n`,
+        "utf8",
+    );
+    await writeFile(
+        resolve(ROOT.pathname, PRIVATE_KEY),
+        `${JSON.stringify(priv, null, 2)}\n`,
+        "utf8",
+    );
 
-	console.log(
-		`\nwrote  ${PUBLIC_KEY}   seals a post, needs no passphrase\n` +
-			`       ${PRIVATE_KEY}  opens one, wrapped in the passphrase\n\n` +
-			"Commit both. Neither gives anything away without the passphrase, and\n" +
-			"the passphrase is now the only copy of itself that exists.\n",
-	);
+    console.log(
+        `\nwrote  ${PUBLIC_KEY}   seals a post, needs no passphrase\n` +
+            `       ${PRIVATE_KEY}  opens one, wrapped in the passphrase\n\n` +
+            "Commit both. Neither gives anything away without the passphrase, and\n" +
+            "the passphrase is now the only copy of itself that exists.\n",
+    );
 }
 
 /**
@@ -394,33 +380,33 @@ async function doKeygen() {
  * only the wrapping around the private half is replaced.
  */
 async function doRekey() {
-	const priv = await readKey(PRIVATE_KEY, parsePrivateKeyFile);
+    const priv = await readKey(PRIVATE_KEY, parsePrivateKeyFile);
 
-	const from = process.env.SECRET_PASSPHRASE ?? (await askHidden("current passphrase: "));
-	if (!from) fail("no passphrase given.");
+    const from = process.env.SECRET_PASSPHRASE ?? (await askHidden("current passphrase: "));
+    if (!from) fail("no passphrase given.");
 
-	const to = process.env.SECRET_PASSPHRASE_NEW ?? (await askHidden("new passphrase: "));
-	if (!to) fail("no new passphrase given.");
-	if (!process.env.SECRET_PASSPHRASE_NEW) {
-		const again = await askHidden("again: ");
-		if (to !== again) fail("the two passphrases do not match.");
-	}
+    const to = process.env.SECRET_PASSPHRASE_NEW ?? (await askHidden("new passphrase: "));
+    if (!to) fail("no new passphrase given.");
+    if (!process.env.SECRET_PASSPHRASE_NEW) {
+        const again = await askHidden("again: ");
+        if (to !== again) fail("the two passphrases do not match.");
+    }
 
-	const rewrapped = await rewrap(priv, from, to);
-	if (!rewrapped) fail("the current passphrase is wrong.");
+    const rewrapped = await rewrap(priv, from, to);
+    if (!rewrapped) fail("the current passphrase is wrong.");
 
-	await writeFile(
-		resolve(ROOT.pathname, PRIVATE_KEY),
-		`${JSON.stringify(rewrapped, null, 2)}\n`,
-		"utf8",
-	);
+    await writeFile(
+        resolve(ROOT.pathname, PRIVATE_KEY),
+        `${JSON.stringify(rewrapped, null, 2)}\n`,
+        "utf8",
+    );
 
-	console.log(
-		`\nrewrapped  ${PRIVATE_KEY}\n\n` +
-			"The keypair is unchanged, so every sealed post still opens — with the\n" +
-			"new passphrase. Commit the file. The old passphrase opens the copy in\n" +
-			"your history, so treat it as still live if it ever leaked.\n",
-	);
+    console.log(
+        `\nrewrapped  ${PRIVATE_KEY}\n\n` +
+            "The keypair is unchanged, so every sealed post still opens — with the\n" +
+            "new passphrase. Commit the file. The old passphrase opens the copy in\n" +
+            "your history, so treat it as still live if it ever leaked.\n",
+    );
 }
 
 const [action, target] = process.argv.slice(2);
@@ -430,10 +416,10 @@ else if (action === "rekey") await doRekey();
 else if (action === "seal" && target) await doSeal(target);
 else if (action === "open" && target) await doOpen(target);
 else
-	fail(
-		"usage:\n" +
-			"    npm run secret:keygen\n" +
-			"    npm run secret:rekey\n" +
-			`    npm run secret:seal ${PLAIN_DIR}/<slug>.md\n` +
-			`    npm run secret:open ${SEALED_DIR}/<slug>.md`,
-	);
+    fail(
+        "usage:\n" +
+            "    npm run secret:keygen\n" +
+            "    npm run secret:rekey\n" +
+            `    npm run secret:seal ${PLAIN_DIR}/<slug>.md\n` +
+            `    npm run secret:open ${SEALED_DIR}/<slug>.md`,
+    );

@@ -6,6 +6,6 @@ import type { APIRoute } from "astro";
 import { markIco } from "../utils/mark";
 
 export const GET: APIRoute = async () =>
-	new Response(new Uint8Array(await markIco()), {
-		headers: { "Content-Type": "image/x-icon" },
-	});
+    new Response(new Uint8Array(await markIco()), {
+        headers: { "Content-Type": "image/x-icon" },
+    });

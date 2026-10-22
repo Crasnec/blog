@@ -2,12 +2,14 @@
 import Figure, { type FigureProps } from "../Figure";
 import type { FigureInputs, FigureKindName } from "../../figures/inputs";
 
-export type DiagramProps<K extends FigureKindName> = Omit<FigureProps, "kind" | "props"> & { props: FigureInputs[K] };
+export type DiagramProps<K extends FigureKindName> = Omit<FigureProps, "kind" | "props"> & {
+    props: FigureInputs[K];
+};
 
 function component<K extends FigureKindName>(kind: K) {
-	return function Diagram(input: DiagramProps<K>) {
-		return <Figure {...input} kind={kind} />;
-	};
+    return function Diagram(input: DiagramProps<K>) {
+        return <Figure {...input} kind={kind} />;
+    };
 }
 
 export const Line = component("line");

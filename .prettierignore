@@ -1,0 +1,10 @@
+.astro/
+.cache/
+.comments/
+.comments.tmp/
+.figures-shots*/
+dist/
+node_modules/
+comments-repo/
+public/
+secrets/

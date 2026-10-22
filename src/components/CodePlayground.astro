@@ -1,56 +1,149 @@
 ---
 import { t } from "../strings";
-import { decodeConfig, MAX_CODE, MAX_INPUT, runtimeFor, type GrammarSource, type Runtime, type PythonPackage } from "../playground/contracts";
+import {
+    decodeConfig,
+    MAX_CODE,
+    MAX_INPUT,
+    runtimeFor,
+    type GrammarSource,
+    type Runtime,
+    type PythonPackage,
+} from "../playground/contracts";
 import { parseGrammars } from "../playground/grammar";
 import "../playground/style.css";
 
 interface Props {
-	code: string;
-	language?: string;
-	runtime?: Runtime | false;
-	title?: string;
-	grammars?: GrammarSource[];
-	/** Execution time after the runtime is ready; runtime loading has its own limit. */
-	timeout?: number;
-	/** Optional approved packages for dynamic imports; ordinary imports are detected. */
-	pythonPackages?: PythonPackage[];
-	/** Cells with the same ID share one Python environment until restarted. */
-	notebook?: string;
-	/** Incomplete exercise cells can be excluded from the chapter's Run all. */
-	runAll?: boolean;
+    code: string;
+    language?: string;
+    runtime?: Runtime | false;
+    title?: string;
+    grammars?: GrammarSource[];
+    timeout?: number;
+    pythonPackages?: PythonPackage[];
+    notebook?: string;
+    runAll?: boolean;
 }
 
-const { code, language = "javascript", runtime = runtimeFor(language), title = language, grammars = [], timeout = 10_000, pythonPackages = [], notebook, runAll = true } = Astro.props;
-if (typeof code !== "string" || code.length > MAX_CODE) throw new Error("CodePlayground code must be a string of at most 100000 characters");
-const config = decodeConfig(JSON.stringify({ language, runtime, grammars, timeout, label: title, pythonPackages, notebook }));
-// Author-supplied grammars fail during the build rather than on a reader's page.
+const {
+    code,
+    language = "javascript",
+    runtime = runtimeFor(language),
+    title = language,
+    grammars = [],
+    timeout = 10_000,
+    pythonPackages = [],
+    notebook,
+    runAll = true,
+} = Astro.props;
+if (typeof code !== "string" || code.length > MAX_CODE)
+    throw new Error("CodePlayground code must be a string of at most 100000 characters");
+const config = decodeConfig(
+    JSON.stringify({
+        language,
+        runtime,
+        grammars,
+        timeout,
+        label: title,
+        pythonPackages,
+        notebook,
+    }),
+);
 parseGrammars(config.grammars);
 ---
 
-<section class="code-playground" data-code-playground data-notebook={notebook} data-run-all={runAll ? undefined : "false"} data-config={JSON.stringify(config)} aria-label={title}>
-	<div class="playground-toolbar">
-		<strong class="playground-title">{title}</strong>
-		{notebook && <span class="notebook-execution" aria-label={t("notebook.execution")}>[ ]</span>}
-		<span class="playground-language">{language}</span>
-		<div class="playground-actions">
-			{runtime && <button class="playground-run" type="button" disabled title="Ctrl/⌘ + Enter">{t("playground.run")}</button>}
-			{runtime && <button class="playground-stop" type="button" disabled>{t("playground.stop")}</button>}
-			<button class="playground-reset" type="button" disabled>{t("playground.reset")}</button>
-		</div>
-	</div>
-	<div class="playground-editor">
-		<textarea class="playground-fallback" aria-label={`${title}: ${t("playground.code")}`} readonly spellcheck="false" wrap="off" rows={notebook ? Math.min(20, code.split("\n").length + 1) : undefined}>{code}</textarea>
-	</div>
-	{runtime === "python" && !notebook && <p class="playground-libraries">{t("playground.pythonLibraries")}</p>}
-	{notebook && <p class="notebook-stale" hidden>{t("notebook.stale")}</p>}
-	<p class="playground-highlight-status" role="status" hidden></p>
-	{runtime && <div class="playground-results">
-		<div class="playground-output-heading"><span>{t("playground.output")}</span><span class="playground-status" role="status">{t("playground.idle")}</span></div>
-		<div class="playground-output" role="region" aria-label={`${title}: ${t("playground.output")}`} data-pagefind-ignore>{Astro.slots.has("default") && <div class="playground-reference"><p class="notebook-reference-label">{t("notebook.reference")}</p><slot /></div>}</div>
-		<form class="playground-input" hidden>
-			<label class="playground-input-label"><span class="playground-input-prompt">{t("playground.inputLabel")}</span><input class="playground-input-value" type="text" maxlength={MAX_INPUT} autocomplete="off" spellcheck="false" /></label>
-			<div class="playground-input-actions"><button type="submit">{t("playground.inputSend")}</button><button type="button" class="playground-input-eof">{t("playground.inputEof")}</button></div>
-		</form>
-	</div>}
-	<noscript><p>{t("playground.needsJs")}</p></noscript>
+<section
+    class="code-playground"
+    data-code-playground
+    data-notebook={notebook}
+    data-run-all={runAll ? undefined : "false"}
+    data-config={JSON.stringify(config)}
+    aria-label={title}
+>
+    <div class="playground-toolbar">
+        <strong class="playground-title">{title}</strong>
+        {notebook && (
+            <span class="notebook-execution" aria-label={t("notebook.execution")}>
+                [ ]
+            </span>
+        )}
+        <span class="playground-language">{language}</span>
+        <div class="playground-actions">
+            {runtime && (
+                <button class="playground-run" type="button" disabled title="Ctrl/⌘ + Enter">
+                    {t("playground.run")}
+                </button>
+            )}
+            {runtime && (
+                <button class="playground-stop" type="button" disabled>
+                    {t("playground.stop")}
+                </button>
+            )}
+            <button class="playground-reset" type="button" disabled>
+                {t("playground.reset")}
+            </button>
+        </div>
+    </div>
+    <div class="playground-editor">
+        <textarea
+            class="playground-fallback"
+            aria-label={`${title}: ${t("playground.code")}`}
+            readonly
+            spellcheck="false"
+            wrap="off"
+            rows={notebook ? Math.min(20, code.split("\n").length + 1) : undefined}
+        >{code}</textarea>
+    </div>
+    {runtime === "python" && !notebook && (
+        <p class="playground-libraries">{t("playground.pythonLibraries")}</p>
+    )}
+    {notebook && (
+        <p class="notebook-stale" hidden>
+            {t("notebook.stale")}
+        </p>
+    )}
+    <p class="playground-highlight-status" role="status" hidden></p>
+    {runtime && (
+        <div class="playground-results">
+            <div class="playground-output-heading">
+                <span>{t("playground.output")}</span>
+                <span class="playground-status" role="status">
+                    {t("playground.idle")}
+                </span>
+            </div>
+            <div
+                class="playground-output"
+                role="region"
+                aria-label={`${title}: ${t("playground.output")}`}
+                data-pagefind-ignore
+            >
+                {Astro.slots.has("default") && (
+                    <div class="playground-reference">
+                        <p class="notebook-reference-label">{t("notebook.reference")}</p>
+                        <slot />
+                    </div>
+                )}
+            </div>
+            <form class="playground-input" hidden>
+                <label class="playground-input-label">
+                    <span class="playground-input-prompt">{t("playground.inputLabel")}</span>
+                    <input
+                        class="playground-input-value"
+                        type="text"
+                        maxlength={MAX_INPUT}
+                        autocomplete="off"
+                        spellcheck="false"
+                    />
+                </label>
+                <div class="playground-input-actions">
+                    <button type="submit">{t("playground.inputSend")}</button>
+                    <button type="button" class="playground-input-eof">
+                        {t("playground.inputEof")}
+                    </button>
+                </div>
+            </form>
+        </div>
+    )}
+    <noscript>
+        <p>{t("playground.needsJs")}</p>
+    </noscript>
 </section>

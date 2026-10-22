@@ -15,18 +15,18 @@ const CJK = /[ㄱ-ㆎ가-힣぀-ヿ一-鿿]/gu;
  * costed separately, and the two budgets are added.
  */
 export function remarkReadingTime() {
-	/** @type {import("unified").Transformer<import("mdast").Root>} */
-	return (tree, { data }) => {
-		const text = toString(tree);
+    /** @type {import("unified").Transformer<import("mdast").Root>} */
+    return (tree, { data }) => {
+        const text = toString(tree);
 
-		const cjkChars = (text.match(CJK) ?? []).length;
-		const latin = text.replace(CJK, " ");
-		const latinWords = latin.split(/\s+/u).filter(Boolean).length;
+        const cjkChars = (text.match(CJK) ?? []).length;
+        const latin = text.replace(CJK, " ");
+        const latinWords = latin.split(/\s+/u).filter(Boolean).length;
 
-		const minutes = Math.max(1, Math.round(latinWords / WPM + cjkChars / CPM));
+        const minutes = Math.max(1, Math.round(latinWords / WPM + cjkChars / CPM));
 
-		data.astro ??= {};
-		data.astro.frontmatter ??= {};
-		data.astro.frontmatter.readingTime = minutes;
-	};
+        data.astro ??= {};
+        data.astro.frontmatter ??= {};
+        data.astro.frontmatter.readingTime = minutes;
+    };
 }

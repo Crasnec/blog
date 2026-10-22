@@ -7,7 +7,7 @@
  * the two.
  */
 export function sitePath(path = "/"): string {
-	const base = import.meta.env.BASE_URL.replace(/\/+$/, "");
-	const relative = path.replace(/^\/+/, "");
-	return relative ? `${base}/${relative}` : `${base}/`;
+    const base = import.meta.env.BASE_URL.replace(/\/+$/, "");
+    const relative = path.replace(/^\/+/, "");
+    return relative ? `${base}/${relative}` : `${base}/`;
 }

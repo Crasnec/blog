@@ -18,82 +18,82 @@ const BAND = { top: "-30%", bottom: "-68%" };
 let observer: IntersectionObserver | null = null;
 
 export function mountContents() {
-	teardown();
+    teardown();
 
-	const root = document.getElementById("contents");
-	if (!root) return;
+    const root = document.getElementById("contents");
+    if (!root) return;
 
-	const items = [...root.querySelectorAll<HTMLAnchorElement>(".contents-item")];
-	if (items.length === 0) return;
+    const items = [...root.querySelectorAll<HTMLAnchorElement>(".contents-item")];
+    if (items.length === 0) return;
 
-	const sections: (HTMLElement | undefined)[] = [];
-	const indexOfSection = new Map<Element, number>();
-	const crossing = new Set<number>();
+    const sections: (HTMLElement | undefined)[] = [];
+    const indexOfSection = new Map<Element, number>();
+    const crossing = new Set<number>();
 
-	items.forEach((item, i) => {
-		const slug = item.dataset.slug;
-		if (!slug) return;
-		const heading = document.getElementById(slug);
-		const section = heading?.closest("section") ?? heading?.parentElement;
-		if (!section) return;
-		sections[i] = section;
-		indexOfSection.set(section, i);
-	});
+    items.forEach((item, i) => {
+        const slug = item.dataset.slug;
+        if (!slug) return;
+        const heading = document.getElementById(slug);
+        const section = heading?.closest("section") ?? heading?.parentElement;
+        if (!section) return;
+        sections[i] = section;
+        indexOfSection.set(section, i);
+    });
 
-	/**
-	 * The last section that has started above the band, for the moments the band
-	 * itself is empty — between two sections, or past the end of the article.
-	 */
-	function nearest(): number {
-		let found = -1;
-		for (let i = 0; i < sections.length; i++) {
-			const section = sections[i];
-			if (!section) continue;
-			if (section.getBoundingClientRect().top <= window.innerHeight * 0.3) {
-				found = i;
-			}
-		}
-		return found;
-	}
+    /**
+     * The last section that has started above the band, for the moments the band
+     * itself is empty — between two sections, or past the end of the article.
+     */
+    function nearest(): number {
+        let found = -1;
+        for (let i = 0; i < sections.length; i++) {
+            const section = sections[i];
+            if (!section) continue;
+            if (section.getBoundingClientRect().top <= window.innerHeight * 0.3) {
+                found = i;
+            }
+        }
+        return found;
+    }
 
-	let marked = -1;
+    let marked = -1;
 
-	function paint() {
-		const next = crossing.size > 0 ? Math.max(...crossing) : nearest();
-		if (next === marked) return;
+    function paint() {
+        const next = crossing.size > 0 ? Math.max(...crossing) : nearest();
+        if (next === marked) return;
 
-		if (marked !== -1) items[marked]?.classList.remove("is-active");
-		marked = next;
-		if (marked === -1) return;
+        if (marked !== -1) items[marked]?.classList.remove("is-active");
+        marked = next;
+        if (marked === -1) return;
 
-		const item = items[marked];
-		if (!item) return;
-		item.classList.add("is-active");
-	}
+        const item = items[marked];
+        if (!item) return;
+        item.classList.add("is-active");
+    }
 
-	observer = new IntersectionObserver(
-		(entries) => {
-			for (const entry of entries) {
-				const i = indexOfSection.get(entry.target);
-				if (i === undefined) continue;
-				if (entry.isIntersecting) crossing.add(i);
-				else crossing.delete(i);
-			}
-			requestAnimationFrame(paint);
-		},
-		{ rootMargin: `${BAND.top} 0px ${BAND.bottom} 0px`, threshold: 0 },
-	);
+    observer = new IntersectionObserver(
+        (entries) => {
+            for (const entry of entries) {
+                const i = indexOfSection.get(entry.target);
+                if (i === undefined) continue;
+                if (entry.isIntersecting) crossing.add(i);
+                else crossing.delete(i);
+            }
+            requestAnimationFrame(paint);
+        },
+        { rootMargin: `${BAND.top} 0px ${BAND.bottom} 0px`, threshold: 0 },
+    );
 
-	for (const section of sections) {
-		if (section) observer.observe(section);
-	}
+    for (const section of sections) {
+        if (section) observer.observe(section);
+    }
 
-	paint();
+    paint();
 }
 
 function teardown() {
-	observer?.disconnect();
-	observer = null;
+    observer?.disconnect();
+    observer = null;
 }
 
 document.addEventListener("astro:before-swap", teardown);

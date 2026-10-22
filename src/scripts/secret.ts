@@ -1,9 +1,9 @@
 import {
-	openWith,
-	parsePrivateKeyFile,
-	parseSecretPayload,
-	type PrivateKeyFile,
-	type SecretPayload,
+    openWith,
+    parsePrivateKeyFile,
+    parseSecretPayload,
+    type PrivateKeyFile,
+    type SecretPayload,
 } from "../utils/secret";
 import { parseJson } from "../utils/json";
 
@@ -22,73 +22,73 @@ import { parseJson } from "../utils/json";
  * passphrase — no key to install, no file to have been sent.
  */
 export function mountSecret() {
-	const shell = document.getElementById("secret");
-	const form = document.getElementById("secret-form") as HTMLFormElement | null;
-	const input = document.getElementById("secret-input") as HTMLInputElement | null;
-	const button = form?.querySelector<HTMLButtonElement>("button[type=submit]");
-	const status = document.getElementById("secret-status");
-	const body = document.getElementById("secret-body");
-	const source = document.getElementById("secret-payload");
-	const wrapped = document.getElementById("secret-key");
-	if (!shell || !form || !input || !status || !body || !source || !wrapped) {
-		return;
-	}
+    const shell = document.getElementById("secret");
+    const form = document.getElementById("secret-form") as HTMLFormElement | null;
+    const input = document.getElementById("secret-input") as HTMLInputElement | null;
+    const button = form?.querySelector<HTMLButtonElement>("button[type=submit]");
+    const status = document.getElementById("secret-status");
+    const body = document.getElementById("secret-body");
+    const source = document.getElementById("secret-payload");
+    const wrapped = document.getElementById("secret-key");
+    if (!shell || !form || !input || !status || !body || !source || !wrapped) {
+        return;
+    }
 
-	let payload: SecretPayload;
-	let key: PrivateKeyFile;
-	try {
-		const decodedPayload = parseSecretPayload(parseJson(source.textContent));
-		const decodedKey = parsePrivateKeyFile(parseJson(wrapped.textContent));
-		if (!decodedPayload || !decodedKey) return;
-		payload = decodedPayload;
-		key = decodedKey;
-	} catch {
-		return;
-	}
+    let payload: SecretPayload;
+    let key: PrivateKeyFile;
+    try {
+        const decodedPayload = parseSecretPayload(parseJson(source.textContent));
+        const decodedKey = parsePrivateKeyFile(parseJson(wrapped.textContent));
+        if (!decodedPayload || !decodedKey) return;
+        payload = decodedPayload;
+        key = decodedKey;
+    } catch {
+        return;
+    }
 
-	const { working, wrong } = form.dataset;
+    const { working, wrong } = form.dataset;
 
-	const submit = async (event: SubmitEvent) => {
-		event.preventDefault();
+    const submit = async (event: SubmitEvent) => {
+        event.preventDefault();
 
-		const passphrase = input.value;
-		if (!passphrase) return;
+        const passphrase = input.value;
+        if (!passphrase) return;
 
-		if (button) button.disabled = true;
-		status.textContent = working ?? "";
-		status.classList.remove("is-error");
-		status.hidden = false;
+        if (button) button.disabled = true;
+        status.textContent = working ?? "";
+        status.classList.remove("is-error");
+        status.hidden = false;
 
-		// Yield a frame so the label paints before the key derivation blocks.
-		await new Promise((resolve) => requestAnimationFrame(resolve));
+        // Yield a frame so the label paints before the key derivation blocks.
+        await new Promise((resolve) => requestAnimationFrame(resolve));
 
-		const opened = await openWith(key, passphrase, payload);
+        const opened = await openWith(key, passphrase, payload);
 
-		if (opened === null) {
-			status.textContent = wrong ?? "";
-			status.classList.add("is-error");
-			if (button) button.disabled = false;
-			input.select();
-			return;
-		}
+        if (opened === null) {
+            status.textContent = wrong ?? "";
+            status.classList.add("is-error");
+            if (button) button.disabled = false;
+            input.select();
+            return;
+        }
 
-		body.innerHTML = opened.html;
-		shell.remove();
+        body.innerHTML = opened.html;
+        shell.remove();
 
-		/*
-		 * Diagrams are drawn by a script that ran long before this HTML existed,
-		 * so the renderer has to be asked again. Everything else in the body is
-		 * plain markup or CSS and needs nothing.
-		 */
-		if (body.querySelector(".diagram[data-mermaid]")) {
-			const { renderDiagrams } = await import("./diagrams");
-			await renderDiagrams();
-		}
+        /*
+         * Diagrams are drawn by a script that ran long before this HTML existed,
+         * so the renderer has to be asked again. Everything else in the body is
+         * plain markup or CSS and needs nothing.
+         */
+        if (body.querySelector(".diagram[data-mermaid]")) {
+            const { renderDiagrams } = await import("./diagrams");
+            await renderDiagrams();
+        }
 
-		body.querySelector<HTMLElement>("h2, h3, p")?.focus();
-	};
+        body.querySelector<HTMLElement>("h2, h3, p")?.focus();
+    };
 
-	form.addEventListener("submit", (event) => {
-		void submit(event);
-	});
+    form.addEventListener("submit", (event) => {
+        void submit(event);
+    });
 }

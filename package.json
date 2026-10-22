@@ -16,7 +16,7 @@
     "precheck": "node --env-file-if-exists=.env scripts/pull-comments.mjs --if-missing",
     "check": "astro check && npm run lint && npm test",
     "lint": "eslint . --max-warnings 0",
-    "lint:fix": "eslint . --fix",
+    "lint:fix": "prettier --write \"**/*.{js,cjs,mjs,ts,cts,mts,tsx,astro}\" && eslint . --fix",
     "test": "node --test test/*.test.ts",
     "test:figures:browser": "node --test test/figures.browser.ts",
     "test:playground:browser": "node --test test/playground.browser.ts",
@@ -81,6 +81,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "@stylistic/eslint-plugin": "5.10.0",
     "@types/eslint-plugin-jsx-a11y": "^6.10.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
@@ -90,6 +91,8 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "globals": "^17.11.0",
     "playwright": "^1.64.1",
+    "prettier": "3.9.6",
+    "prettier-plugin-astro": "1.1.1",
     "typescript-eslint": "^8.67.0"
   }
 }

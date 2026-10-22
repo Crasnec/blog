@@ -2,25 +2,33 @@ import { MAX_INPUT, type InputResponse, type CellRequest, type RunResponse } fro
 
 /** One pending line per execution; replies travel on the private output port. */
 export function inputChannel(port: MessagePort, send: (message: RunResponse) => void) {
-	let sequence = 0;
-	let pending: { id: number; resolve: (value: string | null) => void } | undefined;
-	port.addEventListener("message", (event: MessageEvent<InputResponse | CellRequest>) => {
-		const response = event.data;
-		if (response.type !== "input") return;
-		if (pending?.id !== response.id) return;
-		if (response.value !== null && (typeof response.value !== "string" || response.value.length > MAX_INPUT)) return;
-		const { resolve } = pending; pending = undefined;
-		resolve(response.value);
-	});
-	port.start();
-	return (prompt: string | number | boolean | null = ""): Promise<string | null> => {
-		if (pending) return Promise.reject(new Error("Wait for the previous input before requesting another line"));
-		return new Promise((resolve) => {
-			const id = ++sequence;
-			pending = { id, resolve };
-			send({ type: "input", id, prompt: String(prompt).slice(0, 1000) });
-		});
-	};
+    let sequence = 0;
+    let pending: { id: number; resolve: (value: string | null) => void } | undefined;
+    port.addEventListener("message", (event: MessageEvent<InputResponse | CellRequest>) => {
+        const response = event.data;
+        if (response.type !== "input") return;
+        if (pending?.id !== response.id) return;
+        if (
+            response.value !== null &&
+            (typeof response.value !== "string" || response.value.length > MAX_INPUT)
+        )
+            return;
+        const { resolve } = pending;
+        pending = undefined;
+        resolve(response.value);
+    });
+    port.start();
+    return (prompt: string | number | boolean | null = ""): Promise<string | null> => {
+        if (pending)
+            return Promise.reject(
+                new Error("Wait for the previous input before requesting another line"),
+            );
+        return new Promise((resolve) => {
+            const id = ++sequence;
+            pending = { id, resolve };
+            send({ type: "input", id, prompt: String(prompt).slice(0, 1000) });
+        });
+    };
 }
 
 export const installPythonInput = String.raw`

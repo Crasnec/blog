@@ -20,11 +20,11 @@ import { visit } from "unist-util-visit";
  */
 
 const ADMONITIONS = {
-	note: "Note",
-	tip: "Tip",
-	important: "Important",
-	warning: "Warning",
-	caution: "Caution",
+    note: "Note",
+    tip: "Tip",
+    important: "Important",
+    warning: "Warning",
+    caution: "Caution",
 };
 
 /**
@@ -34,59 +34,55 @@ const ADMONITIONS = {
  * @returns {import("mdast").Emphasis}
  */
 function span(className, children) {
-	return {
-		type: "emphasis",
-		data: { hName: "span", hProperties: { className: [className] } },
-		children,
-	};
+    return {
+        type: "emphasis",
+        data: { hName: "span", hProperties: { className: [className] } },
+        children,
+    };
 }
 
 export function remarkBlocks() {
-	/** @type {import("unified").Transformer<import("mdast").Root>} */
-	return (tree) => {
-		visit(tree, "containerDirective", (node) => {
-			const kind = node.name;
-			if (!(kind in ADMONITIONS)) return;
-			const key = /** @type {keyof typeof ADMONITIONS} */ (kind);
-			const admonition = ADMONITIONS[key];
+    /** @type {import("unified").Transformer<import("mdast").Root>} */
+    return (tree) => {
+        visit(tree, "containerDirective", (node) => {
+            const kind = node.name;
+            if (!(kind in ADMONITIONS)) return;
+            const key = /** @type {keyof typeof ADMONITIONS} */ (kind);
+            const admonition = ADMONITIONS[key];
 
-			const attrs = node.attributes ?? {};
-			const children = node.children ?? [];
+            const attrs = node.attributes ?? {};
+            const children = node.children ?? [];
 
-			// remark-directive parks `[label]` in a first child flagged as the label.
-			/** @type {import("mdast").PhrasingContent[] | null} */
-			let title = null;
-			const first = children[0];
-			if (
-				first?.type === "paragraph" &&
-				first.data &&
-				"directiveLabel" in first.data
-			) {
-				title = first.children;
-				node.children = children.slice(1);
-			}
+            // remark-directive parks `[label]` in a first child flagged as the label.
+            /** @type {import("mdast").PhrasingContent[] | null} */
+            let title = null;
+            const first = children[0];
+            if (first?.type === "paragraph" && first.data && "directiveLabel" in first.data) {
+                title = first.children;
+                node.children = children.slice(1);
+            }
 
-			/** @type {import("mdast").Paragraph} */
-			const head = {
-				type: "paragraph",
-				data: { hName: "div", hProperties: { className: ["block-head"] } },
-				children: [
-					span("block-kind", [{ type: "text", value: admonition }]),
-					...(title ? [span("block-title", title)] : []),
-				],
-			};
+            /** @type {import("mdast").Paragraph} */
+            const head = {
+                type: "paragraph",
+                data: { hName: "div", hProperties: { className: ["block-head"] } },
+                children: [
+                    span("block-kind", [{ type: "text", value: admonition }]),
+                    ...(title ? [span("block-title", title)] : []),
+                ],
+            };
 
-			node.children = [head, ...node.children];
+            node.children = [head, ...node.children];
 
-			node.data = {
-				...(node.data ?? {}),
-				hName: "aside",
-				hProperties: {
-					className: ["block", `block-${kind}`],
-					"data-kind": kind,
-					...(attrs.id ? { id: attrs.id } : {}),
-				},
-			};
-		});
-	};
+            node.data = {
+                ...(node.data ?? {}),
+                hName: "aside",
+                hProperties: {
+                    className: ["block", `block-${kind}`],
+                    "data-kind": kind,
+                    ...(attrs.id ? { id: attrs.id } : {}),
+                },
+            };
+        });
+    };
 }

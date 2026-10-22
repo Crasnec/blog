@@ -4,9 +4,9 @@ import { countLabel } from "../utils/format";
 import { sitePath } from "../utils/url";
 
 interface Props {
-	categories: CategoryCount[];
-	currentCategory?: string | undefined;
-	variant?: "widget" | "index";
+    categories: CategoryCount[];
+    currentCategory?: string | undefined;
+    variant?: "widget" | "index";
 }
 
 const { categories, currentCategory, variant = "widget" } = Astro.props;
@@ -14,23 +14,34 @@ const widget = variant === "widget";
 ---
 
 <ul class:list={["category-tree", widget ? "widget-list category-widget-tree" : "category-list"]}>
-	{categories.map(({ key, name, count, children }) => (
-		<li class={widget ? undefined : "category-item"}>
-			<a
-				class:list={[
-					widget ? "widget-link bloom" : "category-link",
-					{
-						"is-current": key === currentCategory,
-						"is-ancestor": currentCategory !== undefined && key !== currentCategory && categoryContains(key, currentCategory),
-					},
-				]}
-				href={sitePath(categoryPath(key))}
-				aria-current={key === currentCategory ? "page" : undefined}
-			>
-				<span class={widget ? "category-widget-name" : "category-name"}>{name}</span>
-				<span class={widget ? "count" : "category-tally"}>{widget ? count : countLabel(count)}</span>
-			</a>
-			{children.length > 0 && <Astro.self categories={children} currentCategory={currentCategory} variant={variant} />}
-		</li>
-	))}
+    {categories.map(({ key, name, count, children }) => (
+        <li class={widget ? undefined : "category-item"}>
+            <a
+                class:list={[
+                    widget ? "widget-link bloom" : "category-link",
+                    {
+                        "is-current": key === currentCategory,
+                        "is-ancestor":
+                            currentCategory !== undefined &&
+                            key !== currentCategory &&
+                            categoryContains(key, currentCategory),
+                    },
+                ]}
+                href={sitePath(categoryPath(key))}
+                aria-current={key === currentCategory ? "page" : undefined}
+            >
+                <span class={widget ? "category-widget-name" : "category-name"}>{name}</span>
+                <span class={widget ? "count" : "category-tally"}>
+                    {widget ? count : countLabel(count)}
+                </span>
+            </a>
+            {children.length > 0 && (
+                <Astro.self
+                    categories={children}
+                    currentCategory={currentCategory}
+                    variant={variant}
+                />
+            )}
+        </li>
+    ))}
 </ul>

@@ -4,22 +4,28 @@ import { categoryPath, type Category } from "../utils/category";
 import { sitePath } from "../utils/url";
 
 interface Props {
-	category: Category;
-	current?: boolean;
+    category: Category;
+    current?: boolean;
 }
 
 const { category, current = false } = Astro.props;
 ---
 
 <nav class="category-breadcrumbs" aria-label={t("post.category")} data-pagefind-ignore>
-	<ol>
-		{category.trail.map(({ key, name }, index) => (
-			<li>
-				{index > 0 && <span class="category-separator" aria-hidden="true">/</span>}
-				{current && key === category.key
-					? <span aria-current="page">{name}</span>
-					: <a href={sitePath(categoryPath(key))}>{name}</a>}
-			</li>
-		))}
-	</ol>
+    <ol>
+        {category.trail.map(({ key, name }, index) => (
+            <li>
+                {index > 0 && (
+                    <span class="category-separator" aria-hidden="true">
+                        /
+                    </span>
+                )}
+                {current && key === category.key ? (
+                    <span aria-current="page">{name}</span>
+                ) : (
+                    <a href={sitePath(categoryPath(key))}>{name}</a>
+                )}
+            </li>
+        ))}
+    </ol>
 </nav>

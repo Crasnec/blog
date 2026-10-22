@@ -8,15 +8,15 @@ import { siteConfig } from "../config";
 import { sitePath } from "../utils/url";
 
 export const GET: APIRoute = ({ site }) => {
-	const base = site ?? new URL(siteConfig.url);
+    const base = site ?? new URL(siteConfig.url);
 
-	const body = [
-		"User-agent: *",
-		"Allow: /",
-		"",
-		`Sitemap: ${new URL(sitePath("/sitemap-index.xml"), base).href}`,
-		"",
-	].join("\n");
+    const body = [
+        "User-agent: *",
+        "Allow: /",
+        "",
+        `Sitemap: ${new URL(sitePath("/sitemap-index.xml"), base).href}`,
+        "",
+    ].join("\n");
 
-	return new Response(body, { headers: { "Content-Type": "text/plain" } });
+    return new Response(body, { headers: { "Content-Type": "text/plain" } });
 };

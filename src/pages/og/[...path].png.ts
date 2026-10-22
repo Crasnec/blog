@@ -16,52 +16,49 @@ import { type PostRef, getPosts, postMeta } from "../../utils/content";
 import { renderCard } from "../../utils/og";
 
 interface Props {
-	post?: PostRef;
+    post?: PostRef;
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-	const posts = await getPosts();
+    const posts = await getPosts();
 
-	return [
-		{ params: { path: "site" }, props: {} },
-		...posts.map((post) => ({
-			params: { path: post.path },
-			props: { post },
-		})),
-	];
+    return [
+        { params: { path: "site" }, props: {} },
+        ...posts.map((post) => ({
+            params: { path: post.path },
+            props: { post },
+        })),
+    ];
 };
 
 export const GET: APIRoute<Props> = async ({ props: { post } }) => {
+    const body = post
+        ? await postCard(post)
+        : await renderCard({
+            headline: siteConfig.title,
+            sub: siteConfig.subtitle,
+            nameplate: true,
+        });
 
-	const body = post
-		? await postCard(post)
-		: await renderCard({
-				headline: siteConfig.title,
-				sub: siteConfig.subtitle,
-				nameplate: true,
-			});
-
-	return new Response(new Uint8Array(body), {
-		headers: { "Content-Type": "image/png" },
-	});
+    return new Response(new Uint8Array(body), {
+        headers: { "Content-Type": "image/png" },
+    });
 };
 
 async function postCard(post: PostRef): Promise<Buffer> {
-	const { entry } = post;
-	const locked = Boolean(entry.data.sealed);
-	const { readingTime } = await postMeta(entry);
+    const { entry } = post;
+    const locked = Boolean(entry.data.sealed);
+    const { readingTime } = await postMeta(entry);
 
-	const meta = [
-		longDate(entry.data.published),
-		!locked && readingTime !== undefined
-			? readingTimeLabel(readingTime)
-			: null,
-		entry.data.tags.length > 0 ? entry.data.tags.join(", ") : null,
-	].filter((part): part is string => part !== null);
+    const meta = [
+        longDate(entry.data.published),
+        !locked && readingTime !== undefined ? readingTimeLabel(readingTime) : null,
+        entry.data.tags.length > 0 ? entry.data.tags.join(", ") : null,
+    ].filter((part): part is string => part !== null);
 
-	return renderCard({
-		headline: entry.data.title,
-		meta,
-		...(locked ? { badge: t("secret.mark") } : {}),
-	});
+    return renderCard({
+        headline: entry.data.title,
+        meta,
+        ...(locked ? { badge: t("secret.mark") } : {}),
+    });
 }

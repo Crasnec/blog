@@ -4,16 +4,15 @@ import { getCategories, getPostsByCategory } from "../../utils/content";
 import CategoryView from "../../views/CategoryView.astro";
 import { flattenCategories } from "../../utils/category";
 
-/** Routes are derived from nonempty category folders. */
 export const getStaticPaths = (async () => {
-	const categories = await getCategories();
+    const categories = await getCategories();
 
-	return Promise.all(
-		flattenCategories(categories).map(async (category) => ({
-			params: { category: category.key },
-			props: { category, posts: await getPostsByCategory(category.key) },
-		})),
-	);
+    return Promise.all(
+        flattenCategories(categories).map(async (category) => ({
+            params: { category: category.key },
+            props: { category, posts: await getPostsByCategory(category.key) },
+        })),
+    );
 }) satisfies GetStaticPaths;
 
 const { category, posts } = Astro.props;

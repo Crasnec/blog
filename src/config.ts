@@ -9,34 +9,32 @@
 import type { Locale } from "./locales/index.ts";
 
 export const siteConfig = {
-	/** Interface language. Does not translate posts or change their URLs. */
-	locale: "ko" satisfies Locale,
+    /** Interface language. Does not translate posts or change their URLs. */
+    locale: "ko" satisfies Locale,
 
-	/** Absolute site URL. Required for the sitemap and canonical links. */
-	url: "https://crasnec.github.io",
+    /** Absolute site URL. Required for the sitemap and canonical links. */
+    url: "https://crasnec.github.io",
 
-	/** Shown in the masthead and in <title>. */
-	title: "Notes",
+    /** Shown in the masthead and in <title>. */
+    title: "Notes",
 
-	/** One line under the title. Keep it short; it sits on a single line. */
-	subtitle: "Problems I ran into while building, and what fixing them taught me",
+    /** One line under the title. Keep it short; it sits on a single line. */
+    subtitle: "Problems I ran into while building, and what fixing them taught me",
 
-	description:
-		"Long-form engineering notes on backends, build tooling and databases — written from things that actually broke.",
+    description:
+        "Long-form engineering notes on backends, build tooling and databases — written from things that actually broke.",
 
-	/** Posts per page on the index. */
-	postsPerPage: 6,
+    /** Posts per page on the index. */
+    postsPerPage: 6,
 
-	/** Deepest heading level that reaches the contents (2 = h2 and h3). */
-	tocDepth: 2,
+    /** Deepest heading level that reaches the contents (2 = h2 and h3). */
+    tocDepth: 2,
 } as const;
 
 export const profileConfig = {
-	name: "Crasnec",
-	bio: "I build backends and developer tooling. Most of what is here exists so I do not have to debug the same thing twice.",
-	links: [
-		{ name: "GitHub", url: "https://github.com/Crasnec" },
-	],
+    name: "Crasnec",
+    bio: "I build backends and developer tooling. Most of what is here exists so I do not have to debug the same thing twice.",
+    links: [{ name: "GitHub", url: "https://github.com/Crasnec" }],
 } as const;
 
 /**
@@ -61,25 +59,25 @@ export const profileConfig = {
  * `import.meta.env`.
  */
 export const commentsConfig = {
-	/** Workflow file in that repository that receives a comment. */
-	workflow: "comment.yml",
+    /** Workflow file in that repository that receives a comment. */
+    workflow: "comment.yml",
 
-	/** Branch the workflow runs on. */
-	branch: "main",
+    /** Branch the workflow runs on. */
+    branch: "main",
 
-	/**
-	 * Rejected past this length — counted on the source Markdown, shown live in
-	 * the form, and enforced again in the workflow, which is the one that counts.
-	 */
-	maxBody: 2000,
-	maxAuthor: 60,
+    /**
+     * Rejected past this length — counted on the source Markdown, shown live in
+     * the form, and enforced again in the workflow, which is the one that counts.
+     */
+    maxBody: 2000,
+    maxAuthor: 60,
 } as const;
 
 /* Coarse to fine: everything, then by date, then by area, then by technology. */
 export const navLinks = [
-	{ key: "nav.posts", href: "/" },
-	{ key: "nav.archive", href: "/archive" },
-	{ key: "nav.categories", href: "/categories" },
-	{ key: "nav.tags", href: "/tags" },
-	{ key: "nav.about", href: "/about" },
+    { key: "nav.posts", href: "/" },
+    { key: "nav.archive", href: "/archive" },
+    { key: "nav.categories", href: "/categories" },
+    { key: "nav.tags", href: "/tags" },
+    { key: "nav.about", href: "/about" },
 ] as const;

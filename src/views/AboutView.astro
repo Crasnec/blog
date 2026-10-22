@@ -10,34 +10,26 @@ const rendered = entry ? await render(entry) : null;
 const Content = rendered?.Content;
 ---
 
-<BaseLayout
-	title={entry?.data.title ?? t("nav.about")}
-	description={entry?.data.description}
->
-	<Sidebar slot="sidebar" />
+<BaseLayout title={entry?.data.title ?? t("nav.about")} description={entry?.data.description}>
+    <Sidebar slot="sidebar" />
 
-	<!-- The masthead already says this. Kept for the document outline. -->
-	<h1 class="visually-hidden">{entry?.data.title ?? t("nav.about")}</h1>
+    <!-- The masthead already says this. Kept for the document outline. -->
+    <h1 class="visually-hidden">{entry?.data.title ?? t("nav.about")}</h1>
 
-	<div class="prose">
-		{
-			Content ? (
-				<Content />
-			) : (
-				<p>{profileConfig.bio}</p>
-			)
-		}
+    <div class="prose">
+        {Content ? <Content /> : <p>{profileConfig.bio}</p>}
 
-		<ul>
-			{
-				profileConfig.links.map((link) => (
-					<li>
-						<a href={link.url} rel={link.url.startsWith("http") ? "me noopener" : undefined}>
-							{link.name}
-						</a>
-					</li>
-				))
-			}
-		</ul>
-	</div>
+        <ul>
+            {profileConfig.links.map((link) => (
+                <li>
+                    <a
+                        href={link.url}
+                        rel={link.url.startsWith("http") ? "me noopener" : undefined}
+                    >
+                        {link.name}
+                    </a>
+                </li>
+            ))}
+        </ul>
+    </div>
 </BaseLayout>

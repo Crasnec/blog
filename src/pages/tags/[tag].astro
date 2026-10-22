@@ -4,13 +4,13 @@ import TagView from "../../views/TagView.astro";
 import { getPostsByTag, getTags, tagSlug } from "../../utils/content";
 
 export const getStaticPaths = (async () => {
-	const tags = await getTags();
-	return Promise.all(
-		tags.map(async ({ tag }) => ({
-			params: { tag: tagSlug(tag) },
-			props: { tag, posts: await getPostsByTag(tag) },
-		})),
-	);
+    const tags = await getTags();
+    return Promise.all(
+        tags.map(async ({ tag }) => ({
+            params: { tag: tagSlug(tag) },
+            props: { tag, posts: await getPostsByTag(tag) },
+        })),
+    );
 }) satisfies GetStaticPaths;
 
 const { tag, posts } = Astro.props;

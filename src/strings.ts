@@ -1,6 +1,13 @@
 /** Interface language is chosen once per build by siteConfig.locale. */
 import { siteConfig } from "./config.ts";
-import { dictionaries, languageTags, translate, type Locale, type UIKey, type TranslationValues } from "./locales/index.ts";
+import {
+    dictionaries,
+    languageTags,
+    translate,
+    type Locale,
+    type UIKey,
+    type TranslationValues,
+} from "./locales/index.ts";
 
 export type { UIKey } from "./locales/index.ts";
 

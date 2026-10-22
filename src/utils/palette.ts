@@ -17,41 +17,39 @@
 import { THEME } from "../theme.config.mjs";
 
 export interface Mirror {
-	/** Raised paper — the ground a card is drawn on. */
-	bg: string;
-	/** Sunk paper. */
-	surface: string;
-	ink: string;
-	inkMuted: string;
-	rule: string;
-	/** The marker. */
-	accent: string;
-	/** The marker as a wash, chosen rather than mixed. */
-	accentSoft: string;
+    /** Raised paper — the ground a card is drawn on. */
+    bg: string;
+    /** Sunk paper. */
+    surface: string;
+    ink: string;
+    inkMuted: string;
+    rule: string;
+    /** The marker. */
+    accent: string;
+    /** The marker as a wash, chosen rather than mixed. */
+    accentSoft: string;
 }
 
 const TOKENS: Record<keyof Mirror, string> = {
-	bg: "--hex-bg",
-	surface: "--hex-surface",
-	ink: "--hex-ink",
-	inkMuted: "--hex-ink-muted",
-	rule: "--hex-rule",
-	accent: "--hex-accent",
-	accentSoft: "--hex-accent-soft",
+    bg: "--hex-bg",
+    surface: "--hex-surface",
+    ink: "--hex-ink",
+    inkMuted: "--hex-ink-muted",
+    rule: "--hex-rule",
+    accent: "--hex-accent",
+    accentSoft: "--hex-accent-soft",
 };
 
 const sources = import.meta.glob("../styles/themes/*/palette.css", {
-	query: "?raw",
-	import: "default",
-	eager: true,
+    query: "?raw",
+    import: "default",
+    eager: true,
 });
 
 const source = sources[`../styles/themes/${THEME}/palette.css`];
 
 if (source === undefined) {
-	throw new Error(
-		`theme "${THEME}": src/styles/themes/${THEME}/palette.css does not exist.`,
-	);
+    throw new Error(`theme "${THEME}": src/styles/themes/${THEME}/palette.css does not exist.`);
 }
 
 /*
@@ -60,29 +58,29 @@ if (source === undefined) {
  * `--hex-ink-muted`.
  */
 function read(block: string, where: string): Mirror {
-	const out: Partial<Mirror> = {};
+    const out: Partial<Mirror> = {};
 
-	for (const [key, token] of Object.entries(TOKENS)) {
-		const found = new RegExp(`${token}\\s*:\\s*(#[0-9a-fA-F]{3,8})`).exec(block);
+    for (const [key, token] of Object.entries(TOKENS)) {
+        const found = new RegExp(`${token}\\s*:\\s*(#[0-9a-fA-F]{3,8})`).exec(block);
 
-		if (!found?.[1]) {
-			throw new Error(
-				`theme "${THEME}": ${token} is missing from ${where} in palette.css. ` +
-					"The sRGB mirror is what diagrams, the social cards and the favicon " +
-					"are drawn from — see src/styles/themes/README.md.",
-			);
-		}
+        if (!found?.[1]) {
+            throw new Error(
+                `theme "${THEME}": ${token} is missing from ${where} in palette.css. ` +
+                    "The sRGB mirror is what diagrams, the social cards and the favicon " +
+                    "are drawn from — see src/styles/themes/README.md.",
+            );
+        }
 
-		out[key as keyof Mirror] = found[1];
-	}
+        out[key as keyof Mirror] = found[1];
+    }
 
-	return out as Mirror;
+    return out as Mirror;
 }
 
 const cut = source.indexOf(":root.dark");
 
 if (cut === -1) {
-	throw new Error(`theme "${THEME}": palette.css has no ":root.dark" block.`);
+    throw new Error(`theme "${THEME}": palette.css has no ":root.dark" block.`);
 }
 
 export const light = read(source.slice(0, cut), ":root");

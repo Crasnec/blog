@@ -47,12 +47,12 @@ const KR = "ibm-plex-sans-kr/files/ibm-plex-sans-kr-korean";
 const MONO = "ibm-plex-mono/files/ibm-plex-mono-latin";
 
 const FACES = [
-	["Plex", 400, `${SANS}-400-normal.woff`],
-	["Plex", 600, `${SANS}-600-normal.woff`],
-	["PlexKR", 400, `${KR}-400-normal.woff`],
-	["PlexKR", 600, `${KR}-600-normal.woff`],
-	["PlexMono", 500, `${MONO}-500-normal.woff`],
-	["PlexMono", 600, `${MONO}-600-normal.woff`],
+    ["Plex", 400, `${SANS}-400-normal.woff`],
+    ["Plex", 600, `${SANS}-600-normal.woff`],
+    ["PlexKR", 400, `${KR}-400-normal.woff`],
+    ["PlexKR", 600, `${KR}-600-normal.woff`],
+    ["PlexMono", 500, `${MONO}-500-normal.woff`],
+    ["PlexMono", 600, `${MONO}-600-normal.woff`],
 ] as const;
 
 let faces: SatoriOptions["fonts"] | undefined;
@@ -65,35 +65,35 @@ let faces: SatoriOptions["fonts"] | undefined;
  * wherever Astro happens to have put this module.
  */
 function fonts(): SatoriOptions["fonts"] {
-	if (faces) return faces;
+    if (faces) return faces;
 
-	const resolve = createRequire(import.meta.url).resolve;
+    const resolve = createRequire(import.meta.url).resolve;
 
-	faces = FACES.map(([name, weight, file]) => ({
-		name,
-		weight,
-		style: "normal" as const,
-		data: readFileSync(resolve(`@fontsource/${file}`)),
-	}));
+    faces = FACES.map(([name, weight, file]) => ({
+        name,
+        weight,
+        style: "normal" as const,
+        data: readFileSync(resolve(`@fontsource/${file}`)),
+    }));
 
-	return faces;
+    return faces;
 }
 
 type StyleValue = boolean | number | string | readonly string[] | Style;
 interface Style {
-	[key: string]: StyleValue;
+    [key: string]: StyleValue;
 }
 type Child = Node | boolean | null | number | string | undefined | Child[];
 interface Node {
-	type: "div";
-	key: null;
-	props: { style: Style; children?: Child };
+    type: "div";
+    key: null;
+    props: { style: Style; children?: Child };
 }
 
 const box = (style: Style, children?: Child): Node => ({
-	type: "div",
-	key: null,
-	props: { style: { display: "flex", ...style }, children },
+    type: "div",
+    key: null,
+    props: { style: { display: "flex", ...style }, children },
 });
 
 /*
@@ -106,48 +106,45 @@ const WIDE = /[\u1100-\u11ff\u2e80-\u9fff\u3000-\u303f\uac00-\ud7af\uff00-\uffef
 const GRAPHEMES = new Intl.Segmenter(undefined, { granularity: "grapheme" });
 
 const columns = (text: string): number =>
-	[...GRAPHEMES.segment(text)].reduce(
-		(n, { segment }) => n + (WIDE.test(segment) ? 2 : 1),
-		0,
-	);
+    [...GRAPHEMES.segment(text)].reduce((n, { segment }) => n + (WIDE.test(segment) ? 2 : 1), 0);
 
 /** Four steps, so a long title shrinks rather than being cut off. */
 function titleSize(text: string): number {
-	const n = columns(text);
-	if (n <= 34) return 72;
-	if (n <= 56) return 60;
-	if (n <= 84) return 50;
-	return 42;
+    const n = columns(text);
+    if (n <= 34) return 72;
+    if (n <= 56) return 60;
+    if (n <= 84) return 50;
+    return 42;
 }
 
 export interface CardInput {
-	/** Set large. A post's title, or the site's name on the site card. */
-	headline: string;
-	/** Running text under it. The site's one-liner; a post has none. */
-	sub?: string;
-	/**
-	 * The headline is the site's own name, so the marker is struck across it the
-	 * way the masthead does it on arrival — and the wordmark above is dropped,
-	 * because the card would otherwise say the same word twice.
-	 */
-	nameplate?: boolean;
-	/** The apparatus line under it — date, reading time, tags. */
-	meta?: string[];
-	/** A word in the marker, for the one state a card has to state: locked. */
-	badge?: string;
+    /** Set large. A post's title, or the site's name on the site card. */
+    headline: string;
+    /** Running text under it. The site's one-liner; a post has none. */
+    sub?: string;
+    /**
+     * The headline is the site's own name, so the marker is struck across it the
+     * way the masthead does it on arrival — and the wordmark above is dropped,
+     * because the card would otherwise say the same word twice.
+     */
+    nameplate?: boolean;
+    /** The apparatus line under it — date, reading time, tags. */
+    meta?: string[];
+    /** A word in the marker, for the one state a card has to state: locked. */
+    badge?: string;
 }
 
 /** A post's title, at whichever of the four sizes it fits. */
 const title = (text: string): Node =>
-	box(
-		{
-			fontSize: titleSize(text),
-			fontWeight: 600,
-			lineHeight: 1.22,
-			color: light.ink,
-		},
-		text,
-	);
+    box(
+        {
+            fontSize: titleSize(text),
+            fontWeight: 600,
+            lineHeight: 1.22,
+            color: light.ink,
+        },
+        text,
+    );
 
 /*
  * The nameplate: the site's name in the code face, with the marker struck
@@ -156,140 +153,132 @@ const title = (text: string): Node =>
  * because it is the same geometry `.masthead-mark::before` uses on the page.
  */
 const nameplateMark = (text: string): Node =>
-	box({ position: "relative", alignItems: "flex-start", padding: "0 10px" }, [
-		box({
-			position: "absolute",
-			left: 0,
-			right: 0,
-			bottom: 14,
-			height: 28,
-			background: light.accentSoft,
-		}),
-		box(
-			{
-				fontFamily: "PlexMono",
-				fontSize: 78,
-				fontWeight: 600,
-				letterSpacing: -3.5,
-				lineHeight: 1.2,
-				color: light.ink,
-			},
-			text,
-		),
-	]);
+    box({ position: "relative", alignItems: "flex-start", padding: "0 10px" }, [
+        box({
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 14,
+            height: 28,
+            background: light.accentSoft,
+        }),
+        box(
+            {
+                fontFamily: "PlexMono",
+                fontSize: 78,
+                fontWeight: 600,
+                letterSpacing: -3.5,
+                lineHeight: 1.2,
+                color: light.ink,
+            },
+            text,
+        ),
+    ]);
 
-function card({
-	headline,
-	sub,
-	nameplate,
-	meta,
-	badge,
-}: CardInput): Node {
-	const apparatus: Node[] = [];
+function card({ headline, sub, nameplate, meta, badge }: CardInput): Node {
+    const apparatus: Node[] = [];
 
-	if (badge) {
-		apparatus.push(
-			box(
-				{
-					fontFamily: "PlexMono",
-					fontSize: 22,
-					fontWeight: 500,
-					letterSpacing: 1,
-					color: light.bg,
-					background: light.accent,
-					padding: "5px 12px",
-					borderRadius: 3,
-					marginRight: 16,
-				},
-				badge,
-			),
-		);
-	}
+    if (badge) {
+        apparatus.push(
+            box(
+                {
+                    fontFamily: "PlexMono",
+                    fontSize: 22,
+                    fontWeight: 500,
+                    letterSpacing: 1,
+                    color: light.bg,
+                    background: light.accent,
+                    padding: "5px 12px",
+                    borderRadius: 3,
+                    marginRight: 16,
+                },
+                badge,
+            ),
+        );
+    }
 
-	if (meta?.length) {
-		apparatus.push(
-			box(
-				{
-					fontFamily: "PlexMono",
-					fontSize: 25,
-					fontWeight: 500,
-					color: light.inkMuted,
-					alignItems: "center",
-				},
-				meta.join("  ·  "),
-			),
-		);
-	}
+    if (meta?.length) {
+        apparatus.push(
+            box(
+                {
+                    fontFamily: "PlexMono",
+                    fontSize: 25,
+                    fontWeight: 500,
+                    color: light.inkMuted,
+                    alignItems: "center",
+                },
+                meta.join("  ·  "),
+            ),
+        );
+    }
 
-	return box(
-		{
-			width: CARD.width,
-			height: CARD.height,
-			flexDirection: "column",
-			padding: PAD,
-			background: light.bg,
-			fontFamily: "Plex, PlexKR",
-		},
-		[
-			// The site's name, in the code face the wordmark is set in on the page.
-			box(
-				{ alignItems: "flex-start" },
-				nameplate
-					? []
-					: [
-							box(
-								{
-									fontFamily: "PlexMono",
-									fontSize: 24,
-									fontWeight: 500,
-									letterSpacing: 3,
-									textTransform: "uppercase",
-									color: light.ink,
-									background: light.accentSoft,
-									padding: "6px 12px",
-								},
-								siteConfig.title,
-							),
-						],
-			),
+    return box(
+        {
+            width: CARD.width,
+            height: CARD.height,
+            flexDirection: "column",
+            padding: PAD,
+            background: light.bg,
+            fontFamily: "Plex, PlexKR",
+        },
+        [
+            // The site's name, in the code face the wordmark is set in on the page.
+            box(
+                { alignItems: "flex-start" },
+                nameplate
+                    ? []
+                    : [
+                        box(
+                            {
+                                fontFamily: "PlexMono",
+                                fontSize: 24,
+                                fontWeight: 500,
+                                letterSpacing: 3,
+                                textTransform: "uppercase",
+                                color: light.ink,
+                                background: light.accentSoft,
+                                padding: "6px 12px",
+                            },
+                            siteConfig.title,
+                        ),
+                    ],
+            ),
 
-			// Everything else is pinned to the bottom edge, so a two-line title and
-			// a five-line one start from the same place rather than drifting.
-			box({ flexGrow: 1 }),
+            // Everything else is pinned to the bottom edge, so a two-line title and
+            // a five-line one start from the same place rather than drifting.
+            box({ flexGrow: 1 }),
 
-			box({ alignItems: "flex-start" }, [
-				nameplate ? nameplateMark(headline) : title(headline),
-			]),
+            box({ alignItems: "flex-start" }, [
+                nameplate ? nameplateMark(headline) : title(headline),
+            ]),
 
-			...(sub
-				? [
-						box(
-							{
-								marginTop: 26,
-								fontSize: 34,
-								lineHeight: 1.4,
-								color: light.inkMuted,
-							},
-							sub,
-						),
-					]
-				: []),
+            ...(sub
+                ? [
+                    box(
+                        {
+                            marginTop: 26,
+                            fontSize: 34,
+                            lineHeight: 1.4,
+                            color: light.inkMuted,
+                        },
+                        sub,
+                    ),
+                ]
+                : []),
 
-			...(apparatus.length
-				? [box({ marginTop: 28, alignItems: "center" }, apparatus)]
-				: []),
-		],
-	);
+            ...(apparatus.length ? [box({ marginTop: 28, alignItems: "center" }, apparatus)] : []),
+        ],
+    );
 }
 
 /** One card, as a PNG. */
 export async function renderCard(input: CardInput): Promise<Buffer> {
-	const svg = await satori(card(input), {
-		width: CARD.width,
-		height: CARD.height,
-		fonts: fonts(),
-		embedFont: true,
-	});
+    const svg = await satori(card(input), {
+        width: CARD.width,
+        height: CARD.height,
+        fonts: fonts(),
+        embedFont: true,
+    });
 
-	return sharp(Buffer.from(svg)).png().toBuffer();
+    return sharp(Buffer.from(svg)).png().toBuffer();
 }

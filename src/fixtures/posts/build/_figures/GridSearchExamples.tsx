@@ -3,44 +3,62 @@ import { GridSearch, type DiagramProps } from "../../../../components/figures";
 import type { FigureInputs } from "../../../../figures/inputs";
 
 const sharedMaze: FigureInputs["grid-search"]["maze"] = [
-	"#..........#.#......#",
-	"..................#..",
-	"........#......#..#..",
-	".............##.#.##.",
-	"............#.#..##..",
-	".......#...#.........",
-	".S...#...##....#...G.",
-	"#....##.....##.......",
-	"#...###..#...#.......",
-	".##...##.......#..#..",
-	"######........##.....",
-	"..##.....#.....#...##",
-	"...#..#..#..#..#####.",
+    "#..........#.#......#",
+    "..................#..",
+    "........#......#..#..",
+    ".............##.#.##.",
+    "............#.#..##..",
+    ".......#...#.........",
+    ".S...#...##....#...G.",
+    "#....##.....##.......",
+    "#...###..#...#.......",
+    ".##...##.......#..#..",
+    "######........##.....",
+    "..##.....#.....#...##",
+    "...#..#..#..#..#####.",
 ];
 
 const bfsMazeData = {
-	algorithm: "bfs",
-	maze: sharedMaze
+    algorithm: "bfs",
+    maze: sharedMaze,
 } satisfies FigureInputs["grid-search"];
 
 const greedyMazeData = {
-	algorithm: "greedy",
-	maze: sharedMaze
+    algorithm: "greedy",
+    maze: sharedMaze,
 } satisfies FigureInputs["grid-search"];
 
 const aStarMazeData = {
-	algorithm: "astar",
-	maze: sharedMaze
+    algorithm: "astar",
+    maze: sharedMaze,
 } satisfies FigureInputs["grid-search"];
 
 export function BfsMaze(input: Partial<DiagramProps<"grid-search">>) {
-	return <GridSearch props={bfsMazeData} caption="BFS expands in all directions, finding a shortest path while exploring much of the maze." {...input} />;
+    return (
+        <GridSearch
+            props={bfsMazeData}
+            caption="BFS expands in all directions, finding a shortest path while exploring much of the maze."
+            {...input}
+        />
+    );
 }
 
 export function GreedyMaze(input: Partial<DiagramProps<"grid-search">>) {
-	return <GridSearch props={greedyMazeData} caption="Greedy search explores fewer cells here but returns a longer path than BFS." {...input} />;
+    return (
+        <GridSearch
+            props={greedyMazeData}
+            caption="Greedy search explores fewer cells here but returns a longer path than BFS."
+            {...input}
+        />
+    );
 }
 
 export function AStarMaze(input: Partial<DiagramProps<"grid-search">>) {
-	return <GridSearch props={aStarMazeData} caption="A* matches the shortest path found by BFS while exploring fewer cells." {...input} />;
+    return (
+        <GridSearch
+            props={aStarMazeData}
+            caption="A* matches the shortest path found by BFS while exploring fewer cells."
+            {...input}
+        />
+    );
 }

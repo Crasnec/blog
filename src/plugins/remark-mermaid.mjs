@@ -12,53 +12,53 @@ import { visit } from "unist-util-visit";
  * JavaScript still gets the diagram definition instead of an empty box.
  */
 export function remarkMermaid() {
-	/** @type {import("unified").Transformer<import("mdast").Root>} */
-	return (tree) => {
-		visit(tree, "code", (node, index, parent) => {
-			if (node.lang !== "mermaid" || index === undefined || !parent) return;
+    /** @type {import("unified").Transformer<import("mdast").Root>} */
+    return (tree) => {
+        visit(tree, "code", (node, index, parent) => {
+            if (node.lang !== "mermaid" || index === undefined || !parent) return;
 
-			const source = node.value ?? "";
-			const caption = (node.meta ?? "").trim();
+            const source = node.value ?? "";
+            const caption = (node.meta ?? "").trim();
 
-			/** @type {import("hast").ElementContent[]} */
-			const hChildren = [
-				{
-					type: "element",
-					tagName: "pre",
-					properties: { className: ["diagram-source"] },
-					children: [{ type: "text", value: source }],
-				},
-				...(caption
-					? [
-							{
-								type: /** @type {const} */ ("element"),
-								tagName: "figcaption",
-								properties: {},
-								children: [{ type: /** @type {const} */ ("text"), value: caption }],
-							},
-						]
-					: []),
-			];
+            /** @type {import("hast").ElementContent[]} */
+            const hChildren = [
+                {
+                    type: "element",
+                    tagName: "pre",
+                    properties: { className: ["diagram-source"] },
+                    children: [{ type: "text", value: source }],
+                },
+                ...(caption
+                    ? [
+                        {
+                            type: /** @type {const} */ ("element"),
+                            tagName: "figcaption",
+                            properties: {},
+                            children: [{ type: /** @type {const} */ ("text"), value: caption }],
+                        },
+                    ]
+                    : []),
+            ];
 
-			/** @type {import("mdast").Paragraph} */
-			const paragraph = {
-				type: "paragraph",
-				children: [],
-				data: {
-					hName: "figure",
-					hProperties: {
-						className: ["diagram", "is-pending"],
-						"data-mermaid": source,
-						// The fallback <pre> holds diagram syntax, not prose. Indexing it
-						// would put "flowchart TD A-->B" into search excerpts.
-						"data-pagefind-ignore": "all",
-						...(caption ? { "data-caption": caption } : {}),
-					},
-					hChildren,
-				},
-			};
+            /** @type {import("mdast").Paragraph} */
+            const paragraph = {
+                type: "paragraph",
+                children: [],
+                data: {
+                    hName: "figure",
+                    hProperties: {
+                        className: ["diagram", "is-pending"],
+                        "data-mermaid": source,
+                        // The fallback <pre> holds diagram syntax, not prose. Indexing it
+                        // would put "flowchart TD A-->B" into search excerpts.
+                        "data-pagefind-ignore": "all",
+                        ...(caption ? { "data-caption": caption } : {}),
+                    },
+                    hChildren,
+                },
+            };
 
-			parent.children[index] = paragraph;
-		});
-	};
+            parent.children[index] = paragraph;
+        });
+    };
 }

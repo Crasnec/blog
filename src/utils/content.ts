@@ -1,6 +1,12 @@
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import { POSTS_DIRECTORY } from "../post-source";
-import { categoryContains, categoryFromFile, countCategories, type Category, type CategoryCount } from "./category";
+import {
+    categoryContains,
+    categoryFromFile,
+    countCategories,
+    type Category,
+    type CategoryCount,
+} from "./category";
 import { sitePath } from "./url";
 import { HTML_LANG } from "../strings";
 
@@ -8,25 +14,23 @@ export type Post = CollectionEntry<"posts">;
 
 /** Values the remark plugins inject into frontmatter while rendering. */
 export interface PostMeta {
-	readingTime?: number;
-	excerpt?: string;
+    readingTime?: number;
+    excerpt?: string;
 }
 
 /** Narrows metadata produced by remark plugins instead of trusting a cast. */
 export function parsePostMeta(value: object | null | undefined): PostMeta {
-	if (!value || Array.isArray(value)) return {};
+    if (!value || Array.isArray(value)) return {};
 
-	const readingTime = "readingTime" in value ? value.readingTime : undefined;
-	const excerpt = "excerpt" in value ? value.excerpt : undefined;
+    const readingTime = "readingTime" in value ? value.readingTime : undefined;
+    const excerpt = "excerpt" in value ? value.excerpt : undefined;
 
-	return {
-		...(typeof readingTime === "number" &&
-		Number.isFinite(readingTime) &&
-		readingTime >= 1
-			? { readingTime }
-			: {}),
-		...(typeof excerpt === "string" ? { excerpt } : {}),
-	};
+    return {
+        ...(typeof readingTime === "number" && Number.isFinite(readingTime) && readingTime >= 1
+            ? { readingTime }
+            : {}),
+        ...(typeof excerpt === "string" ? { excerpt } : {}),
+    };
 }
 
 /**
@@ -42,53 +46,50 @@ export function parsePostMeta(value: object | null | undefined): PostMeta {
  * while looking perfectly fine on its own page.
  */
 export async function postMeta(entry: Post): Promise<PostMeta> {
-	const rawStored = entry.rendered?.metadata?.frontmatter;
-	const stored = parsePostMeta(
-		typeof rawStored === "object" ? rawStored : undefined,
-	);
-	if (Object.keys(stored).length > 0) return stored;
+    const rawStored = entry.rendered?.metadata?.frontmatter;
+    const stored = parsePostMeta(typeof rawStored === "object" ? rawStored : undefined);
+    if (Object.keys(stored).length > 0) return stored;
 
-	const { remarkPluginFrontmatter } = await render(entry);
-	return parsePostMeta(remarkPluginFrontmatter);
+    const { remarkPluginFrontmatter } = await render(entry);
+    return parsePostMeta(remarkPluginFrontmatter);
 }
 
 export interface PostRef {
-	entry: Post;
-	category: Category;
-	/**
-	 * Path below `src/content/posts`, without the extension.
-	 * Directory segments are preserved, e.g. `databases/postgres/indexing`.
-	 */
-	path: string;
-	/** Site-absolute URL. */
-	href: string;
-	/** What a comment thread is filed under. */
-	key: string;
+    entry: Post;
+    category: Category;
+    /**
+     * Path below `src/content/posts`, without the extension.
+     * Directory segments are preserved, e.g. `databases/postgres/indexing`.
+     */
+    path: string;
+    /** Site-absolute URL. */
+    href: string;
+    /** What a comment thread is filed under. */
+    key: string;
 }
 
-const isPublished = (entry: Post) =>
-	import.meta.env.DEV || !entry.data.draft;
+const isPublished = (entry: Post) => import.meta.env.DEV || !entry.data.draft;
 
 function toRef(entry: Post): PostRef {
-	if (!entry.filePath) throw new Error(`Post "${entry.id}" has no source path for its category.`);
-	return {
-		entry,
-		category: categoryFromFile(entry.filePath, POSTS_DIRECTORY),
-		path: entry.id,
-		href: sitePath(`/posts/${entry.id}`),
-		key: entry.id,
-	};
+    if (!entry.filePath) throw new Error(`Post "${entry.id}" has no source path for its category.`);
+    return {
+        entry,
+        category: categoryFromFile(entry.filePath, POSTS_DIRECTORY),
+        path: entry.id,
+        href: sitePath(`/posts/${entry.id}`),
+        key: entry.id,
+    };
 }
 
 const byNewest = (a: PostRef, b: PostRef) =>
-	b.entry.data.published.valueOf() - a.entry.data.published.valueOf();
+    b.entry.data.published.valueOf() - a.entry.data.published.valueOf();
 
 /** Every published post, newest first. */
 export async function getPosts(): Promise<PostRef[]> {
-	const entries = await getCollection("posts", isPublished);
-	const posts = entries.map(toRef).sort(byNewest);
-	countCategories(posts.map(({ category }) => category));
-	return posts;
+    const entries = await getCollection("posts", isPublished);
+    const posts = entries.map(toRef).sort(byNewest);
+    countCategories(posts.map(({ category }) => category));
+    return posts;
 }
 
 /**
@@ -98,69 +99,69 @@ export async function getPosts(): Promise<PostRef[]> {
  * order, which is why the indices look inverted against a newest-first list.
  */
 export async function getNeighbours(ref: PostRef) {
-	const posts = await getPosts();
-	const i = posts.findIndex((p) => p.entry.id === ref.entry.id);
-	if (i === -1) return { prev: undefined, next: undefined };
-	return { prev: posts[i + 1], next: posts[i - 1] };
+    const posts = await getPosts();
+    const i = posts.findIndex((p) => p.entry.id === ref.entry.id);
+    if (i === -1) return { prev: undefined, next: undefined };
+    return { prev: posts[i + 1], next: posts[i - 1] };
 }
 
 export interface TagCount {
-	tag: string;
-	count: number;
+    tag: string;
+    count: number;
 }
 
 /** Tags, most used first, ties broken alphabetically. */
 export async function getTags(): Promise<TagCount[]> {
-	const posts = await getPosts();
-	const counts = new Map<string, number>();
+    const posts = await getPosts();
+    const counts = new Map<string, number>();
 
-	for (const { entry } of posts) {
-		for (const tag of entry.data.tags) {
-			counts.set(tag, (counts.get(tag) ?? 0) + 1);
-		}
-	}
+    for (const { entry } of posts) {
+        for (const tag of entry.data.tags) {
+            counts.set(tag, (counts.get(tag) ?? 0) + 1);
+        }
+    }
 
-	return [...counts.entries()]
-		.map(([tag, count]) => ({ tag, count }))
-		.sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, HTML_LANG));
+    return [...counts.entries()]
+        .map(([tag, count]) => ({ tag, count }))
+        .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, HTML_LANG));
 }
 
 export async function getPostsByTag(tag: string) {
-	const posts = await getPosts();
-	return posts.filter(({ entry }) => entry.data.tags.includes(tag));
+    const posts = await getPosts();
+    return posts.filter(({ entry }) => entry.data.tags.includes(tag));
 }
 
 /** Category tree, with descendant counts and untranslated names at every level. */
 export async function getCategories(): Promise<CategoryCount[]> {
-	const posts = await getPosts();
-	return countCategories(posts.map(({ category }) => category));
+    const posts = await getPosts();
+    return countCategories(posts.map(({ category }) => category));
 }
 
 export async function getPostsByCategory(key: string) {
-	const posts = await getPosts();
-	return posts.filter(({ category }) => categoryContains(key, category.key));
+    const posts = await getPosts();
+    return posts.filter(({ category }) => categoryContains(key, category.key));
 }
 
 export interface YearGroup {
-	year: number;
-	posts: PostRef[];
+    year: number;
+    posts: PostRef[];
 }
 
 /** Posts bucketed by publication year, newest year first. */
 export async function groupByYear(): Promise<YearGroup[]> {
-	const posts = await getPosts();
-	const years = new Map<number, PostRef[]>();
+    const posts = await getPosts();
+    const years = new Map<number, PostRef[]>();
 
-	for (const ref of posts) {
-		const year = ref.entry.data.published.getUTCFullYear();
-		const bucket = years.get(year);
-		if (bucket) bucket.push(ref);
-		else years.set(year, [ref]);
-	}
+    for (const ref of posts) {
+        const year = ref.entry.data.published.getUTCFullYear();
+        const bucket = years.get(year);
+        if (bucket) bucket.push(ref);
+        else years.set(year, [ref]);
+    }
 
-	return [...years.entries()]
-		.map(([year, entries]) => ({ year, posts: entries }))
-		.sort((a, b) => b.year - a.year);
+    return [...years.entries()]
+        .map(([year, entries]) => ({ year, posts: entries }))
+        .sort((a, b) => b.year - a.year);
 }
 
 export type Comment = CollectionEntry<"comments">;
@@ -173,13 +174,11 @@ export type Comment = CollectionEntry<"comments">;
 let commentCache: Comment[] | null = null;
 
 export async function getComments(postKey: string): Promise<Comment[]> {
-	commentCache ??= await getCollection("comments");
+    commentCache ??= await getCollection("comments");
 
-	return commentCache
-		.filter(
-			(entry) => entry.data.approved && entry.data.post === postKey,
-		)
-		.sort((a, b) => a.data.published.valueOf() - b.data.published.valueOf());
+    return commentCache
+        .filter((entry) => entry.data.approved && entry.data.post === postKey)
+        .sort((a, b) => a.data.published.valueOf() - b.data.published.valueOf());
 }
 
 /** URL-safe tag segment. A Korean tag survives this via encodeURIComponent. */

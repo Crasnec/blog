@@ -9,30 +9,30 @@ import type { PostRef } from "../utils/content";
 import { categoryLabel, type CategoryCount } from "../utils/category";
 
 interface Props {
-	category: CategoryCount;
-	posts: PostRef[];
+    category: CategoryCount;
+    posts: PostRef[];
 }
 
 const { category, posts } = Astro.props;
 ---
 
-<BaseLayout
-	title={categoryLabel(category)}
->
-	<Sidebar slot="sidebar" currentCategory={category.key} />
+<BaseLayout title={categoryLabel(category)}>
+    <Sidebar slot="sidebar" currentCategory={category.key} />
 
-	<!-- Nothing else on the page says which one you are looking at. -->
-	<div class="page-intro">
-		{category.trail.length > 1 && <CategoryBreadcrumbs category={category} current />}
-		<h1>{category.name}</h1>
-	</div>
-	{category.children.length > 0 && (
-		<nav class="category-children" aria-label={t("categories.title")}>
-			<CategoryTree categories={category.children} variant="index" />
-		</nav>
-	)}
+    <!-- Nothing else on the page says which one you are looking at. -->
+    <div class="page-intro">
+        {category.trail.length > 1 && <CategoryBreadcrumbs category={category} current />}
+        <h1>{category.name}</h1>
+    </div>
+    {category.children.length > 0 && (
+        <nav class="category-children" aria-label={t("categories.title")}>
+            <CategoryTree categories={category.children} variant="index" />
+        </nav>
+    )}
 
-	<ul class="entry-list">
-		{posts.map((post) => <PostEntry post={post} />)}
-	</ul>
+    <ul class="entry-list">
+        {posts.map((post) => (
+            <PostEntry post={post} />
+        ))}
+    </ul>
 </BaseLayout>

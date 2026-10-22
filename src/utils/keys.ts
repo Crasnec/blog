@@ -13,10 +13,10 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import {
-	parsePrivateKeyFile,
-	parsePublicKeyFile,
-	type PrivateKeyFile,
-	type PublicKeyFile,
+    parsePrivateKeyFile,
+    parsePublicKeyFile,
+    type PrivateKeyFile,
+    type PublicKeyFile,
 } from "./secret";
 import { parseJson, type JsonValue } from "./json";
 
@@ -28,38 +28,36 @@ import { parseJson, type JsonValue } from "./json";
 const at = (name: string) => resolve(process.cwd(), "keys", name);
 
 function read<T>(name: string, decode: (value: JsonValue) => T | null): T {
-	let source: string;
-	try {
-		source = readFileSync(at(name), "utf8");
-	} catch (cause) {
-		throw new Error(
-			`[secret] keys/${name} could not be read. A locked post needs the ` +
-				"repository's keypair; run `npm run secret:keygen` once and commit " +
-				"both halves. If you have no locked posts, remove the `sealed` " +
-				"frontmatter instead.",
-			{ cause },
-		);
-	}
+    let source: string;
+    try {
+        source = readFileSync(at(name), "utf8");
+    } catch (cause) {
+        throw new Error(
+            `[secret] keys/${name} could not be read. A locked post needs the ` +
+                "repository's keypair; run `npm run secret:keygen` once and commit " +
+                "both halves. If you have no locked posts, remove the `sealed` " +
+                "frontmatter instead.",
+            { cause },
+        );
+    }
 
-	let value: JsonValue;
-	try {
-		value = parseJson(source);
-	} catch (cause) {
-		throw new Error(`[secret] keys/${name} is not valid JSON.`, { cause });
-	}
+    let value: JsonValue;
+    try {
+        value = parseJson(source);
+    } catch (cause) {
+        throw new Error(`[secret] keys/${name} is not valid JSON.`, { cause });
+    }
 
-	const decoded = decode(value);
-	if (!decoded) {
-		throw new Error(`[secret] keys/${name} has an invalid key structure.`);
-	}
+    const decoded = decode(value);
+    if (!decoded) {
+        throw new Error(`[secret] keys/${name} has an invalid key structure.`);
+    }
 
-	return decoded;
+    return decoded;
 }
 
 /** Seals a post. Needs no passphrase, which is the point of the whole scheme. */
-export const publicKey = (): PublicKeyFile =>
-	read("public.json", parsePublicKeyFile);
+export const publicKey = (): PublicKeyFile => read("public.json", parsePublicKeyFile);
 
 /** Opens one, once the reader supplies the passphrase it is wrapped in. */
-export const privateKey = (): PrivateKeyFile =>
-	read("private.json", parsePrivateKeyFile);
+export const privateKey = (): PrivateKeyFile => read("private.json", parsePrivateKeyFile);
