@@ -1,0 +1,22 @@
+[
+  {
+    "file": "relay.py",
+    "sha256": "d7bb0ceb6ce4cf85097ee10481ba8d46d7bb74d9341941ca6ba45fdbc37b33fa",
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/nb/relay.py"
+  },
+  {
+    "file": "nsfg.py",
+    "sha256": "6d7466d90c096ee3232a7ca96dbb7fe5fc78ea42c54fc60f18d4ab914c0f042f",
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/nb/nsfg.py"
+  },
+  {
+    "file": "COPYING",
+    "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "source": "https://www.gnu.org/licenses/gpl-3.0.txt"
+  },
+  {
+    "file": "thinkstats.py",
+    "sha256": "feeee2b3872a8e27cfb7679c17a3da66fda11f17c8c14e281d1f85a6ee6396f0",
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/nb/thinkstats.py"
+  }
+]

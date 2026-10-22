@@ -1,0 +1,326 @@
+{
+  "chapter": 10,
+  "cells": [
+    {
+      "code": "# The preparation cell downloads the chapter files once per Python environment.\nimport sys\nfrom pathlib import Path\nfrom urllib.parse import urljoin\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom IPython.display import HTML\n\nDATA_URL = \"/labs/think-stats/\"\nasync def prepare_file(name):\n    target = Path(name.rsplit(\"/\", 1)[-1])\n    if target.exists():\n        return\n    if sys.platform == \"emscripten\":\n        from pyodide.http import pyfetch\n        response = await pyfetch(urljoin(DATA_URL, name))\n        if not response.ok:\n            raise RuntimeError(f\"Download failed: {name} (HTTP {response.status})\")\n        target.write_bytes(await response.bytes())\n    else:\n        from urllib.request import urlretrieve\n        urlretrieve(urljoin(DATA_URL, name), target)\n\nfor name in ['upstream/thinkstats.py', 'upstream/nsfg.py', 'upstream/relay.py', 'notebook_support.py', 'penguins_raw.csv', 'brfss-2008.csv.gz']:\n    await prepare_file(name)\n\nsys.path.insert(0, str(Path.cwd()))\nfrom thinkstats import decorate\nplt.rcParams[\"figure.dpi\"] = 120\n# Match the browser's PNG backend without hiding other warnings.\nimport warnings\nfrom matplotlib import MatplotlibDeprecationWarning\nwarnings.filterwarnings(\"ignore\", message=r\"The [xy] parameter as float was deprecated in Matplotlib 3\\.10.*Use int\\([xy]\\) instead\\.\", category=MatplotlibDeprecationWarning)\nprint(\"준비되었습니다. 다음 셀부터 순서대로 실행하세요.\")\n",
+      "exercise": false,
+      "label": "준비: 라이브러리와 자료"
+    },
+    {
+      "code": "penguins = pd.read_csv(\"penguins_raw.csv\").dropna(subset=[\"Body Mass (g)\"])\npenguins.shape",
+      "exercise": false,
+      "label": "셀 1"
+    },
+    {
+      "code": "adelie = penguins.query('Species.str.startswith(\"Adelie\")')\nlen(adelie)",
+      "exercise": false,
+      "label": "셀 2"
+    },
+    {
+      "code": "xvar = \"Flipper Length (mm)\"\nyvar = \"Body Mass (g)\"\n\nflipper_length = adelie[xvar]\nbody_mass = adelie[yvar]",
+      "exercise": false,
+      "label": "셀 3"
+    },
+    {
+      "code": "plt.scatter(flipper_length, body_mass, marker=\".\", alpha=0.5)\ndecorate(xlabel=xvar, ylabel=yvar)",
+      "exercise": false,
+      "label": "셀 4"
+    },
+    {
+      "code": "np.corrcoef(flipper_length, body_mass)[0, 1]",
+      "exercise": false,
+      "label": "셀 5"
+    },
+    {
+      "code": "from scipy.stats import linregress\n\nresult = linregress(flipper_length, body_mass)\nresult",
+      "exercise": false,
+      "label": "셀 6"
+    },
+    {
+      "code": "x = flipper_length.mean()\ny = result.intercept + result.slope * x\nx, y",
+      "exercise": false,
+      "label": "셀 7"
+    },
+    {
+      "code": "def predict(result, xs):\n    ys = result.intercept + result.slope * xs\n    return ys",
+      "exercise": false,
+      "label": "셀 8"
+    },
+    {
+      "code": "fit_xs = np.linspace(np.min(flipper_length), np.max(flipper_length))\nfit_ys = predict(result, fit_xs)",
+      "exercise": false,
+      "label": "셀 9"
+    },
+    {
+      "code": "plt.scatter(flipper_length, body_mass, marker=\".\", alpha=0.5)\nplt.plot(fit_xs, fit_ys, color=\"C1\")\ndecorate(xlabel=xvar, ylabel=yvar)",
+      "exercise": false,
+      "label": "셀 10"
+    },
+    {
+      "code": "def compute_residuals(result, xs, ys):\n    fit_ys = predict(result, xs)\n    return ys - fit_ys",
+      "exercise": false,
+      "label": "셀 11"
+    },
+    {
+      "code": "residuals = compute_residuals(result, flipper_length, body_mass)",
+      "exercise": false,
+      "label": "셀 12"
+    },
+    {
+      "code": "x = flipper_length[0]\ny = predict(result, x)\nx, y",
+      "exercise": false,
+      "label": "셀 13"
+    },
+    {
+      "code": "body_mass[0], residuals[0]",
+      "exercise": false,
+      "label": "셀 14"
+    },
+    {
+      "code": "mse = np.mean(residuals**2)\nmse",
+      "exercise": false,
+      "label": "셀 15"
+    },
+    {
+      "code": "deviations = body_mass - np.mean(body_mass)",
+      "exercise": false,
+      "label": "셀 16"
+    },
+    {
+      "code": "np.mean(deviations**2)",
+      "exercise": false,
+      "label": "셀 17"
+    },
+    {
+      "code": "np.var(body_mass)",
+      "exercise": false,
+      "label": "셀 18"
+    },
+    {
+      "code": "def coefficient_of_determination(ys, residuals):\n    return 1 - np.var(residuals) / np.var(ys)",
+      "exercise": false,
+      "label": "셀 19"
+    },
+    {
+      "code": "R2 = coefficient_of_determination(body_mass, residuals)\nR2",
+      "exercise": false,
+      "label": "셀 20"
+    },
+    {
+      "code": "r = np.sqrt(R2)\nr",
+      "exercise": false,
+      "label": "셀 21"
+    },
+    {
+      "code": "corr = np.corrcoef(flipper_length, body_mass)[0, 1]\ncorr",
+      "exercise": false,
+      "label": "셀 22"
+    },
+    {
+      "code": "result.rvalue",
+      "exercise": false,
+      "label": "셀 23"
+    },
+    {
+      "code": "intercept = result.intercept + np.random.normal(0, 1)\nslope = result.slope + np.random.normal(0, 1)",
+      "exercise": false,
+      "label": "셀 24"
+    },
+    {
+      "code": "from types import SimpleNamespace\n\nfake_result = SimpleNamespace(intercept=intercept, slope=slope)\nfake_result",
+      "exercise": false,
+      "label": "셀 25"
+    },
+    {
+      "code": "fake_residuals = compute_residuals(fake_result, flipper_length, body_mass)\nfake_mse = np.mean(fake_residuals**2)",
+      "exercise": false,
+      "label": "셀 26"
+    },
+    {
+      "code": "mse, fake_mse, fake_mse > mse",
+      "exercise": false,
+      "label": "셀 27"
+    },
+    {
+      "code": "def least_squares(xs, ys):\n    xbar = np.mean(xs)\n    ybar = np.mean(ys)\n\n    xdev = xs - xbar\n    ydev = ys - ybar\n\n    slope = np.sum(xdev * ydev) / np.sum(xdev**2)\n    intercept = ybar - slope * xbar\n\n    return intercept, slope",
+      "exercise": false,
+      "label": "셀 28"
+    },
+    {
+      "code": "intercept, slope = least_squares(flipper_length, body_mass)\nintercept, slope",
+      "exercise": false,
+      "label": "셀 29"
+    },
+    {
+      "code": "np.allclose([intercept, slope], [result.intercept, result.slope])",
+      "exercise": false,
+      "label": "셀 30"
+    },
+    {
+      "code": "def resample(df):\n    n = len(df)\n    return df.sample(n, replace=True)",
+      "exercise": false,
+      "label": "셀 31"
+    },
+    {
+      "code": "def estimate_slope(df):\n    xs, ys = df[\"Flipper Length (mm)\"], df[\"Body Mass (g)\"]\n    result = linregress(xs, ys)\n    return result.slope",
+      "exercise": false,
+      "label": "셀 32"
+    },
+    {
+      "code": "# Seed the random number generator so we get the same results every time\n\nnp.random.seed(1)",
+      "exercise": false,
+      "label": "셀 33"
+    },
+    {
+      "code": "resampled_slopes = [estimate_slope(resample(adelie)) for i in range(1001)]",
+      "exercise": false,
+      "label": "셀 34"
+    },
+    {
+      "code": "from thinkstats import plot_kde\n\nplot_kde(resampled_slopes)\ndecorate(xlabel=\"Slope of the fitted line (g / mm)\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 35"
+    },
+    {
+      "code": "ci90 = np.percentile(resampled_slopes, [5, 95])\nprint(result.slope, ci90)",
+      "exercise": false,
+      "label": "셀 36"
+    },
+    {
+      "code": "stderr = np.std(resampled_slopes)\nstderr",
+      "exercise": false,
+      "label": "셀 37"
+    },
+    {
+      "code": "result.stderr",
+      "exercise": false,
+      "label": "셀 38"
+    },
+    {
+      "code": "def fit_line(df, fit_xs):\n    xs, ys = df[\"Flipper Length (mm)\"], df[\"Body Mass (g)\"]\n    result = linregress(xs, ys)\n    fit_ys = predict(result, fit_xs)\n    return fit_ys",
+      "exercise": false,
+      "label": "셀 39"
+    },
+    {
+      "code": "xs = adelie[\"Flipper Length (mm)\"]\nfit_xs = np.linspace(np.min(xs), np.max(xs))",
+      "exercise": false,
+      "label": "셀 40"
+    },
+    {
+      "code": "plt.scatter(flipper_length, body_mass, marker=\".\", alpha=0.5)\n\nfor i in range(101):\n    fit_ys = fit_line(resample(adelie), fit_xs)\n    plt.plot(fit_xs, fit_ys, color=\"C1\", alpha=0.05)\n\ndecorate(xlabel=xvar, ylabel=yvar)",
+      "exercise": false,
+      "label": "셀 41"
+    },
+    {
+      "code": "fitted_ys = [fit_line(resample(adelie), fit_xs) for i in range(1001)]",
+      "exercise": false,
+      "label": "셀 42"
+    },
+    {
+      "code": "low, median, high = np.percentile(fitted_ys, [5, 50, 95], axis=0)",
+      "exercise": false,
+      "label": "셀 43"
+    },
+    {
+      "code": "plt.scatter(flipper_length, body_mass, marker=\".\", alpha=0.5)\n\nplt.fill_between(fit_xs, low, high, color=\"C1\", lw=0, alpha=0.2)\nplt.plot(fit_xs, median, color=\"C1\")\n\ndecorate(xlabel=xvar, ylabel=yvar)",
+      "exercise": false,
+      "label": "셀 44"
+    },
+    {
+      "code": "from notebook_support import read_brfss\n\nbrfss = read_brfss()",
+      "exercise": false,
+      "label": "셀 45"
+    },
+    {
+      "code": "valid = brfss.dropna(subset=[\"htm3\", \"wtkg2\"])\nheights, weights = valid[\"htm3\"], valid[\"wtkg2\"]",
+      "exercise": false,
+      "label": "셀 46"
+    },
+    {
+      "code": "result_brfss = linregress(heights, weights)\nresult_brfss.intercept, result_brfss.slope",
+      "exercise": false,
+      "label": "셀 47"
+    },
+    {
+      "code": "fit_xs = np.linspace(heights.min(), heights.max())\nfit_ys = predict(result_brfss, fit_xs)",
+      "exercise": false,
+      "label": "셀 48"
+    },
+    {
+      "code": "from thinkstats import jitter\n\njittered_heights = jitter(heights, 2)\njittered_weights = jitter(weights, 1.5)",
+      "exercise": false,
+      "label": "셀 49"
+    },
+    {
+      "code": "m, s = heights.mean(), heights.std()\nxlim = m - 4 * s, m + 4 * s\nylim = 0, 200",
+      "exercise": false,
+      "label": "셀 50"
+    },
+    {
+      "code": "plt.scatter(jittered_heights, jittered_weights, alpha=0.01, s=0.1)\nplt.plot(fit_xs, fit_ys, color=\"C1\")\ndecorate(xlabel=\"Height (cm)\", ylabel=\"Weight (kg)\", xlim=xlim, ylim=ylim)",
+      "exercise": false,
+      "label": "셀 51"
+    },
+    {
+      "code": "residuals = compute_residuals(result_brfss, heights, weights)",
+      "exercise": false,
+      "label": "셀 52"
+    },
+    {
+      "code": "from thinkstats import make_pmf\n\npmf_kde = make_pmf(residuals, -60, 120)\npmf_kde.plot()\n\ndecorate(xlabel=\"Residual (kg)\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 53"
+    },
+    {
+      "code": "log_weights = np.log10(weights)\nresult_brfss2 = linregress(heights, log_weights)\nresult_brfss2.intercept, result_brfss2.slope",
+      "exercise": false,
+      "label": "셀 54"
+    },
+    {
+      "code": "fit_xs = np.linspace(heights.min(), heights.max())\nfit_ys = predict(result_brfss2, fit_xs)",
+      "exercise": false,
+      "label": "셀 55"
+    },
+    {
+      "code": "jittered_log_weights = jitter(log_weights, 1.5)\nplt.scatter(jittered_heights, jittered_log_weights, alpha=0.01, s=0.1)\nplt.plot(fit_xs, fit_ys, color=\"C1\")\ndecorate(xlabel=\"Height (cm)\", ylabel=\"Weight (log10 kg)\", xlim=xlim)",
+      "exercise": false,
+      "label": "셀 56"
+    },
+    {
+      "code": "residuals = compute_residuals(result_brfss2, heights, log_weights)",
+      "exercise": false,
+      "label": "셀 57"
+    },
+    {
+      "code": "pmf_kde = make_pmf(residuals, -0.6, 0.6)\npmf_kde.plot()\n\ndecorate(xlabel=\"Residual (kg)\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 58"
+    },
+    {
+      "code": "result_brfss.rvalue, result_brfss2.rvalue",
+      "exercise": false,
+      "label": "셀 59"
+    },
+    {
+      "code": "result_brfss.rvalue**2, result_brfss2.rvalue**2",
+      "exercise": false,
+      "label": "셀 60"
+    },
+    {
+      "code": "plt.scatter(jittered_heights, jittered_weights, alpha=0.01, s=0.1)\nplt.plot(fit_xs, 10**fit_ys, color=\"C1\")\ndecorate(xlabel=\"Height (cm)\", ylabel=\"Weight (kg)\", xlim=xlim, ylim=ylim)",
+      "exercise": false,
+      "label": "셀 61"
+    },
+    {
+      "code": "xvar = \"Culmen Length (mm)\"\nyvar = \"Body Mass (g)\"\n\nculmen_length = adelie[xvar]\nbody_mass = adelie[yvar]",
+      "exercise": true,
+      "label": "셀 62"
+    },
+    {
+      "code": "heights_m = heights / 100\nbmis = weights / heights_m**2",
+      "exercise": true,
+      "label": "셀 63"
+    }
+  ],
+  "attribution": "Think Stats, 3rd edition — Allen B. Downey.\n\nSource and Korean translation: https://allendowney.github.io/ThinkStats/chap10.html\n\nCode license notice:\n\nMIT License\n\nCopyright (c) 2024 Allen Downey\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n\nThe downloaded helpers retain their own GNU GPLv3 headers. Their complete source and COPYING are distributed under /labs/think-stats/upstream/.\n"
+}

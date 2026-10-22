@@ -1,0 +1,371 @@
+{
+  "chapter": 5,
+  "cells": [
+    {
+      "code": "# The preparation cell downloads the chapter files once per Python environment.\nimport sys\nfrom pathlib import Path\nfrom urllib.parse import urljoin\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom IPython.display import HTML\n\nDATA_URL = \"/labs/think-stats/\"\nasync def prepare_file(name):\n    target = Path(name.rsplit(\"/\", 1)[-1])\n    if target.exists():\n        return\n    if sys.platform == \"emscripten\":\n        from pyodide.http import pyfetch\n        response = await pyfetch(urljoin(DATA_URL, name))\n        if not response.ok:\n            raise RuntimeError(f\"Download failed: {name} (HTTP {response.status})\")\n        target.write_bytes(await response.bytes())\n    else:\n        from urllib.request import urlretrieve\n        urlretrieve(urljoin(DATA_URL, name), target)\n\nfor name in ['upstream/thinkstats.py', 'upstream/nsfg.py', 'upstream/relay.py', 'notebook_support.py', 'Shooting_at_the_2020_Summer_Olympics_Mens_skeet', 'nhl-goals.json', '2002FemPreg.dct', '2002FemPreg.dat.gz', '2002FemResp.dct', '2002FemResp.dat.gz', 'brfss-2008.csv.gz']:\n    await prepare_file(name)\n\nsys.path.insert(0, str(Path.cwd()))\nfrom thinkstats import decorate\nplt.rcParams[\"figure.dpi\"] = 120\n# Match the browser's PNG backend without hiding other warnings.\nimport warnings\nfrom matplotlib import MatplotlibDeprecationWarning\nwarnings.filterwarnings(\"ignore\", message=r\"The [xy] parameter as float was deprecated in Matplotlib 3\\.10.*Use int\\([xy]\\) instead\\.\", category=MatplotlibDeprecationWarning)\nprint(\"준비되었습니다. 다음 셀부터 순서대로 실행하세요.\")\n",
+      "exercise": false,
+      "label": "준비: 라이브러리와 자료"
+    },
+    {
+      "code": "def flip(n, p):\n    choices = [1, 0]\n    probs = [p, 1 - p]\n    return np.random.choice(choices, n, p=probs)",
+      "exercise": false,
+      "label": "셀 1"
+    },
+    {
+      "code": "# Seed the random number generator so we get the same results every time\nnp.random.seed(1)",
+      "exercise": false,
+      "label": "셀 2"
+    },
+    {
+      "code": "flip(25, 0.9)",
+      "exercise": false,
+      "label": "셀 3"
+    },
+    {
+      "code": "from empiricaldist import Pmf\n\nseq = flip(1000, 0.9)\npmf = Pmf.from_seq(seq)\npmf",
+      "exercise": false,
+      "label": "셀 4"
+    },
+    {
+      "code": "def simulate_round(n, p):\n    seq = flip(n, p)\n    return seq.sum()",
+      "exercise": false,
+      "label": "셀 5"
+    },
+    {
+      "code": "n = 25\np = 0.9\nresults_sim = [simulate_round(n, p) for i in range(1000)]",
+      "exercise": false,
+      "label": "셀 6"
+    },
+    {
+      "code": "np.mean(results_sim), n * p",
+      "exercise": false,
+      "label": "셀 7"
+    },
+    {
+      "code": "from empiricaldist import Pmf\n\npmf_sim = Pmf.from_seq(results_sim, name=\"simulation results\")\n\npmf_sim.bar()\ndecorate(xlabel=\"Hits\", ylabel=\"PMF\")",
+      "exercise": false,
+      "label": "셀 8"
+    },
+    {
+      "code": "from scipy.special import comb\n\n\ndef binomial_pmf(k, n, p):\n    return comb(n, k) * (p**k) * ((1 - p) ** (n - k))",
+      "exercise": false,
+      "label": "셀 9"
+    },
+    {
+      "code": "ks = np.arange(16, n + 1)\nps = binomial_pmf(ks, n, p)\npmf_binom = Pmf(ps, ks, name=\"binomial model\")",
+      "exercise": false,
+      "label": "셀 10"
+    },
+    {
+      "code": "from thinkstats import two_bar_plots\n\ntwo_bar_plots(pmf_sim, pmf_binom)\ndecorate(xlabel=\"Hits\", ylabel=\"PMF\")",
+      "exercise": false,
+      "label": "셀 11"
+    },
+    {
+      "code": "filename = \"Shooting_at_the_2020_Summer_Olympics_Mens_skeet\"",
+      "exercise": false,
+      "label": "셀 12"
+    },
+    {
+      "code": "tables = pd.read_html(filename)\ntable = tables[6]\ntable.head()",
+      "exercise": false,
+      "label": "셀 13"
+    },
+    {
+      "code": "columns = [\"1\", \"2\", \"3\", \"4\", \"5\"]\nresults = table[columns].values.flatten()",
+      "exercise": false,
+      "label": "셀 14"
+    },
+    {
+      "code": "total_shots = 25 * len(results)\ntotal_hits = results.sum()\nn, total_shots, total_hits",
+      "exercise": false,
+      "label": "셀 15"
+    },
+    {
+      "code": "p = total_hits / total_shots\np",
+      "exercise": false,
+      "label": "셀 16"
+    },
+    {
+      "code": "ps = binomial_pmf(ks, n, p)\npmf_binom = Pmf(ps, ks, name=\"binomial model\")",
+      "exercise": false,
+      "label": "셀 17"
+    },
+    {
+      "code": "pmf_results = Pmf.from_seq(results, name=\"actual results\")\n\ntwo_bar_plots(pmf_results, pmf_binom)\ndecorate(xlabel=\"Hits\", ylabel=\"PMF\")",
+      "exercise": false,
+      "label": "셀 18"
+    },
+    {
+      "code": "n = 3600\nm = 6\np = m / 3600\np",
+      "exercise": false,
+      "label": "셀 19"
+    },
+    {
+      "code": "def simulate_goals(n, p):\n    return flip(n, p).sum()",
+      "exercise": false,
+      "label": "셀 20"
+    },
+    {
+      "code": "goals = [simulate_goals(n, p) for i in range(1001)]\nnp.mean(goals)",
+      "exercise": false,
+      "label": "셀 21"
+    },
+    {
+      "code": "from scipy.special import factorial\n\n\ndef poisson_pmf(k, lam):\n    \"\"\"Compute the Poisson PMF.\n\n    k (int or array-like): The number of occurrences\n    lam (float): The rate parameter (λ) of the Poisson distribution\n\n    returns: float or ndarray\n    \"\"\"\n    return (lam**k) * np.exp(-lam) / factorial(k)",
+      "exercise": false,
+      "label": "셀 22"
+    },
+    {
+      "code": "lam = 6\nks = np.arange(20)\nps = poisson_pmf(ks, lam)\npmf_poisson = Pmf(ps, ks, name=\"Poisson model\")",
+      "exercise": false,
+      "label": "셀 23"
+    },
+    {
+      "code": "pmf_poisson.normalize()\npmf_poisson.mean()",
+      "exercise": false,
+      "label": "셀 24"
+    },
+    {
+      "code": "pmf_sim = Pmf.from_seq(goals, name=\"simulation\")\n\ntwo_bar_plots(pmf_sim, pmf_poisson)\ndecorate(xlabel=\"Goals\", ylabel=\"PMF\")",
+      "exercise": false,
+      "label": "셀 25"
+    },
+    {
+      "code": "import json\nwith open(\"nhl-goals.json\") as stream:\n    nhl_games = json.load(stream)\nkeys = list(nhl_games)\n\ndef read_game(key):\n    return pd.Series(nhl_games[key], dtype=float)\n\nlen(keys), keys[0]",
+      "exercise": false,
+      "label": "셀 26"
+    },
+    {
+      "code": "times = read_game(keys[0])\ntimes",
+      "exercise": false,
+      "label": "셀 27"
+    },
+    {
+      "code": "3600 - times[5]",
+      "exercise": false,
+      "label": "셀 28"
+    },
+    {
+      "code": "goals = []\n\nfor key in keys:\n    times = read_game(key)\n    n = len(times)\n    goals.append(n)",
+      "exercise": false,
+      "label": "셀 29"
+    },
+    {
+      "code": "lam = np.mean(goals)\nlam",
+      "exercise": false,
+      "label": "셀 30"
+    },
+    {
+      "code": "ps = poisson_pmf(ks, lam)\npmf_poisson = Pmf(ps, ks, name=\"Poisson model\")",
+      "exercise": false,
+      "label": "셀 31"
+    },
+    {
+      "code": "pmf_goals = Pmf.from_seq(goals, name=\"goals scored\")\n\ntwo_bar_plots(pmf_goals, pmf_poisson)\ndecorate(xlabel=\"Goals\", ylabel=\"PMF\")",
+      "exercise": false,
+      "label": "셀 32"
+    },
+    {
+      "code": "n = 3600\nm = 6\np = m / 3600\np",
+      "exercise": false,
+      "label": "셀 33"
+    },
+    {
+      "code": "def simulate_first_goal(n, p):\n    return flip(n, p).argmax()",
+      "exercise": false,
+      "label": "셀 34"
+    },
+    {
+      "code": "np.random.seed(3)",
+      "exercise": false,
+      "label": "셀 35"
+    },
+    {
+      "code": "first_goal_times = [simulate_first_goal(n, p) for i in range(1001)]\nmean = np.mean(first_goal_times)\nmean",
+      "exercise": false,
+      "label": "셀 36"
+    },
+    {
+      "code": "def exponential_cdf(x, lam):\n    \"\"\"Compute the exponential CDF.\n\n    x: float or sequence of floats\n    lam: rate parameter\n\n    returns: float or NumPy array of cumulative probability\n    \"\"\"\n    return 1 - np.exp(-lam * x)",
+      "exercise": false,
+      "label": "셀 37"
+    },
+    {
+      "code": "lam = 1 / mean\nlam",
+      "exercise": false,
+      "label": "셀 38"
+    },
+    {
+      "code": "from empiricaldist import Cdf\n\nts = np.linspace(0, 3600, 201)\nps = exponential_cdf(ts, lam)\ncdf_expo = Cdf(ps, ts, name=\"exponential model\")",
+      "exercise": false,
+      "label": "셀 39"
+    },
+    {
+      "code": "cdf_sim = Cdf.from_seq(first_goal_times, name=\"simulation\")\n\ncdf_expo.plot(ls=\":\", color=\"gray\")\ncdf_sim.plot()\n\ndecorate(xlabel=\"Time of first goal (seconds)\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 40"
+    },
+    {
+      "code": "import json\nwith open(\"nhl-goals.json\") as stream:\n    nhl_games = json.load(stream)\nkeys = list(nhl_games)\n\ndef read_game(key):\n    return pd.Series(nhl_games[key], dtype=float)\n\nlen(keys), keys[0]",
+      "exercise": false,
+      "label": "셀 41"
+    },
+    {
+      "code": "firsts = []\n\nfor key in keys:\n    times = read_game(key)\n    if len(times) > 0:\n        firsts.append(times[0])\n    else:\n        firsts.append(np.nan)",
+      "exercise": false,
+      "label": "셀 42"
+    },
+    {
+      "code": "lam = 1 / np.nanmean(firsts)\nlam",
+      "exercise": false,
+      "label": "셀 43"
+    },
+    {
+      "code": "ps = exponential_cdf(ts, lam)\ncdf_expo = Cdf(ps, ts, name=\"exponential model\")",
+      "exercise": false,
+      "label": "셀 44"
+    },
+    {
+      "code": "cdf_firsts = Cdf.from_seq(firsts, name=\"data\", dropna=False)\ncdf_firsts.tail()",
+      "exercise": false,
+      "label": "셀 45"
+    },
+    {
+      "code": "cdf_expo.plot(ls=\":\", color=\"gray\")\ncdf_firsts.plot()\n\ndecorate(xlabel=\"Time of first goal (seconds)\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 46"
+    },
+    {
+      "code": "def simulate_growth(n):\n    choices = [1, 2, 3]\n    gains = np.random.choice(choices, n)\n    return gains.sum()",
+      "exercise": false,
+      "label": "셀 47"
+    },
+    {
+      "code": "sim_weights = [simulate_growth(100) for i in range(1001)]\nm, s = np.mean(sim_weights), np.std(sim_weights)\nm, s",
+      "exercise": false,
+      "label": "셀 48"
+    },
+    {
+      "code": "from scipy.stats import norm\n\n\ndef make_normal_model(data):\n    m, s = np.mean(data), np.std(data)\n    low, high = m - 4 * s, m + 4 * s\n    qs = np.linspace(low, high, 201)\n    ps = norm.cdf(qs, m, s)\n    return Cdf(ps, qs, name=\"normal model\")",
+      "exercise": false,
+      "label": "셀 49"
+    },
+    {
+      "code": "cdf_model = make_normal_model(sim_weights)",
+      "exercise": false,
+      "label": "셀 50"
+    },
+    {
+      "code": "cdf_sim_weights = Cdf.from_seq(sim_weights, name=\"simulation\")",
+      "exercise": false,
+      "label": "셀 51"
+    },
+    {
+      "code": "def two_cdf_plots(cdf_model, cdf_data, xlabel=\"\", **options):\n    cdf_model.plot(ls=\":\", color=\"gray\")\n    cdf_data.plot(**options)\n    decorate(xlabel=xlabel, ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 52"
+    },
+    {
+      "code": "two_cdf_plots(cdf_model, cdf_sim_weights, xlabel=\"Weight (pounds)\")",
+      "exercise": false,
+      "label": "셀 53"
+    },
+    {
+      "code": "import nsfg\n\npreg = nsfg.read_fem_preg()\nbirth_weights = preg[\"totalwgt_lb\"].dropna()",
+      "exercise": false,
+      "label": "셀 54"
+    },
+    {
+      "code": "m, s = np.mean(birth_weights), np.std(birth_weights)\nm, s",
+      "exercise": false,
+      "label": "셀 55"
+    },
+    {
+      "code": "from scipy.stats import trimboth\n\ntrimmed = trimboth(birth_weights, 0.01)\nm, s = np.mean(trimmed), np.std(trimmed)\nm, s",
+      "exercise": false,
+      "label": "셀 56"
+    },
+    {
+      "code": "cdf_model = make_normal_model(trimmed)",
+      "exercise": false,
+      "label": "셀 57"
+    },
+    {
+      "code": "cdf_birth_weight = Cdf.from_seq(birth_weights, name='data')\n\ntwo_cdf_plots(cdf_model, cdf_birth_weight, xlabel=\"Birth weight (pounds)\")",
+      "exercise": false,
+      "label": "셀 58"
+    },
+    {
+      "code": "def simulate_proportionate_growth(n):\n    choices = [1.03, 1.05, 1.07]\n    gains = np.random.choice(choices, n)\n    return gains.prod()",
+      "exercise": false,
+      "label": "셀 59"
+    },
+    {
+      "code": "sim_weights = [simulate_proportionate_growth(100) for i in range(1001)]\nnp.mean(sim_weights), np.std(sim_weights)",
+      "exercise": false,
+      "label": "셀 60"
+    },
+    {
+      "code": "log_sim_weights = np.log10(sim_weights)\nm, s = np.mean(log_sim_weights), np.std(log_sim_weights)\nm, s",
+      "exercise": false,
+      "label": "셀 61"
+    },
+    {
+      "code": "cdf_model = make_normal_model(log_sim_weights)\ncdf_log_sim_weights = Cdf.from_seq(log_sim_weights, name=\"simulation\")\n\ntwo_cdf_plots(\n    cdf_model, cdf_log_sim_weights, xlabel=\"Pumpkin weight (log10 pounds)\"\n)",
+      "exercise": false,
+      "label": "셀 62"
+    },
+    {
+      "code": "from notebook_support import read_brfss\n\nbrfss = read_brfss()",
+      "exercise": false,
+      "label": "셀 63"
+    },
+    {
+      "code": "adult_weights = brfss[\"wtkg2\"].dropna()\nm, s = np.mean(adult_weights), np.std(adult_weights)\nm, s",
+      "exercise": false,
+      "label": "셀 64"
+    },
+    {
+      "code": "cdf_model = make_normal_model(adult_weights)\ncdf_adult_weights = Cdf.from_seq(adult_weights, name=\"adult weight\")\n\ntwo_cdf_plots(cdf_model, cdf_adult_weights, xlabel=\"Adult weight (kilograms)\")",
+      "exercise": false,
+      "label": "셀 65"
+    },
+    {
+      "code": "log_adult_weights = np.log10(adult_weights)\ncdf_model = make_normal_model(log_adult_weights)\n\ncdf_log_adult_weights = Cdf.from_seq(log_adult_weights, name=\"log adult weight\")",
+      "exercise": false,
+      "label": "셀 66"
+    },
+    {
+      "code": "two_cdf_plots(cdf_model, cdf_log_adult_weights, xlabel=\"Adult weight (log10 kg)\")",
+      "exercise": false,
+      "label": "셀 67"
+    },
+    {
+      "code": "from nsfg import read_fem_resp\n\nresp = read_fem_resp()",
+      "exercise": true,
+      "label": "셀 68"
+    },
+    {
+      "code": "older = resp.query(\"age >= 25\")\nnum_family = older[\"numfmhh\"]",
+      "exercise": true,
+      "label": "셀 69"
+    },
+    {
+      "code": "import json\nwith open(\"nhl-goals.json\") as stream:\n    nhl_games = json.load(stream)\nkeys = list(nhl_games)\n\ndef read_game(key):\n    return pd.Series(nhl_games[key], dtype=float)\n\nlen(keys), keys[0]",
+      "exercise": true,
+      "label": "셀 70"
+    },
+    {
+      "code": "intervals = []\n\nfor key in keys:\n    times = read_game(key)\n    if len(times) > 1:\n        intervals.extend(times.diff().dropna())",
+      "exercise": true,
+      "label": "셀 71"
+    },
+    {
+      "code": "adult_heights = brfss[\"htm3\"].dropna()\nm, s = np.mean(adult_heights), np.std(adult_heights)\nm, s",
+      "exercise": true,
+      "label": "셀 72"
+    }
+  ],
+  "attribution": "Think Stats, 3rd edition — Allen B. Downey.\n\nSource and Korean translation: https://allendowney.github.io/ThinkStats/chap05.html\n\nCode license notice:\n\nMIT License\n\nCopyright (c) 2024 Allen Downey\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n\nThe downloaded helpers retain their own GNU GPLv3 headers. Their complete source and COPYING are distributed under /labs/think-stats/upstream/.\n"
+}

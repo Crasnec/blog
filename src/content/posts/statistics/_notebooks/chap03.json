@@ -1,0 +1,236 @@
+{
+  "chapter": 3,
+  "cells": [
+    {
+      "code": "# The preparation cell downloads the chapter files once per Python environment.\nimport sys\nfrom pathlib import Path\nfrom urllib.parse import urljoin\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom IPython.display import HTML\n\nDATA_URL = \"/labs/think-stats/\"\nasync def prepare_file(name):\n    target = Path(name.rsplit(\"/\", 1)[-1])\n    if target.exists():\n        return\n    if sys.platform == \"emscripten\":\n        from pyodide.http import pyfetch\n        response = await pyfetch(urljoin(DATA_URL, name))\n        if not response.ok:\n            raise RuntimeError(f\"Download failed: {name} (HTTP {response.status})\")\n        target.write_bytes(await response.bytes())\n    else:\n        from urllib.request import urlretrieve\n        urlretrieve(urljoin(DATA_URL, name), target)\n\nfor name in ['upstream/thinkstats.py', 'upstream/nsfg.py', 'upstream/relay.py', 'notebook_support.py', '2002FemPreg.dct', '2002FemPreg.dat.gz', '2002FemResp.dct', '2002FemResp.dat.gz']:\n    await prepare_file(name)\n\nsys.path.insert(0, str(Path.cwd()))\nfrom thinkstats import decorate\nplt.rcParams[\"figure.dpi\"] = 120\n# Match the browser's PNG backend without hiding other warnings.\nimport warnings\nfrom matplotlib import MatplotlibDeprecationWarning\nwarnings.filterwarnings(\"ignore\", message=r\"The [xy] parameter as float was deprecated in Matplotlib 3\\.10.*Use int\\([xy]\\) instead\\.\", category=MatplotlibDeprecationWarning)\nprint(\"준비되었습니다. 다음 셀부터 순서대로 실행하세요.\")\n",
+      "exercise": false,
+      "label": "준비: 라이브러리와 자료"
+    },
+    {
+      "code": "from empiricaldist import FreqTab\n\nftab = FreqTab.from_seq([1, 2, 2, 3, 5])\nftab",
+      "exercise": false,
+      "label": "셀 1"
+    },
+    {
+      "code": "n = ftab.sum()\nn",
+      "exercise": false,
+      "label": "셀 2"
+    },
+    {
+      "code": "pmf = ftab / n\npmf",
+      "exercise": false,
+      "label": "셀 3"
+    },
+    {
+      "code": "pmf.sum()",
+      "exercise": false,
+      "label": "셀 4"
+    },
+    {
+      "code": "from empiricaldist import Pmf\n\npmf = Pmf.from_seq([1, 2, 2, 3, 5])\npmf",
+      "exercise": false,
+      "label": "셀 5"
+    },
+    {
+      "code": "pmf.sum()",
+      "exercise": false,
+      "label": "셀 6"
+    },
+    {
+      "code": "pmf[2]",
+      "exercise": false,
+      "label": "셀 7"
+    },
+    {
+      "code": "pmf(2)",
+      "exercise": false,
+      "label": "셀 8"
+    },
+    {
+      "code": "pmf[2] = 0.2\npmf(2)",
+      "exercise": false,
+      "label": "셀 9"
+    },
+    {
+      "code": "pmf[2] += 0.3\npmf[2]",
+      "exercise": false,
+      "label": "셀 10"
+    },
+    {
+      "code": "pmf[2] *= 0.5\npmf[2]",
+      "exercise": false,
+      "label": "셀 11"
+    },
+    {
+      "code": "pmf.sum()",
+      "exercise": false,
+      "label": "셀 12"
+    },
+    {
+      "code": "pmf.normalize()",
+      "exercise": false,
+      "label": "셀 13"
+    },
+    {
+      "code": "pmf.copy()",
+      "exercise": false,
+      "label": "셀 14"
+    },
+    {
+      "code": "seq = [1, 2, 2, 3, 5]\n\nn = len(seq)\nmean = np.sum(seq) / n\nmean",
+      "exercise": false,
+      "label": "셀 15"
+    },
+    {
+      "code": "pmf = Pmf.from_seq(seq)",
+      "exercise": false,
+      "label": "셀 16"
+    },
+    {
+      "code": "mean = np.sum(pmf.ps * pmf.qs)\nmean",
+      "exercise": false,
+      "label": "셀 17"
+    },
+    {
+      "code": "pmf.mean()",
+      "exercise": false,
+      "label": "셀 18"
+    },
+    {
+      "code": "deviations = pmf.qs - mean",
+      "exercise": false,
+      "label": "셀 19"
+    },
+    {
+      "code": "var = np.sum(pmf.ps * deviations**2)\nvar",
+      "exercise": false,
+      "label": "셀 20"
+    },
+    {
+      "code": "pmf.var()",
+      "exercise": false,
+      "label": "셀 21"
+    },
+    {
+      "code": "np.sqrt(var)",
+      "exercise": false,
+      "label": "셀 22"
+    },
+    {
+      "code": "pmf.std()",
+      "exercise": false,
+      "label": "셀 23"
+    },
+    {
+      "code": "pmf.mode()",
+      "exercise": false,
+      "label": "셀 24"
+    },
+    {
+      "code": "ranges = pd.interval_range(start=5, end=50, freq=5, closed=\"left\")\nranges.name = \"class size\"\n\ndata = pd.DataFrame(index=ranges)\ndata[\"count\"] = [8, 8, 14, 4, 6, 12, 8, 3, 2]\ndata",
+      "exercise": false,
+      "label": "셀 25"
+    },
+    {
+      "code": "sizes = ranges.left + 2\nsizes",
+      "exercise": false,
+      "label": "셀 26"
+    },
+    {
+      "code": "counts = data[\"count\"]\nactual_pmf = Pmf(counts, sizes, name=\"actual\")\nactual_pmf.normalize()",
+      "exercise": false,
+      "label": "셀 27"
+    },
+    {
+      "code": "actual_pmf.mean()",
+      "exercise": false,
+      "label": "셀 28"
+    },
+    {
+      "code": "def bias(pmf, name):\n    # multiply each probability by class size\n    ps = pmf.ps * pmf.qs\n\n    # make a new Pmf and normalize it\n    new_pmf = Pmf(ps, pmf.qs, name=name)\n    new_pmf.normalize()\n    return new_pmf",
+      "exercise": false,
+      "label": "셀 29"
+    },
+    {
+      "code": "observed_pmf = bias(actual_pmf, name=\"observed\")",
+      "exercise": false,
+      "label": "셀 30"
+    },
+    {
+      "code": "from thinkstats import two_bar_plots\n\ntwo_bar_plots(actual_pmf, observed_pmf, width=2)\ndecorate(xlabel=\"Class size\", ylabel=\"PMF\")",
+      "exercise": false,
+      "label": "셀 31"
+    },
+    {
+      "code": "observed_pmf.mean()",
+      "exercise": false,
+      "label": "셀 32"
+    },
+    {
+      "code": "def unbias(pmf, name):\n    # divide each probability by class size\n    ps = pmf.ps / pmf.qs\n\n    new_pmf = Pmf(ps, pmf.qs, name=name)\n    new_pmf.normalize()\n    return new_pmf",
+      "exercise": false,
+      "label": "셀 33"
+    },
+    {
+      "code": "debiased_pmf = unbias(observed_pmf, \"debiased\")\ndebiased_pmf.mean()",
+      "exercise": false,
+      "label": "셀 34"
+    },
+    {
+      "code": "from nsfg import get_nsfg_groups\n\nlive, firsts, others = get_nsfg_groups()",
+      "exercise": false,
+      "label": "셀 35"
+    },
+    {
+      "code": "first_pmf = Pmf.from_seq(firsts[\"prglngth\"], name=\"firsts\")\nother_pmf = Pmf.from_seq(others[\"prglngth\"], name=\"others\")",
+      "exercise": false,
+      "label": "셀 36"
+    },
+    {
+      "code": "two_bar_plots(first_pmf, other_pmf)\ndecorate(xlabel=\"Weeks\", ylabel=\"Probability\", xlim=[20, 50])",
+      "exercise": false,
+      "label": "셀 37"
+    },
+    {
+      "code": "weeks = range(35, 46)\nfirst_pmf(weeks)",
+      "exercise": false,
+      "label": "셀 38"
+    },
+    {
+      "code": "other_pmf(weeks)",
+      "exercise": false,
+      "label": "셀 39"
+    },
+    {
+      "code": "diffs = first_pmf(weeks) - other_pmf(weeks)\ndiffs",
+      "exercise": false,
+      "label": "셀 40"
+    },
+    {
+      "code": "plt.bar(weeks, diffs * 100)\ndecorate(xlabel=\"Weeks\", ylabel=\"Difference (percentage points)\")",
+      "exercise": false,
+      "label": "셀 41"
+    },
+    {
+      "code": "from nsfg import read_fem_resp\n\nresp = read_fem_resp()\nresp.shape",
+      "exercise": true,
+      "label": "셀 42"
+    },
+    {
+      "code": "pmf.bar()\ndecorate(xlabel=\"Number of babies\", ylabel=\"PMF\")",
+      "exercise": true,
+      "label": "셀 43"
+    },
+    {
+      "code": "numbabes = resp[\"numbabes\"].replace(97, np.nan)",
+      "exercise": true,
+      "label": "셀 44"
+    },
+    {
+      "code": "deviations = numbabes - numbabes.mean()\nskewness = np.mean(deviations**3) / numbabes.std(ddof=0) ** 3\nskewness",
+      "exercise": true,
+      "label": "셀 45"
+    }
+  ],
+  "attribution": "Think Stats, 3rd edition — Allen B. Downey.\n\nSource and Korean translation: https://allendowney.github.io/ThinkStats/chap03.html\n\nCode license notice:\n\nMIT License\n\nCopyright (c) 2024 Allen Downey\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n\nThe downloaded helpers retain their own GNU GPLv3 headers. Their complete source and COPYING are distributed under /labs/think-stats/upstream/.\n"
+}

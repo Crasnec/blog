@@ -1,0 +1,441 @@
+{
+  "chapter": 12,
+  "cells": [
+    {
+      "code": "# The preparation cell downloads the chapter files once per Python environment.\nimport sys\nfrom pathlib import Path\nfrom urllib.parse import urljoin\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom IPython.display import HTML\n\nDATA_URL = \"/labs/think-stats/\"\nasync def prepare_file(name):\n    target = Path(name.rsplit(\"/\", 1)[-1])\n    if target.exists():\n        return\n    if sys.platform == \"emscripten\":\n        from pyodide.http import pyfetch\n        response = await pyfetch(urljoin(DATA_URL, name))\n        if not response.ok:\n            raise RuntimeError(f\"Download failed: {name} (HTTP {response.status})\")\n        target.write_bytes(await response.bytes())\n    else:\n        from urllib.request import urlretrieve\n        urlretrieve(urljoin(DATA_URL, name), target)\n\nfor name in ['upstream/thinkstats.py', 'upstream/nsfg.py', 'upstream/relay.py', 'notebook_support.py', 'Net_generation_for_all_sectors.csv', 'monthly-average-surface-temperatures-by-year.csv']:\n    await prepare_file(name)\n\nsys.path.insert(0, str(Path.cwd()))\nfrom thinkstats import decorate\nplt.rcParams[\"figure.dpi\"] = 120\n# Match the browser's PNG backend without hiding other warnings.\nimport warnings\nfrom matplotlib import MatplotlibDeprecationWarning\nwarnings.filterwarnings(\"ignore\", message=r\"The [xy] parameter as float was deprecated in Matplotlib 3\\.10.*Use int\\([xy]\\) instead\\.\", category=MatplotlibDeprecationWarning)\nprint(\"준비되었습니다. 다음 셀부터 순서대로 실행하세요.\")\n",
+      "exercise": false,
+      "label": "준비: 라이브러리와 자료"
+    },
+    {
+      "code": "filename = \"Net_generation_for_all_sectors.csv\"",
+      "exercise": false,
+      "label": "셀 1"
+    },
+    {
+      "code": "elec = (\n    pd.read_csv(\"Net_generation_for_all_sectors.csv\", skiprows=4)\n    .drop(columns=[\"units\", \"source key\"])\n    .set_index(\"description\")\n    .replace(\"--\", np.nan)\n    .transpose()\n    .astype(float)\n)",
+      "exercise": false,
+      "label": "셀 2"
+    },
+    {
+      "code": "elec.columns",
+      "exercise": false,
+      "label": "셀 3"
+    },
+    {
+      "code": "elec.index[:12]",
+      "exercise": false,
+      "label": "셀 4"
+    },
+    {
+      "code": "elec.index = pd.date_range(start=\"2001-01\", periods=len(elec), freq=\"ME\")\nelec.index[:6]",
+      "exercise": false,
+      "label": "셀 5"
+    },
+    {
+      "code": "actual_options = dict(color=\"C0\", lw=1, alpha=0.6)\ntrend_options = dict(color=\"C1\", alpha=0.6)\npred_options = dict(color=\"C2\", alpha=0.6, ls=':')\nmodel_options = dict(color=\"gray\", alpha=0.6, ls='--')",
+      "exercise": false,
+      "label": "셀 6"
+    },
+    {
+      "code": "nuclear = elec[\"United States : nuclear\"]\nnuclear.plot(label=\"nuclear\", **actual_options)\n\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 7"
+    },
+    {
+      "code": "trend = nuclear.rolling(window=12).mean()",
+      "exercise": false,
+      "label": "셀 8"
+    },
+    {
+      "code": "nuclear.plot(label=\"nuclear\", **actual_options)\ntrend.plot(label=\"trend\", **trend_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 9"
+    },
+    {
+      "code": "detrended = (nuclear - trend).dropna()\ndetrended.plot(label=\"detrended\", **actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 10"
+    },
+    {
+      "code": "monthly_averages = detrended.groupby(detrended.index.month).mean()\nmonthly_averages.plot(label=\"monthly average\", **actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 11"
+    },
+    {
+      "code": "seasonal = monthly_averages[nuclear.index.month]\nseasonal.index = nuclear.index\nseasonal.plot(label=\"seasonal\", **actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 12"
+    },
+    {
+      "code": "expected = trend + seasonal",
+      "exercise": false,
+      "label": "셀 13"
+    },
+    {
+      "code": "expected.plot(label=\"expected\", **pred_options)\nnuclear.plot(label=\"actual\", **actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 14"
+    },
+    {
+      "code": "resid = nuclear - expected\nresid.plot(label=\"residual\", **actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 15"
+    },
+    {
+      "code": "from thinkstats import plot_kde\n\nplot_kde(resid.dropna())\ndecorate(xlabel=\"Residual (GWh)\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 16"
+    },
+    {
+      "code": "rsquared = 1 - resid.var() / nuclear.var()\nrsquared",
+      "exercise": false,
+      "label": "셀 17"
+    },
+    {
+      "code": "from statsmodels.tsa.seasonal import seasonal_decompose\n\ndecomposition = seasonal_decompose(nuclear, model=\"additive\", period=12)",
+      "exercise": false,
+      "label": "셀 18"
+    },
+    {
+      "code": "def plot_decomposition(original, decomposition):\n    plt.figure(figsize=(6, 5))\n\n    ax1 = plt.subplot(4, 1, 1)\n    plt.plot(original, label=\"Original\", color=\"C0\", lw=1)\n    plt.ylabel(\"Original\")\n\n    plt.subplot(4, 1, 2, sharex=ax1)\n    plt.plot(decomposition.trend, label=\"Trend\", color=\"C1\", lw=1)\n    plt.ylabel(\"Trend\")\n\n    plt.subplot(4, 1, 3, sharex=ax1)\n    plt.plot(decomposition.seasonal, label=\"Seasonal\", color=\"C2\", lw=1)\n    plt.ylabel(\"Seasonal\")\n\n    plt.subplot(4, 1, 4, sharex=ax1)\n    plt.plot(decomposition.resid, label=\"Residual\", color=\"C3\", lw=1)\n    plt.ylabel(\"Residual\")\n\n    plt.tight_layout()",
+      "exercise": false,
+      "label": "셀 19"
+    },
+    {
+      "code": "plot_decomposition(nuclear, decomposition)",
+      "exercise": false,
+      "label": "셀 20"
+    },
+    {
+      "code": "def split_series(series, n=60):\n    training = series.iloc[:-n]\n    test = series.iloc[-n:]\n    return training, test",
+      "exercise": false,
+      "label": "셀 21"
+    },
+    {
+      "code": "training, test = split_series(nuclear)\ntest.index[0]",
+      "exercise": false,
+      "label": "셀 22"
+    },
+    {
+      "code": "decomposition = seasonal_decompose(training, model=\"additive\", period=12)\ntrend = decomposition.trend",
+      "exercise": false,
+      "label": "셀 23"
+    },
+    {
+      "code": "import statsmodels.formula.api as smf\n\nmonths = np.arange(len(trend))\ndata = pd.DataFrame({\"trend\": trend, \"months\": months}).dropna()\nresults = smf.ols(\"trend ~ months\", data=data).fit()",
+      "exercise": false,
+      "label": "셀 24"
+    },
+    {
+      "code": "from thinkstats import display_summary\n\ndisplay_summary(results)",
+      "exercise": false,
+      "label": "셀 25"
+    },
+    {
+      "code": "months = np.arange(len(training) + len(test))\ndf = pd.DataFrame({\"months\": months})\npred_trend = results.predict(df)\npred_trend.index = nuclear.index",
+      "exercise": false,
+      "label": "셀 26"
+    },
+    {
+      "code": "trend.plot(**trend_options)\npred_trend.plot(label=\"linear model\", **model_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 27"
+    },
+    {
+      "code": "seasonal = decomposition.seasonal\nmonthly_averages = seasonal.groupby(seasonal.index.month).mean()",
+      "exercise": false,
+      "label": "셀 28"
+    },
+    {
+      "code": "pred_seasonal = monthly_averages[pred_trend.index.month]\npred_seasonal.index = pred_trend.index",
+      "exercise": false,
+      "label": "셀 29"
+    },
+    {
+      "code": "pred = pred_trend + pred_seasonal",
+      "exercise": false,
+      "label": "셀 30"
+    },
+    {
+      "code": "pred.plot(label=\"prediction\", **pred_options)\ntraining.plot(label=\"training\", **actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 31"
+    },
+    {
+      "code": "forecast = pred[test.index]\nforecast.plot(label=\"predicted\", **pred_options)\ntest.plot(label=\"actual\", **actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 32"
+    },
+    {
+      "code": "def MAPE(predicted, actual):\n    ape = np.abs(predicted - actual) / actual\n    return np.mean(ape) * 100",
+      "exercise": false,
+      "label": "셀 33"
+    },
+    {
+      "code": "MAPE(forecast, test)",
+      "exercise": false,
+      "label": "셀 34"
+    },
+    {
+      "code": "solar = elec[\"United States : small-scale solar photovoltaic\"].dropna()\nsolar.plot(label=\"solar\", **actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 35"
+    },
+    {
+      "code": "training, test = split_series(solar)",
+      "exercise": false,
+      "label": "셀 36"
+    },
+    {
+      "code": "decomposition = seasonal_decompose(training, model=\"multiplicative\", period=12)",
+      "exercise": false,
+      "label": "셀 37"
+    },
+    {
+      "code": "plot_decomposition(training, decomposition)",
+      "exercise": false,
+      "label": "셀 38"
+    },
+    {
+      "code": "trend = decomposition.trend\nseasonal = decomposition.seasonal\nresid = decomposition.resid",
+      "exercise": false,
+      "label": "셀 39"
+    },
+    {
+      "code": "rsquared = 1 - resid.var() / training.var()\nrsquared",
+      "exercise": false,
+      "label": "셀 40"
+    },
+    {
+      "code": "months = range(len(training))\ndata = pd.DataFrame({\"trend\": trend, \"months\": months}).dropna()\nresults = smf.ols(\"trend ~ months + I(months**2)\", data=data).fit()",
+      "exercise": false,
+      "label": "셀 41"
+    },
+    {
+      "code": "display_summary(results)",
+      "exercise": false,
+      "label": "셀 42"
+    },
+    {
+      "code": "months = range(len(solar))\ndf = pd.DataFrame({\"months\": months})\npred_trend = results.predict(df)\npred_trend.index = solar.index",
+      "exercise": false,
+      "label": "셀 43"
+    },
+    {
+      "code": "pred_trend.plot(label=\"quadratic model\", **model_options)\ntrend.plot(**trend_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 44"
+    },
+    {
+      "code": "monthly_averages = seasonal.groupby(seasonal.index.month).mean()\npred_seasonal = monthly_averages[pred_trend.index.month]\npred_seasonal.index = pred_trend.index",
+      "exercise": false,
+      "label": "셀 45"
+    },
+    {
+      "code": "pred = pred_trend * pred_seasonal",
+      "exercise": false,
+      "label": "셀 46"
+    },
+    {
+      "code": "training.plot(label=\"training\", **actual_options)\npred.plot(label=\"prediction\", **pred_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 47"
+    },
+    {
+      "code": "future = pred[test.index]\nfuture.plot(label=\"prediction\", **pred_options)\ntest.plot(label=\"actual\", **actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 48"
+    },
+    {
+      "code": "diff = (nuclear - nuclear.shift(12)).dropna()\ndiff.plot(label=\"year over year differences\", **actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 49"
+    },
+    {
+      "code": "df_ar = pd.DataFrame({\"diff\": diff})\nfor lag in [1, 2, 3]:\n    df_ar[f\"lag{lag}\"] = diff.shift(lag)\n\ndf_ar = df_ar.dropna()",
+      "exercise": false,
+      "label": "셀 50"
+    },
+    {
+      "code": "df_ar.corr()[[\"diff\"]]",
+      "exercise": false,
+      "label": "셀 51"
+    },
+    {
+      "code": "def make_formula(df):\n    \"\"\"Make a Patsy formula from column names.\"\"\"\n    y = df.columns[0]\n    xs = \" + \".join(df.columns[1:])\n    return f\"{y} ~ {xs}\"",
+      "exercise": false,
+      "label": "셀 52"
+    },
+    {
+      "code": "formula = make_formula(df_ar)\nresults_ar = smf.ols(formula=formula, data=df_ar).fit()\ndisplay_summary(results_ar)",
+      "exercise": false,
+      "label": "셀 53"
+    },
+    {
+      "code": "pred_ar = results_ar.predict(df_ar)\npred_ar.plot(label=\"predictions\", **pred_options)\ndiff.plot(label=\"differences\", **actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 54"
+    },
+    {
+      "code": "resid_ar = (diff - pred_ar).dropna()\nR2 = 1 - resid_ar.var() / diff.var()\nR2",
+      "exercise": false,
+      "label": "셀 55"
+    },
+    {
+      "code": "df_ma = pd.DataFrame({\"resid\": resid_ar})\n\nfor lag in [1, 6]:\n    df_ma[f\"lag{lag}\"] = resid_ar.shift(lag)\n\ndf_ma = df_ma.dropna()",
+      "exercise": false,
+      "label": "셀 56"
+    },
+    {
+      "code": "formula = make_formula(df_ma)\nresults_ma = smf.ols(formula=formula, data=df_ma).fit()\ndisplay_summary(results_ma)",
+      "exercise": false,
+      "label": "셀 57"
+    },
+    {
+      "code": "pred_ma = results_ma.predict(df_ma)",
+      "exercise": false,
+      "label": "셀 58"
+    },
+    {
+      "code": "pred_diff = pred_ar + pred_ma",
+      "exercise": false,
+      "label": "셀 59"
+    },
+    {
+      "code": "resid_ma = (diff - pred_diff).dropna()\nR2 = 1 - resid_ma.var() / diff.var()\nR2",
+      "exercise": false,
+      "label": "셀 60"
+    },
+    {
+      "code": "pred_diff = pd.Series(pred_diff, index=nuclear.index)",
+      "exercise": false,
+      "label": "셀 61"
+    },
+    {
+      "code": "n_missing = pred_diff.isna().sum()\nn_missing",
+      "exercise": false,
+      "label": "셀 62"
+    },
+    {
+      "code": "pred_series = pd.Series(index=nuclear.index, dtype=float)\npred_series.iloc[:n_missing] = nuclear.iloc[:n_missing]",
+      "exercise": false,
+      "label": "셀 63"
+    },
+    {
+      "code": "for i in range(n_missing, len(pred_series)):\n    pred_series.iloc[i] = pred_series.iloc[i - 12] + pred_diff.iloc[i]",
+      "exercise": false,
+      "label": "셀 64"
+    },
+    {
+      "code": "pred_series[:n_missing] = np.nan",
+      "exercise": false,
+      "label": "셀 65"
+    },
+    {
+      "code": "pred_series.plot(label=\"predicted\", **pred_options)\nnuclear.plot(label=\"actual\", **actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 66"
+    },
+    {
+      "code": "resid = (nuclear - pred_series).dropna()\nR2 = 1 - resid.var() / nuclear.var()\nR2",
+      "exercise": false,
+      "label": "셀 67"
+    },
+    {
+      "code": "order = ([1, 2, 3], 0, [1, 6])",
+      "exercise": false,
+      "label": "셀 68"
+    },
+    {
+      "code": "seasonal_order = (0, 1, 0, 12)",
+      "exercise": false,
+      "label": "셀 69"
+    },
+    {
+      "code": "import statsmodels.tsa.api as tsa\n\nmodel = tsa.ARIMA(nuclear, order=order, seasonal_order=seasonal_order)\nresults_arima = model.fit()\ndisplay_summary(results_arima)",
+      "exercise": false,
+      "label": "셀 70"
+    },
+    {
+      "code": "fittedvalues = results_arima.fittedvalues[n_missing:]",
+      "exercise": false,
+      "label": "셀 71"
+    },
+    {
+      "code": "fittedvalues.plot(label=\"ARIMA model\", **pred_options)\nnuclear.plot(label=\"actual\", **actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 72"
+    },
+    {
+      "code": "resid = fittedvalues - nuclear\nR2 = 1 - resid.var() / nuclear.var()\nR2",
+      "exercise": false,
+      "label": "셀 73"
+    },
+    {
+      "code": "training, test = split_series(nuclear)\nmodel = tsa.ARIMA(training, order=order, seasonal_order=seasonal_order)\nresults_training = model.fit()",
+      "exercise": false,
+      "label": "셀 74"
+    },
+    {
+      "code": "forecast = results_training.get_forecast(steps=len(test))",
+      "exercise": false,
+      "label": "셀 75"
+    },
+    {
+      "code": "forecast_mean = forecast.predicted_mean\nforecast_ci = forecast.conf_int()\nforecast_ci.columns = [\"lower\", \"upper\"]",
+      "exercise": false,
+      "label": "셀 76"
+    },
+    {
+      "code": "plt.fill_between(\n    forecast_ci.index,\n    forecast_ci.lower,\n    forecast_ci.upper,\n    lw=0,\n    color=\"gray\",\n    alpha=0.2,\n)\nplt.plot(forecast_mean.index, forecast_mean, label=\"forecast\", **pred_options)\nplt.plot(test.index, test, label=\"actual\", **actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": false,
+      "label": "셀 77"
+    },
+    {
+      "code": "MAPE(forecast_mean, test)",
+      "exercise": false,
+      "label": "셀 78"
+    },
+    {
+      "code": "# The following cell downloads data prepared by Our World in Data,\n# which I Downloaded September 18, 2024\n# from https://ourworldindata.org/grapher/average-monthly-surface-temperature\n\n# Based on modified data from Copernicus Climate Change Service information (2019)\n# with \"major processing\" by Our World in Data",
+      "exercise": true,
+      "label": "셀 79"
+    },
+    {
+      "code": "filename = \"monthly-average-surface-temperatures-by-year.csv\"",
+      "exercise": true,
+      "label": "셀 80"
+    },
+    {
+      "code": "temp = pd.read_csv(\"monthly-average-surface-temperatures-by-year.csv\")",
+      "exercise": true,
+      "label": "셀 81"
+    },
+    {
+      "code": "temp.head()",
+      "exercise": true,
+      "label": "셀 82"
+    },
+    {
+      "code": "temp_us = temp.query(\"Code == 'USA'\")\ncolumns = [str(year) for year in range(2000, 2025)]\ntemp_series = temp_us.loc[:, columns].transpose().stack().dropna()\ntemp_series.index = pd.date_range(start=\"2000-01\", periods=len(temp_series), freq=\"ME\")",
+      "exercise": true,
+      "label": "셀 83"
+    },
+    {
+      "code": "temp_series.plot(label=\"monthly average\", **actual_options)\ndecorate(ylabel=\"Surface temperature (degC)\")",
+      "exercise": true,
+      "label": "셀 84"
+    },
+    {
+      "code": "util_solar = elec[\"United States : all utility-scale solar\"].dropna()\nutil_solar = util_solar[util_solar.index.year >= 2014]\nutil_solar.plot(**actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": true,
+      "label": "셀 85"
+    },
+    {
+      "code": "hydro = elec[\"United States : conventional hydroelectric\"]\nhydro.plot(**actual_options)\ndecorate(ylabel=\"GWh\")",
+      "exercise": true,
+      "label": "셀 86"
+    }
+  ],
+  "attribution": "Think Stats, 3rd edition — Allen B. Downey.\n\nSource and Korean translation: https://allendowney.github.io/ThinkStats/chap12.html\n\nCode license notice:\n\nMIT License\n\nCopyright (c) 2024 Allen Downey\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n\nThe downloaded helpers retain their own GNU GPLv3 headers. Their complete source and COPYING are distributed under /labs/think-stats/upstream/.\n"
+}

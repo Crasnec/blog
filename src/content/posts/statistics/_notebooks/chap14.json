@@ -1,0 +1,531 @@
+{
+  "chapter": 14,
+  "cells": [
+    {
+      "code": "# The preparation cell downloads the chapter files once per Python environment.\nimport sys\nfrom pathlib import Path\nfrom urllib.parse import urljoin\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom IPython.display import HTML\n\nDATA_URL = \"/labs/think-stats/\"\nasync def prepare_file(name):\n    target = Path(name.rsplit(\"/\", 1)[-1])\n    if target.exists():\n        return\n    if sys.platform == \"emscripten\":\n        from pyodide.http import pyfetch\n        response = await pyfetch(urljoin(DATA_URL, name))\n        if not response.ok:\n            raise RuntimeError(f\"Download failed: {name} (HTTP {response.status})\")\n        target.write_bytes(await response.bytes())\n    else:\n        from urllib.request import urlretrieve\n        urlretrieve(urljoin(DATA_URL, name), target)\n\nfor name in ['upstream/thinkstats.py', 'upstream/nsfg.py', 'upstream/relay.py', 'notebook_support.py', 'penguins_raw.csv', '2002FemPreg.dct', '2002FemPreg.dat.gz']:\n    await prepare_file(name)\n\nsys.path.insert(0, str(Path.cwd()))\nfrom thinkstats import decorate\nplt.rcParams[\"figure.dpi\"] = 120\n# Match the browser's PNG backend without hiding other warnings.\nimport warnings\nfrom matplotlib import MatplotlibDeprecationWarning\nwarnings.filterwarnings(\"ignore\", message=r\"The [xy] parameter as float was deprecated in Matplotlib 3\\.10.*Use int\\([xy]\\) instead\\.\", category=MatplotlibDeprecationWarning)\nprint(\"준비되었습니다. 다음 셀부터 순서대로 실행하세요.\")\n",
+      "exercise": false,
+      "label": "준비: 라이브러리와 자료"
+    },
+    {
+      "code": "penguins = pd.read_csv(\"penguins_raw.csv\")\npenguins.shape",
+      "exercise": false,
+      "label": "셀 1"
+    },
+    {
+      "code": "adelie = penguins.query('Species.str.startswith(\"Adelie\")').copy()\nlen(adelie)",
+      "exercise": false,
+      "label": "셀 2"
+    },
+    {
+      "code": "from empiricaldist import Cdf\n\nweights = adelie[\"Body Mass (g)\"].dropna()\ncdf_weights = Cdf.from_seq(weights)",
+      "exercise": false,
+      "label": "셀 3"
+    },
+    {
+      "code": "m, s = weights.mean(), weights.std()\nm, s",
+      "exercise": false,
+      "label": "셀 4"
+    },
+    {
+      "code": "from scipy.stats import norm\n\ndist = norm(m, s)\nqs = np.linspace(m - 3.5 * s, m + 3.5 * s)\nps = dist.cdf(qs)",
+      "exercise": false,
+      "label": "셀 5"
+    },
+    {
+      "code": "model_options = dict(color=\"gray\", alpha=0.5, label=\"model\")\nplt.plot(qs, ps, **model_options)\ncdf_weights.plot(label=\"data\")\n\ndecorate(ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 6"
+    },
+    {
+      "code": "ys = np.sort(weights)",
+      "exercise": false,
+      "label": "셀 7"
+    },
+    {
+      "code": "n = len(weights)\nps = (np.arange(n) + 0.5) / n\nxs = norm.ppf(ps)",
+      "exercise": false,
+      "label": "셀 8"
+    },
+    {
+      "code": "from scipy.stats import linregress\n\nresults = linregress(xs, ys)\nintercept, slope = results.intercept, results.slope\n\nfit_xs = np.linspace(-3, 3)\nfit_ys = intercept + slope * fit_xs",
+      "exercise": false,
+      "label": "셀 9"
+    },
+    {
+      "code": "plt.plot(fit_xs, fit_ys, **model_options)\nplt.plot(xs, ys, label=\"data\")\n\ndecorate(xlabel=\"Standard normal\", ylabel=\"Body mass (g)\")",
+      "exercise": false,
+      "label": "셀 10"
+    },
+    {
+      "code": "def normal_probability_plot(sample, **options):\n    \"\"\"Makes a normal probability plot with a fitted line.\"\"\"\n    n = len(sample)\n    ps = (np.arange(n) + 0.5) / n\n    xs = norm.ppf(ps)\n    ys = np.sort(sample)\n\n    results = linregress(xs, ys)\n    intercept, slope = results.intercept, results.slope\n\n    fit_xs = np.linspace(-3, 3)\n    fit_ys = intercept + slope * fit_xs\n\n    plt.plot(fit_xs, fit_ys, color=\"gray\", alpha=0.5)\n    plt.plot(xs, ys, **options)\n    decorate(xlabel=\"Standard normal\")",
+      "exercise": false,
+      "label": "셀 11"
+    },
+    {
+      "code": "grouped = adelie.groupby(\"Sex\")\n\nweights_male = grouped.get_group(\"MALE\")[\"Body Mass (g)\"]\nnormal_probability_plot(weights_male, ls=\"--\", label=\"Male\")\n\nweights_female = grouped.get_group(\"FEMALE\")[\"Body Mass (g)\"]\nnormal_probability_plot(weights_female, label=\"Female\")\n\ndecorate(ylabel=\"Weight (g)\")",
+      "exercise": false,
+      "label": "셀 12"
+    },
+    {
+      "code": "class Normal:\n    \"\"\"Represents a Normal distribution\"\"\"\n\n    def __init__(self, mu, sigma2):\n        \"\"\"Make a Normal object.\n\n        mu: mean\n        sigma2: variance\n        \"\"\"\n        self.mu = mu\n        self.sigma2 = sigma2\n\n    def __repr__(self):\n        \"\"\"Returns a string representation.\"\"\"\n        return f\"Normal({self.mu}, {self.sigma2})\"\n\n    __str__ = __repr__",
+      "exercise": false,
+      "label": "셀 13"
+    },
+    {
+      "code": "m, s = weights_male.mean(), weights_male.std()\ndist_male = Normal(m, s**2)\ndist_male",
+      "exercise": false,
+      "label": "셀 14"
+    },
+    {
+      "code": "m, s = weights_female.mean(), weights_female.std()\ndist_female = Normal(m, s**2)\ndist_female",
+      "exercise": false,
+      "label": "셀 15"
+    },
+    {
+      "code": "def sample(self, n):\n    \"\"\"Generate a random sample from this distribution.\"\"\"\n    sigma = np.sqrt(self.sigma2)\n    return np.random.normal(self.mu, sigma, n)\n\nNormal.sample = sample",
+      "exercise": false,
+      "label": "셀 16"
+    },
+    {
+      "code": "sample_sum = dist_male.sample(1000) + dist_female.sample(1000)\nnormal_probability_plot(sample_sum)\n\ndecorate(ylabel=\"Total weight (g)\")",
+      "exercise": false,
+      "label": "셀 17"
+    },
+    {
+      "code": "def __add__(self, other):\n    \"\"\"Distribution of the sum of two normal distributions.\"\"\"\n    return Normal(self.mu + other.mu, self.sigma2 + other.sigma2)\n\nNormal.__add__ = __add__",
+      "exercise": false,
+      "label": "셀 18"
+    },
+    {
+      "code": "dist_sum = dist_male + dist_female\ndist_sum",
+      "exercise": false,
+      "label": "셀 19"
+    },
+    {
+      "code": "def plot_cdf(self, n_sigmas=3.5, **options):\n    \"\"\"Plot the CDF of this distribution.\"\"\"\n    mu, sigma = self.mu, np.sqrt(self.sigma2)\n    low, high = mu - n_sigmas * sigma, mu + n_sigmas * sigma\n    xs = np.linspace(low, high, 101)\n    ys = norm.cdf(xs, mu, sigma)\n    plt.plot(xs, ys, **options)\n\nNormal.plot_cdf = plot_cdf",
+      "exercise": false,
+      "label": "셀 20"
+    },
+    {
+      "code": "dist_sum.plot_cdf(**model_options)\nCdf.from_seq(sample_sum).plot(label=\"sample\")\n\ndecorate(xlabel=\"Total weight (g)\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 21"
+    },
+    {
+      "code": "n = len(weights_male)\nsample_sums_male = [dist_male.sample(n).sum() for i in range(1001)]\nn",
+      "exercise": false,
+      "label": "셀 22"
+    },
+    {
+      "code": "def sum(self, n):\n    \"\"\"Return the distribution of the sum of n values.\"\"\"\n    return Normal(n * self.mu, n * self.sigma2)\n\nNormal.sum = sum",
+      "exercise": false,
+      "label": "셀 23"
+    },
+    {
+      "code": "dist_sums_male = dist_male.sum(n)",
+      "exercise": false,
+      "label": "셀 24"
+    },
+    {
+      "code": "dist_sums_male.plot_cdf(**model_options)\nCdf.from_seq(sample_sums_male).plot(label=\"sample\")\n\ndecorate(xlabel=\"Total weights (g)\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 25"
+    },
+    {
+      "code": "def __mul__(self, factor):\n    \"\"\"Multiplies by a scalar.\"\"\"\n    return Normal(factor * self.mu, factor**2 * self.sigma2)\n\nNormal.__mul__ = __mul__",
+      "exercise": false,
+      "label": "셀 26"
+    },
+    {
+      "code": "def __truediv__(self, factor):\n    \"\"\"Divides by a scalar.\"\"\"\n    return self * (1 / factor)\n\nNormal.__truediv__ = __truediv__",
+      "exercise": false,
+      "label": "셀 27"
+    },
+    {
+      "code": "dist_mean_male = dist_sums_male / n",
+      "exercise": false,
+      "label": "셀 28"
+    },
+    {
+      "code": "sample_means_male = np.array(sample_sums_male) / n",
+      "exercise": false,
+      "label": "셀 29"
+    },
+    {
+      "code": "dist_mean_male.plot_cdf(**model_options)\nCdf.from_seq(sample_means_male).plot(label=\"sample\")\n\ndecorate(xlabel=\"Average weight (g)\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 30"
+    },
+    {
+      "code": "standard_error = np.sqrt(dist_mean_male.sigma2)\nstandard_error",
+      "exercise": false,
+      "label": "셀 31"
+    },
+    {
+      "code": "standard_error = weights_male.std() / np.sqrt(n)\nstandard_error",
+      "exercise": false,
+      "label": "셀 32"
+    },
+    {
+      "code": "n = len(weights_female)\ndist_mean_female = dist_female.sum(n) / n\ndist_mean_female",
+      "exercise": false,
+      "label": "셀 33"
+    },
+    {
+      "code": "def __sub__(self, other):\n    \"\"\"Compute the distribution of a difference.\"\"\"\n    return Normal(self.mu - other.mu, self.sigma2 + other.sigma2)\n\nNormal.__sub__ = __sub__",
+      "exercise": false,
+      "label": "셀 34"
+    },
+    {
+      "code": "dist_diff_means = dist_mean_male - dist_mean_female\ndist_diff_means",
+      "exercise": false,
+      "label": "셀 35"
+    },
+    {
+      "code": "sample_sums_female = [dist_female.sample(n).sum() for i in range(1001)]\nsample_means_female = np.array(sample_sums_female) / n\nsample_diff_means = sample_means_male - sample_means_female",
+      "exercise": false,
+      "label": "셀 36"
+    },
+    {
+      "code": "dist_diff_means.plot_cdf(**model_options)\nCdf.from_seq(sample_diff_means).plot(label=\"sample\")\n\ndecorate(xlabel=\"Difference in average weight (g)\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 37"
+    },
+    {
+      "code": "def ppf(self, xs):\n    sigma = np.sqrt(self.sigma2)\n    return norm.ppf(xs, self.mu, sigma)\n\nNormal.ppf = ppf",
+      "exercise": false,
+      "label": "셀 38"
+    },
+    {
+      "code": "ci90 = dist_diff_means.ppf([0.05, 0.95])\nci90",
+      "exercise": false,
+      "label": "셀 39"
+    },
+    {
+      "code": "np.percentile(sample_diff_means, [5, 95])",
+      "exercise": false,
+      "label": "셀 40"
+    },
+    {
+      "code": "np.random.seed(17)",
+      "exercise": false,
+      "label": "셀 41"
+    },
+    {
+      "code": "lam = 1\ndf_sample_expo = pd.DataFrame()\nfor n in [1, 10, 100]:\n    df_sample_expo[n] = [np.sum(np.random.exponential(lam, n)) for _ in range(1001)]",
+      "exercise": false,
+      "label": "셀 42"
+    },
+    {
+      "code": "df_sample_expo.mean()",
+      "exercise": false,
+      "label": "셀 43"
+    },
+    {
+      "code": "def normal_plot_samples(df_sample, ylabel=\"\"):\n    \"\"\"Normal probability plots for samples of sums.\"\"\"\n    plt.figure(figsize=(6.8, 2.6))\n    for i, n in enumerate(df_sample):\n        plt.subplot(1, 3, i + 1)\n        normal_probability_plot(df_sample[n])\n        decorate(\n            title=\"n=%d\" % n,\n            xticks=[],\n            yticks=[],\n            xlabel=\"Standard normal\",\n            ylabel=ylabel,\n        )",
+      "exercise": false,
+      "label": "셀 44"
+    },
+    {
+      "code": "normal_plot_samples(df_sample_expo, ylabel=\"Sum of exponential values\")",
+      "exercise": false,
+      "label": "셀 45"
+    },
+    {
+      "code": "mu, sigma = 3.0, 1.0\ndf_sample_lognormal = pd.DataFrame()\nfor n in [1, 10, 100]:\n    df_sample_lognormal[n] = [\n        np.sum(np.random.lognormal(mu, sigma, n)) for _ in range(1001)\n    ]",
+      "exercise": false,
+      "label": "셀 46"
+    },
+    {
+      "code": "normal_plot_samples(df_sample_lognormal, ylabel=\"Sum of lognormal values\")",
+      "exercise": false,
+      "label": "셀 47"
+    },
+    {
+      "code": "alpha = 1.0\ndf_sample = pd.DataFrame()\nfor n in [1, 10, 100]:\n    df_sample[n] = [np.sum(np.random.pareto(alpha, n)) for _ in range(1001)]",
+      "exercise": false,
+      "label": "셀 48"
+    },
+    {
+      "code": "normal_plot_samples(df_sample, ylabel=\"Sum of Pareto values\")",
+      "exercise": false,
+      "label": "셀 49"
+    },
+    {
+      "code": "def generate_normal_correlated(n, rho):\n    \"\"\"Generates an array of correlated values from a standard normal dist.\"\"\"\n    xs = np.empty(n)\n    xs[0] = np.random.normal(0, 1)\n\n    sigma = np.sqrt(1 - rho**2)\n    for i in range(1, n):\n        xs[i] = rho * xs[i - 1] + np.random.normal(0, sigma)\n\n    return xs",
+      "exercise": false,
+      "label": "셀 50"
+    },
+    {
+      "code": "from scipy.stats import expon\n\n\ndef generate_expo_correlated(n, rho):\n    \"\"\"Generates a sequence of correlated values from an exponential dist.\"\"\"\n    normal = generate_normal_correlated(n, rho)\n    uniform = norm.cdf(normal)\n    expo = expon.ppf(uniform)\n    return expo",
+      "exercise": false,
+      "label": "셀 51"
+    },
+    {
+      "code": "rho = 0.8\ndf_sample = pd.DataFrame()\nfor n in [1, 10, 100]:\n    df_sample[n] = [np.sum(generate_expo_correlated(n, rho)) for _ in range(1001)]",
+      "exercise": false,
+      "label": "셀 52"
+    },
+    {
+      "code": "normal_plot_samples(df_sample, ylabel=\"Sum of correlated values\")",
+      "exercise": false,
+      "label": "셀 53"
+    },
+    {
+      "code": "from nsfg import get_nsfg_groups\n\nlive, firsts, others = get_nsfg_groups()",
+      "exercise": false,
+      "label": "셀 54"
+    },
+    {
+      "code": "delta = firsts[\"prglngth\"].mean() - others[\"prglngth\"].mean()\ndelta",
+      "exercise": false,
+      "label": "셀 55"
+    },
+    {
+      "code": "all_lengths = live[\"prglngth\"]\nm, s2 = all_lengths.mean(), all_lengths.var()",
+      "exercise": false,
+      "label": "셀 56"
+    },
+    {
+      "code": "def sampling_dist_mean(data, n):\n    mean, var = data.mean(), data.var()\n    dist = Normal(mean, var)\n    return dist.sum(n) / n",
+      "exercise": false,
+      "label": "셀 57"
+    },
+    {
+      "code": "n1 = firsts[\"totalwgt_lb\"].count()\ndist_firsts = sampling_dist_mean(all_lengths, n1)\nn1",
+      "exercise": false,
+      "label": "셀 58"
+    },
+    {
+      "code": "n2 = others[\"totalwgt_lb\"].count()\ndist_others = sampling_dist_mean(all_lengths, n2)\nn2",
+      "exercise": false,
+      "label": "셀 59"
+    },
+    {
+      "code": "dist_diff = dist_firsts - dist_others\ndist_diff",
+      "exercise": false,
+      "label": "셀 60"
+    },
+    {
+      "code": "sample_firsts = [np.random.choice(all_lengths, n1).mean() for i in range(1001)]\nsample_others = [np.random.choice(all_lengths, n2).mean() for i in range(1001)]\nsample_diffs = np.subtract(sample_firsts, sample_others)",
+      "exercise": false,
+      "label": "셀 61"
+    },
+    {
+      "code": "dist_diff.plot_cdf(**model_options)\nCdf.from_seq(sample_diffs).plot(label=\"sample\")\nplt.axvline(delta, ls=\":\")\nplt.axvline(-delta, ls=\":\")\n\ndecorate(xlabel=\"Difference in pregnancy length\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 62"
+    },
+    {
+      "code": "def cdf(self, xs):\n    sigma = np.sqrt(self.sigma2)\n    return norm.cdf(xs, self.mu, sigma)\n\nNormal.cdf = cdf",
+      "exercise": false,
+      "label": "셀 63"
+    },
+    {
+      "code": "right = 1 - dist_diff.cdf(delta)\nright",
+      "exercise": false,
+      "label": "셀 64"
+    },
+    {
+      "code": "left = dist_diff.cdf(-delta)\nleft",
+      "exercise": false,
+      "label": "셀 65"
+    },
+    {
+      "code": "left + right",
+      "exercise": false,
+      "label": "셀 66"
+    },
+    {
+      "code": "from scipy.stats import ttest_ind\n\nresult = ttest_ind(firsts[\"prglngth\"], others[\"prglngth\"])\nresult.pvalue",
+      "exercise": false,
+      "label": "셀 67"
+    },
+    {
+      "code": "def transform_correlation(r, n):\n    return r * np.sqrt((n - 2) / (1 - r**2))",
+      "exercise": false,
+      "label": "셀 68"
+    },
+    {
+      "code": "def generate_data(n):\n    \"\"\"Uncorrelated sequences from a standard normal.\"\"\"\n    xs = np.random.normal(0, 1, n)\n    ys = np.random.normal(0, 1, n)\n    return xs, ys",
+      "exercise": false,
+      "label": "셀 69"
+    },
+    {
+      "code": "def correlation(data):\n    xs, ys = data\n    return np.corrcoef(xs, ys)[0, 1]",
+      "exercise": false,
+      "label": "셀 70"
+    },
+    {
+      "code": "n = 100\nrs = [correlation(generate_data(n)) for i in range(1001)]",
+      "exercise": false,
+      "label": "셀 71"
+    },
+    {
+      "code": "ts = transform_correlation(np.array(rs), n)",
+      "exercise": false,
+      "label": "셀 72"
+    },
+    {
+      "code": "from scipy.stats import t as student_t\n\n\ndef make_student_cdf(df):\n    \"\"\"Computes the CDF of a Student t distribution.\"\"\"\n    ts = np.linspace(-3, 3, 101)\n    ps = student_t.cdf(ts, df=df)\n    return Cdf(ps, ts)",
+      "exercise": false,
+      "label": "셀 73"
+    },
+    {
+      "code": "make_student_cdf(df=n - 2).plot(**model_options)\n\ncdf_ts = Cdf.from_seq(ts)\ncdf_ts.plot(label=\"random normals\")\n\ndecorate(xlabel=\"Transformed correlation\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 74"
+    },
+    {
+      "code": "valid = live.dropna(subset=[\"agepreg\", \"totalwgt_lb\"])\nn = len(valid)\nn",
+      "exercise": false,
+      "label": "셀 75"
+    },
+    {
+      "code": "data = valid[\"agepreg\"].values, valid[\"totalwgt_lb\"].values\nr_actual = correlation(data)\nr_actual",
+      "exercise": false,
+      "label": "셀 76"
+    },
+    {
+      "code": "def permute(data):\n    \"\"\"Shuffle the x values.\"\"\"\n    xs, ys = data\n    new_xs = xs.copy()\n    np.random.shuffle(new_xs)\n    return new_xs, ys",
+      "exercise": false,
+      "label": "셀 77"
+    },
+    {
+      "code": "permuted_corrs = [correlation(permute(data)) for i in range(1001)]",
+      "exercise": false,
+      "label": "셀 78"
+    },
+    {
+      "code": "ts = transform_correlation(np.array(permuted_corrs), n)",
+      "exercise": false,
+      "label": "셀 79"
+    },
+    {
+      "code": "make_student_cdf(n - 2).plot(**model_options)\nCdf.from_seq(ts).plot(label=\"permuted data\")\n\ndecorate(xlabel=\"Transformed correlation\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 80"
+    },
+    {
+      "code": "t_actual = transform_correlation(r_actual, n)",
+      "exercise": false,
+      "label": "셀 81"
+    },
+    {
+      "code": "right = 1 - student_t.cdf(t_actual, df=n - 2)\nright",
+      "exercise": false,
+      "label": "셀 82"
+    },
+    {
+      "code": "left = student_t.cdf(-t_actual, df=n - 2)\nleft",
+      "exercise": false,
+      "label": "셀 83"
+    },
+    {
+      "code": "left + right",
+      "exercise": false,
+      "label": "셀 84"
+    },
+    {
+      "code": "from scipy.stats import pearsonr\n\ncorr, p_value = pearsonr(*data)\np_value",
+      "exercise": false,
+      "label": "셀 85"
+    },
+    {
+      "code": "from empiricaldist import Hist\n\nqs = np.arange(1, 7)\nfreqs = [8, 9, 19, 5, 8, 11]\nobserved = Hist(freqs, qs)\nobserved.index.name = \"outcome\"\nobserved",
+      "exercise": false,
+      "label": "셀 86"
+    },
+    {
+      "code": "num_rolls = observed.sum()\noutcomes = observed.qs\nexpected = Hist(num_rolls / 6, outcomes)",
+      "exercise": false,
+      "label": "셀 87"
+    },
+    {
+      "code": "def chi_squared_stat(observed, expected):\n    diffs = (observed - expected) ** 2\n    ratios = diffs / expected\n    return np.sum(ratios.values.flatten())",
+      "exercise": false,
+      "label": "셀 88"
+    },
+    {
+      "code": "observed_chi2 = chi_squared_stat(observed, expected)",
+      "exercise": false,
+      "label": "셀 89"
+    },
+    {
+      "code": "def simulate_dice(observed):\n    n = np.sum(observed)\n    rolls = np.random.choice(observed.qs, n, replace=True)\n    hist = Hist.from_seq(rolls)\n    return hist",
+      "exercise": false,
+      "label": "셀 90"
+    },
+    {
+      "code": "simulated_chi_squared = [\n    chi_squared_stat(simulate_dice(observed), expected) for i in range(1001)\n]\ncdf_simulated = Cdf.from_seq(simulated_chi_squared)",
+      "exercise": false,
+      "label": "셀 91"
+    },
+    {
+      "code": "from scipy.stats import chi2 as chi2_dist\n\n\ndef chi_squared_cdf(df):\n    \"\"\"Discrete approximation of the chi-squared CDF.\"\"\"\n    xs = np.linspace(0, 21, 101)\n    ps = chi2_dist.cdf(xs, df=df)\n    return Cdf(ps, xs)",
+      "exercise": false,
+      "label": "셀 92"
+    },
+    {
+      "code": "n = len(observed)\ncdf_model = chi_squared_cdf(df=n - 1)",
+      "exercise": false,
+      "label": "셀 93"
+    },
+    {
+      "code": "cdf_model.plot(**model_options)\ncdf_simulated.plot(label=\"simulation\")\n\ndecorate(xlabel=\"Chi-squared statistic\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 94"
+    },
+    {
+      "code": "p_value = 1 - chi2_dist.cdf(observed_chi2, df=n - 1)\np_value",
+      "exercise": false,
+      "label": "셀 95"
+    },
+    {
+      "code": "from scipy.stats import chisquare\n\nchi2_stat, p_value = chisquare(f_obs=observed, f_exp=expected)",
+      "exercise": false,
+      "label": "셀 96"
+    },
+    {
+      "code": "p_value",
+      "exercise": false,
+      "label": "셀 97"
+    },
+    {
+      "code": "grouped = adelie.groupby(\"Sex\")\n\nlengths_male = grouped.get_group(\"MALE\")[\"Flipper Length (mm)\"]\nlengths_female = grouped.get_group(\"FEMALE\")[\"Flipper Length (mm)\"]\nobserved_diff = lengths_male.mean() - lengths_female.mean()\nobserved_diff",
+      "exercise": true,
+      "label": "셀 98"
+    },
+    {
+      "code": "valid = live.dropna(subset=[\"hpagelb\", \"totalwgt_lb\"])\nn = len(valid)\nn",
+      "exercise": true,
+      "label": "셀 99"
+    },
+    {
+      "code": "data = valid[\"hpagelb\"].values, valid[\"totalwgt_lb\"].values\nr_actual = correlation(data)\nr_actual",
+      "exercise": true,
+      "label": "셀 100"
+    },
+    {
+      "code": "male = live.query(\"babysex == 1\")\nfemale = live.query(\"babysex == 2\")",
+      "exercise": true,
+      "label": "셀 101"
+    },
+    {
+      "code": "observed = pd.DataFrame()\nobserved[\"male\"] = male[\"fmarital\"].value_counts().sort_index()\nobserved[\"female\"] = female[\"fmarital\"].value_counts().sort_index()\nobserved",
+      "exercise": true,
+      "label": "셀 102"
+    },
+    {
+      "code": "from empiricaldist import Pmf\n\npmf_fmarital = Pmf.from_seq(live[\"fmarital\"])\npmf_fmarital",
+      "exercise": true,
+      "label": "셀 103"
+    },
+    {
+      "code": "expected = pd.DataFrame()\nexpected[\"male\"] = pmf_fmarital * observed[\"male\"].sum()\nexpected[\"female\"] = pmf_fmarital * observed[\"female\"].sum()\nexpected",
+      "exercise": true,
+      "label": "셀 104"
+    }
+  ],
+  "attribution": "Think Stats, 3rd edition — Allen B. Downey.\n\nSource and Korean translation: https://allendowney.github.io/ThinkStats/chap14.html\n\nCode license notice:\n\nMIT License\n\nCopyright (c) 2024 Allen Downey\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n\nThe downloaded helpers retain their own GNU GPLv3 headers. Their complete source and COPYING are distributed under /labs/think-stats/upstream/.\n"
+}

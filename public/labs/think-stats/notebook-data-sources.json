@@ -1,0 +1,25 @@
+{
+  "source_commit": "30ecbdcf05723f1190cae2aeaff5848f59f8ca26",
+  "brfss": {
+    "source": "data/CDBRFS08.ASC.gz",
+    "source_sha256": "9ffcf1a3ee8e24a1c96ed589e69300cccaff6be7f6119cc37b1be599e2d0f47a",
+    "rows": 414509,
+    "columns": [
+      "age",
+      "sex",
+      "wtyrago",
+      "finalwt",
+      "wtkg2",
+      "htm3"
+    ],
+    "output_sha256": "a694549dcddb269eb9f4dbc9936ff40ad315b74c08552a44adaac35761557cda",
+    "transform": "Original thinkstats.read_brfss cleaning, all rows and six returned columns, CSV gzip; round-trip equality verified."
+  },
+  "nhl": {
+    "source": "data/nhl_2023_2024.hdf",
+    "source_sha256": "bd6a14223a38b68f6f8142b8fb144fa9f19c43e514163b6867f0c853f97342e9",
+    "games": 1312,
+    "output_sha256": "348aa0319cec42ba22ac79087c1b3d0e25a7dd71bb9dd753c60516cbd2ec823f",
+    "transform": "All HDF keys in original order; every goal time retained as its original numeric value in JSON."
+  }
+}

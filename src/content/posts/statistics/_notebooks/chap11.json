@@ -1,0 +1,316 @@
+{
+  "chapter": 11,
+  "cells": [
+    {
+      "code": "# The preparation cell downloads the chapter files once per Python environment.\nimport sys\nfrom pathlib import Path\nfrom urllib.parse import urljoin\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom IPython.display import HTML\n\nDATA_URL = \"/labs/think-stats/\"\nasync def prepare_file(name):\n    target = Path(name.rsplit(\"/\", 1)[-1])\n    if target.exists():\n        return\n    if sys.platform == \"emscripten\":\n        from pyodide.http import pyfetch\n        response = await pyfetch(urljoin(DATA_URL, name))\n        if not response.ok:\n            raise RuntimeError(f\"Download failed: {name} (HTTP {response.status})\")\n        target.write_bytes(await response.bytes())\n    else:\n        from urllib.request import urlretrieve\n        urlretrieve(urljoin(DATA_URL, name), target)\n\nfor name in ['upstream/thinkstats.py', 'upstream/nsfg.py', 'upstream/relay.py', 'notebook_support.py', 'penguins_raw.csv', '2002FemPreg.dct', '2002FemPreg.dat.gz']:\n    await prepare_file(name)\n\nsys.path.insert(0, str(Path.cwd()))\nfrom thinkstats import decorate\nplt.rcParams[\"figure.dpi\"] = 120\n# Match the browser's PNG backend without hiding other warnings.\nimport warnings\nfrom matplotlib import MatplotlibDeprecationWarning\nwarnings.filterwarnings(\"ignore\", message=r\"The [xy] parameter as float was deprecated in Matplotlib 3\\.10.*Use int\\([xy]\\) instead\\.\", category=MatplotlibDeprecationWarning)\nprint(\"준비되었습니다. 다음 셀부터 순서대로 실행하세요.\")\n",
+      "exercise": false,
+      "label": "준비: 라이브러리와 자료"
+    },
+    {
+      "code": "columns = {\n    \"Body Mass (g)\": \"mass\",\n    \"Flipper Length (mm)\": \"flipper_length\",\n    \"Culmen Length (mm)\": \"culmen_length\",\n    \"Culmen Depth (mm)\": \"culmen_depth\",\n}",
+      "exercise": false,
+      "label": "셀 1"
+    },
+    {
+      "code": "penguins = (\n    pd.read_csv(\"penguins_raw.csv\")\n    .dropna(subset=[\"Body Mass (g)\"])\n    .rename(columns=columns)\n)\npenguins.shape",
+      "exercise": false,
+      "label": "셀 2"
+    },
+    {
+      "code": "adelie = penguins.query('Species.str.startswith(\"Adelie\")').copy()\nlen(adelie)",
+      "exercise": false,
+      "label": "셀 3"
+    },
+    {
+      "code": "flipper_length = adelie[\"flipper_length\"]\nbody_mass = adelie[\"mass\"]",
+      "exercise": false,
+      "label": "셀 4"
+    },
+    {
+      "code": "from scipy.stats import linregress\n\nresult_linregress = linregress(flipper_length, body_mass)\nresult_linregress.intercept, result_linregress.slope",
+      "exercise": false,
+      "label": "셀 5"
+    },
+    {
+      "code": "formula = \"mass ~ flipper_length\"",
+      "exercise": false,
+      "label": "셀 6"
+    },
+    {
+      "code": "import statsmodels.formula.api as smf\n\nmodel = smf.ols(formula, data=adelie)\ntype(model)",
+      "exercise": false,
+      "label": "셀 7"
+    },
+    {
+      "code": "result_ols = model.fit()",
+      "exercise": false,
+      "label": "셀 8"
+    },
+    {
+      "code": "# Technically it's a RegressionResultsWrapper\n\ntype(result_ols)",
+      "exercise": false,
+      "label": "셀 9"
+    },
+    {
+      "code": "from thinkstats import display_summary\n\ndisplay_summary(result_ols)",
+      "exercise": false,
+      "label": "셀 10"
+    },
+    {
+      "code": "result_linregress.intercept, result_linregress.slope",
+      "exercise": false,
+      "label": "셀 11"
+    },
+    {
+      "code": "result_linregress.intercept_stderr, result_linregress.stderr,",
+      "exercise": false,
+      "label": "셀 12"
+    },
+    {
+      "code": "result_ols.pvalues[\"flipper_length\"]",
+      "exercise": false,
+      "label": "셀 13"
+    },
+    {
+      "code": "result_linregress.pvalue",
+      "exercise": false,
+      "label": "셀 14"
+    },
+    {
+      "code": "result_ols.rsquared, result_linregress.rvalue**2",
+      "exercise": false,
+      "label": "셀 15"
+    },
+    {
+      "code": "formula = \"mass ~ culmen_length\"\nresult = smf.ols(formula, data=adelie).fit()\ndisplay_summary(result)",
+      "exercise": false,
+      "label": "셀 16"
+    },
+    {
+      "code": "formula = \"mass ~ flipper_length + culmen_length\"",
+      "exercise": false,
+      "label": "셀 17"
+    },
+    {
+      "code": "result = smf.ols(formula, data=adelie).fit()\ndisplay_summary(result)",
+      "exercise": false,
+      "label": "셀 18"
+    },
+    {
+      "code": "from thinkstats import corrcoef\n\ncorrcoef(adelie, \"flipper_length\", \"culmen_length\")",
+      "exercise": false,
+      "label": "셀 19"
+    },
+    {
+      "code": "formula = \"mass ~ flipper_length + culmen_length + culmen_depth\"\nresult = smf.ols(formula, data=adelie).fit()\ndisplay_summary(result)",
+      "exercise": false,
+      "label": "셀 20"
+    },
+    {
+      "code": "[\n    corrcoef(adelie, \"culmen_depth\", \"flipper_length\"),\n    corrcoef(adelie, \"culmen_depth\", \"culmen_length\"),\n]",
+      "exercise": false,
+      "label": "셀 21"
+    },
+    {
+      "code": "from nsfg import get_nsfg_groups\n\nlive, firsts, others = get_nsfg_groups()",
+      "exercise": false,
+      "label": "셀 22"
+    },
+    {
+      "code": "valid = live.dropna(subset=[\"agepreg\", \"birthord\", \"totalwgt_lb\"]).copy()",
+      "exercise": false,
+      "label": "셀 23"
+    },
+    {
+      "code": "formula = \"totalwgt_lb ~ agepreg\"\nresult_age = smf.ols(formula, data=valid).fit()\ndisplay_summary(result_age)",
+      "exercise": false,
+      "label": "셀 24"
+    },
+    {
+      "code": "totalwgt = valid[\"totalwgt_lb\"]\nagepreg = valid[\"agepreg\"]",
+      "exercise": false,
+      "label": "셀 25"
+    },
+    {
+      "code": "agepreg_range = np.linspace(agepreg.min(), agepreg.max())",
+      "exercise": false,
+      "label": "셀 26"
+    },
+    {
+      "code": "df = pd.DataFrame({\"agepreg\": agepreg_range})",
+      "exercise": false,
+      "label": "셀 27"
+    },
+    {
+      "code": "fit_ys = result_age.predict(df)",
+      "exercise": false,
+      "label": "셀 28"
+    },
+    {
+      "code": "plt.scatter(agepreg, totalwgt, marker=\".\", alpha=0.1, s=5)\nplt.plot(agepreg_range, fit_ys, color=\"C1\", label=\"linear model\")\n\ndecorate(xlabel=\"Maternal age\", ylabel=\"Birth weight (pounds)\")",
+      "exercise": false,
+      "label": "셀 29"
+    },
+    {
+      "code": "valid[\"is_first\"] = valid[\"birthord\"] == 1",
+      "exercise": false,
+      "label": "셀 30"
+    },
+    {
+      "code": "from thinkstats import value_counts\n\n# check the results\nvalue_counts(valid[\"is_first\"])",
+      "exercise": false,
+      "label": "셀 31"
+    },
+    {
+      "code": "formula = \"totalwgt_lb ~ C(is_first)\"",
+      "exercise": false,
+      "label": "셀 32"
+    },
+    {
+      "code": "result_first = smf.ols(formula, data=valid).fit()\ndisplay_summary(result_first)",
+      "exercise": false,
+      "label": "셀 33"
+    },
+    {
+      "code": "others[\"totalwgt_lb\"].mean()",
+      "exercise": false,
+      "label": "셀 34"
+    },
+    {
+      "code": "diff_weight = firsts[\"totalwgt_lb\"].mean() - others[\"totalwgt_lb\"].mean()\ndiff_weight",
+      "exercise": false,
+      "label": "셀 35"
+    },
+    {
+      "code": "diff_age = firsts[\"agepreg\"].mean() - others[\"agepreg\"].mean()\ndiff_age",
+      "exercise": false,
+      "label": "셀 36"
+    },
+    {
+      "code": "slope = result_age.params[\"agepreg\"]\nslope",
+      "exercise": false,
+      "label": "셀 37"
+    },
+    {
+      "code": "slope * diff_age",
+      "exercise": false,
+      "label": "셀 38"
+    },
+    {
+      "code": "formula = \"totalwgt_lb ~ agepreg + C(is_first)\"\nresult = smf.ols(formula, data=valid).fit()\ndisplay_summary(result)",
+      "exercise": false,
+      "label": "셀 39"
+    },
+    {
+      "code": "valid[\"agepreg2\"] = valid[\"agepreg\"] ** 2",
+      "exercise": false,
+      "label": "셀 40"
+    },
+    {
+      "code": "formula = \"totalwgt_lb ~ agepreg + agepreg2\"",
+      "exercise": false,
+      "label": "셀 41"
+    },
+    {
+      "code": "result_age2 = smf.ols(formula, data=valid).fit()\ndisplay_summary(result_age2)",
+      "exercise": false,
+      "label": "셀 42"
+    },
+    {
+      "code": "df = pd.DataFrame({\"agepreg\": agepreg_range})\ndf[\"agepreg2\"] = df[\"agepreg\"] ** 2",
+      "exercise": false,
+      "label": "셀 43"
+    },
+    {
+      "code": "fit_ys = result_age2.predict(df)",
+      "exercise": false,
+      "label": "셀 44"
+    },
+    {
+      "code": "plt.scatter(agepreg, totalwgt, marker=\".\", alpha=0.1, s=5)\nplt.plot(agepreg_range, fit_ys, color=\"C1\", label=\"quadratic model\")\n\ndecorate(xlabel=\"Maternal age\", ylabel=\"Birth weight (pounds)\")",
+      "exercise": false,
+      "label": "셀 45"
+    },
+    {
+      "code": "formula = \"totalwgt_lb ~ agepreg + agepreg2 + C(is_first)\"\nresult = smf.ols(formula, data=valid).fit()\ndisplay_summary(result)",
+      "exercise": false,
+      "label": "셀 46"
+    },
+    {
+      "code": "adelie = adelie.loc[adelie[\"Sex\"].isin([\"MALE\", \"FEMALE\"])].copy()\nadelie[\"y\"] = (adelie[\"Sex\"] == \"MALE\").astype(int)",
+      "exercise": false,
+      "label": "셀 47"
+    },
+    {
+      "code": "adelie[\"y\"].value_counts()",
+      "exercise": false,
+      "label": "셀 48"
+    },
+    {
+      "code": "model = smf.logit(\"y ~ mass\", data=adelie)\nresult = model.fit(disp=False)",
+      "exercise": false,
+      "label": "셀 49"
+    },
+    {
+      "code": "display_summary(result)",
+      "exercise": false,
+      "label": "셀 50"
+    },
+    {
+      "code": "mass = adelie[\"mass\"]\nmass_range = np.linspace(mass.min(), mass.max())\ndf = pd.DataFrame({\"mass\": mass_range})\nfit_ys = result.predict(df)",
+      "exercise": false,
+      "label": "셀 51"
+    },
+    {
+      "code": "plt.plot(mass_range, fit_ys)\n\ndecorate(xlabel=\"Mass (g)\", ylabel=\"Prob(male)\")",
+      "exercise": false,
+      "label": "셀 52"
+    },
+    {
+      "code": "formula = \"y ~ mass + flipper_length + culmen_length + culmen_depth\"\nmodel = smf.logit(formula, data=adelie)\nresult = model.fit(disp=False)\ndisplay_summary(result)",
+      "exercise": false,
+      "label": "셀 53"
+    },
+    {
+      "code": "def plot_predictions(mass_range, culmen_length, **options):\n    \"\"\"Plot predicted probabilities as a function of mass.\"\"\"\n    df = pd.DataFrame({\"mass\": mass_range})\n    df[\"flipper_length\"] = adelie[\"flipper_length\"].mean()\n    df[\"culmen_length\"] = culmen_length\n    df[\"culmen_depth\"] = adelie[\"culmen_depth\"].mean()\n    fit_ys = result.predict(df)\n    plt.plot(mass_range, fit_ys, **options)",
+      "exercise": false,
+      "label": "셀 54"
+    },
+    {
+      "code": "culmen_length = adelie[\"culmen_length\"]\nm, s = culmen_length.mean(), culmen_length.std()",
+      "exercise": false,
+      "label": "셀 55"
+    },
+    {
+      "code": "plot_predictions(mass_range, m + s, ls=\"--\", label=\"Above average culmen length\")\nplot_predictions(mass_range, m, alpha=0.5, label=\"Average culmen length\")\nplot_predictions(mass_range, m - s, ls=\":\", label=\"Below average culmen length\")\n\ndecorate(xlabel=\"Mass (g)\", ylabel=\"Prob(male)\")",
+      "exercise": false,
+      "label": "셀 56"
+    },
+    {
+      "code": "def get_species(penguins, species):\n    df = penguins.query(f'Species.str.startswith(\"{species}\")').copy()\n    df = df.loc[df[\"Sex\"].isin([\"MALE\", \"FEMALE\"])].copy()\n    df[\"y\"] = (df[\"Sex\"] == \"MALE\").astype(int)\n    return df",
+      "exercise": false,
+      "label": "셀 57"
+    },
+    {
+      "code": "gentoo = get_species(penguins, \"Gentoo\")\nlen(gentoo)",
+      "exercise": false,
+      "label": "셀 58"
+    },
+    {
+      "code": "formula = \"y ~ mass + flipper_length + culmen_length + culmen_depth\"\nmodel = smf.logit(formula, data=gentoo)\nresult = model.fit(disp=False)\ndisplay_summary(result)",
+      "exercise": false,
+      "label": "셀 59"
+    },
+    {
+      "code": "valid[\"y\"] = (valid[\"babysex\"] == 1).astype(int)",
+      "exercise": true,
+      "label": "셀 60"
+    },
+    {
+      "code": "chinstrap = get_species(penguins, \"Chinstrap\")\nlen(chinstrap)",
+      "exercise": true,
+      "label": "셀 61"
+    }
+  ],
+  "attribution": "Think Stats, 3rd edition — Allen B. Downey.\n\nSource and Korean translation: https://allendowney.github.io/ThinkStats/chap11.html\n\nCode license notice:\n\nMIT License\n\nCopyright (c) 2024 Allen Downey\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n\nThe downloaded helpers retain their own GNU GPLv3 headers. Their complete source and COPYING are distributed under /labs/think-stats/upstream/.\n"
+}

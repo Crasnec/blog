@@ -1,0 +1,336 @@
+{
+  "chapter": 6,
+  "cells": [
+    {
+      "code": "# The preparation cell downloads the chapter files once per Python environment.\nimport sys\nfrom pathlib import Path\nfrom urllib.parse import urljoin\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom IPython.display import HTML\n\nDATA_URL = \"/labs/think-stats/\"\nasync def prepare_file(name):\n    target = Path(name.rsplit(\"/\", 1)[-1])\n    if target.exists():\n        return\n    if sys.platform == \"emscripten\":\n        from pyodide.http import pyfetch\n        response = await pyfetch(urljoin(DATA_URL, name))\n        if not response.ok:\n            raise RuntimeError(f\"Download failed: {name} (HTTP {response.status})\")\n        target.write_bytes(await response.bytes())\n    else:\n        from urllib.request import urlretrieve\n        urlretrieve(urljoin(DATA_URL, name), target)\n\nfor name in ['upstream/thinkstats.py', 'upstream/nsfg.py', 'upstream/relay.py', 'notebook_support.py', '2002FemPreg.dct', '2002FemPreg.dat.gz', '2002FemResp.dct', '2002FemResp.dat.gz', 'babyboom.dat', 'brfss-2008.csv.gz']:\n    await prepare_file(name)\n\nsys.path.insert(0, str(Path.cwd()))\nfrom thinkstats import decorate\nplt.rcParams[\"figure.dpi\"] = 120\n# Match the browser's PNG backend without hiding other warnings.\nimport warnings\nfrom matplotlib import MatplotlibDeprecationWarning\nwarnings.filterwarnings(\"ignore\", message=r\"The [xy] parameter as float was deprecated in Matplotlib 3\\.10.*Use int\\([xy]\\) instead\\.\", category=MatplotlibDeprecationWarning)\nprint(\"준비되었습니다. 다음 셀부터 순서대로 실행하세요.\")\n",
+      "exercise": false,
+      "label": "준비: 라이브러리와 자료"
+    },
+    {
+      "code": "from nsfg import read_fem_resp\n\nresp = read_fem_resp()",
+      "exercise": false,
+      "label": "셀 1"
+    },
+    {
+      "code": "older = resp.query(\"age >= 25\")\nnum_family = older[\"numfmhh\"]",
+      "exercise": false,
+      "label": "셀 2"
+    },
+    {
+      "code": "from empiricaldist import Pmf\n\npmf_family = Pmf.from_seq(num_family, name=\"data\")",
+      "exercise": false,
+      "label": "셀 3"
+    },
+    {
+      "code": "from thinkstats import poisson_pmf\n\nlam = 2.2\nks = np.arange(11)\nps = poisson_pmf(ks, lam)\n\npmf_poisson = Pmf(ps, ks, name=\"Poisson model\")",
+      "exercise": false,
+      "label": "셀 4"
+    },
+    {
+      "code": "from thinkstats import two_bar_plots\n\ntwo_bar_plots(pmf_family, pmf_poisson)\ndecorate(xlabel=\"Number of family members\")",
+      "exercise": false,
+      "label": "셀 5"
+    },
+    {
+      "code": "cdf_family = pmf_family.make_cdf()\ncdf_poisson = pmf_poisson.make_cdf()",
+      "exercise": false,
+      "label": "셀 6"
+    },
+    {
+      "code": "from thinkstats import two_cdf_plots\n\ntwo_cdf_plots(cdf_poisson, cdf_family)\ndecorate(xlabel=\"Number of family members\")",
+      "exercise": false,
+      "label": "셀 7"
+    },
+    {
+      "code": "from nsfg import read_fem_preg\n\npreg = read_fem_preg()\nbirth_weights = preg[\"totalwgt_lb\"].dropna()",
+      "exercise": false,
+      "label": "셀 8"
+    },
+    {
+      "code": "from scipy.stats import trimboth\nfrom thinkstats import make_normal_model\n\ntrimmed = trimboth(birth_weights, 0.01)\ncdf_model = make_normal_model(trimmed)",
+      "exercise": false,
+      "label": "셀 9"
+    },
+    {
+      "code": "from empiricaldist import Cdf\n\ncdf_birth_weight = Cdf.from_seq(birth_weights, name=\"sample\")\ntwo_cdf_plots(cdf_model, cdf_birth_weight, xlabel=\"Birth weight (pounds)\")",
+      "exercise": false,
+      "label": "셀 10"
+    },
+    {
+      "code": "def normal_pdf(xs, mu, sigma):\n    \"\"\"Evaluates the normal probability density function.\"\"\"\n    z = (xs - mu) / sigma\n    return np.exp(-(z**2) / 2) / sigma / np.sqrt(2 * np.pi)",
+      "exercise": false,
+      "label": "셀 11"
+    },
+    {
+      "code": "m, s = np.mean(trimmed), np.std(trimmed)",
+      "exercise": false,
+      "label": "셀 12"
+    },
+    {
+      "code": "low = m - 4 * s\nhigh = m + 4 * s\nqs = np.linspace(low, high, 201)\nps = normal_pdf(qs, m, s)",
+      "exercise": false,
+      "label": "셀 13"
+    },
+    {
+      "code": "plt.plot(qs, ps, label=\"normal model\", ls=\":\", color=\"gray\")\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 14"
+    },
+    {
+      "code": "normal_pdf(m, m, s)",
+      "exercise": false,
+      "label": "셀 15"
+    },
+    {
+      "code": "from thinkstats import NormalPdf\n\npdf_model = NormalPdf(m, s, name=\"normal model\")\npdf_model",
+      "exercise": false,
+      "label": "셀 16"
+    },
+    {
+      "code": "pdf_model(m)",
+      "exercise": false,
+      "label": "셀 17"
+    },
+    {
+      "code": "from scipy.integrate import simpson\n\n\ndef area_under(pdf, low, high):\n    qs = np.linspace(low, high, 501)\n    ps = pdf(qs)\n    return simpson(y=ps, x=qs)",
+      "exercise": false,
+      "label": "셀 18"
+    },
+    {
+      "code": "area_under(pdf_model, 2, 12)",
+      "exercise": false,
+      "label": "셀 19"
+    },
+    {
+      "code": "area_under(pdf_model, 0, 8.5)",
+      "exercise": false,
+      "label": "셀 20"
+    },
+    {
+      "code": "from scipy.stats import norm\n\nnorm.cdf(8.5, m, s)",
+      "exercise": false,
+      "label": "셀 21"
+    },
+    {
+      "code": "area_under(pdf_model, 6, 8)",
+      "exercise": false,
+      "label": "셀 22"
+    },
+    {
+      "code": "norm.cdf(8, m, s) - norm.cdf(6, m, s)",
+      "exercise": false,
+      "label": "셀 23"
+    },
+    {
+      "code": "def exponential_cdf(x, lam):\n    \"\"\"Compute the exponential CDF.\n\n    x: float or sequence of floats\n    lam: rate parameter\n\n    returns: float or NumPy array of cumulative probability\n    \"\"\"\n    return 1 - np.exp(-lam * x)",
+      "exercise": false,
+      "label": "셀 24"
+    },
+    {
+      "code": "def exponential_pdf(x, lam):\n    \"\"\"Evaluates the exponential PDF.\n\n    x: float or sequence of floats\n    lam: rate parameter\n\n    returns: float or NumPy array of probability density\n    \"\"\"\n    return lam * np.exp(-lam * x)",
+      "exercise": false,
+      "label": "셀 25"
+    },
+    {
+      "code": "from thinkstats import ExponentialPdf\n\nlam = 6\npdf_expo = ExponentialPdf(lam, name=\"exponential model\")\npdf_expo",
+      "exercise": false,
+      "label": "셀 26"
+    },
+    {
+      "code": "qs = np.linspace(0, 1.5, 201)\npdf_expo.plot(qs, ls=\":\", color=\"gray\")\ndecorate(xlabel=\"Time (games)\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 27"
+    },
+    {
+      "code": "area_under(pdf_expo, 0, 1.5)",
+      "exercise": false,
+      "label": "셀 28"
+    },
+    {
+      "code": "from thinkstats import exponential_cdf\n\nexponential_cdf(7, lam)",
+      "exercise": false,
+      "label": "셀 29"
+    },
+    {
+      "code": "area_under(pdf_expo, 0, 1 / 60)",
+      "exercise": false,
+      "label": "셀 30"
+    },
+    {
+      "code": "exponential_cdf(1 / 60, lam)",
+      "exercise": false,
+      "label": "셀 31"
+    },
+    {
+      "code": "pmf_birth_weight = Pmf.from_seq(birth_weights, name=\"data\")",
+      "exercise": false,
+      "label": "셀 32"
+    },
+    {
+      "code": "pdf_model.plot(ls=\":\", color=\"gray\")\npmf_birth_weight.plot()\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PMF? Density?\")",
+      "exercise": false,
+      "label": "셀 33"
+    },
+    {
+      "code": "pmf_model = pdf_model.make_pmf()",
+      "exercise": false,
+      "label": "셀 34"
+    },
+    {
+      "code": "pmf_model.plot(ls=\":\", color=\"gray\")\npmf_birth_weight.plot()\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PMF\")",
+      "exercise": false,
+      "label": "셀 35"
+    },
+    {
+      "code": "len(pmf_model), len(pmf_birth_weight)",
+      "exercise": false,
+      "label": "셀 36"
+    },
+    {
+      "code": "# Set the random seed so we get the same results every time\nnp.random.seed(3)",
+      "exercise": false,
+      "label": "셀 37"
+    },
+    {
+      "code": "n = 10\nsample = birth_weights.sample(n)",
+      "exercise": false,
+      "label": "셀 38"
+    },
+    {
+      "code": "for weight in sample:\n    pmf = Pmf.from_seq([weight]) / n\n    pmf.bar(width=0.08, alpha=0.5)\n\nxlim = [1.5, 12.5]\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PMF\", xlim=xlim)",
+      "exercise": false,
+      "label": "셀 39"
+    },
+    {
+      "code": "qs = np.linspace(2, 12, 201)\n\nfor weight in sample:\n    ps = NormalPdf(weight, 0.75)(qs) / n\n    plt.plot(qs, ps, alpha=0.5)\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PDF\", xlim=xlim)",
+      "exercise": false,
+      "label": "셀 40"
+    },
+    {
+      "code": "low_ps = np.zeros_like(qs)\n\nfor weight in sample:\n    ps = NormalPdf(weight, 0.75)(qs) / n\n    high_ps = low_ps + ps\n    plt.fill_between(qs, low_ps, high_ps, alpha=0.5, lw=1, ec=\"white\")\n    low_ps = high_ps\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"PDF\", xlim=xlim)",
+      "exercise": false,
+      "label": "셀 41"
+    },
+    {
+      "code": "from scipy.stats import gaussian_kde\n\nkde = gaussian_kde(birth_weights)",
+      "exercise": false,
+      "label": "셀 42"
+    },
+    {
+      "code": "ps = kde(qs)",
+      "exercise": false,
+      "label": "셀 43"
+    },
+    {
+      "code": "plt.plot(qs, ps)\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 44"
+    },
+    {
+      "code": "from thinkstats import Pdf\n\ndomain = np.min(birth_weights), np.max(birth_weights)\nkde_birth_weights = Pdf(kde, domain, name=\"data\")",
+      "exercise": false,
+      "label": "셀 45"
+    },
+    {
+      "code": "pdf_model.plot(ls=\":\", color=\"gray\")\nkde_birth_weights.plot()\n\ndecorate(xlabel=\"Birth weight (pounds)\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 46"
+    },
+    {
+      "code": "from thinkstats import read_baby_boom\n\nboom = read_baby_boom()\nboom.head()",
+      "exercise": false,
+      "label": "셀 47"
+    },
+    {
+      "code": "diffs = boom[\"minutes\"].diff().dropna()",
+      "exercise": false,
+      "label": "셀 48"
+    },
+    {
+      "code": "pmf_diffs = Pmf.from_seq(diffs, name=\"data\")\npmf_diffs.bar(width=1)\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"PMF\")",
+      "exercise": false,
+      "label": "셀 49"
+    },
+    {
+      "code": "cdf_diffs = pmf_diffs.make_cdf()\ncdf_diffs.step()\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 50"
+    },
+    {
+      "code": "pmf_diffs2 = cdf_diffs.make_pmf()",
+      "exercise": false,
+      "label": "셀 51"
+    },
+    {
+      "code": "np.allclose(pmf_diffs, pmf_diffs2)",
+      "exercise": false,
+      "label": "셀 52"
+    },
+    {
+      "code": "kde = gaussian_kde(pmf_diffs.qs, weights=pmf_diffs.ps)",
+      "exercise": false,
+      "label": "셀 53"
+    },
+    {
+      "code": "domain = np.min(pmf_diffs.qs), np.max(pmf_diffs.qs)\nkde_diffs = Pdf(kde, domain=domain, name=\"estimated density\")\n\nkde_diffs.plot(ls=\":\", color=\"gray\")\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 54"
+    },
+    {
+      "code": "from thinkstats import ExponentialCdf\n\nm = diffs.mean()\nlam = 1 / m\ncdf_model = ExponentialCdf(lam, name=\"exponential CDF\")",
+      "exercise": false,
+      "label": "셀 55"
+    },
+    {
+      "code": "cdf_model.plot(ls=\":\", color=\"gray\")\ncdf_diffs.step()\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 56"
+    },
+    {
+      "code": "qs = np.linspace(0, 160)\ndiscrete_cdf_model = cdf_model.make_cdf(qs)\ndiscrete_cdf_model.step(color=\"gray\")\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 57"
+    },
+    {
+      "code": "discrete_cdf_model.plot(color=\"gray\")\n\ndecorate(xlabel=\"Interval (minutes)\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 58"
+    },
+    {
+      "code": "import sympy as sp\n\nx = sp.Symbol(\"x\", real=True, positive=True)\nλ = sp.Symbol(\"λ\", real=True, positive=True)\n\ncdf = 1 - sp.exp(-λ * x)\ncdf",
+      "exercise": false,
+      "label": "셀 59"
+    },
+    {
+      "code": "pdf = sp.diff(cdf, x)\npdf",
+      "exercise": false,
+      "label": "셀 60"
+    },
+    {
+      "code": "sp.integrate(pdf, x)",
+      "exercise": false,
+      "label": "셀 61"
+    },
+    {
+      "code": "from notebook_support import read_brfss\n\nbrfss = read_brfss()\nmale = brfss.query(\"sex == 1\")\nheights = male[\"htm3\"].dropna()",
+      "exercise": true,
+      "label": "셀 62"
+    },
+    {
+      "code": "from scipy.stats import trimboth\n\ntrimmed = trimboth(heights, 0.01)\nm, s = np.mean(trimmed), np.std(trimmed)\nm, s",
+      "exercise": true,
+      "label": "셀 63"
+    },
+    {
+      "code": "from thinkstats import NormalCdf\n\ncdf_normal_model = NormalCdf(m, s, name='normal model')",
+      "exercise": true,
+      "label": "셀 64"
+    },
+    {
+      "code": "cdf_height = Cdf.from_seq(heights, name=\"data\")\ncdf_normal_model.plot(ls=\":\", color=\"gray\")\ncdf_height.step()\n\nxlim = [140, 210]\ndecorate(xlabel=\"Height (cm)\", ylabel=\"CDF\", xlim=xlim)",
+      "exercise": true,
+      "label": "셀 65"
+    }
+  ],
+  "attribution": "Think Stats, 3rd edition — Allen B. Downey.\n\nSource and Korean translation: https://allendowney.github.io/ThinkStats/chap06.html\n\nCode license notice:\n\nMIT License\n\nCopyright (c) 2024 Allen Downey\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n\nThe downloaded helpers retain their own GNU GPLv3 headers. Their complete source and COPYING are distributed under /labs/think-stats/upstream/.\n"
+}

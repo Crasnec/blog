@@ -1,0 +1,271 @@
+{
+  "chapter": 9,
+  "cells": [
+    {
+      "code": "# The preparation cell downloads the chapter files once per Python environment.\nimport sys\nfrom pathlib import Path\nfrom urllib.parse import urljoin\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom IPython.display import HTML\n\nDATA_URL = \"/labs/think-stats/\"\nasync def prepare_file(name):\n    target = Path(name.rsplit(\"/\", 1)[-1])\n    if target.exists():\n        return\n    if sys.platform == \"emscripten\":\n        from pyodide.http import pyfetch\n        response = await pyfetch(urljoin(DATA_URL, name))\n        if not response.ok:\n            raise RuntimeError(f\"Download failed: {name} (HTTP {response.status})\")\n        target.write_bytes(await response.bytes())\n    else:\n        from urllib.request import urlretrieve\n        urlretrieve(urljoin(DATA_URL, name), target)\n\nfor name in ['upstream/thinkstats.py', 'upstream/nsfg.py', 'upstream/relay.py', 'notebook_support.py', '2002FemPreg.dct', '2002FemPreg.dat.gz', 'penguins_raw.csv']:\n    await prepare_file(name)\n\nsys.path.insert(0, str(Path.cwd()))\nfrom thinkstats import decorate\nplt.rcParams[\"figure.dpi\"] = 120\n# Match the browser's PNG backend without hiding other warnings.\nimport warnings\nfrom matplotlib import MatplotlibDeprecationWarning\nwarnings.filterwarnings(\"ignore\", message=r\"The [xy] parameter as float was deprecated in Matplotlib 3\\.10.*Use int\\([xy]\\) instead\\.\", category=MatplotlibDeprecationWarning)\nprint(\"준비되었습니다. 다음 셀부터 순서대로 실행하세요.\")\n",
+      "exercise": false,
+      "label": "준비: 라이브러리와 자료"
+    },
+    {
+      "code": "n = 250\np = 0.5\n\n\ndef abs_deviation(heads):\n    expected = n * p\n    return np.abs(heads - expected)",
+      "exercise": false,
+      "label": "셀 1"
+    },
+    {
+      "code": "heads = 140\ntails = 110\n\nobserved_stat = abs_deviation(heads)\nobserved_stat",
+      "exercise": false,
+      "label": "셀 2"
+    },
+    {
+      "code": "def simulate_flips():\n    flips = np.random.choice([\"H\", \"T\"], size=n)\n    heads = np.sum(flips == \"H\")\n    return heads",
+      "exercise": false,
+      "label": "셀 3"
+    },
+    {
+      "code": "np.random.seed(1)",
+      "exercise": false,
+      "label": "셀 4"
+    },
+    {
+      "code": "simulate_flips()",
+      "exercise": false,
+      "label": "셀 5"
+    },
+    {
+      "code": "simulated_stats = [abs_deviation(simulate_flips()) for i in range(10001)]",
+      "exercise": false,
+      "label": "셀 6"
+    },
+    {
+      "code": "from empiricaldist import Pmf\n\npmf_effects = Pmf.from_seq(simulated_stats)\npmf_effects.bar()\n\ndecorate(xlabel=\"Absolute deviation\", ylabel=\"PMF\")",
+      "exercise": false,
+      "label": "셀 7"
+    },
+    {
+      "code": "(np.array(simulated_stats) >= 15).mean() * 100",
+      "exercise": false,
+      "label": "셀 8"
+    },
+    {
+      "code": "from nsfg import get_nsfg_groups\n\nlive, firsts, others = get_nsfg_groups()",
+      "exercise": false,
+      "label": "셀 9"
+    },
+    {
+      "code": "data = firsts[\"prglngth\"].values, others[\"prglngth\"].values",
+      "exercise": false,
+      "label": "셀 10"
+    },
+    {
+      "code": "def abs_diff_means(data):\n    group1, group2 = data\n    diff = np.mean(group1) - np.mean(group2)\n    return np.abs(diff)",
+      "exercise": false,
+      "label": "셀 11"
+    },
+    {
+      "code": "observed_diff = abs_diff_means(data)\nobserved_diff",
+      "exercise": false,
+      "label": "셀 12"
+    },
+    {
+      "code": "def simulate_groups(data):\n    group1, group2 = data\n    n, m = len(group1), len(group2)\n\n    pool = np.hstack(data)\n    np.random.shuffle(pool)\n    return pool[:n], pool[-m:]",
+      "exercise": false,
+      "label": "셀 13"
+    },
+    {
+      "code": "abs_diff_means(simulate_groups(data))",
+      "exercise": false,
+      "label": "셀 14"
+    },
+    {
+      "code": "simulated_diffs = [abs_diff_means(simulate_groups(data)) for i in range(1001)]",
+      "exercise": false,
+      "label": "셀 15"
+    },
+    {
+      "code": "from scipy.stats import gaussian_kde\nfrom empiricaldist import Pmf\n\n\ndef make_pmf(sample, low, high):\n    kde = gaussian_kde(sample)\n    qs = np.linspace(low, high, 201)\n    ps = kde(qs)\n    return Pmf(ps, qs)",
+      "exercise": false,
+      "label": "셀 16"
+    },
+    {
+      "code": "from thinkstats import underride\n\n\ndef fill_tail(pmf, observed, side, **options):\n    \"\"\"Fill the area under a PMF, right or left of an observed value.\"\"\"\n    options = underride(options, alpha=0.3)\n\n    if side == \"right\":\n        condition = pmf.qs >= observed\n    elif side == \"left\":\n        condition = pmf.qs <= observed\n\n    series = pmf[condition]\n    plt.fill_between(series.index, 0, series, **options)",
+      "exercise": false,
+      "label": "셀 17"
+    },
+    {
+      "code": "pmf = make_pmf(simulated_diffs, 0, 0.2)\npmf.plot()\nfill_tail(pmf, observed_diff, \"right\")\ndecorate(xlabel=\"Absolute difference in means (weeks)\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 18"
+    },
+    {
+      "code": "def compute_p_value(simulated, observed):\n    \"\"\"Fraction of simulated values as big or bigger than the observed value.\"\"\"\n    return (np.asarray(simulated) >= observed).mean()",
+      "exercise": false,
+      "label": "셀 19"
+    },
+    {
+      "code": "compute_p_value(simulated_diffs, observed_diff)",
+      "exercise": false,
+      "label": "셀 20"
+    },
+    {
+      "code": "def abs_diff_stds(data):\n    group1, group2 = data\n    diff = np.std(group1) - np.std(group2)\n    return np.abs(diff)",
+      "exercise": false,
+      "label": "셀 21"
+    },
+    {
+      "code": "observed_diff = abs_diff_stds(data)\nobserved_diff",
+      "exercise": false,
+      "label": "셀 22"
+    },
+    {
+      "code": "simulated_diffs = [abs_diff_stds(simulate_groups(data)) for i in range(1001)]",
+      "exercise": false,
+      "label": "셀 23"
+    },
+    {
+      "code": "pmf = make_pmf(simulated_diffs, 0, 0.5)\npmf.plot()\nfill_tail(pmf, observed_diff, \"right\")\ndecorate(xlabel=\"Absolute difference in std (weeks)\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 24"
+    },
+    {
+      "code": "compute_p_value(simulated_diffs, observed_diff)",
+      "exercise": false,
+      "label": "셀 25"
+    },
+    {
+      "code": "valid = live.dropna(subset=[\"agepreg\", \"totalwgt_lb\"])\nvalid.shape",
+      "exercise": false,
+      "label": "셀 26"
+    },
+    {
+      "code": "ages = valid[\"agepreg\"]\nbirthweights = valid[\"totalwgt_lb\"]",
+      "exercise": false,
+      "label": "셀 27"
+    },
+    {
+      "code": "def abs_correlation(data):\n    xs, ys = data\n    corr = np.corrcoef(xs, ys)[0, 1]\n    return np.abs(corr)",
+      "exercise": false,
+      "label": "셀 28"
+    },
+    {
+      "code": "data = ages, birthweights\nobserved_corr = abs_correlation(data)\nobserved_corr",
+      "exercise": false,
+      "label": "셀 29"
+    },
+    {
+      "code": "def permute(data):\n    xs, ys = data\n    new_xs = xs.values.copy()\n    np.random.shuffle(new_xs)\n    return new_xs, ys",
+      "exercise": false,
+      "label": "셀 30"
+    },
+    {
+      "code": "abs_correlation(permute(data))",
+      "exercise": false,
+      "label": "셀 31"
+    },
+    {
+      "code": "simulated_corrs = [abs_correlation(permute(data)) for i in range(1001)]",
+      "exercise": false,
+      "label": "셀 32"
+    },
+    {
+      "code": "pmf = make_pmf(simulated_corrs, 0, 0.07)\npmf.plot()\nplt.axvline(observed_corr, color=\"gray\", ls=\":\")\ndecorate(xlabel=\"Absolute value of correlation\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 33"
+    },
+    {
+      "code": "compute_p_value(simulated_corrs, observed_corr)",
+      "exercise": false,
+      "label": "셀 34"
+    },
+    {
+      "code": "from empiricaldist import Hist\n\nqs = np.arange(1, 7)\nfreqs = [8, 9, 19, 5, 8, 11]\nobserved = Hist(freqs, qs)\nobserved.index.name = \"outcome\"\nobserved",
+      "exercise": false,
+      "label": "셀 35"
+    },
+    {
+      "code": "num_rolls = observed.sum()\noutcomes = observed.qs\nexpected = Hist(num_rolls / 6, outcomes)",
+      "exercise": false,
+      "label": "셀 36"
+    },
+    {
+      "code": "def total_abs_deviation(observed):\n    return np.sum(np.abs(observed - expected))",
+      "exercise": false,
+      "label": "셀 37"
+    },
+    {
+      "code": "observed_dev = total_abs_deviation(observed)\nobserved_dev",
+      "exercise": false,
+      "label": "셀 38"
+    },
+    {
+      "code": "def simulate_dice(observed):\n    num_rolls = np.sum(observed)\n    rolls = np.random.choice(observed.qs, num_rolls, replace=True)\n    hist = Hist.from_seq(rolls)\n    return hist",
+      "exercise": false,
+      "label": "셀 39"
+    },
+    {
+      "code": "simulated_devs = [total_abs_deviation(simulate_dice(observed)) for i in range(1001)]",
+      "exercise": false,
+      "label": "셀 40"
+    },
+    {
+      "code": "pmf_devs = Pmf.from_seq(simulated_devs)\npmf_devs.bar()\n\ndecorate(xlabel=\"Total absolute deviation\", ylabel=\"PMF\")",
+      "exercise": false,
+      "label": "셀 41"
+    },
+    {
+      "code": "compute_p_value(simulated_devs, observed_dev)",
+      "exercise": false,
+      "label": "셀 42"
+    },
+    {
+      "code": "def chi_squared_stat(observed):\n    diffs = (observed - expected) ** 2\n    return np.sum(diffs / expected)",
+      "exercise": false,
+      "label": "셀 43"
+    },
+    {
+      "code": "observed_chi2 = chi_squared_stat(observed)\nobserved_chi2",
+      "exercise": false,
+      "label": "셀 44"
+    },
+    {
+      "code": "simulated_chi2 = [chi_squared_stat(simulate_dice(observed)) for i in range(1001)]",
+      "exercise": false,
+      "label": "셀 45"
+    },
+    {
+      "code": "pmf = make_pmf(simulated_chi2, 0, 20)\npmf.plot()\nfill_tail(pmf, observed_chi2, \"right\")\ndecorate(xlabel=\"Chi-Squared statistic\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 46"
+    },
+    {
+      "code": "compute_p_value(simulated_chi2, observed_chi2)",
+      "exercise": false,
+      "label": "셀 47"
+    },
+    {
+      "code": "penguins = pd.read_csv(\"penguins_raw.csv\").dropna(subset=[\"Body Mass (g)\"])\nchinstrap = penguins.query('Species.str.startswith(\"Chinstrap\")')\nchinstrap.shape",
+      "exercise": true,
+      "label": "셀 48"
+    },
+    {
+      "code": "male = chinstrap.query(\"Sex == 'MALE'\")\nweights_male = male[\"Body Mass (g)\"] / 1000\nweights_male.mean()",
+      "exercise": true,
+      "label": "셀 49"
+    },
+    {
+      "code": "female = chinstrap.query(\"Sex == 'FEMALE'\")\nweights_female = female[\"Body Mass (g)\"] / 1000\nweights_female.mean()",
+      "exercise": true,
+      "label": "셀 50"
+    },
+    {
+      "code": "data = female[\"Culmen Depth (mm)\"], female[\"Culmen Length (mm)\"]",
+      "exercise": true,
+      "label": "셀 51"
+    },
+    {
+      "code": "observed_corr = abs_correlation(data)\nobserved_corr",
+      "exercise": true,
+      "label": "셀 52"
+    }
+  ],
+  "attribution": "Think Stats, 3rd edition — Allen B. Downey.\n\nSource and Korean translation: https://allendowney.github.io/ThinkStats/chap09.html\n\nCode license notice:\n\nMIT License\n\nCopyright (c) 2024 Allen Downey\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n\nThe downloaded helpers retain their own GNU GPLv3 headers. Their complete source and COPYING are distributed under /labs/think-stats/upstream/.\n"
+}

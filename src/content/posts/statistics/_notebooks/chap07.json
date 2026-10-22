@@ -1,0 +1,281 @@
+{
+  "chapter": 7,
+  "cells": [
+    {
+      "code": "# The preparation cell downloads the chapter files once per Python environment.\nimport sys\nfrom pathlib import Path\nfrom urllib.parse import urljoin\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom IPython.display import HTML\n\nDATA_URL = \"/labs/think-stats/\"\nasync def prepare_file(name):\n    target = Path(name.rsplit(\"/\", 1)[-1])\n    if target.exists():\n        return\n    if sys.platform == \"emscripten\":\n        from pyodide.http import pyfetch\n        response = await pyfetch(urljoin(DATA_URL, name))\n        if not response.ok:\n            raise RuntimeError(f\"Download failed: {name} (HTTP {response.status})\")\n        target.write_bytes(await response.bytes())\n    else:\n        from urllib.request import urlretrieve\n        urlretrieve(urljoin(DATA_URL, name), target)\n\nfor name in ['upstream/thinkstats.py', 'upstream/nsfg.py', 'upstream/relay.py', 'notebook_support.py', 'nlsy97-extract.csv.gz', 'brfss-2008.csv.gz']:\n    await prepare_file(name)\n\nsys.path.insert(0, str(Path.cwd()))\nfrom thinkstats import decorate\nplt.rcParams[\"figure.dpi\"] = 120\n# Match the browser's PNG backend without hiding other warnings.\nimport warnings\nfrom matplotlib import MatplotlibDeprecationWarning\nwarnings.filterwarnings(\"ignore\", message=r\"The [xy] parameter as float was deprecated in Matplotlib 3\\.10.*Use int\\([xy]\\) instead\\.\", category=MatplotlibDeprecationWarning)\nprint(\"준비되었습니다. 다음 셀부터 순서대로 실행하세요.\")\n",
+      "exercise": false,
+      "label": "준비: 라이브러리와 자료"
+    },
+    {
+      "code": "missing_codes = [-1, -2, -3, -4, -5]\nnlsy = pd.read_csv(\"nlsy97-extract.csv.gz\").replace(missing_codes, np.nan)\nnlsy.shape",
+      "exercise": false,
+      "label": "셀 1"
+    },
+    {
+      "code": "nlsy.head()",
+      "exercise": false,
+      "label": "셀 2"
+    },
+    {
+      "code": "nlsy[\"sat_verbal\"] = nlsy[\"R9793800\"]\nnlsy[\"sat_math\"] = nlsy[\"R9793900\"]",
+      "exercise": false,
+      "label": "셀 3"
+    },
+    {
+      "code": "columns = [\"sat_verbal\", \"sat_math\"]\n\nfor column in columns:\n    invalid = nlsy[column] < 200\n    nlsy.loc[invalid, column] = np.nan",
+      "exercise": false,
+      "label": "셀 4"
+    },
+    {
+      "code": "nlsy_valid = nlsy.dropna(subset=columns).copy()\nnlsy_valid.shape",
+      "exercise": false,
+      "label": "셀 5"
+    },
+    {
+      "code": "sat_verbal = nlsy_valid[\"sat_verbal\"]\nsat_verbal.mean(), sat_verbal.std()",
+      "exercise": false,
+      "label": "셀 6"
+    },
+    {
+      "code": "sat_math = nlsy_valid[\"sat_math\"]\nsat_math.mean(), sat_math.std()",
+      "exercise": false,
+      "label": "셀 7"
+    },
+    {
+      "code": "plt.scatter(sat_verbal, sat_math)\n\ndecorate(xlabel=\"SAT Verbal\", ylabel=\"SAT Math\")",
+      "exercise": false,
+      "label": "셀 8"
+    },
+    {
+      "code": "plt.scatter(sat_verbal, sat_math, s=5)\n\ndecorate(xlabel=\"SAT Verbal\", ylabel=\"SAT Math\")",
+      "exercise": false,
+      "label": "셀 9"
+    },
+    {
+      "code": "def jitter(seq, std=1):\n    n = len(seq)\n    return np.random.normal(0, std, n) + seq",
+      "exercise": false,
+      "label": "셀 10"
+    },
+    {
+      "code": "sat_verbal_jittered = jitter(sat_verbal, 3)\nsat_math_jittered = jitter(sat_math, 3)",
+      "exercise": false,
+      "label": "셀 11"
+    },
+    {
+      "code": "plt.scatter(sat_verbal_jittered, sat_math_jittered, s=5)\n\ndecorate(xlabel=\"SAT Verbal\", ylabel=\"SAT Math\")",
+      "exercise": false,
+      "label": "셀 12"
+    },
+    {
+      "code": "plt.scatter(sat_verbal_jittered, sat_math_jittered, s=5, alpha=0.2)\n\ndecorate(xlabel=\"SAT Verbal\", ylabel=\"SAT Math\")",
+      "exercise": false,
+      "label": "셀 13"
+    },
+    {
+      "code": "deciles = pd.qcut(nlsy_valid[\"sat_verbal\"], 10, labels=False) + 1\ndeciles.value_counts().sort_index()",
+      "exercise": false,
+      "label": "셀 14"
+    },
+    {
+      "code": "df_groupby = nlsy_valid.groupby(deciles)\ndf_groupby",
+      "exercise": false,
+      "label": "셀 15"
+    },
+    {
+      "code": "series_groupby = df_groupby[\"sat_math\"]\nseries_groupby",
+      "exercise": false,
+      "label": "셀 16"
+    },
+    {
+      "code": "low = series_groupby.quantile(0.1)\nmedian = series_groupby.quantile(0.5)\nhigh = series_groupby.quantile(0.9)",
+      "exercise": false,
+      "label": "셀 17"
+    },
+    {
+      "code": "xs = median.index\nplt.fill_between(xs, low, high, alpha=0.2)\nplt.plot(xs, median, label=\"median\")\n\ndecorate(xlabel=\"SAT Verbal Decile\", ylabel=\"SAT Math\")",
+      "exercise": false,
+      "label": "셀 18"
+    },
+    {
+      "code": "xs = df_groupby[\"sat_verbal\"].median()\n\nplt.fill_between(xs, low, high, alpha=0.2)\nplt.plot(xs, median, color=\"C0\", label=\"median\")\n\ndecorate(xlabel=\"SAT Verbal\", ylabel=\"SAT Math\")",
+      "exercise": false,
+      "label": "셀 19"
+    },
+    {
+      "code": "nlsy[\"piat_math\"] = nlsy[\"R1318200\"]\nnlsy[\"piat_math\"].describe()",
+      "exercise": false,
+      "label": "셀 20"
+    },
+    {
+      "code": "from empiricaldist import Cdf\n\ncdf_piat_math = Cdf.from_seq(nlsy[\"piat_math\"], name=\"PIAT math\")\ncdf_piat_math.step()\ndecorate(ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 21"
+    },
+    {
+      "code": "from thinkstats import scatter\n\nscatter(nlsy, \"piat_math\", \"sat_math\")\n\ndecorate(xlabel=\"PIAT Math\", ylabel=\"SAT Math\")",
+      "exercise": false,
+      "label": "셀 22"
+    },
+    {
+      "code": "scatter(nlsy, \"piat_math\", \"sat_verbal\")\n\ndecorate(xlabel=\"PIAT Math\", ylabel=\"SAT Verbal\")",
+      "exercise": false,
+      "label": "셀 23"
+    },
+    {
+      "code": "def standardize(xs):\n    \"\"\"Standardizes a sequence of numbers.\n\n    xs: sequence of numbers\n\n    returns: NumPy array\n    \"\"\"\n    return (xs - np.mean(xs)) / np.std(xs)",
+      "exercise": false,
+      "label": "셀 24"
+    },
+    {
+      "code": "valid = nlsy.dropna(subset=[\"piat_math\", \"sat_math\"])\npiat_math = valid[\"piat_math\"]\nsat_math = valid[\"sat_math\"]",
+      "exercise": false,
+      "label": "셀 25"
+    },
+    {
+      "code": "piat_math_standard = standardize(piat_math)\nnp.mean(piat_math_standard), np.std(piat_math_standard)",
+      "exercise": false,
+      "label": "셀 26"
+    },
+    {
+      "code": "sat_math_standard = standardize(sat_math)\nnp.mean(sat_math_standard), np.std(sat_math_standard)",
+      "exercise": false,
+      "label": "셀 27"
+    },
+    {
+      "code": "plt.subplot(2, 1, 1)\nplt.axhline(0, color=\"gray\", lw=1, alpha=0.5)\nplt.plot(piat_math_standard.values[:100], label=\"PIAT math\")\ndecorate(ylabel=\"z-score\", xticks=[])\n\nplt.subplot(2, 1, 2)\nplt.axhline(0, color=\"gray\", lw=1, alpha=0.5)\nplt.plot(sat_math_standard.values[:100], label=\"SAT math\", color=\"C1\")\ndecorate(ylabel=\"z-score\", xticks=[])",
+      "exercise": false,
+      "label": "셀 28"
+    },
+    {
+      "code": "np.mean(piat_math_standard * sat_math_standard)",
+      "exercise": false,
+      "label": "셀 29"
+    },
+    {
+      "code": "np.mean(sat_math_standard * piat_math_standard)",
+      "exercise": false,
+      "label": "셀 30"
+    },
+    {
+      "code": "np.corrcoef(piat_math, sat_math)",
+      "exercise": false,
+      "label": "셀 31"
+    },
+    {
+      "code": "from thinkstats import corrcoef\n\ncorrcoef(nlsy, \"piat_math\", \"sat_math\")",
+      "exercise": false,
+      "label": "셀 32"
+    },
+    {
+      "code": "corrcoef(nlsy, \"piat_math\", \"sat_verbal\")",
+      "exercise": false,
+      "label": "셀 33"
+    },
+    {
+      "code": "np.random.seed(17)\nxs = np.random.normal(size=300)\nys = np.random.normal(size=300)",
+      "exercise": false,
+      "label": "셀 34"
+    },
+    {
+      "code": "from thinkstats import make_correlated_scatter\n\nplt.figure(figsize=(10, 2.5))\n\nfor i, rho in enumerate([0, 0.3, 0.7, 0.99]):\n    plt.subplot(1, 4, i + 1)\n    make_correlated_scatter(xs, ys, rho)\ndecorate()",
+      "exercise": false,
+      "label": "셀 35"
+    },
+    {
+      "code": "plt.figure(figsize=(10, 2.5))\n\nfor i, rho in enumerate([-0.1, -0.3, -0.7, -0.99]):\n    plt.subplot(1, 4, i + 1)\n    make_correlated_scatter(xs, ys, rho)\ndecorate()",
+      "exercise": false,
+      "label": "셀 36"
+    },
+    {
+      "code": "from thinkstats import make_nonlinear_scatter\n\nplt.figure(figsize=(10, 2.5))\n\nfor i, kind in enumerate([\"abs\", \"quadratic\", \"sinusoid\"]):\n    plt.subplot(1, 4, i + 1)\n    make_nonlinear_scatter(xs, ys, kind)\ndecorate()",
+      "exercise": false,
+      "label": "셀 37"
+    },
+    {
+      "code": "nlsy[\"income\"] = nlsy[\"U4949700\"]\nnlsy[\"income\"].describe()",
+      "exercise": false,
+      "label": "셀 38"
+    },
+    {
+      "code": "cdf_income = Cdf.from_seq(nlsy[\"income\"])\ncdf_income.step()\n\ndecorate(xlabel=\"Income (USD)\", ylabel=\"CDF\")",
+      "exercise": false,
+      "label": "셀 39"
+    },
+    {
+      "code": "scatter(nlsy, \"piat_math\", \"income\")\n\ndecorate(xlabel=\"PIAT math\", ylabel=\"Gross Family Income (USD)\")",
+      "exercise": false,
+      "label": "셀 40"
+    },
+    {
+      "code": "corrcoef(nlsy, \"piat_math\", \"income\")",
+      "exercise": false,
+      "label": "셀 41"
+    },
+    {
+      "code": "valid = nlsy.dropna(subset=[\"piat_math\", \"income\"])\n\npiat_math_rank = valid[\"piat_math\"].rank(method=\"first\")\nincome_rank = valid[\"income\"].rank(method=\"first\")",
+      "exercise": false,
+      "label": "셀 42"
+    },
+    {
+      "code": "income_rank.min(), income_rank.max()",
+      "exercise": false,
+      "label": "셀 43"
+    },
+    {
+      "code": "plt.scatter(piat_math_rank, income_rank, s=5, alpha=0.2)\n\ndecorate(xlabel=\"PIAT math rank\", ylabel=\"Income rank\")",
+      "exercise": false,
+      "label": "셀 44"
+    },
+    {
+      "code": "np.corrcoef(piat_math_rank, income_rank)[0, 1]",
+      "exercise": false,
+      "label": "셀 45"
+    },
+    {
+      "code": "from thinkstats import rankcorr\n\nrankcorr(nlsy, \"piat_math\", \"income\")",
+      "exercise": false,
+      "label": "셀 46"
+    },
+    {
+      "code": "from scipy.stats import spearmanr\n\nspearmanr(valid[\"piat_math\"], valid[\"income\"]).statistic",
+      "exercise": false,
+      "label": "셀 47"
+    },
+    {
+      "code": "from thinkstats import decile_plot\n\ndecile_plot(nlsy, \"sat_verbal\", \"sat_math\")\ndecorate(xlabel=\"SAT Verbal\", ylabel=\"SAT Math\")",
+      "exercise": true,
+      "label": "셀 48"
+    },
+    {
+      "code": "missing_codes = [-6, -7, -8, -9]\nnlsy[\"gpa\"] = nlsy[\"R9871900\"].replace(missing_codes, np.nan) / 100\nnlsy[\"gpa\"].describe()",
+      "exercise": true,
+      "label": "셀 49"
+    },
+    {
+      "code": "cdf_income = Cdf.from_seq(nlsy[\"gpa\"])\ncdf_income.step()\ndecorate(xlabel=\"GPA\", ylabel=\"CDF\")",
+      "exercise": true,
+      "label": "셀 50"
+    },
+    {
+      "code": "nlsy[\"degree\"] = nlsy[\"Z9083900\"]\nnlsy[\"degree\"].value_counts().sort_index()",
+      "exercise": true,
+      "label": "셀 51"
+    },
+    {
+      "code": "positions = [0, 1, 2, 3, 4, 5, 6, 7]\nlabels = [\n    \"None\",\n    \"GED\",\n    \"High school diploma\",\n    \"Associate's degree\",\n    \"Bachelor's degree\",\n    \"Master's degree\",\n    \"PhD\",\n    \"Professional degree\",\n]",
+      "exercise": true,
+      "label": "셀 52"
+    },
+    {
+      "code": "from empiricaldist import Pmf\n\nPmf.from_seq(nlsy[\"degree\"]).bar()\n\nplt.xticks(positions, labels, rotation=30, ha=\"right\")\ndecorate(ylabel=\"PMF\")",
+      "exercise": true,
+      "label": "셀 53"
+    },
+    {
+      "code": "from notebook_support import read_brfss\n\nbrfss = read_brfss()\nbrfss[\"htm3\"].describe()",
+      "exercise": true,
+      "label": "셀 54"
+    }
+  ],
+  "attribution": "Think Stats, 3rd edition — Allen B. Downey.\n\nSource and Korean translation: https://allendowney.github.io/ThinkStats/chap07.html\n\nCode license notice:\n\nMIT License\n\nCopyright (c) 2024 Allen Downey\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n\nThe downloaded helpers retain their own GNU GPLv3 headers. Their complete source and COPYING are distributed under /labs/think-stats/upstream/.\n"
+}

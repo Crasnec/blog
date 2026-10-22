@@ -1,0 +1,805 @@
+---
+title: 'Think Stats 12장: 시계열 분석'
+published: 2026-10-22
+description: '추세·계절성 분해, 시간 순서를 지킨 예측 평가와 ARIMA를 다루는 Think Stats 3판 12장 한국어 번역.'
+category: statistics
+lang: ko
+tags: [statistics, think-stats, python, translation]
+---
+
+import CodePlayground from '../../../components/CodePlayground.astro';
+import PythonNotebook from '../../../components/PythonNotebook.astro';
+import notebook from './_notebooks/chap12.json';
+import Figure from '../../../components/Figure.astro';
+import plots from './_figures/chapters-09-14.json';
+import codeDecomposition from '../../../../public/labs/think-stats/chap12-decomposition.py?raw';
+import codeForecast from '../../../../public/labs/think-stats/chap12-forecast.py?raw';
+import codeArima from '../../../../public/labs/think-stats/chap12-arima.py?raw';
+
+Allen B. Downey의 《Think Stats》 3판, 12장 「Time Series Analysis」의 한국어 번역입니다. [원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/nb/chap12.ipynb)을 바탕으로 옮겼습니다.
+
+<a href="/labs/think-stats/chap12-ko.ipynb" download="think-stats-12-ko.ipynb">한국어 노트북 내려받기</a> · [원문 웹판](https://allendowney.github.io/ThinkStats/chap12.html)
+
+준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 셀을 실행하면 참고용 출력이 실제 결과로 바뀝니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
+
+**시계열**은 시간 순서에 따라 기록한 관측값들의 모음입니다. 앞 장의 회귀도 사용할 수 있지만, 시간 순서가 있는 자료에 특히 유용한 방법들이 더 있습니다.
+
+2001~2024년 미국의 발전량과 같은 기간의 기상 자료를 살펴보겠습니다. 시계열을 장기 추세와 반복되는 계절 성분으로 나누고, 회귀로 추세를 적합해 예측한 뒤, **자기회귀 누적 이동평균**이라는 모형을 사용하겠습니다. 긴 이름 대신 보통 ARIMA라고 부릅니다.
+
+> 번역자 주: 원문 도입부는 재생에너지 발전량이라고 표현하지만, 첫 예제의 원자력은 재생에너지가 아닙니다. 자료에는 여러 발전원이 들어 있으며 이 장은 원자력과 태양광을 다룹니다.
+
+## 발전량
+
+미국 에너지정보청(EIA)의 월별 발전량 자료를 사용합니다. 2001~2024년의 여러 발전원 자료를 포함하며, 내려받는 방법은 이 장의 노트북에 있습니다.
+
+원저자는 [EIA 전력 자료 브라우저](https://www.eia.gov/electricity/data/browser/)에서 2024년 9월 17일에 자료를 내려받았습니다. 아래 예제의 2024년 수치는 당시 자료에 포함된 기간까지입니다.
+
+<PythonNotebook id="think-stats-12" title="Think Stats 12장 노트북" attribution={notebook.attribution} />
+
+<CodePlayground notebook="think-stats-12" title="준비: 라이브러리와 자료" code={notebook.cells[0].code} language="python" timeout={60000} pythonPackages={["numpy", "pandas", "scipy", "matplotlib", "empiricaldist", "statadict", "statsmodels", "ipython"]} />
+
+<CodePlayground notebook="think-stats-12" title="셀 1" code={notebook.cells[1].code} language="python" timeout={60000} />
+
+읽은 표를 분석하기 편한 형태로 바꾸겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 2" code={notebook.cells[2].code} language="python" timeout={60000} />
+
+정리한 표의 각 열은 한 발전원의 월별 총발전량이며 단위는 기가와트시(GWh)입니다. 열 이름은 다음과 같습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 3" code={notebook.cells[3].code} language="python" timeout={60000}>
+
+```text
+Index(['Net generation for all sectors', 'United States',
+       'United States : all fuels (utility-scale)', 'United States : nuclear',
+       'United States : conventional hydroelectric',
+       'United States : other renewables', 'United States : wind',
+       'United States : all utility-scale solar', 'United States : geothermal',
+       'United States : biomass',
+       'United States : hydro-electric pumped storage',
+       'United States : all solar',
+       'United States : small-scale solar photovoltaic'],
+      dtype='object', name='description')
+```
+
+</CodePlayground>
+
+인덱스에는 연월을 나타내는 문자열이 있습니다. 처음 12개를 보겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 4" code={notebook.cells[4].code} language="python" timeout={60000}>
+
+```text
+Index(['Jan 2001', 'Feb 2001', 'Mar 2001', 'Apr 2001', 'May 2001', 'Jun 2001',
+       'Jul 2001', 'Aug 2001', 'Sep 2001', 'Oct 2001', 'Nov 2001', 'Dec 2001'],
+      dtype='object')
+```
+
+</CodePlayground>
+
+문자열을 pandas의 `Timestamp`로 바꾸면 다루기 쉽습니다. `date_range`를 2001년 1월부터 빈도 코드 `ME`, 즉 월말로 지정하면 매달 마지막 날이 생성됩니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 5" code={notebook.cells[5].code} language="python" timeout={60000}>
+
+```text
+DatetimeIndex(['2001-01-31', '2001-02-28', '2001-03-31', '2001-04-30',
+               '2001-05-31', '2001-06-30'],
+              dtype='datetime64[ns]', freq='ME')
+```
+
+</CodePlayground>
+
+인덱스는 이제 `DatetimeIndex`입니다. NumPy의 `datetime64[ns]`는 날짜마다 64비트를 쓰고 나노초 정밀도를 지원한다는 뜻입니다.
+
+## 시계열 분해
+
+먼저 2001년 1월~2024년 6월의 미국 원자력 발전량을 장기 추세와 주기 성분으로 나누겠습니다. 월별 발전량은 다음과 같습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 6" code={notebook.cells[6].code} language="python" timeout={60000} />
+
+<CodePlayground notebook="think-stats-12" title="셀 7" code={notebook.cells[7].code} language="python" timeout={60000}>
+
+![원전 월 발전량. 연도별 추세 위에 반복되는 계절 변동이 있습니다.](/labs/think-stats/figures/chap12-020-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-020-0.png)
+
+</CodePlayground>
+
+오르내리는 추세가 있지만 월별 변동이 커서 보기 어렵습니다. `rolling`과 `mean`으로 **이동평균**을 구하면 장기 흐름을 더 잘 볼 수 있습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 8" code={notebook.cells[8].code} language="python" timeout={60000} />
+
+`window=12`는 겹치는 12개월 구간을 뜻합니다. 첫 구간은 첫 측정부터 12개, 다음 구간은 두 번째부터 12개를 담고 각각의 평균을 구합니다. 원자료와 함께 그리겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000}>
+
+![원전 발전량과 12개월 후행 이동평균. 평균은 원자료보다 매끄럽지만 변화에 늦습니다.](/labs/think-stats/figures/chap12-024-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-024-0.png)
+
+</CodePlayground>
+
+추세에도 변동이 남습니다. 더 긴 창을 쓰면 더 매끄러워지겠지만 여기서는 12개월을 유지합니다. 원자료에서 추세를 빼면 장기적인 평균 변화가 줄어든 시계열이 나옵니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000}>
+
+![원전 발전량에서 이동평균 추세를 뺀 값. 반복되는 계절 변동이 보입니다.](/labs/think-stats/figures/chap12-026-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-026-0.png)
+
+</CodePlayground>
+
+해마다 반복되는 패턴이 보입니다. 겨울 난방과 여름 냉방처럼 전력 수요가 계절에 따라 달라지기 때문일 수 있습니다. 날짜의 월을 기준으로 묶어 추세를 뺀 값의 월별 평균을 구합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000}>
+
+![추세를 뺀 원전 발전량의 월별 평균. 1월과 여름에 상대적으로 높습니다.](/labs/think-stats/figures/chap12-028-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-028-0.png)
+
+</CodePlayground>
+
+1은 1월, 12는 12월입니다. 추운 달과 더운 달에 발전량이 높고 4월과 10월에 낮습니다. 각 날짜의 월에 해당하는 평균을 찾아 원자료와 같은 길이의 계절 성분을 만듭니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 12" code={notebook.cells[12].code} language="python" timeout={60000}>
+
+![첫 12개월 계절 성분을 반복해 그린 곡선. 매년 모양을 같게 가정합니다.](/labs/think-stats/figures/chap12-030-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-030-0.png)
+
+</CodePlayground>
+
+12개월 패턴이 똑같이 반복됩니다. 추세와 계절 성분을 더하면 각 달의 기대값을 나타낼 수 있습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000} />
+
+그 합을 원자료와 비교하겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000}>
+
+![추세와 반복 계절 성분을 더한 값과 실제 발전량의 비교.](/labs/think-stats/figures/chap12-034-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-034-0.png)
+
+</CodePlayground>
+
+원자료에서 추세와 계절 성분의 합을 빼면 기대값에서 벗어난 **잔차 성분**이 남습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000}>
+
+![추세·계절 성분을 뺀 원전 잔차. 시간에 따른 의존성이 남을 수 있습니다.](/labs/think-stats/figures/chap12-036-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-036-0.png)
+
+</CodePlayground>
+
+잔차에는 추세와 계절 패턴이 설명하지 못한 날씨, 설비 정비, 특정 사건에 따른 수요 변화 등이 섞입니다. 예측하기 어렵거나 알 수 없는 기여가 많아 이를 확률적인 양으로 취급하곤 합니다. 잔차 분포를 그려 보겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 16" code={notebook.cells[16].code} language="python" timeout={60000}>
+
+![가법 분해 후 원전 잔차의 KDE. 가운데에 밀집하고 양쪽 꼬리가 남습니다.](/labs/think-stats/figures/chap12-038-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-038-0.png)
+
+</CodePlayground>
+
+정규분포의 종 모양과 비슷합니다. 여러 무작위 기여가 더해진다는 설명과 부합하지만, 모양만으로 독립성이나 정규성이 입증되는 것은 아닙니다. 원자료 분산과 잔차 분산을 비교해 적합 정도를 구하겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 17" code={notebook.cells[17].code} language="python" timeout={60000}>
+
+```text
+np.float64(0.9054559977517084)
+```
+
+</CodePlayground>
+
+$R^2$는 약 0.905입니다. 추세와 계절 성분이 원자료 변동의 약 90.5%를 담고 있습니다. 앞 장보다 높지만, 이 값은 분해에 사용한 자료를 얼마나 잘 설명하는지 나타냅니다. 미래 예측의 정확도는 따로 확인해야 합니다.
+
+이 과정을 **계절 분해**라고 합니다. statsmodels의 `seasonal_decompose`로도 계산할 수 있습니다.
+
+> 번역자 주: 원문 설명의 약 0.92는 바로 앞 코드 출력 0.905456과 달라, 출력에 맞춰 고쳤습니다. 뒤의 `seasonal_decompose`는 중심 이동평균을 사용하므로 앞의 후행 이동평균을 쓴 수동 분해와 결과가 다를 수 있습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 18" code={notebook.cells[18].code} language="python" timeout={60000} />
+
+`model="additive"`는 추세·계절·잔차를 더하는 가법 모형입니다. `period=12`는 계절 주기가 12개월이라는 뜻입니다. 반환 객체에 세 성분이 들어 있으며, 다음 함수로 그릴 수 있습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 19" code={notebook.cells[19].code} language="python" timeout={60000} />
+
+<CodePlayground notebook="think-stats-12" title="셀 20" code={notebook.cells[20].code} language="python" timeout={60000} />
+
+<Figure kind="line" props={plots["chap12-045-관측"]} caption="원전 가법 분해: 관측. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." label="원전 가법 분해: 관측. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." />
+
+<Figure kind="line" props={plots["chap12-045-추세"]} caption="원전 가법 분해: 추세. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." label="원전 가법 분해: 추세. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." />
+
+<Figure kind="line" props={plots["chap12-045-계절성"]} caption="원전 가법 분해: 계절성. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." label="원전 가법 분해: 계절성. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." />
+
+<Figure kind="line" props={plots["chap12-045-잔차"]} caption="원전 가법 분해: 잔차. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." label="원전 가법 분해: 잔차. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." />
+
+직접 계산한 결과와 비슷하고, 세부 구현에 따른 차이가 있습니다. 계절 분해는 구조를 이해하는 데 도움이 되며 예측에도 사용할 수 있습니다.
+
+### 직접 실행: 추세와 계절성 나누기
+
+발전원을 nuclear 또는 solar로 고르세요. 원전에는 가법, 소규모 태양광에는 승법 분해를 씁니다. 빈칸이면 2001년 1월~2024년 6월 원전 자료 282개월입니다. 분해는 전체 관측 자료의 모양을 설명하며, 가운데 이동평균은 미래 값을 함께 쓰므로 그대로 실시간 예측으로 읽으면 안 됩니다.
+
+<Figure kind="line" props={plots["nuclear"]} caption="282개월 원전 발전량. 월별 관측 간격을 같은 폭으로 배치했습니다." label="282개월 원전 발전량. 월별 관측 간격을 같은 폭으로 배치했습니다." />
+
+<Figure kind="line" props={plots["seasonal"]} caption="기본 가법 분해의 1~12월 계절 성분. 장기 추세를 제거하고 남은 반복 변동입니다." label="기본 가법 분해의 1~12월 계절 성분. 장기 추세를 제거하고 남은 반복 변동입니다." />
+
+<CodePlayground title="Think Stats 12장 · 추세와 계절성 나누기" code={codeDecomposition} language="python" timeout={60000} />
+
+## 예측
+
+모형을 맞추는 **훈련 시계열**과, 그 모형의 예측 정확도를 확인하는 **평가 시계열**로 자료를 나누겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000} />
+
+평가 구간을 60개월로 정하면 2019년 7월부터 5년입니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 22" code={notebook.cells[22].code} language="python" timeout={60000}>
+
+```text
+Timestamp('2019-07-31 00:00:00')
+```
+
+</CodePlayground>
+
+2019년 6월 시점에서 향후 5년을 예측한다고 생각해 보세요. 그때까지 관측된 훈련 자료만 계절 분해합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 23" code={notebook.cells[23].code} language="python" timeout={60000} />
+
+추세에 선형 모형을 맞춥니다. 설명변수 `months`는 자료 시작부터 지난 개월 수입니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 24" code={notebook.cells[24].code} language="python" timeout={60000} />
+
+회귀 결과를 확인합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000}>
+
+| 값 |  |  |  |  |  |  |
+| --- | --- | --- | --- | --- | --- | --- |
+|  | coef | std err | t | P>\|t\| | [0.025 | 0.975] |
+| Intercept | 6.482e+04 | 131.524 | 492.869 | 0.000 | 6.46e+04 | 6.51e+04 |
+| months | 10.9886 | 1.044 | 10.530 | 0.000 | 8.931 | 13.046 |
+
+| 값 |  |
+| --- | --- |
+| R-squared: | 0.3477 |
+
+</CodePlayground>
+추세에 대한 선형 모형의 $R^2$는 약 0.35로 아주 높지는 않습니다. 훈련 기간과 평가 기간의 기대 추세를 계산해 그림으로 살펴보겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 26" code={notebook.cells[26].code} language="python" timeout={60000} />
+
+분해한 추세와 선형 모형을 함께 그립니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 27" code={notebook.cells[27].code} language="python" timeout={60000}>
+
+![훈련 기간 추세와 그 추세에 맞춘 최소제곱 직선.](/labs/think-stats/figures/chap12-060-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-060-0.png)
+
+</CodePlayground>
+
+직선이 담지 못하는 변화가 있지만 전반적으로 증가하는 경향이 보입니다. 계절 성분을 월별 평균으로 정리합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 28" code={notebook.cells[28].code} language="python" timeout={60000} />
+
+예측할 날짜의 월을 이 월별 평균에 대응시키면 계절 성분의 예측이 나옵니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 29" code={notebook.cells[29].code} language="python" timeout={60000} />
+
+추세와 계절 성분을 더해 최종 예측을 구합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000} />
+
+훈련 자료와 예측값을 그립니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 31" code={notebook.cells[31].code} language="python" timeout={60000}>
+
+![앞선 훈련 기간만 사용한 원전 발전량 예측과 실제 값.](/labs/think-stats/figures/chap12-068-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-068-0.png)
+
+</CodePlayground>
+
+훈련 자료에는 비교적 잘 맞고, 장기 추세가 계속된다는 가정 아래 미래 예측도 그럴듯합니다. 실제로 어떻게 되었는지 2019년 7월 이후의 평가 자료와 비교하겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000}>
+
+![끝 60개월을 보류한 원전 과거예측. 예측과 관측의 차이를 평가합니다.](/labs/think-stats/figures/chap12-070-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-070-0.png)
+
+</CodePlayground>
+
+첫해는 비교적 잘 맞았지만 2020년 원자력 발전량은 예측보다 낮았고, 이후에도 이전 추세로 돌아오지 않았습니다. 원저자는 코로나19의 영향을 가능성으로 언급합니다. 정확도를 수치화하기 위해 **평균절대백분율오차**(MAPE)를 사용하겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 33" code={notebook.cells[33].code} language="python" timeout={60000} />
+
+이 예에서 예측의 평균절대백분율오차는 약 3.81%입니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 34" code={notebook.cells[34].code} language="python" timeout={60000}>
+
+```text
+np.float64(3.811940747879257)
+```
+
+</CodePlayground>
+
+뒤에서 다른 모형으로 돌아와 더 나은지 비교하겠습니다.
+
+> 번역자 주: 시간 순서를 무작위로 섞어 훈련·평가 자료를 나누면 미래 정보가 새어 들어갈 수 있습니다. 분해와 추세 적합도 훈련 구간에서만 해야 합니다. 중심 이동평균의 과거 적합값에는 그 시점 이후의 자료가 쓰일 수 있어 실시간 예측값과 다릅니다. MAPE는 실제 값이 0이면 정의되지 않고 0에 가까울 때도 불안정합니다.
+
+### 직접 실행: 과거로 미래를 예측해 보기
+
+끝에서 평가할 개월 수를 입력하세요. 빈칸이면 마지막 60개월입니다. 추세와 계절 성분을 훈련 구간에서만 구하고, 보류한 기간에서 MAPE를 계산합니다. 미래에 구조가 바뀌면 같은 추세가 이어진다는 가정도 깨질 수 있습니다.
+
+<Figure kind="line" props={plots["forecast"]} caption="마지막 60개월의 관측값과, 그보다 앞선 자료로만 만든 선형 추세+계절 예측." label="마지막 60개월의 관측값과, 그보다 앞선 자료로만 만든 선형 추세+계절 예측." />
+
+<CodePlayground title="Think Stats 12장 · 과거로 미래를 예측해 보기" code={codeForecast} language="python" timeout={60000} />
+
+## 승법 모형
+
+가법 모형은
+
+$$y_t=T_t+S_t+e_t$$
+
+처럼 추세·계절·잔차를 더합니다. 이 설명에서는 계절 변동과 잔차의 크기가 추세 수준에 비례해 커지지 않습니다. 2014년 이후 소규모 태양광 발전량은 이 가정에 잘 맞지 않습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 35" code={notebook.cells[35].code} language="python" timeout={60000}>
+
+![소규모 태양광 발전량. 발전량이 증가하며 계절 진폭도 커집니다.](/labs/think-stats/figures/chap12-077-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-077-0.png)
+
+</CodePlayground>
+
+이 기간 발전량이 여러 배 커졌고 계절 변동의 폭도 커졌습니다. 계절과 무작위 변동의 크기가 추세에 비례한다면, 세 성분을 곱하는 승법 모형이 더 적절할 수 있습니다. 이 시계열도 훈련·평가 구간으로 나눕니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 36" code={notebook.cells[36].code} language="python" timeout={60000} />
+
+`model="multiplicative"`로 계절 분해합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 37" code={notebook.cells[37].code} language="python" timeout={60000} />
+
+분해한 결과를 그립니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 38" code={notebook.cells[38].code} language="python" timeout={60000} />
+
+<Figure kind="line" props={plots["chap12-083-관측"]} caption="태양광 승법 분해: 관측. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." label="태양광 승법 분해: 관측. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." />
+
+<Figure kind="line" props={plots["chap12-083-추세"]} caption="태양광 승법 분해: 추세. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." label="태양광 승법 분해: 추세. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." />
+
+<Figure kind="line" props={plots["chap12-083-계절성"]} caption="태양광 승법 분해: 계절성. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." label="태양광 승법 분해: 계절성. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." />
+
+<Figure kind="line" props={plots["chap12-083-잔차"]} caption="태양광 승법 분해: 잔차. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." label="태양광 승법 분해: 잔차. 월 간격은 같은 폭이며, 계산할 수 없는 양끝 추세·잔차는 제외했습니다." />
+
+계절 성분과 잔차 성분은 이제 더하는 양이 아니라 곱하는 배율입니다. 계절 성분은 추세의 약 0.68~1.26배 사이에서 움직입니다. 잔차 성분은 초기의 일부 예외를 빼면 대체로 1에서 ±5% 이내입니다. 각 성분을 꺼냅니다.
+
+> 번역자 주: 원문의 ‘약 ±25%’는 위 분해의 실제 계절 배율 범위에 맞춰 고쳤습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 39" code={notebook.cells[39].code} language="python" timeout={60000} />
+
+이 모형의 훈련 자료 $R^2$는 매우 높습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 40" code={notebook.cells[40].code} language="python" timeout={60000}>
+
+```text
+np.float64(0.9999999992978134)
+```
+
+</CodePlayground>
+
+태양광 발전량이 일조량을 따라 뚜렷한 연간 주기를 보이는 것은 자연스럽습니다. 장기 추세에는 이차 모형을 사용하겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000} />
+
+Patsy 수식의 `I(months**2)`는 제곱항을 추가하므로 별도 열을 만들 필요가 없습니다. 적합 결과를 보겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 42" code={notebook.cells[42].code} language="python" timeout={60000}>
+
+| 값 |  |  |  |  |  |  |
+| --- | --- | --- | --- | --- | --- | --- |
+|  | coef | std err | t | P>\|t\| | [0.025 | 0.975] |
+| Intercept | 766.1962 | 13.494 | 56.782 | 0.000 | 739.106 | 793.286 |
+| months | 22.2153 | 0.938 | 23.673 | 0.000 | 20.331 | 24.099 |
+| `I(months ** 2)` | 0.1762 | 0.014 | 12.480 | 0.000 | 0.148 | 0.205 |
+
+| 값 |  |
+| --- | --- |
+| R-squared: | 0.9983 |
+
+</CodePlayground>
+일차항과 이차항의 p값은 작고 $R^2$는 높습니다. 과거와 미래에 대응하는 추세 예측값을 구합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 43" code={notebook.cells[43].code} language="python" timeout={60000} />
+
+이차 추세를 그립니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 44" code={notebook.cells[44].code} language="python" timeout={60000}>
+
+![태양광 발전량 추세에 맞춘 시간의 이차 모형. 앞선 훈련 구간만 사용합니다.](/labs/think-stats/figures/chap12-095-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-095-0.png)
+
+</CodePlayground>
+
+과거 추세에 잘 맞습니다. 계절 성분으로 미래의 계절 패턴을 구하겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 45" code={notebook.cells[45].code} language="python" timeout={60000} />
+
+과거에 대한 **과거예측**(retrodiction)과 미래 예측을 만들기 위해 추세와 계절 성분을 곱합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 46" code={notebook.cells[46].code} language="python" timeout={60000} />
+
+훈련 자료와 함께 그린 결과입니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 47" code={notebook.cells[47].code} language="python" timeout={60000}>
+
+![이차 추세와 월별 계절 배율로 만든 태양광 예측.](/labs/think-stats/figures/chap12-101-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-101-0.png)
+
+</CodePlayground>
+
+과거 자료에 잘 맞고 미래 예측도 그럴듯합니다. 평가 자료와 비교해 실제 정확도를 보겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 48" code={notebook.cells[48].code} language="python" timeout={60000}>
+
+![마지막 60개월 태양광 관측과, 앞선 자료만으로 만든 예측의 비교.](/labs/think-stats/figures/chap12-103-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-103-0.png)
+
+</CodePlayground>
+
+처음 3년은 잘 맞지만, 그 뒤에는 실제 성장이 예측을 웃돈 것으로 보입니다. 계절 분해는 이 태양광 예제에서 유용했지만, 원자력 예제에서는 덜 효과적이었습니다. 다음에는 자기회귀를 사용하겠습니다.
+
+> 번역자 주: 큰 훈련 $R^2$와 작은 p값이 미래 추세의 지속을 보장하지는 않습니다. 시계열 잔차가 자기상관을 가지면 보통 OLS의 독립 오차를 전제로 한 표준오차와 p값도 주의해야 합니다. 승법 분해에는 양수 자료가 필요합니다.
+
+## 자기회귀
+
+자기회귀는 과거 값에 미래 값을 예측할 정보가 있다고 봅니다. 연간 주기가 있다면 다음 6월의 예측은 지난 6월 값에서 시작할 수 있습니다.
+
+원자력 발전량에서 전년 같은 달과의 차이, 즉 **전년동월 차분**을 구하겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 49" code={notebook.cells[49].code} language="python" timeout={60000}>
+
+![원전 발전량을 12개월 차분한 시계열. 계절 반복을 줄입니다.](/labs/think-stats/figures/chap12-106-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-106-0.png)
+
+</CodePlayground>
+
+차분의 크기는 원래 발전량보다 훨씬 작습니다. 원래 값보다 차분을 예측하기가 쉬울 수 있다는 것이 두 번째 생각입니다. 차분의 연속된 값들에 상관이 있으면 이를 예측에 쓸 수 있습니다. 각 달의 차분과 그보다 1·2·3개월 전의 차분을 한 표에 담습니다. 늦춘 열 이름이 `lag1`, `lag2`, `lag3`입니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 50" code={notebook.cells[50].code} language="python" timeout={60000} />
+
+열 사이의 상관을 구합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 51" code={notebook.cells[51].code} language="python" timeout={60000}>
+
+| 값 | diff |
+| --- | --- |
+| diff | 1.000000 |
+| lag1 | 0.562212 |
+| lag2 | 0.292454 |
+| lag3 | 0.222228 |
+
+</CodePlayground>
+자기 자신을 시차를 두고 비교한 상관을 **자기상관**이라고 합니다. 인접한 두 값의 관계인 1시차 상관은 **계열상관**이라고도 부릅니다. 이 상관을 이용하려고 첫 열을 반응변수, 나머지 열을 설명변수로 만드는 수식 함수를 작성하겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 52" code={notebook.cells[52].code} language="python" timeout={60000} />
+
+앞선 세 값으로 다음 차분을 예측하는 선형 모형의 결과입니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 53" code={notebook.cells[53].code} language="python" timeout={60000}>
+
+| 값 |  |  |  |  |  |  |
+| --- | --- | --- | --- | --- | --- | --- |
+|  | coef | std err | t | P>\|t\| | [0.025 | 0.975] |
+| Intercept | 24.2674 | 114.674 | 0.212 | 0.833 | -201.528 | 250.063 |
+| lag1 | 0.5847 | 0.061 | 9.528 | 0.000 | 0.464 | 0.706 |
+| lag2 | -0.0908 | 0.071 | -1.277 | 0.203 | -0.231 | 0.049 |
+| lag3 | 0.1026 | 0.062 | 1.666 | 0.097 | -0.019 | 0.224 |
+
+| 값 |  |
+| --- | --- |
+| R-squared: | 0.3239 |
+
+</CodePlayground>
+`predict`로 과거 값의 적합값을 구해 실제 차분과 비교합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 54" code={notebook.cells[54].code} language="python" timeout={60000}>
+
+![12개월 차분 원전 시계열과 자기회귀 모형의 예측값. 직전 세 달을 사용합니다.](/labs/think-stats/figures/chap12-116-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-116-0.png)
+
+</CodePlayground>
+
+잘 맞는 구간도 있지만 $R^2$는 약 0.319로 개선할 여지가 있습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 55" code={notebook.cells[55].code} language="python" timeout={60000}>
+
+```text
+np.float64(0.3190252265690783)
+```
+
+</CodePlayground>
+
+첫 모형의 잔차를 구하고 다른 모형으로 그 잔차를 예측할 수 있습니다. 앞의 자기회귀에 오차 조정을 더하는 방법입니다.
+
+## 이동평균 성분
+
+2019년 6월에 2020년 6월을 예측한다면 지난해 같은 달의 반복에서 시작할 수 있습니다. 2020년 5월에 예측을 갱신한다면 최근 세 달의 차분과 앞 절의 자기회귀를 활용할 수 있습니다. 최근 예측들이 계속 낮았다는 사실까지 알게 되면 다음 예측도 위로 조정할 수 있겠습니다. 최근 오차가 다음 오차에 관한 정보를 줄 수 있다는 가정입니다.
+
+이를 보기 위해 첫 자기회귀의 잔차와 1·6개월 늦춘 잔차를 같은 표에 담습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 56" code={notebook.cells[56].code} language="python" timeout={60000} />
+
+과거 잔차로 다음 잔차를 설명하는 모형에도 `ols`를 적용합니다. 원문에서는 이를 이동평균 성분을 설명하는 두 단계 접근으로 사용합니다. 예측 변동을 줄이는 효과가 평활 이동평균과 비슷하다는 뜻에서 쓰이는 이름이지만, 단순히 관측값 몇 개의 평균을 낸다는 뜻은 아닙니다. 적합 결과를 보겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 57" code={notebook.cells[57].code} language="python" timeout={60000}>
+
+| 값 |  |  |  |  |  |  |
+| --- | --- | --- | --- | --- | --- | --- |
+|  | coef | std err | t | P>\|t\| | [0.025 | 0.975] |
+| Intercept | -14.0016 | 114.697 | -0.122 | 0.903 | -239.863 | 211.860 |
+| lag1 | 0.0014 | 0.062 | 0.023 | 0.982 | -0.120 | 0.123 |
+| lag6 | -0.1592 | 0.063 | -2.547 | 0.011 | -0.282 | -0.036 |
+
+| 값 |  |
+| --- | --- |
+| R-squared: | 0.0247 |
+
+</CodePlayground>
+$R^2$는 작아 큰 개선을 기대하기 어렵지만, 6개월 시차 계수의 p값은 작습니다. 잔차의 과거예측을 구합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 58" code={notebook.cells[58].code} language="python" timeout={60000} />
+
+첫 모형의 차분 예측에 두 번째 모형의 잔차 조정을 더합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 59" code={notebook.cells[59].code} language="python" timeout={60000} />
+
+두 모형을 합친 $R^2$는 약 0.332로, 조정 전의 약 0.319보다 조금 큽니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 60" code={notebook.cells[60].code} language="python" timeout={60000}>
+
+```text
+np.float64(0.3315101001391231)
+```
+
+</CodePlayground>
+
+예측한 전년동월 차분으로 원래 발전량을 복원하겠습니다.
+
+## 자기회귀의 과거예측
+
+원래 날짜에 맞춰 차분 예측을 `Series`에 담습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 61" code={notebook.cells[61].code} language="python" timeout={60000} />
+
+처음 21개 값이 `NaN`입니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 62" code={notebook.cells[62].code} language="python" timeout={60000}>
+
+```text
+np.int64(21)
+```
+
+</CodePlayground>
+
+전년동월 차분을 만들며 12개월, 첫 자기회귀에서 3개월, 잔차 모형에서 6개월을 늦췄으므로 합계 21개가 앞에서 빠집니다. 복원을 시작하려고 원자료의 처음 21개를 복사합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 63" code={notebook.cells[63].code} language="python" timeout={60000} />
+
+인덱스 21, 즉 22번째 원소부터 지난해 같은 달 값과 예측 차분을 더해 채웁니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 64" code={notebook.cells[64].code} language="python" timeout={60000} />
+
+처음 복사한 21개는 다시 `NaN`으로 바꿉니다. 그대로 옮긴 값들을 정확히 예측한 것처럼 평가하지 않기 위해서입니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 65" code={notebook.cells[65].code} language="python" timeout={60000} />
+
+복원한 과거예측과 원자료를 비교합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 66" code={notebook.cells[66].code} language="python" timeout={60000}>
+
+![자기회귀·이동평균 성분을 사용한 원전 발전량 과거예측.](/labs/think-stats/figures/chap12-142-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-142-0.png)
+
+</CodePlayground>
+
+비교적 잘 맞고 $R^2$는 약 0.86입니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 67" code={notebook.cells[67].code} language="python" timeout={60000}>
+
+```text
+np.float64(0.8586566911201015)
+```
+
+</CodePlayground>
+
+이 과정을 SARIMA라는 모형군과 연결할 수 있습니다. ARIMA 이름의 각 부분은 다음을 가리킵니다.
+
+- **S**(seasonal): 한 계절 주기만큼 떨어진 값들의 차분을 사용합니다.
+- **AR**(autoregression): 과거 차분들의 관계로 다음 값을 설명합니다.
+- **I**(integrated): 차분 예측을 누적해 원래 수준으로 되돌립니다.
+- **MA**(moving average): 과거 예측 오차를 반영하는 성분입니다.
+
+> 번역자 주: 위의 두 단계 OLS는 AR·오차 보정의 생각을 설명하는 구성입니다. 혁신 오차를 함께 추정하는 표준 SARIMA의 우도 적합과 완전히 같은 계산은 아닙니다. 앞 절의 평활용 `rolling().mean()`과 ARIMA의 MA 성분도 구별하세요.
+
+## ARIMA
+
+statsmodels의 `tsa`는 time series analysis의 줄임말입니다. `ARIMA`로 모형을 적합하고 예측할 수 있습니다. 앞서 살펴본 구조를 `order`와 `seasonal_order`라는 두 튜플로 지정하겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 68" code={notebook.cells[68].code} language="python" timeout={60000} />
+
+`order`는 AR에 포함할 시차, 비계절 차분 횟수, MA에 포함할 시차를 나타냅니다. 여기서는 AR 시차 1~3, 비계절 차분 0회, MA 시차 1과 6을 선택합니다. 다음은 계절 성분의 지정입니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 69" code={notebook.cells[69].code} language="python" timeout={60000} />
+
+`seasonal_order`의 첫째와 셋째가 0이므로 계절 AR·MA는 없습니다. 둘째 1은 계절 차분 1회, 마지막 12는 12개월 주기입니다. `ARIMA`를 적합합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 70" code={notebook.cells[70].code} language="python" timeout={60000}>
+
+| 값 |  |  |  |  |  |  |
+| --- | --- | --- | --- | --- | --- | --- |
+|  | coef | std err | z | P>\|z\| | [0.025 | 0.975] |
+| ar.L1 | 0.0458 | 0.379 | 0.121 | 0.904 | -0.697 | 0.788 |
+| ar.L2 | -0.0035 | 0.116 | -0.030 | 0.976 | -0.230 | 0.223 |
+| ar.L3 | 0.0375 | 0.049 | 0.769 | 0.442 | -0.058 | 0.133 |
+| ma.L1 | 0.2154 | 0.382 | 0.564 | 0.573 | -0.533 | 0.964 |
+| ma.L6 | -0.0672 | 0.019 | -3.500 | 0.000 | -0.105 | -0.030 |
+| sigma2 | 3.473e+06 | 1.9e-07 | 1.83e+13 | 0.000 | 3.47e+06 | 3.47e+06 |
+
+</CodePlayground>
+결과에는 AR 계수 세 개, MA 계수 두 개, 혁신 오차 분산 `sigma2`가 있습니다. `fittedvalues`에서 적합값을 꺼내되, 초기 조건에 민감한 맨 앞 부분은 제외합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 71" code={notebook.cells[71].code} language="python" timeout={60000} />
+
+직접 구성한 결과와 비슷하지만 정확히 같지는 않습니다. 초기 조건 처리 등 적합 방법의 차이가 있습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 72" code={notebook.cells[72].code} language="python" timeout={60000}>
+
+![원래 발전량 척도에서 원전 관측값과 ARIMA 적합값을 비교합니다.](/labs/think-stats/figures/chap12-155-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-155-0.png)
+
+</CodePlayground>
+
+$R^2$도 비슷하지만 일치하지는 않습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 73" code={notebook.cells[73].code} language="python" timeout={60000}>
+
+```text
+np.float64(0.8262717330822065)
+```
+
+</CodePlayground>
+
+`ARIMA`를 쓰면 다른 차수도 쉽게 실험할 수 있습니다.
+
+`order`와 `seasonal_order`를 바꾸어 더 높은 적합 $R^2$를 찾으세요. 미래 예측에 쓸 모형을 고를 때는 훈련 적합도만이 아니라 별도의 시간순 평가 구간도 사용해야 합니다.
+
+## ARIMA로 예측하기
+
+적합 결과의 `get_forecast`로 미래를 예측할 수 있습니다. 다시 훈련·평가 자료를 나누고 훈련 구간에만 같은 모형을 맞춥니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 74" code={notebook.cells[74].code} language="python" timeout={60000} />
+
+평가 구간 길이만큼 예측합니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 75" code={notebook.cells[75].code} language="python" timeout={60000} />
+
+반환 객체의 `predicted_mean`에 예측값이 들어 있고, `conf_int()`로 예측구간을 구할 수 있습니다.
+
+> 번역자 주: 원문 설명의 `forecast_mean`은 아래 코드의 `predicted_mean`에 맞춰 고쳤습니다. 여기서 그리는 것은 미래 관측값의 변동을 반영한 모형 기반 **예측구간**입니다. 회귀선의 평균에 대한 신뢰구간과 구분해야 합니다. 모형 선택·모수 추정·구조 변화의 모든 불확실성이 완전히 반영되는 것은 아닙니다.
+
+반환 객체는 statsmodels의 [`get_forecast` 문서](https://www.statsmodels.org/stable/generated/statsmodels.tsa.statespace.sarimax.SARIMAXResults.get_forecast.html)를 참고하세요.
+
+<CodePlayground notebook="think-stats-12" title="셀 76" code={notebook.cells[76].code} language="python" timeout={60000} />
+
+예측과 구간을 실제 시계열 위에 그립니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 77" code={notebook.cells[77].code} language="python" timeout={60000}>
+
+![ARIMA의 향후 원전 예측과 구간. 미래 관측값의 모형 기반 예측구간입니다.](/labs/think-stats/figures/chap12-167-0.png)
+
+[그림 크게 보기](/labs/think-stats/figures/chap12-167-0.png)
+
+</CodePlayground>
+
+이 예에서는 실제 값 대부분이 예측구간 안에 있습니다. MAPE를 계산하겠습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 78" code={notebook.cells[78].code} language="python" timeout={60000}>
+
+```text
+np.float64(3.3817549248044547)
+```
+
+</CodePlayground>
+
+원문의 MAPE는 약 3.38%로 계절 분해의 약 3.81%보다 조금 작습니다. ARIMA는 더 다양한 구조를 표현할 수 있지만 이 시계열의 자기상관이 아주 강하지 않아 이득은 크지 않습니다.
+
+### 직접 실행: ARIMA 예측과 구간
+
+AR 차수를 1, 2, 3 중 고르세요. 브라우저 실습은 원문의 희소 ARMA보다 작은 SARIMA(p,0,0)(0,1,0,12)를 사용합니다. 마지막 60개월은 적합에 쓰지 않습니다. 표시되는 95% 구간은 미래 관측값의 모형 기반 예측구간이며, 평균에 대한 신뢰구간이 아닙니다.
+
+<Figure kind="acf" props={plots["acf"]} caption="훈련 원전 자료를 12개월 차분한 뒤의 ACF. 점선은 백색잡음일 때의 점별 근사 기준입니다." label="훈련 원전 자료를 12개월 차분한 뒤의 ACF. 점선은 백색잡음일 때의 점별 근사 기준입니다." />
+
+<Figure kind="line" props={plots["arima"]} caption="기본 SARIMA(1,0,0)(0,1,0,12)의 60개월 예측과 95% 예측구간 하한·상한. 월 간격은 같은 폭입니다." label="기본 SARIMA(1,0,0)(0,1,0,12)의 60개월 예측과 95% 예측구간 하한·상한. 월 간격은 같은 폭입니다." />
+
+<CodePlayground title="Think Stats 12장 · ARIMA 예측과 구간" code={codeArima} language="python" timeout={60000} />
+
+## 용어 정리
+
+- **시계열**: 각 관측값이 특정 시점에 연결된 자료.
+- **계절 분해**: 시계열을 장기 추세·반복되는 계절 성분·잔차로 나누는 방법.
+- **훈련 시계열**: 모형 적합에 사용하는 과거 구간.
+- **평가 시계열**: 적합에 쓰지 않고 예측 정확도를 확인하는 구간.
+- **과거예측**: 이미 관측된 과거 시점에 대한 모형의 예측 또는 적합값.
+- **창**: 이동평균 계산에 사용하는 연속 관측값 묶음.
+- **이동평균**: 겹치는 창 안의 평균으로 변동을 매끄럽게 만든 시계열. ARIMA의 MA 성분과는 다른 용법입니다.
+- **계열상관**: 인접한 관측값들 사이의 상관.
+- **자기상관**: 시계열과 시차를 준 자기 자신 사이의 상관.
+- **시차**: 서로 다른 시점의 관측값을 비교할 때 두 시점 사이의 간격.
+
+## 연습문제
+
+### 연습문제 12.1
+
+미국의 월평균 지표 부근 기온을 계절 분해해 보세요. Our World in Data의 자료는 1950~2024년 여러 나라에서 육지·바다·내륙 수면을 포함한 지상 약 2m의 공기 온도를 섭씨로 나타냅니다. 자료를 가져오는 코드는 노트북에 있습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 79" code={notebook.cells[79].code} language="python" timeout={60000} runAll={false} />
+
+<CodePlayground notebook="think-stats-12" title="셀 80" code={notebook.cells[80].code} language="python" timeout={60000} runAll={false} />
+
+기온 자료를 다음과 같이 읽습니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 81" code={notebook.cells[81].code} language="python" timeout={60000} runAll={false} />
+
+<CodePlayground notebook="think-stats-12" title="셀 82" code={notebook.cells[82].code} language="python" timeout={60000} runAll={false} />
+
+2001년부터 마지막 관측까지의 미국 자료를 골라 `Series`로 만듭니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 83" code={notebook.cells[83].code} language="python" timeout={60000} runAll={false} />
+
+선택한 시계열을 그립니다.
+
+<CodePlayground notebook="think-stats-12" title="셀 84" code={notebook.cells[84].code} language="python" timeout={60000} runAll={false} />
+
+강한 계절 패턴이 보입니다. 12개월 주기의 가법 분해를 하고 추세에 직선을 맞추세요. 이 기간 평균적인 연간 기온 증가는 얼마인가요? 다른 기간이나 나라에서도 반복해 볼 수 있습니다.
+
+### 연습문제 12.2
+
+앞에서는 소규모 태양광의 2014~2019년 자료로 2019~2024년을 예측했습니다. 이번에는 대규모 태양광 발전량으로 같은 분석을 하세요.
+
+<CodePlayground notebook="think-stats-12" title="셀 85" code={notebook.cells[85].code} language="python" timeout={60000} runAll={false} />
+
+`split_series`로 훈련·평가 구간을 나누고 12개월 주기의 승법 분해를 하세요. 추세에 일차 또는 이차 모형을 맞추어 계절 성분을 포함한 5년 예측을 만드세요. 실제 값과 비교하고 MAPE를 구하세요.
+
+### 연습문제 12.3
+
+2001~2024년 미국 수력 발전량에는 ARIMA가 얼마나 잘 맞을까요? 다음 시계열을 사용하세요.
+
+<CodePlayground notebook="think-stats-12" title="셀 86" code={notebook.cells[86].code} language="python" timeout={60000} runAll={false} />
+
+12개월 주기의 SARIMA를 적합하고 AR·MA 시차를 바꾸어 적합도를 비교하세요. 5년 예측과 예측구간을 그리세요. 선택한 시차에 따라 첫 12~24개 적합값이 불안정할 수 있으므로 그래프와 $R^2$ 계산에서 제외할 수 있습니다. 모형을 고른 평가 자료를 최종 성능 확인에 재사용하는 한계에도 주의하세요.
+
+## 출처와 번역 안내
+
+본문의 수치 출력과 고정 그림은 [고정한 판의 실행된 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap12.ipynb)을 기준으로 했습니다. 인터랙티브 그림은 같은 자료나 본문에 명시한 독립 실습의 기본값을 사용합니다. 난수 예제는 실행 순서와 시드에 따라 달라질 수 있습니다. 연습문제의 해답은 넣지 않았습니다.
+
+[Think Stats: Exploratory Data Analysis in Python, 3rd Edition](https://allendowney.github.io/ThinkStats/index.html)
+
+Copyright 2024 [Allen B. Downey](https://allendowney.com)
+
+코드 라이선스: [MIT](https://mit-license.org/)
+
+본문·그림과 한국어 번역 라이선스: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
+원문 코드가 불러오는 `thinkstats.py`, `nsfg.py` 등 보조 모듈은 각 파일의 라이선스 고지를 따릅니다. 독립 실습은 이 모듈들을 사용하지 않습니다. 본문 노트북 실행에 포함한 원저자 보조 모듈은 GPLv3 원문과 고지를 보존했습니다.
+
+《Think Stats》 3판은 [Bookshop.org](https://bookshop.org/a/98697/9781098190255)와 [Amazon](https://amzn.to/42lmxwu)에서 구할 수 있습니다. 두 링크는 원저자의 제휴 링크입니다. 책이 도움이 되었다면 Green Tea Press의 [무료 공개 교육 자료 제작을 후원](https://greenteapress.com/support/?book=ts3)하는 것도 생각해 주세요.
+
+[← 11장](/posts/statistics/think-stats-11) · [13장 →](/posts/statistics/think-stats-13)

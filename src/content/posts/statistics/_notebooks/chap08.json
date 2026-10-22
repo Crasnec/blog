@@ -1,0 +1,316 @@
+{
+  "chapter": 8,
+  "cells": [
+    {
+      "code": "# The preparation cell downloads the chapter files once per Python environment.\nimport sys\nfrom pathlib import Path\nfrom urllib.parse import urljoin\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom IPython.display import HTML\n\nDATA_URL = \"/labs/think-stats/\"\nasync def prepare_file(name):\n    target = Path(name.rsplit(\"/\", 1)[-1])\n    if target.exists():\n        return\n    if sys.platform == \"emscripten\":\n        from pyodide.http import pyfetch\n        response = await pyfetch(urljoin(DATA_URL, name))\n        if not response.ok:\n            raise RuntimeError(f\"Download failed: {name} (HTTP {response.status})\")\n        target.write_bytes(await response.bytes())\n    else:\n        from urllib.request import urlretrieve\n        urlretrieve(urljoin(DATA_URL, name), target)\n\nfor name in ['upstream/thinkstats.py', 'upstream/nsfg.py', 'upstream/relay.py', 'notebook_support.py', 'penguins_raw.csv', 'brfss-2008.csv.gz']:\n    await prepare_file(name)\n\nsys.path.insert(0, str(Path.cwd()))\nfrom thinkstats import decorate\nplt.rcParams[\"figure.dpi\"] = 120\n# Match the browser's PNG backend without hiding other warnings.\nimport warnings\nfrom matplotlib import MatplotlibDeprecationWarning\nwarnings.filterwarnings(\"ignore\", message=r\"The [xy] parameter as float was deprecated in Matplotlib 3\\.10.*Use int\\([xy]\\) instead\\.\", category=MatplotlibDeprecationWarning)\nprint(\"준비되었습니다. 다음 셀부터 순서대로 실행하세요.\")\n",
+      "exercise": false,
+      "label": "준비: 라이브러리와 자료"
+    },
+    {
+      "code": "mu = 3.7\nsigma = 0.46",
+      "exercise": false,
+      "label": "셀 1"
+    },
+    {
+      "code": "# Seed the random number generator so we get the same results every time\nnp.random.seed(1)",
+      "exercise": false,
+      "label": "셀 2"
+    },
+    {
+      "code": "sample = np.random.normal(mu, sigma, size=10)\nsample",
+      "exercise": false,
+      "label": "셀 3"
+    },
+    {
+      "code": "np.mean(sample), np.median(sample)",
+      "exercise": false,
+      "label": "셀 4"
+    },
+    {
+      "code": "def make_sample(n):\n    return np.random.normal(mu, sigma, size=n)",
+      "exercise": false,
+      "label": "셀 5"
+    },
+    {
+      "code": "ns = np.logspace(1, 5).astype(int)",
+      "exercise": false,
+      "label": "셀 6"
+    },
+    {
+      "code": "means = [np.mean(make_sample(n)) for n in ns]",
+      "exercise": false,
+      "label": "셀 7"
+    },
+    {
+      "code": "medians = [np.median(make_sample(n)) for n in ns]",
+      "exercise": false,
+      "label": "셀 8"
+    },
+    {
+      "code": "plt.axhline(mu, color=\"gray\", lw=1, alpha=0.5)\nplt.plot(ns, means, \"--\", label=\"mean\")\nplt.plot(ns, medians, alpha=0.5, label=\"median\")\n\ndecorate(xlabel=\"Sample size\", xscale=\"log\", ylabel=\"Estimate\")",
+      "exercise": false,
+      "label": "셀 9"
+    },
+    {
+      "code": "means = [np.mean(make_sample(n=10)) for i in range(10001)]\nnp.mean(means)",
+      "exercise": false,
+      "label": "셀 10"
+    },
+    {
+      "code": "medians = [np.median(make_sample(n=10)) for i in range(10001)]\nnp.mean(medians)",
+      "exercise": false,
+      "label": "셀 11"
+    },
+    {
+      "code": "def mse(estimates, actual):\n    \"\"\"Mean squared error of a sequence of estimates.\"\"\"\n    errors = np.asarray(estimates) - actual\n    return np.mean(errors**2)",
+      "exercise": false,
+      "label": "셀 12"
+    },
+    {
+      "code": "mse(means, mu)",
+      "exercise": false,
+      "label": "셀 13"
+    },
+    {
+      "code": "mse(medians, mu)",
+      "exercise": false,
+      "label": "셀 14"
+    },
+    {
+      "code": "def mae(estimates, actual):\n    \"\"\"Mean absolute error of a sequence of estimates.\"\"\"\n    errors = np.asarray(estimates) - actual\n    return np.mean(np.abs(errors))",
+      "exercise": false,
+      "label": "셀 15"
+    },
+    {
+      "code": "mae(means, mu)",
+      "exercise": false,
+      "label": "셀 16"
+    },
+    {
+      "code": "mae(medians, mu)",
+      "exercise": false,
+      "label": "셀 17"
+    },
+    {
+      "code": "def make_sample_with_errors(n):\n    sample = np.random.normal(mu, sigma, size=n)\n    factor = np.random.choice([1, 2.2], p=[0.98, 0.02], size=n)\n    return sample * factor",
+      "exercise": false,
+      "label": "셀 18"
+    },
+    {
+      "code": "sample = make_sample_with_errors(n=1000)",
+      "exercise": false,
+      "label": "셀 19"
+    },
+    {
+      "code": "from scipy.stats import gaussian_kde\nfrom thinkstats import Pdf\n\nkde = gaussian_kde(sample)\ndomain = 0, 10\npdf = Pdf(kde, domain)\npdf.plot(label='estimated density')\ndecorate(xlabel=\"Penguin weight (kg)\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 20"
+    },
+    {
+      "code": "means = [np.mean(make_sample_with_errors(n=10)) for i in range(10001)]\nnp.mean(means)",
+      "exercise": false,
+      "label": "셀 21"
+    },
+    {
+      "code": "medians = [np.median(make_sample_with_errors(n=10)) for i in range(10001)]\nnp.mean(medians)",
+      "exercise": false,
+      "label": "셀 22"
+    },
+    {
+      "code": "mse(means, mu), mse(medians, mu)",
+      "exercise": false,
+      "label": "셀 23"
+    },
+    {
+      "code": "def biased_var(xs):\n    # Compute variance with n in the denominator\n    n = len(xs)\n    deviations = xs - np.mean(xs)\n    return np.sum(deviations**2) / n",
+      "exercise": false,
+      "label": "셀 24"
+    },
+    {
+      "code": "biased_vars = [biased_var(make_sample(n=10)) for i in range(10001)]\nnp.mean(biased_vars)",
+      "exercise": false,
+      "label": "셀 25"
+    },
+    {
+      "code": "actual_var = sigma**2\nactual_var",
+      "exercise": false,
+      "label": "셀 26"
+    },
+    {
+      "code": "def unbiased_var(xs):\n    # Compute variance with n-1 in the denominator\n    n = len(xs)\n    deviations = xs - np.mean(xs)\n    return np.sum(deviations**2) / (n - 1)",
+      "exercise": false,
+      "label": "셀 27"
+    },
+    {
+      "code": "unbiased_vars = [unbiased_var(make_sample(n=10)) for i in range(10001)]\nnp.mean(unbiased_vars)",
+      "exercise": false,
+      "label": "셀 28"
+    },
+    {
+      "code": "n = 10\n1 - (n - 1) / n",
+      "exercise": false,
+      "label": "셀 29"
+    },
+    {
+      "code": "n = 100\n1 - (n - 1) / n",
+      "exercise": false,
+      "label": "셀 30"
+    },
+    {
+      "code": "penguins = pd.read_csv(\"penguins_raw.csv\").dropna(subset=[\"Body Mass (g)\"])\npenguins.shape",
+      "exercise": false,
+      "label": "셀 31"
+    },
+    {
+      "code": "penguins[\"Species\"].value_counts()",
+      "exercise": false,
+      "label": "셀 32"
+    },
+    {
+      "code": "chinstrap = penguins.query('Species.str.startswith(\"Chinstrap\")')",
+      "exercise": false,
+      "label": "셀 33"
+    },
+    {
+      "code": "def plot_kde(sample, name=\"estimated density\", **options):\n    kde = gaussian_kde(sample)\n    m, s = np.mean(sample), np.std(sample)\n    plt.axvline(m, color=\"gray\", ls=\":\")\n\n    domain = m - 4 * s, m + 4 * s\n    pdf = Pdf(kde, domain, name)\n    pdf.plot(**options)",
+      "exercise": false,
+      "label": "셀 34"
+    },
+    {
+      "code": "weights = chinstrap[\"Body Mass (g)\"] / 1000\nplot_kde(weights, \"weights\")\ndecorate(xlabel=\"Penguin weight (kg)\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 35"
+    },
+    {
+      "code": "sample_mean = np.mean(weights)\nsample_mean",
+      "exercise": false,
+      "label": "셀 36"
+    },
+    {
+      "code": "def resample(sample):\n    # Generate a sample from a normal distribution\n    m, s = np.mean(sample), np.std(sample)\n    return np.random.normal(m, s, len(sample))",
+      "exercise": false,
+      "label": "셀 37"
+    },
+    {
+      "code": "sample_means = [np.mean(resample(weights)) for i in range(1001)]",
+      "exercise": false,
+      "label": "셀 38"
+    },
+    {
+      "code": "plot_kde(sample_means, \"sample means\")\ndecorate(xlabel=\"Sample mean of weight (kg)\", ylabel=\"Density\")",
+      "exercise": false,
+      "label": "셀 39"
+    },
+    {
+      "code": "standard_error = np.std(sample_means)\nstandard_error",
+      "exercise": false,
+      "label": "셀 40"
+    },
+    {
+      "code": "np.std(weights)",
+      "exercise": false,
+      "label": "셀 41"
+    },
+    {
+      "code": "np.std(sample_means)",
+      "exercise": false,
+      "label": "셀 42"
+    },
+    {
+      "code": "def approximate_standard_error(sample):\n    n = len(sample)\n    return np.std(sample) / np.sqrt(n)",
+      "exercise": false,
+      "label": "셀 43"
+    },
+    {
+      "code": "approximate_standard_error(weights)",
+      "exercise": false,
+      "label": "셀 44"
+    },
+    {
+      "code": "ci90 = np.percentile(sample_means, [5, 95])\nci90",
+      "exercise": false,
+      "label": "셀 45"
+    },
+    {
+      "code": "from notebook_support import read_brfss\n\nbrfss = read_brfss()",
+      "exercise": true,
+      "label": "셀 46"
+    },
+    {
+      "code": "male = brfss.query(\"sex == 1\")\nheights = male[\"htm3\"]\nheights.describe()",
+      "exercise": true,
+      "label": "셀 47"
+    },
+    {
+      "code": "actual_mean = 10",
+      "exercise": true,
+      "label": "셀 48"
+    },
+    {
+      "code": "def make_exponential(n):\n    return np.random.exponential(actual_mean, size=n)",
+      "exercise": true,
+      "label": "셀 49"
+    },
+    {
+      "code": "actual_median = np.log(2) * actual_mean\nactual_median",
+      "exercise": true,
+      "label": "셀 50"
+    },
+    {
+      "code": "def biased_std(sample):\n    # Square root of the biased estimator of variance\n    var = biased_var(sample)\n    return np.sqrt(var)",
+      "exercise": true,
+      "label": "셀 51"
+    },
+    {
+      "code": "def unbiased_std(sample):\n    # Square root of the unbiased estimator of variance\n    var = unbiased_var(sample)\n    return np.sqrt(var)",
+      "exercise": true,
+      "label": "셀 52"
+    },
+    {
+      "code": "# Here's an example using `make_sample`\n\nmu, sigma = 3.7, 0.46\nmake_sample(n=10)",
+      "exercise": true,
+      "label": "셀 53"
+    },
+    {
+      "code": "def estimate_tanks(sample):\n    m = np.max(sample)\n    k = len(sample)\n    return m + (m - k) / k",
+      "exercise": true,
+      "label": "셀 54"
+    },
+    {
+      "code": "N = 122\ntanks = np.arange(1, N + 1)",
+      "exercise": true,
+      "label": "셀 55"
+    },
+    {
+      "code": "def sample_tanks(k):\n    return np.random.choice(tanks, replace=False, size=k)",
+      "exercise": true,
+      "label": "셀 56"
+    },
+    {
+      "code": "np.random.seed(17)",
+      "exercise": true,
+      "label": "셀 57"
+    },
+    {
+      "code": "sample = sample_tanks(5)\nsample",
+      "exercise": true,
+      "label": "셀 58"
+    },
+    {
+      "code": "estimate_tanks(sample)",
+      "exercise": true,
+      "label": "셀 59"
+    },
+    {
+      "code": "def make_hits_and_misses(n):\n    # Generate a random sequence of 0s and 1s\n    return np.random.choice([0, 1], size=n)",
+      "exercise": true,
+      "label": "셀 60"
+    },
+    {
+      "code": "import numpy as np\n\n\ndef get_successors(seq, target_sum=3):\n    \"\"\"Get the successors of each subsequence that sums to a target value.\n\n    Parameters:\n    seq (array-like): Sequence of 1s and 0s.\n    target_sum (int): The target sum of the subsequence. Default is 3.\n\n    Returns:\n    np.ndarray: Array of successors to subsequences that sum to `target_sum`.\n    \"\"\"\n    # Check if the input sequence is too short\n    if len(seq) < 3:\n        return np.array([])\n\n    # Compute the sum of each subsequence of length 3\n    kernel = [1, 1, 1]\n    corr = np.correlate(seq, kernel, mode=\"valid\")\n\n    # Find the indices where the subsequence sums to the target value\n    indices = np.nonzero(corr == target_sum)[0]\n\n    # Remove cases where the subsequence is at the end of the sequence\n    indices = indices[indices < len(seq) - 3]\n\n    # Find the successors of each valid subsequence\n    successors = seq[indices + 3] if len(indices) > 0 else np.array([])\n\n    return successors",
+      "exercise": true,
+      "label": "셀 61"
+    }
+  ],
+  "attribution": "Think Stats, 3rd edition — Allen B. Downey.\n\nSource and Korean translation: https://allendowney.github.io/ThinkStats/chap08.html\n\nCode license notice:\n\nMIT License\n\nCopyright (c) 2024 Allen Downey\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n\nThe downloaded helpers retain their own GNU GPLv3 headers. Their complete source and COPYING are distributed under /labs/think-stats/upstream/.\n"
+}

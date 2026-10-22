@@ -1,0 +1,376 @@
+{
+  "chapter": 13,
+  "cells": [
+    {
+      "code": "# The preparation cell downloads the chapter files once per Python environment.\nimport sys\nfrom pathlib import Path\nfrom urllib.parse import urljoin\nimport numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom IPython.display import HTML\n\nDATA_URL = \"/labs/think-stats/\"\nasync def prepare_file(name):\n    target = Path(name.rsplit(\"/\", 1)[-1])\n    if target.exists():\n        return\n    if sys.platform == \"emscripten\":\n        from pyodide.http import pyfetch\n        response = await pyfetch(urljoin(DATA_URL, name))\n        if not response.ok:\n            raise RuntimeError(f\"Download failed: {name} (HTTP {response.status})\")\n        target.write_bytes(await response.bytes())\n    else:\n        from urllib.request import urlretrieve\n        urlretrieve(urljoin(DATA_URL, name), target)\n\nfor name in ['upstream/thinkstats.py', 'upstream/nsfg.py', 'upstream/relay.py', 'notebook_support.py', 'lamps.csv', 'marriage_nsfg_female.csv.gz', '2002FemPreg.dct', '2002FemPreg.dat.gz', 'mortality_rates_beltran2012.csv']:\n    await prepare_file(name)\n\nsys.path.insert(0, str(Path.cwd()))\nfrom thinkstats import decorate\nplt.rcParams[\"figure.dpi\"] = 120\n# Match the browser's PNG backend without hiding other warnings.\nimport warnings\nfrom matplotlib import MatplotlibDeprecationWarning\nwarnings.filterwarnings(\"ignore\", message=r\"The [xy] parameter as float was deprecated in Matplotlib 3\\.10.*Use int\\([xy]\\) instead\\.\", category=MatplotlibDeprecationWarning)\nprint(\"준비되었습니다. 다음 셀부터 순서대로 실행하세요.\")\n",
+      "exercise": false,
+      "label": "준비: 라이브러리와 자료"
+    },
+    {
+      "code": "df = pd.read_csv(\"lamps.csv\", index_col=0)\ndf.tail()",
+      "exercise": false,
+      "label": "셀 1"
+    },
+    {
+      "code": "from empiricaldist import Pmf\n\npmf_bulblife = Pmf(df[\"f\"].values, index=df[\"h\"])\npmf_bulblife.normalize()",
+      "exercise": false,
+      "label": "셀 2"
+    },
+    {
+      "code": "cdf_bulblife = pmf_bulblife.make_cdf()\ncdf_bulblife[1656]",
+      "exercise": false,
+      "label": "셀 3"
+    },
+    {
+      "code": "complementary_cdf = 1 - cdf_bulblife\ncomplementary_cdf[1656]",
+      "exercise": false,
+      "label": "셀 4"
+    },
+    {
+      "code": "surv_bulblife = cdf_bulblife.make_surv()\nsurv_bulblife[1656]",
+      "exercise": false,
+      "label": "셀 5"
+    },
+    {
+      "code": "cdf_bulblife.plot(ls=\"--\", label=\"CDF\")\nsurv_bulblife.plot(label=\"Survival\")\n\ndecorate(xlabel=\"Light bulb duration (hours)\", ylabel=\"Probability\")",
+      "exercise": false,
+      "label": "셀 6"
+    },
+    {
+      "code": "at_risk = pmf_bulblife + surv_bulblife\nat_risk[1656]",
+      "exercise": false,
+      "label": "셀 7"
+    },
+    {
+      "code": "pmf_bulblife[1656]",
+      "exercise": false,
+      "label": "셀 8"
+    },
+    {
+      "code": "hazard = pmf_bulblife / at_risk\nhazard[1656]",
+      "exercise": false,
+      "label": "셀 9"
+    },
+    {
+      "code": "hazard_bulblife = surv_bulblife.make_hazard()\nhazard_bulblife[1656]",
+      "exercise": false,
+      "label": "셀 10"
+    },
+    {
+      "code": "hazard_bulblife.plot()\ndecorate(xlabel=\"Light bulb duration (hours)\", ylabel=\"Hazard\")",
+      "exercise": false,
+      "label": "셀 11"
+    },
+    {
+      "code": "cumulative_hazard = hazard_bulblife.cumsum()\ncumulative_hazard.plot()\n\ndecorate(xlabel=\"Light bulb duration (hours)\", ylabel=\"Cumulative hazard\")",
+      "exercise": false,
+      "label": "셀 12"
+    },
+    {
+      "code": "filename = \"marriage_nsfg_female.csv.gz\"",
+      "exercise": false,
+      "label": "셀 13"
+    },
+    {
+      "code": "resp = pd.read_csv(\"marriage_nsfg_female.csv.gz\")\nresp.shape",
+      "exercise": false,
+      "label": "셀 14"
+    },
+    {
+      "code": "month0 = pd.to_datetime(\"1899-12-31\")\n\n\ndef decade_of_birth(cmbirth):\n    date = month0 + pd.DateOffset(months=cmbirth)\n    return date.year // 10 * 10",
+      "exercise": false,
+      "label": "셀 15"
+    },
+    {
+      "code": "from thinkstats import value_counts\n\nresp[\"cohort\"] = resp[\"cmbirth\"].apply(decade_of_birth)\nvalue_counts(resp[\"cohort\"])",
+      "exercise": false,
+      "label": "셀 16"
+    },
+    {
+      "code": "resp[\"agemarr\"] = (resp[\"cmmarrhx\"] - resp[\"cmbirth\"]) / 12\nresp[\"age\"] = (resp[\"cmintvw\"] - resp[\"cmbirth\"]) / 12",
+      "exercise": false,
+      "label": "셀 17"
+    },
+    {
+      "code": "from empiricaldist import Surv\n\n\ndef make_survival_map(resp, cohorts):\n    surv_map = {}\n\n    grouped = resp.groupby(\"cohort\")\n    for cohort in cohorts:\n        group = grouped.get_group(cohort)\n        surv_map[cohort] = Surv.from_seq(group[\"agemarr\"], dropna=False)\n\n    return surv_map",
+      "exercise": false,
+      "label": "셀 18"
+    },
+    {
+      "code": "cohorts = [1980, 1960, 1940]\nsurv_map = make_survival_map(resp, cohorts)",
+      "exercise": false,
+      "label": "셀 19"
+    },
+    {
+      "code": "import matplotlib.pyplot as plt\nimport cycler\n\n# Extract the default color cycle\ndefault_colors = plt.rcParams[\"axes.prop_cycle\"].by_key()[\"color\"]\n\n# Define the desired line styles\nlinestyles = [\"--\", \"-\", \"-.\", \"--\", \"-\", \"-.\", \"--\", \"-\", \"-.\", \"--\"]\n\n# Ensure we cycle through styles and colors properly\ncustom_cycler = cycler.cycler(color=default_colors) + cycler.cycler(\n    linestyle=linestyles\n)\n\n# Apply the new cycler\nplt.rc(\"axes\", prop_cycle=custom_cycler)",
+      "exercise": false,
+      "label": "셀 20"
+    },
+    {
+      "code": "for cohort, surv in surv_map.items():\n    surv.plot(label=f\"{cohort}s\")\n\nylim = [-0.05, 1.05]\ndecorate(xlabel=\"Age\", ylabel=\"Prob never married\", ylim=ylim)",
+      "exercise": false,
+      "label": "셀 21"
+    },
+    {
+      "code": "def resample_rows_weighted(df, column=\"finalwgt\"):\n    n = len(df)\n    weights = df[column]\n    return df.sample(n, weights=weights, replace=True)",
+      "exercise": false,
+      "label": "셀 22"
+    },
+    {
+      "code": "def resample_cycles(resp):\n    grouped = resp.groupby(\"cycle\")\n    samples = [resample_rows_weighted(group) for _, group in grouped]\n    return pd.concat(samples)",
+      "exercise": false,
+      "label": "셀 23"
+    },
+    {
+      "code": "# Seed the random number generator so we get the same results every time\nnp.random.seed(1)",
+      "exercise": false,
+      "label": "셀 24"
+    },
+    {
+      "code": "sample = resample_cycles(resp)",
+      "exercise": false,
+      "label": "셀 25"
+    },
+    {
+      "code": "for label, surv in surv_map.items():\n    surv.plot(ls=\":\", color=\"gray\", alpha=0.6)\n\nsurvs_resampled = make_survival_map(sample, cohorts)\n\nfor label, surv in survs_resampled.items():\n    surv.plot(label=label)\n\ndecorate(xlabel=\"Age\", ylabel=\"Prob never married\", ylim=ylim)",
+      "exercise": false,
+      "label": "셀 26"
+    },
+    {
+      "code": "plt.rc(\"axes\", prop_cycle=plt.rcParamsDefault[\"axes.prop_cycle\"])",
+      "exercise": false,
+      "label": "셀 27"
+    },
+    {
+      "code": "resp60 = sample.query(\"cohort == 1960\")",
+      "exercise": false,
+      "label": "셀 28"
+    },
+    {
+      "code": "complete = resp60.query(\"evrmarry == 1\")[\"agemarr\"]\ncomplete.count()",
+      "exercise": false,
+      "label": "셀 29"
+    },
+    {
+      "code": "ongoing = resp60.query(\"evrmarry == 0\")[\"age\"]\nongoing.count()",
+      "exercise": false,
+      "label": "셀 30"
+    },
+    {
+      "code": "from empiricaldist import FreqTab\n\nft_complete = FreqTab.from_seq(complete)\nft_ongoing = FreqTab.from_seq(ongoing)",
+      "exercise": false,
+      "label": "셀 31"
+    },
+    {
+      "code": "ft_complete[25]",
+      "exercise": false,
+      "label": "셀 32"
+    },
+    {
+      "code": "ft_ongoing[25]",
+      "exercise": false,
+      "label": "셀 33"
+    },
+    {
+      "code": "surv_complete = ft_complete.make_surv()\nsurv_ongoing = ft_ongoing.make_surv()",
+      "exercise": false,
+      "label": "셀 34"
+    },
+    {
+      "code": "surv_complete[25]",
+      "exercise": false,
+      "label": "셀 35"
+    },
+    {
+      "code": "surv_ongoing[25]",
+      "exercise": false,
+      "label": "셀 36"
+    },
+    {
+      "code": "at_risk = ft_complete[25] + ft_ongoing[25] + surv_complete[25] + surv_ongoing[25]\nat_risk",
+      "exercise": false,
+      "label": "셀 37"
+    },
+    {
+      "code": "hazard = ft_complete[25] / at_risk\nhazard",
+      "exercise": false,
+      "label": "셀 38"
+    },
+    {
+      "code": "ts = pd.Index.union(ft_complete.index, ft_ongoing.index)",
+      "exercise": false,
+      "label": "셀 39"
+    },
+    {
+      "code": "at_risk = ft_complete(ts) + ft_ongoing(ts) + surv_complete(ts) + surv_ongoing(ts)",
+      "exercise": false,
+      "label": "셀 40"
+    },
+    {
+      "code": "from empiricaldist import Hazard\n\nhs = ft_complete(ts) / at_risk\nhazard = Hazard(hs, ts)",
+      "exercise": false,
+      "label": "셀 41"
+    },
+    {
+      "code": "hazard.cumsum().plot()\n\ndecorate(xlabel=\"Age\", ylabel=\"Cumulative hazard\")",
+      "exercise": false,
+      "label": "셀 42"
+    },
+    {
+      "code": "ps = (1 - hazard).cumprod()",
+      "exercise": false,
+      "label": "셀 43"
+    },
+    {
+      "code": "surv = hazard.make_surv()",
+      "exercise": false,
+      "label": "셀 44"
+    },
+    {
+      "code": "survs_resampled[1960].plot(ls=\":\", color=\"gray\", label=\"resampled\")\nsurv.plot(label=\"Kaplan-Meier\")\n\ndecorate(xlabel=\"Age\", ylabel=\"Prob never married\", ylim=ylim)",
+      "exercise": false,
+      "label": "셀 45"
+    },
+    {
+      "code": "def estimate_hazard(complete, ongoing):\n    \"\"\"Kaplan-Meier estimation.\"\"\"\n    ft_complete = FreqTab.from_seq(complete)\n    ft_ongoing = FreqTab.from_seq(ongoing)\n\n    surv_complete = ft_complete.make_surv()\n    surv_ongoing = ft_ongoing.make_surv()\n\n    ts = pd.Index.union(ft_complete.index, ft_ongoing.index)\n    at_risk = ft_complete(ts) + ft_ongoing(ts) + surv_complete(ts) + surv_ongoing(ts)\n\n    hs = ft_complete(ts) / at_risk\n    return Hazard(hs, ts)",
+      "exercise": false,
+      "label": "셀 46"
+    },
+    {
+      "code": "def estimate_survival(group):\n    \"\"\"Estimate the survival function.\"\"\"\n    complete = group.query(\"evrmarry == 1\")[\"agemarr\"]\n    ongoing = group.query(\"evrmarry == 0\")[\"age\"]\n    hf = estimate_hazard(complete, ongoing)\n    sf = hf.make_surv()\n    return sf",
+      "exercise": false,
+      "label": "셀 47"
+    },
+    {
+      "code": "surv = estimate_survival(resp60)",
+      "exercise": false,
+      "label": "셀 48"
+    },
+    {
+      "code": "complete = complete.dropna()\ndurations = np.concatenate([complete, ongoing])\nevent_observed = np.concatenate([np.ones(len(complete)), np.zeros(len(ongoing))])",
+      "exercise": false,
+      "label": "셀 49"
+    },
+    {
+      "code": "from notebook_support import KaplanMeierCurve\n\nkmf = KaplanMeierCurve()\nkmf.fit(durations=durations, event_observed=event_observed)",
+      "exercise": false,
+      "label": "셀 50"
+    },
+    {
+      "code": "kmf.plot()\n\ndecorate(xlabel=\"Age\", ylabel=\"Prob never married\", ylim=ylim)",
+      "exercise": false,
+      "label": "셀 51"
+    },
+    {
+      "code": "ps = kmf.survival_function_[\"KM_estimate\"].drop(0)\nnp.allclose(ps, surv)",
+      "exercise": false,
+      "label": "셀 52"
+    },
+    {
+      "code": "def estimate_survival_map(resp, cohorts):\n    \"\"\"Make a dictionary from cohorts to Surv objects.\"\"\"\n    surv_map = {}\n\n    grouped = resp.groupby(\"cohort\")\n    for cohort in cohorts:\n        group = grouped.get_group(cohort)\n        surv_map[cohort] = estimate_survival(group)\n\n    return surv_map",
+      "exercise": false,
+      "label": "셀 53"
+    },
+    {
+      "code": "cohorts = [1940, 1950, 1960, 1970, 1980, 1990]\n\nsurv_maps = [estimate_survival_map(resample_cycles(resp), cohorts) for i in range(101)]",
+      "exercise": false,
+      "label": "셀 54"
+    },
+    {
+      "code": "def plot_cohort(surv_maps, cohort, color):\n    \"\"\"Plot results for a single cohort.\"\"\"\n    survs = [surv_map[cohort] for surv_map in surv_maps]\n    for surv in survs:\n        surv.plot(color=color, alpha=0.05)\n\n    x, y = surv.index[-1], surv.iloc[-1]\n    plt.text(x + 1, y, f\"{cohort}s\", ha=\"left\", va=\"center\")",
+      "exercise": false,
+      "label": "셀 55"
+    },
+    {
+      "code": "colors = [f\"C{i}\" for i in range(len(cohorts))]\n\nfor cohort, color in zip(cohorts, colors):\n    plot_cohort(surv_maps, cohort, color)\n\nxlim = [8, 55]\ndecorate(xlabel=\"Age\", ylabel=\"Prob never married\", xlim=xlim, ylim=ylim)",
+      "exercise": false,
+      "label": "셀 56"
+    },
+    {
+      "code": "from nsfg import get_nsfg_groups\n\nlive, firsts, others = get_nsfg_groups()",
+      "exercise": false,
+      "label": "셀 57"
+    },
+    {
+      "code": "sample = resample_rows_weighted(live, \"finalwgt\")",
+      "exercise": false,
+      "label": "셀 58"
+    },
+    {
+      "code": "pmf_durations = Pmf.from_seq(sample[\"prglngth\"])",
+      "exercise": false,
+      "label": "셀 59"
+    },
+    {
+      "code": "t = 36\nis_remaining = pmf_durations.qs >= t",
+      "exercise": false,
+      "label": "셀 60"
+    },
+    {
+      "code": "ps = pmf_durations.ps[is_remaining]\nqs = pmf_durations.qs[is_remaining] - t\n\npmf_remaining = Pmf(ps, qs)",
+      "exercise": false,
+      "label": "셀 61"
+    },
+    {
+      "code": "pmf_remaining.normalize()",
+      "exercise": false,
+      "label": "셀 62"
+    },
+    {
+      "code": "pmf_remaining.bar(label=\"Week 36\")\ndecorate(xlabel=\"Remaining duration (weeks)\", ylabel=\"PMF\")",
+      "exercise": false,
+      "label": "셀 63"
+    },
+    {
+      "code": "pmf_remaining.mean()",
+      "exercise": false,
+      "label": "셀 64"
+    },
+    {
+      "code": "def compute_pmf_remaining(pmf, t):\n    \"\"\"Distribution of remaining time.\"\"\"\n    is_remaining = pmf.qs >= t\n    ps = pmf.ps[is_remaining]\n    qs = pmf.qs[is_remaining] - t\n    pmf_remaining = Pmf(ps, qs)\n    pmf_remaining.normalize()\n    return pmf_remaining",
+      "exercise": false,
+      "label": "셀 65"
+    },
+    {
+      "code": "def expected_remaining(pmf):\n    index = range(36, 44)\n    expected = pd.Series(index=index)\n\n    for t in index:\n        pmf_remaining = compute_pmf_remaining(pmf, t)\n        expected[t] = pmf_remaining.mean()\n\n    return expected",
+      "exercise": false,
+      "label": "셀 66"
+    },
+    {
+      "code": "expected = expected_remaining(pmf_durations)\nexpected",
+      "exercise": false,
+      "label": "셀 67"
+    },
+    {
+      "code": "for i in range(21):\n    sample = resample_rows_weighted(live, \"finalwgt\")\n    pmf_durations = Pmf.from_seq(sample[\"prglngth\"])\n    expected = expected_remaining(pmf_durations)\n    expected.plot(color=\"C0\", alpha=0.1)\n\ndecorate(\n    xlabel=\"Weeks of pregnancy\", ylabel=\"Expected remaining time (weeks)\", ylim=[0, 3.4]\n)",
+      "exercise": false,
+      "label": "셀 68"
+    },
+    {
+      "code": "# I suggest you use a single resampling of the data\n\nsample = resample_cycles(resp)",
+      "exercise": true,
+      "label": "셀 69"
+    },
+    {
+      "code": "mortality = pd.read_csv(\"mortality_rates_beltran2012.csv\", header=[0, 1]).dropna()",
+      "exercise": true,
+      "label": "셀 70"
+    },
+    {
+      "code": "from scipy.interpolate import interp1d\nfrom empiricaldist import Hazard\n\n\ndef make_hazard(ages, rates):\n    \"\"\"Make a Hazard function by interpolating a Series.\n\n    series: Series\n\n    returns: Hazard\n    \"\"\"\n    interp = interp1d(ages, rates, fill_value=\"extrapolate\")\n    xs = np.arange(0, 100)\n    ys = np.exp(interp(xs))\n    return Hazard(ys, xs)",
+      "exercise": true,
+      "label": "셀 71"
+    },
+    {
+      "code": "ages = mortality[\"1800\", \"X\"].values\nrates = mortality[\"1800\", \"Y\"].values\nhazard = make_hazard(ages, rates)",
+      "exercise": true,
+      "label": "셀 72"
+    },
+    {
+      "code": "hazard.plot()\n\ndecorate(xlabel=\"Age (years)\", ylabel=\"Hazard\")",
+      "exercise": true,
+      "label": "셀 73"
+    }
+  ],
+  "attribution": "Think Stats, 3rd edition — Allen B. Downey.\n\nSource and Korean translation: https://allendowney.github.io/ThinkStats/chap13.html\n\nCode license notice:\n\nMIT License\n\nCopyright (c) 2024 Allen Downey\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n\nThe downloaded helpers retain their own GNU GPLv3 headers. Their complete source and COPYING are distributed under /labs/think-stats/upstream/.\n"
+}

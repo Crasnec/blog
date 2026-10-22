@@ -32,4 +32,52 @@ scatter panels) axis index at ThinkStats commit
 Source-derived figures and their adaptations retain the book's
 CC BY-NC-SA 4.0 attribution. Complex original PNG outputs remain alongside
 these component-based figures. The articles distinguish original cells from
-standalone browser adaptations; each execution starts a fresh Python worker.
+standalone browser adaptations; each standalone lab starts a fresh Python worker. Linked body cells share a
+chapter namespace and render their current plots in the cell output.
+
+Chapters 9–14
+-------------
+chapters-09-14.json contains fixed reference inputs for existing Figure
+kinds, with no new renderer. Named keys are generated from the default
+standalone labs. They contain every observation used by those labs: all
+151 Adelie pairs for OLS, all 1,001 bootstrap slopes or simulated means,
+and all 50 administratively censored bulb lifetimes. No silent thinning
+is used to fit component limits.
+
+The coin PMF includes deviation values 0–40 for readability; its lab computes
+the exact tail on all 126 possible deviations. Simple source KDE inputs
+(chap09/chap10 keys) come from re-executed pinned source cells on uniform
+x grids. Vertical reference lines become nearest-grid notes. The chapter 11
+logistic curves come from rerunning the corrected sex-encoding code; their
+x grids are preserved and all model lines share those grids.
+
+Chapter 12 lines use equally spaced monthly observation indices, labelled
+with their start/end calendar months, not elapsed-day interpolation. The
+forecast and ARIMA reference figures use only the training interval for
+fitting and show all 60 held-out months. Interval limits are explicitly
+computed in Python. The ACF kind uses the library's biased convention;
+its white-noise guides are only approximate pointwise references.
+
+The survival figure uses original durations administratively censored at
+1,700 hours and the existing kind's event-before-censoring tie convention
+and pointwise 95% log-log Greenwood intervals. The marriage comparison is
+evaluated monthly over ages 15–35, joined with straight lines, with no
+extrapolation after follow-up and no survey-uncertainty band. Its lab shows
+the actual event-time steps instead. Remaining-duration means use T>=t.
+
+Chapter 14 source multi-panel Q–Q plots become separate full-width figures.
+Their samples are the same 1,001 sums captured during source execution, but
+the existing Q–Q kind expresses the fitted normal reference in sample units
+and uses its standard quantile convention. Captions disclose this change.
+The separate CLT lab reference uses means, not sums, and independent
+np.random.default_rng(1) experiments for n=1, 10, 100. Interval inputs use
+sample variance (ddof=1) and distinguish normal, Welch and bootstrap methods.
+
+Source-derived inputs and adapted figures retain CC BY-NC-SA 4.0 attribution.
+
+The source chapter 12 four-panel additive and multiplicative decompositions
+are recomputed from the same CSV and seasonal_decompose arguments, then
+split into four full-width line figures. Uncomputable trend/residual edge
+months are dropped, with each panel's actual month endpoints labelled.
+The manual decomposition's earlier 12-month rolling mean remains a trailing
+mean; seasonal_decompose uses its centered filter. These are distinct steps.

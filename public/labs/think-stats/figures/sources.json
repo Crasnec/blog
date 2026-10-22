@@ -468,5 +468,371 @@
         "alt": "모수적 재표집으로 얻은 표본평균들의 분포. 개별 체중 분포보다 좁고, 그 표준편차가 평균의 표준오차입니다."
       }
     ]
+  },
+  {
+    "chapter": 9,
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap09.ipynb",
+    "source_sha256": "606cfd9d7aa775b0745f68c4c19113bd4bb4e07fbf21bb688bd7c4c13c753595",
+    "figures": [
+      {
+        "cell_id": "5689d893",
+        "file": "chap09-018-0.png",
+        "sha256": "88d143efb3df97dbcf11d50d8bf9e36dc7b65ac84da282ca256c105301270a28",
+        "alt": "공정한 동전의 절대편차 분포. 작은 편차가 흔하고 15 이상의 큰 편차는 드뭅니다."
+      },
+      {
+        "cell_id": "37d9b5e0",
+        "file": "chap09-094-0.png",
+        "sha256": "e6f48a8741813f4c6ba574d736b609db2e4fd3dc789e3fd9cf1fab47074875d0",
+        "alt": "주사위 도수의 절대편차 합 귀무분포. 가능한 값이 짝수 간격으로 나타납니다."
+      }
+    ]
+  },
+  {
+    "chapter": 10,
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap10.ipynb",
+    "source_sha256": "82b74576b9cecdde0da57808b645e5df1786e8d0168e980cc251290e3ac97b4d",
+    "figures": [
+      {
+        "cell_id": "e00b0008",
+        "file": "chap10-016-0.png",
+        "sha256": "c1497e43f443a03d9aefd5923bece65ad0f62beba904785a691698be286484fc",
+        "alt": "아델리펭귄 날개 길이와 체중의 산점도. 길이가 길수록 체중이 증가하는 경향입니다."
+      },
+      {
+        "cell_id": "7c4dcf1e",
+        "file": "chap10-028-0.png",
+        "sha256": "7a9504e113fd8974cb69f6a98c5a33729bd2366c24678199dbae4578866a29e8",
+        "alt": "날개 길이와 체중 위에 그린 최소제곱 회귀선. 관측점은 선 주변에 넓게 흩어져 있습니다."
+      },
+      {
+        "cell_id": "9f02ea92",
+        "file": "chap10-093-0.png",
+        "sha256": "30885975c39318a2a5e8815d946b6245f9fda4f4f2609cc366748d884a68c749",
+        "alt": "재표집할 때마다 달라지는 회귀선들. 자료의 양 끝에서 더 퍼집니다."
+      },
+      {
+        "cell_id": "3f2f2757",
+        "file": "chap10-099-0.png",
+        "sha256": "5967287882b5ae2e30aafbd931f96e8b761844203d0074f0dc9f1af90d4d8c65",
+        "alt": "평균 회귀선의 점별 90% 부트스트랩 띠. 개별 관측값은 띠 밖에도 많습니다."
+      },
+      {
+        "cell_id": "4dd0b832",
+        "file": "chap10-117-0.png",
+        "sha256": "99f7709b0cd0c254ea57d67675c260d921f898f9bd54e45e919d51983372e087",
+        "alt": "키로 체중을 예측한 직선. 체중이 큰 쪽에 관측점이 길게 퍼집니다."
+      },
+      {
+        "cell_id": "140c444b",
+        "file": "chap10-126-0.png",
+        "sha256": "43cb4016f0e05c73f57be4571c5a3717623132807d7711f8b365f6b913c4ead4",
+        "alt": "키와 로그 체중의 회귀선. 체중 자체보다 잔차 모양이 대칭에 가깝습니다."
+      },
+      {
+        "cell_id": "5f0ac955",
+        "file": "chap10-135-0.png",
+        "sha256": "05277c82c794c22d37f9c609147a3c17ef59cc8a0da9e9525303ea3b478396f6",
+        "alt": "지수화한 로그 회귀선과 원래 체중 축의 관측값. 역변환 선은 원래 척도의 조건부 평균과 다를 수 있습니다."
+      }
+    ]
+  },
+  {
+    "chapter": 11,
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap11.ipynb",
+    "source_sha256": "68543ddeb8863370e709b8d19a7ff426a16b891fbf27d16893ac976a1bb9f2c2",
+    "figures": [
+      {
+        "cell_id": "f4b5458c",
+        "file": "chap11-073-0.png",
+        "sha256": "61dbcbaffc32ca3f5ec2592a1c46f1dee09f50a6c4ebc703137c62e4671b0fd2",
+        "alt": "산모 나이와 출생 체중의 산점도. 나이가 증가할 때 체중이 약간 증가하는 경향입니다."
+      },
+      {
+        "cell_id": "e31ed85c",
+        "file": "chap11-104-0.png",
+        "sha256": "86442bd696e361ee818e55c26ecc5b8f7c0126c7c3a296a8f3a270baa4de1bac",
+        "alt": "출생 체중과 산모 나이에 적합한 이차 곡선. 직선보다 완만한 굽음을 허용합니다."
+      }
+    ]
+  },
+  {
+    "chapter": 12,
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap12.ipynb",
+    "source_sha256": "3871c067232fb66fac797d95e4d4d2e377cfa9405e0287f124e8771d505a20b5",
+    "figures": [
+      {
+        "cell_id": "a2e4b3cd",
+        "file": "chap12-020-0.png",
+        "sha256": "d0b6d596b0ea7684f5a1cf993497d5ebbc67bcbde018bc691915e91952fb01b5",
+        "alt": "원전 월 발전량. 연도별 추세 위에 반복되는 계절 변동이 있습니다."
+      },
+      {
+        "cell_id": "8a15d5b0",
+        "file": "chap12-024-0.png",
+        "sha256": "67a012ebb99c05e18c14ef4ca17d85396cb479b39ec6afc3e9052d36f8060687",
+        "alt": "원전 발전량과 12개월 후행 이동평균. 평균은 원자료보다 매끄럽지만 변화에 늦습니다."
+      },
+      {
+        "cell_id": "6226a197",
+        "file": "chap12-026-0.png",
+        "sha256": "cfd081f2c48b53ee9d20c41222cca0bc4d35fe9ed07ba75d7bd9cb3f0d6c1140",
+        "alt": "원전 발전량에서 이동평균 추세를 뺀 값. 반복되는 계절 변동이 보입니다."
+      },
+      {
+        "cell_id": "58901df0",
+        "file": "chap12-028-0.png",
+        "sha256": "a7980e8cb5f8652040fe387dc74ddee10c259febfcc57bbd8adf19cce0b2691c",
+        "alt": "추세를 뺀 원전 발전량의 월별 평균. 1월과 여름에 상대적으로 높습니다."
+      },
+      {
+        "cell_id": "40d75656",
+        "file": "chap12-030-0.png",
+        "sha256": "b3f0667b178911ce6cb107601e5d4328413157c57cea739dc7cc3903db893a84",
+        "alt": "첫 12개월 계절 성분을 반복해 그린 곡선. 매년 모양을 같게 가정합니다."
+      },
+      {
+        "cell_id": "0b2fd600",
+        "file": "chap12-034-0.png",
+        "sha256": "50199d7d7852db179b1c1a68f7f9050c63b67911c0bf13506ba4990fce247ccd",
+        "alt": "추세와 반복 계절 성분을 더한 값과 실제 발전량의 비교."
+      },
+      {
+        "cell_id": "bbb7e23e",
+        "file": "chap12-036-0.png",
+        "sha256": "8416a117c32cc38d9487c824c327b80d11a7e79d591e0b0531a8d53852f9fb57",
+        "alt": "추세·계절 성분을 뺀 원전 잔차. 시간에 따른 의존성이 남을 수 있습니다."
+      },
+      {
+        "cell_id": "25d79783",
+        "file": "chap12-038-0.png",
+        "sha256": "9e28f759e463fd82ac075d39b8002239dac0e9dd1c857978c19f01df530b4585",
+        "alt": "가법 분해 후 원전 잔차의 KDE. 가운데에 밀집하고 양쪽 꼬리가 남습니다."
+      },
+      {
+        "cell_id": "f9e9e851",
+        "file": "chap12-060-0.png",
+        "sha256": "92ef778206845f86cb3716749c76676ee9e902d94718d5ea59f7fc6abb079407",
+        "alt": "훈련 기간 추세와 그 추세에 맞춘 최소제곱 직선."
+      },
+      {
+        "cell_id": "a90dea46",
+        "file": "chap12-068-0.png",
+        "sha256": "b8b5593601192363b3f0a3dd78403e5a57e4ecb3afa4cb754b4f86af21968d97",
+        "alt": "앞선 훈련 기간만 사용한 원전 발전량 예측과 실제 값."
+      },
+      {
+        "cell_id": "708db6b9",
+        "file": "chap12-070-0.png",
+        "sha256": "4723ae6a098b27f1360e76485d3ea34e7f73bb473f7204bbed38a467c2f56edf",
+        "alt": "끝 60개월을 보류한 원전 과거예측. 예측과 관측의 차이를 평가합니다."
+      },
+      {
+        "cell_id": "d58266d7",
+        "file": "chap12-077-0.png",
+        "sha256": "6d8366d97277de44141cb9152e7428b1f2d3e238318070c220159983acbf683e",
+        "alt": "소규모 태양광 발전량. 발전량이 증가하며 계절 진폭도 커집니다."
+      },
+      {
+        "cell_id": "26f36297",
+        "file": "chap12-095-0.png",
+        "sha256": "2fe7cd3543b0345ff707320996f255d0ae1fadd24c39124319818c710ad95cc4",
+        "alt": "태양광 발전량 추세에 맞춘 시간의 이차 모형. 앞선 훈련 구간만 사용합니다."
+      },
+      {
+        "cell_id": "660f2b12",
+        "file": "chap12-101-0.png",
+        "sha256": "baaf8b0faa102cfd46a251d7b04a705088648625e37d01fa850c7e20cd0673ca",
+        "alt": "이차 추세와 월별 계절 배율로 만든 태양광 예측."
+      },
+      {
+        "cell_id": "397c0e78",
+        "file": "chap12-103-0.png",
+        "sha256": "e902c28c2aa06d35c05addbeceb71ee65a182a8cb6a3b4354b28c025ee17e590",
+        "alt": "최근 12개월 태양광 관측과 과거예측의 비교."
+      },
+      {
+        "cell_id": "080c33ff",
+        "file": "chap12-106-0.png",
+        "sha256": "bacd9202e263a2c0ccff5a4416b8f60479063a846971ed4dfa7474ee6cac16c3",
+        "alt": "원전 발전량을 12개월 차분한 시계열. 계절 반복을 줄입니다."
+      },
+      {
+        "cell_id": "255c42c0",
+        "file": "chap12-116-0.png",
+        "sha256": "1676ef48a93870cbbb2a2369aa4508448e2ec75c081b2cf14a26a8028b4453de",
+        "alt": "12개월 차분 원전 시계열과 자기회귀 모형의 예측값. 직전 세 달을 사용합니다."
+      },
+      {
+        "cell_id": "12044dd2",
+        "file": "chap12-142-0.png",
+        "sha256": "643df931947fae5c5c2b088b15d5d10ea79a5fca79e23f3cdf22d3273be228ff",
+        "alt": "자기회귀·이동평균 성분을 사용한 원전 발전량 과거예측."
+      },
+      {
+        "cell_id": "6724d919",
+        "file": "chap12-155-0.png",
+        "sha256": "e251796e5164c6ceb48459766eb426862793fb63c762485158120e106bee2033",
+        "alt": "원래 발전량 척도에서 원전 관측값과 ARIMA 적합값을 비교합니다."
+      },
+      {
+        "cell_id": "e7ed8be0",
+        "file": "chap12-167-0.png",
+        "sha256": "7b19f82dc2aaab0c1ace074eeba0fd8f699d2a31f4048f28459027e03c9257d7",
+        "alt": "ARIMA의 향후 원전 예측과 구간. 미래 관측값의 모형 기반 예측구간입니다."
+      }
+    ]
+  },
+  {
+    "chapter": 13,
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap13.ipynb",
+    "source_sha256": "c2766210f0cb2d55a8fc824d50cbd838de0ea0cd82f8cc503669832295e45c58",
+    "figures": [
+      {
+        "cell_id": "651c5701",
+        "file": "chap13-020-0.png",
+        "sha256": "9f6f64e9761be97c2536ea5f4f494705c5f7ed5338475173ec9488fdb18b791c",
+        "alt": "전구 수명의 CDF와 생존함수. 두 값은 각 시간에서 1로 합쳐집니다."
+      },
+      {
+        "cell_id": "d2fc070d",
+        "file": "chap13-031-0.png",
+        "sha256": "7cafa6053d8bcbb14e7d99a41a8ceb5777548c8ed58d9d78bccb68e31912b91d",
+        "alt": "전구의 위험함수. 각 시점까지 생존한 전구 중 그때 고장 날 비율입니다."
+      },
+      {
+        "cell_id": "a5838cd6",
+        "file": "chap13-033-0.png",
+        "sha256": "0ffd6df858f2d5bc50f93d9749cdc3254d579ab4ff83163708684033a7986a86",
+        "alt": "전구의 누적위험함수. 앞서 구한 시점별 위험을 누적해 더한 값입니다."
+      },
+      {
+        "cell_id": "9baf12a0",
+        "file": "chap13-052-0.png",
+        "sha256": "9e54b664947c6a62b1989f2f44eda843f2db7506d22d9af8ea5fcda2be145ecb",
+        "alt": "완료된 결혼 사례만 사용한 코호트별 미혼 곡선. 미혼자의 중도절단을 누락한 비교입니다."
+      },
+      {
+        "cell_id": "5251af56",
+        "file": "chap13-062-0.png",
+        "sha256": "d0151716ebc830b0ba0b2fd7fee7be65a0b819bece4c18efedcf313b47906f8c",
+        "alt": "가중 재표집 후에도 완료 사례만 사용한 생존함수. 중도절단 처리는 여전히 필요합니다."
+      },
+      {
+        "cell_id": "af4f2860",
+        "file": "chap13-094-0.png",
+        "sha256": "7438aa27c8fae6dfb32802922ad235a8a20433a1bf2243f3f3d146c545fe3856",
+        "alt": "1960년대생의 결혼 누적위험함수. 사건과 중도절단을 위험집합에 반영했습니다."
+      },
+      {
+        "cell_id": "8a34e70a",
+        "file": "chap13-101-0.png",
+        "sha256": "57b6d2d483e5afeb6ac1b8c67aa293677130f08945b3ab877f7b6daa901f83ea",
+        "alt": "1960년대생의 미혼 생존함수. 완료 사례만 사용한 곡선과 Kaplan–Meier 추정을 비교합니다."
+      },
+      {
+        "cell_id": "4d738a17",
+        "file": "chap13-119-0.png",
+        "sha256": "fd85f6885ce545eeac1251f980ee44045ad7eae1a4524b54cdfa5f8474077f10",
+        "alt": "Lifelines로 계산한 1960년대생 Kaplan–Meier 곡선과 점별 구간."
+      },
+      {
+        "cell_id": "328ea03f",
+        "file": "chap13-130-0.png",
+        "sha256": "439b22bc2c213e309cd1b83ae53175f80b9deb63986fc9b8b832e704bfa175da",
+        "alt": "가중 부트스트랩으로 만든 미혼 생존함수의 점별 구간. 복합표본 설계 전체를 반영한 구간은 아닙니다."
+      },
+      {
+        "cell_id": "83e62cce",
+        "file": "chap13-149-0.png",
+        "sha256": "d1188ed3c916b7fc298a46d2ded7683b32c2f2c85fdac4084fa273b77dd0595c",
+        "alt": "36주까지 이어진 임신에서 남은 기간의 PMF. 각 막대는 잔여 주 수의 확률입니다."
+      },
+      {
+        "cell_id": "77fd2f95",
+        "file": "chap13-159-0.png",
+        "sha256": "6ca4dfa063bffcf2418fb6ca856b10bc22676aafe2fe8bb6f088ce3feaf6e606",
+        "alt": "임신 기간 자료를 가중 재표집해 구한 기대 잔여시간 곡선 21개. 재표집에 따라 추정도 달라집니다."
+      }
+    ]
+  },
+  {
+    "chapter": 14,
+    "source": "https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap14.ipynb",
+    "source_sha256": "2dd46ea95f9a0bebc911642ade6d99753eecf418930d0413d23c6671d26fb95b",
+    "figures": [
+      {
+        "cell_id": "b992d5e4",
+        "file": "chap14-019-0.png",
+        "sha256": "c7c332f291569fc8258e460938e461fec90dcb0d139514e34a4af1e967a6dd80",
+        "alt": "아델리펭귄 체중의 경험적 CDF와 같은 평균·표준편차의 정규분포 CDF 비교."
+      },
+      {
+        "cell_id": "cdcc30c5",
+        "file": "chap14-027-0.png",
+        "sha256": "5db6886abf060d14f45a0c1fa15f4e0afdd2d60b5f0c75111b89523c130a4103",
+        "alt": "정렬한 표준정규 난수와 체중의 정규확률그림. 거의 선형인지를 살핍니다."
+      },
+      {
+        "cell_id": "f9ce4632",
+        "file": "chap14-031-0.png",
+        "sha256": "e7731d4d324b6613670788479ff16880f630a65cb0f9a14de31d5bbe9777def0",
+        "alt": "아델리펭귄 암수 체중의 정규확률그림. 집단별로 나누면 점들이 더 직선에 가깝습니다."
+      },
+      {
+        "cell_id": "f44bed89",
+        "file": "chap14-042-0.png",
+        "sha256": "41b9006293d7701f3010d15053cf790ae2a1326c4ca358834b79bf8ea73659fc",
+        "alt": "독립 두 정규 체중 모형에서 뽑은 합의 정규확률그림."
+      },
+      {
+        "cell_id": "a12aeec5",
+        "file": "chap14-050-0.png",
+        "sha256": "2f9a497e8a02375504cc8451aa5adcc47b18ed73165963e5154e2f843f0b754f",
+        "alt": "두 정규변수 합의 이론 CDF와 모의 표본 합의 경험적 CDF."
+      },
+      {
+        "cell_id": "47a89b6d",
+        "file": "chap14-058-0.png",
+        "sha256": "873994e1b6ce50ee589406dc7611c39ac217c14c90f6d4f888a28cfae24b8b65",
+        "alt": "독립 정규변수 73개 합의 이론 CDF와 모의실험의 비교."
+      },
+      {
+        "cell_id": "d43572f9",
+        "file": "chap14-068-0.png",
+        "sha256": "e395c9c9ca6c649e224a732b84fce4dbce5cd1fd1e62da62c47d92ebb6db1df8",
+        "alt": "정규 모형의 표본평균에 대한 해석적 CDF와 모의실험 CDF."
+      },
+      {
+        "cell_id": "5a3c4db5",
+        "file": "chap14-083-0.png",
+        "sha256": "9097cbae76ddc5943cb45a56a47d2a301547355f505a25a051b4e2b7cfb1503a",
+        "alt": "독립 두 집단 평균 차이의 정규 근사와 모의실험 CDF."
+      },
+      {
+        "cell_id": "abbbe574",
+        "file": "chap14-142-0.png",
+        "sha256": "7bb095d8a8214c5f70a60762e1272bc9c489b3cf2b71ef06272c544f8c053b24",
+        "alt": "임신 기간 평균 차이의 귀무 정규 근사와 재표집 CDF. 관측 차이의 양·음 위치를 표시합니다."
+      },
+      {
+        "cell_id": "433b9e2a",
+        "file": "chap14-167-0.png",
+        "sha256": "c3f221d71d40cf529d9568219ea735a4d000f98174628991a963daf7a3723f71",
+        "alt": "독립 정규표본의 상관을 변환한 통계량과 자유도 n−2 t분포 CDF."
+      },
+      {
+        "cell_id": "6bd62d55",
+        "file": "chap14-179-0.png",
+        "sha256": "26fb4b9c2dd2fc128ec27c128f6423c636e97f5eb1e1af1c123af188405f0c65",
+        "alt": "임신 자료의 순열 상관 통계량과 이론 t분포 CDF 비교."
+      },
+      {
+        "cell_id": "aca6b307",
+        "file": "chap14-207-0.png",
+        "sha256": "0192f02a4b3f75152d420c6bdf6c4419e47966ccfd2ae85aad4cd406baf6a28e",
+        "alt": "공정한 주사위 카이제곱 통계량의 모의 CDF와 자유도 5 카이제곱 CDF 비교."
+      }
+    ]
   }
 ]

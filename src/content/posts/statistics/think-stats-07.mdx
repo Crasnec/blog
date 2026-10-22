@@ -8,6 +8,8 @@ tags: [statistics, think-stats, python, translation]
 ---
 
 import CodePlayground from '../../../components/CodePlayground.astro';
+import PythonNotebook from '../../../components/PythonNotebook.astro';
+import notebook from './_notebooks/chap07.json';
 import Figure from '../../../components/Figure.astro';
 import plots from './_figures/plots.json';
 import correlationCode from '../../../../public/labs/think-stats/chap07-correlation.py?raw';
@@ -18,10 +20,10 @@ Allen B. Downey의 《Think Stats》 3판, 7장 「Relationships between variabl
 
 <a href="/labs/think-stats/chap07-ko.ipynb" download="think-stats-07-ko.ipynb">한국어 노트북 내려받기</a> · [원문 웹판](https://allendowney.github.io/ThinkStats/chap07.html)
 
-실행창은 각각 독립적으로 실행됩니다. 입력을 바꾸면 그 아래의 숫자와 그림이 바뀝니다. 코드 조각은 본문 설명을 위한 것이며, 전체 원문 셀은 내려받는 노트북에 있습니다.
+준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 셀을 실행하면 참고용 출력이 실제 결과로 바뀝니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
 
 
-지금까지는 변수를 하나씩 살펴보았습니다. 이 장에서는 변수 사이의 관계를 살펴보겠습니다. 한 변수의 값을 알 때 다른 변수에 관한 정보를 얻을 수 있다면, 두 변수는 관련이 있습니다. 예를 들어 키와 체중은 관련이 있습니다. 키가 큰 사람은 대체로 체중도 많이 나갑니다. 물론 완벽한 관계는 아닙니다. 키가 작고 무거운 사람도, 키가 크고 가벼운 사람도 있습니다. 그래도 체중을 추측하려면 키를 모를 때보다 알 때 더 정확하게 맞힐 수 있습니다.
+지금까지는 변수를 하나씩 살펴보았습니다. 이 장에서는 변수 사이의 관계를 살펴보겠습니다. 한 변수의 값으로 다른 변수에 관한 정보를 얻을 수 있다면 두 변수는 관련이 있습니다. 예를 들어 키와 체중은 관련이 있습니다. 키가 큰 사람은 대체로 체중도 많이 나갑니다. 물론 완벽한 관계는 아닙니다. 키가 작고 무거운 사람도, 키가 크고 가벼운 사람도 있습니다. 그래도 체중을 추측하려면 키를 모를 때보다 알 때 더 정확하게 맞힐 수 있습니다.
 
 이 장에서는 변수 사이의 관계를 시각화하는 몇 가지 방법과, 관계의 강도를 수치로 나타내는 상관을 소개합니다.
 
@@ -36,19 +38,19 @@ Allen B. Downey의 《Think Stats》 3판, 7장 「Relationships between variabl
 
 `read_csv`로 자료를 읽고, `replace`로 결측을 나타내는 특수 코드를 `np.nan`으로 바꿀 수 있습니다.
 
-```python
-missing_codes = [-1, -2, -3, -4, -5]
-nlsy = pd.read_csv("nlsy97-extract.csv.gz").replace(missing_codes, np.nan)
-nlsy.shape
-```
+<PythonNotebook id="think-stats-07" title="Think Stats 7장 노트북" attribution={notebook.attribution} />
+
+<CodePlayground notebook="think-stats-07" title="준비: 라이브러리와 자료" code={notebook.cells[0].code} language="python" timeout={60000} pythonPackages={["numpy", "pandas", "scipy", "matplotlib", "empiricaldist", "statadict", "statsmodels", "ipython"]} />
+
+<CodePlayground notebook="think-stats-07" title="셀 1" code={notebook.cells[1].code} language="python" timeout={60000}>
 
 ```text
 (8984, 34)
 ```
 
-```python
-nlsy.head()
-```
+</CodePlayground>
+
+<CodePlayground notebook="think-stats-07" title="셀 2" code={notebook.cells[2].code} language="python" timeout={60000}>
 
 | 값 | R0000100 | R0490200 | R0536300 | R0536401 | R0536402 | R1235800 | R1318200 | R1482600 | R3961900 | R3989200 | ... | R9872200 | R9872300 | R9872400 | S1552700 | U0008900 | U1845500 | U3444000 | U4949700 | Z9083800 | Z9083900 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -58,114 +60,88 @@ nlsy.head()
 | 3 | 4 | NaN | 2 | 2 | 1981 | 1 | NaN | 2 | NaN | NaN | ... | 195.0 | 230.0 | 216.0 | NaN | 85000.0 | 45000.0 | NaN | NaN | 13.0 | 2.0 |
 | 4 | 5 | NaN | 1 | 10 | 1982 | 1 | NaN | 2 | NaN | NaN | ... | 293.0 | 230.0 | 231.0 | NaN | 210000.0 | 212000.0 | NaN | 240000.0 | 12.0 | 2.0 |
 
+</CodePlayground>
 `DataFrame`에는 조사 참가자 8,984명 각각에 해당하는 행이 있고, 제가 고른 변수 34개 각각에 해당하는 열이 있습니다. 열 이름만으로는 뜻을 알기 어려우므로, 사용할 열에 이해하기 쉬운 이름을 붙이겠습니다.
 
-```python
-nlsy["sat_verbal"] = nlsy["R9793800"]
-nlsy["sat_math"] = nlsy["R9793900"]
-```
+<CodePlayground notebook="think-stats-07" title="셀 3" code={notebook.cells[3].code} language="python" timeout={60000} />
 
 두 열에는 200 미만의 값이 조금 있습니다. 최저 점수가 200이므로 가능한 점수가 아닙니다. `np.nan`으로 바꾸겠습니다.
 
-```python
-columns = ["sat_verbal", "sat_math"]
-
-for column in columns:
-    invalid = nlsy[column] < 200
-    nlsy.loc[invalid, column] = np.nan
-```
+<CodePlayground notebook="think-stats-07" title="셀 4" code={notebook.cells[4].code} language="python" timeout={60000} />
 
 다음으로 `dropna`를 사용해 두 점수가 모두 유효한 행만 선택합니다.
 
-```python
-nlsy_valid = nlsy.dropna(subset=columns).copy()
-nlsy_valid.shape
-```
+<CodePlayground notebook="think-stats-07" title="셀 5" code={notebook.cells[5].code} language="python" timeout={60000}>
 
 ```text
 (1398, 36)
 ```
 
+</CodePlayground>
+
 원문에서 다루는 SAT 점수는 평균 500, 표준편차 100을 기준으로 표준화합니다. NLSY 표본의 평균과 표준편차도 이 값에 가깝습니다.
 
-```python
-sat_verbal = nlsy_valid["sat_verbal"]
-sat_verbal.mean(), sat_verbal.std()
-```
+<CodePlayground notebook="think-stats-07" title="셀 6" code={notebook.cells[6].code} language="python" timeout={60000}>
 
 ```text
 (np.float64(501.80972818311875), np.float64(108.36562024213643))
 ```
 
-```python
-sat_math = nlsy_valid["sat_math"]
-sat_math.mean(), sat_math.std()
-```
+</CodePlayground>
+
+<CodePlayground notebook="think-stats-07" title="셀 7" code={notebook.cells[7].code} language="python" timeout={60000}>
 
 ```text
 (np.float64(503.0829756795422), np.float64(109.8329973731453))
 ```
 
+</CodePlayground>
+
 두 변수 사이에 관계가 있는지 **산점도**(scatter plot)로 살펴보겠습니다.
 
-```python
-plt.scatter(sat_verbal, sat_math)
-
-decorate(xlabel="SAT Verbal", ylabel="SAT Math")
-```
+<CodePlayground notebook="think-stats-07" title="셀 8" code={notebook.cells[8].code} language="python" timeout={60000}>
 
 ![SAT 언어와 수학 점수의 기본 산점도. 점이 많이 겹쳐 가운데의 밀도가 충분히 드러나지 않습니다.](/labs/think-stats/figures/chap07-021-0.png)
 
+</CodePlayground>
+
 `scatter`의 기본 옵션만으로도 관계의 전체적인 모양이 보입니다. 한 영역에서 좋은 점수를 받은 사람은 다른 영역에서도 대체로 좋은 점수를 받습니다.
 
-하지만 이 그림에는 **점 겹침**(overplotting)이 심합니다. 겹쳐 있는 점이 많아 관계를 잘못 받아들이게 할 수 있다는 뜻입니다. 점의 밀도가 가장 높은 가운데가 충분히 짙게 보이지 않아, 상대적으로 극단적인 값들이 지나치게 두드러집니다. 점 겹침은 이상치에 과도한 시각적 무게를 주는 경향이 있습니다.
+하지만 이 그림에는 **점 겹침**(overplotting)이 심합니다. 겹쳐 있는 점이 많아 관계를 잘못 받아들이게 할 수 있다는 뜻입니다. 점의 밀도가 가장 높은 가운데가 충분히 짙게 보이지 않아, 상대적으로 극단적인 값들이 지나치게 두드러집니다. 그 결과 이상치가 실제 비중보다 눈에 띄기 쉽습니다.
 
 표식 크기를 줄여 덜 겹치게 하면 그림을 개선할 수 있습니다.
 
-```python
-plt.scatter(sat_verbal, sat_math, s=5)
-
-decorate(xlabel="SAT Verbal", ylabel="SAT Math")
-```
+<CodePlayground notebook="think-stats-07" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000}>
 
 ![표식 크기를 줄인 SAT 점수 산점도. 10점 단위 반올림으로 생긴 행과 열이 보입니다.](/labs/think-stats/figures/chap07-023-0.png)
+
+</CodePlayground>
 
 이제 표식들이 행과 열을 이루는 것이 보입니다. 점수가 10의 배수로 반올림되어 있기 때문입니다. 이 과정에서 정보가 일부 사라졌습니다.
 
 잃어버린 정보를 되찾을 수는 없지만, 데이터에 **지터**(jitter)를 주면 산점도에서 반올림의 영향을 줄일 수 있습니다. 무작위 잡음을 더해 반올림으로 생긴 줄무늬를 흐리는 것입니다. 다음 함수는 시퀀스를 받아 평균이 0이고 표준편차가 주어진 값인 정규분포의 난수를 더합니다. 결과는 NumPy 배열입니다.
 
-```python
-def jitter(seq, std=1):
-    n = len(seq)
-    return np.random.normal(0, std, n) + seq
-```
+<CodePlayground notebook="think-stats-07" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000} />
 
 점수에 표준편차 3의 지터를 주면 산점도에서 행과 열이 더 이상 보이지 않습니다.
 
-```python
-sat_verbal_jittered = jitter(sat_verbal, 3)
-sat_math_jittered = jitter(sat_math, 3)
-```
+<CodePlayground notebook="think-stats-07" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000} />
 
-```python
-plt.scatter(sat_verbal_jittered, sat_math_jittered, s=5)
-
-decorate(xlabel="SAT Verbal", ylabel="SAT Math")
-```
+<CodePlayground notebook="think-stats-07" title="셀 12" code={notebook.cells[12].code} language="python" timeout={60000}>
 
 ![표준편차 3의 지터를 준 SAT 점수 산점도. 반올림 때문에 생긴 줄무늬가 흐려집니다.](/labs/think-stats/figures/chap07-028-0.png)
+
+</CodePlayground>
 
 지터를 주면 반올림의 시각적 영향이 줄고 관계의 모양이 분명해집니다. 하지만 일반적으로 지터는 시각화에만 사용하고, 분석에는 지터를 주기 전 자료를 사용해야 합니다.
 
 이 예에서는 표식 크기를 줄이고 지터를 주어도 여전히 점이 일부 겹칩니다. 한 가지를 더 해 보겠습니다. `alpha` 키워드로 표식을 반투명하게 만들 수 있습니다.
 
-```python
-plt.scatter(sat_verbal_jittered, sat_math_jittered, s=5, alpha=0.2)
-
-decorate(xlabel="SAT Verbal", ylabel="SAT Math")
-```
+<CodePlayground notebook="think-stats-07" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000}>
 
 ![작은 표식, 지터, 투명도를 함께 사용한 SAT 점수 산점도. 점이 많은 구간이 더 짙습니다.](/labs/think-stats/figures/chap07-030-0.png)
+
+</CodePlayground>
 
 투명도를 주면 겹친 점이 더 짙어져 점이 몰린 정도를 알아보기 쉬워집니다.
 
@@ -173,14 +149,11 @@ decorate(xlabel="SAT Verbal", ylabel="SAT Math")
 
 ## 십분위 그림
 
-산점도는 변수 사이의 관계를 전체적으로 보여줍니다. 하지만 관계의 성격을 더 잘 드러내는 시각화도 있습니다. 그중 하나가 **십분위 그림**(decile plot)입니다.
+산점도는 변수 사이의 관계를 전체적으로 보여 줍니다. 하지만 관계의 성격을 더 잘 드러내는 시각화도 있습니다. 그중 하나가 **십분위 그림**(decile plot)입니다.
 
 십분위 그림을 만들려면 응답자를 언어 점수순으로 정렬하고, **십분위 집단**(deciles)이라는 열 개 집단으로 나눕니다. `qcut` 메서드로 집단을 구할 수 있습니다.
 
-```python
-deciles = pd.qcut(nlsy_valid["sat_verbal"], 10, labels=False) + 1
-deciles.value_counts().sort_index()
-```
+<CodePlayground notebook="think-stats-07" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000}>
 
 ```text
 sat_verbal
@@ -197,62 +170,49 @@ sat_verbal
 Name: count, dtype: int64
 ```
 
+</CodePlayground>
+
 각 십분위 집단의 응답자 수는 대략 같습니다.
 
 이제 `groupby`로 `DataFrame`을 십분위 집단별로 나눌 수 있습니다.
 
-```python
-df_groupby = nlsy_valid.groupby(deciles)
-df_groupby
-```
+<CodePlayground notebook="think-stats-07" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000}>
 
 ```text
 <pandas.core.groupby.generic.DataFrameGroupBy object at 0x7f7588c7c5f0>
 ```
 
+</CodePlayground>
+
 결과는 집단들을 나타내는 `DataFrameGroupBy` 객체입니다. 여기서 `sat_math` 열을 선택할 수 있습니다.
 
-```python
-series_groupby = df_groupby["sat_math"]
-series_groupby
-```
+<CodePlayground notebook="think-stats-07" title="셀 16" code={notebook.cells[16].code} language="python" timeout={60000}>
 
 ```text
 <pandas.core.groupby.generic.SeriesGroupBy object at 0x7f7588cfa2a0>
 ```
 
+</CodePlayground>
+
 결과는 각 십분위 집단의 수학 점수를 나타내는 `SeriesGroupBy` 객체입니다. `quantile`로 각 집단의 10·50·90백분위수를 구할 수 있습니다.
 
-```python
-low = series_groupby.quantile(0.1)
-median = series_groupby.quantile(0.5)
-high = series_groupby.quantile(0.9)
-```
+<CodePlayground notebook="think-stats-07" title="셀 17" code={notebook.cells[17].code} language="python" timeout={60000} />
 
-십분위 그림은 각 집단의 이 백분위수들을 보여줍니다. 다음 그림에서 선은 중앙값이고, 음영은 10백분위수와 90백분위수 사이입니다.
+십분위 그림은 각 집단의 이 백분위수들을 보여 줍니다. 다음 그림에서 선은 중앙값이고, 음영은 10백분위수와 90백분위수 사이입니다.
 
-```python
-xs = median.index
-plt.fill_between(xs, low, high, alpha=0.2)
-plt.plot(xs, median, label="median")
-
-decorate(xlabel="SAT Verbal Decile", ylabel="SAT Math")
-```
+<CodePlayground notebook="think-stats-07" title="셀 18" code={notebook.cells[18].code} language="python" timeout={60000}>
 
 ![언어 점수의 십분위 집단별 수학 점수. 선은 중앙값, 음영은 10~90백분위수입니다.](/labs/think-stats/figures/chap07-041-0.png)
 
+</CodePlayground>
+
 십분위 집단 번호 대신, 각 집단의 언어 점수 중앙값을 구해 x축에 놓을 수도 있습니다.
 
-```python
-xs = df_groupby["sat_verbal"].median()
-
-plt.fill_between(xs, low, high, alpha=0.2)
-plt.plot(xs, median, color="C0", label="median")
-
-decorate(xlabel="SAT Verbal", ylabel="SAT Math")
-```
+<CodePlayground notebook="think-stats-07" title="셀 19" code={notebook.cells[19].code} language="python" timeout={60000}>
 
 ![각 집단의 언어 점수 중앙값을 x축에 놓은 십분위 그림. 수학 점수 중앙값도 대체로 선형으로 증가합니다.](/labs/think-stats/figures/chap07-043-0.png)
+
+</CodePlayground>
 
 두 변수의 관계는 선형으로 보입니다. 언어 점수 중앙값이 일정하게 늘어날 때 수학 점수 중앙값도 대략 일정하게 늘어난다는 뜻입니다.
 
@@ -262,10 +222,7 @@ decorate(xlabel="SAT Verbal", ylabel="SAT Math")
 
 NLSY 참가자 중 많은 사람이 9학년 때 피바디 개인성취검사(PIAT)의 수학 영역을 치렀습니다. 그 결과가 든 열에 이해하기 쉬운 이름을 붙이겠습니다.
 
-```python
-nlsy["piat_math"] = nlsy["R1318200"]
-nlsy["piat_math"].describe()
-```
+<CodePlayground notebook="think-stats-07" title="셀 20" code={notebook.cells[20].code} language="python" timeout={60000}>
 
 ```text
 count    6044.000000
@@ -279,120 +236,85 @@ max       145.000000
 Name: piat_math, dtype: float64
 ```
 
+</CodePlayground>
+
 점수의 분포는 다음과 같습니다.
 
-```python
-from empiricaldist import Cdf
-
-cdf_piat_math = Cdf.from_seq(nlsy["piat_math"], name="PIAT math")
-cdf_piat_math.step()
-decorate(ylabel="CDF")
-```
+<CodePlayground notebook="think-stats-07" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000}>
 
 ![NLSY 참가자의 PIAT 수학 점수 누적분포함수.](/labs/think-stats/figures/chap07-048-0.png)
 
-9학년 때 PIAT를 잘 본 학생은 12학년 때 SAT 수학도 잘 볼 가능성이 높습니다. 두 시험을 모두 치른 NLSY 참가자의 점수 관계를 다음 산점도로 보여줍니다. `thinkstats`의 `scatter` 함수는 표식 크기와 투명도를 조절하고, 선택적으로 지터를 줍니다.
+</CodePlayground>
 
-```python
-from thinkstats import scatter
+9학년 때 PIAT를 잘 본 학생은 12학년 때 SAT 수학도 잘 볼 가능성이 높습니다. 두 시험을 모두 치른 NLSY 참가자의 점수 관계를 다음 산점도로 보여 줍니다. `thinkstats`의 `scatter` 함수는 표식 크기와 투명도를 조절하고, 선택적으로 지터를 줍니다.
 
-scatter(nlsy, "piat_math", "sat_math")
-
-decorate(xlabel="PIAT Math", ylabel="SAT Math")
-```
+<CodePlayground notebook="think-stats-07" title="셀 22" code={notebook.cells[22].code} language="python" timeout={60000} />
 
 <Figure kind="scatter" props={plots["chap07-050-0-0"]} caption="PIAT 수학과 SAT 수학 점수의 산점도. PIAT 점수가 높을수록 SAT 수학도 높은 경향이 있습니다." />
 
 예상대로 PIAT를 잘 본 학생은 SAT 수학도 잘 볼 가능성이 높습니다. 수학 능력과 언어 능력이 관련 있다면 SAT 언어도 잘 볼 것으로 예상할 수 있습니다. 다음 그림은 PIAT와 SAT 언어 점수의 관계입니다.
 
-```python
-scatter(nlsy, "piat_math", "sat_verbal")
-
-decorate(xlabel="PIAT Math", ylabel="SAT Verbal")
-```
+<CodePlayground notebook="think-stats-07" title="셀 23" code={notebook.cells[23].code} language="python" timeout={60000} />
 
 <Figure kind="scatter" props={plots["chap07-052-0-0"]} caption="PIAT 수학과 SAT 언어 점수의 산점도. 양의 관계가 있지만 SAT 수학보다 점들이 더 퍼져 있습니다." />
 
 PIAT 점수가 높은 학생은 SAT 언어 점수도 평균적으로 높습니다.
 
-두 산점도를 비교하면 첫 그림의 점들은 더 모여 있고, 두 번째 그림의 점들은 더 퍼져 있는 듯합니다. 그렇다면 PIAT 수학 점수는 SAT 언어보다 SAT 수학 점수를 더 정확하게 예측한다는 뜻이고, 그럴 만합니다.
+두 산점도를 비교하면 첫 그림의 점들은 더 모여 있고, 두 번째 그림의 점들은 더 퍼져 있는 듯합니다. 이는 PIAT 수학 점수가 SAT 언어보다 SAT 수학 점수를 더 잘 예측한다는 뜻으로 볼 수 있습니다.
 
 이 관계들의 강도를 수치로 나타낼 때는 **피어슨 상관계수**(Pearson correlation coefficient)를 사용할 수 있습니다. 흔히 간단히 “상관”이라고도 합니다. 이해하기 위해 표준화부터 시작하겠습니다.
 
 변수를 표준화하려면 다음 함수처럼 평균을 빼고 표준편차로 나눕니다.
 
-```python
-def standardize(xs):
-    """Standardizes a sequence of numbers.
+<CodePlayground notebook="think-stats-07" title="셀 24" code={notebook.cells[24].code} language="python" timeout={60000} />
 
-    xs: sequence of numbers
+사용법을 보여 주려고 `piat_math`와 `sat_math`가 모두 유효한 행을 선택하겠습니다.
 
-    returns: NumPy array
-    """
-    return (xs - np.mean(xs)) / np.std(xs)
-```
-
-사용법을 보여주려고 `piat_math`와 `sat_math`가 모두 유효한 행을 선택하겠습니다.
-
-```python
-valid = nlsy.dropna(subset=["piat_math", "sat_math"])
-piat_math = valid["piat_math"]
-sat_math = valid["sat_math"]
-```
+<CodePlayground notebook="think-stats-07" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000} />
 
 PIAT 수학 점수를 표준화합니다.
 
-```python
-piat_math_standard = standardize(piat_math)
-np.mean(piat_math_standard), np.std(piat_math_standard)
-```
+<CodePlayground notebook="think-stats-07" title="셀 26" code={notebook.cells[26].code} language="python" timeout={60000}>
 
 ```text
 (np.float64(-2.4321756236287047e-16), np.float64(1.0))
 ```
 
+</CodePlayground>
+
 결과는 “z점수”라고도 하는 **표준점수**(standard scores)입니다. 계산 방식 때문에 평균은 0에 가깝고 표준편차는 1에 가깝습니다.
 
 SAT 수학 점수도 표준화하겠습니다.
 
-```python
-sat_math_standard = standardize(sat_math)
-np.mean(sat_math_standard), np.std(sat_math_standard)
-```
+<CodePlayground notebook="think-stats-07" title="셀 27" code={notebook.cells[27].code} language="python" timeout={60000}>
 
 ```text
 (np.float64(-1.737268302591932e-16), np.float64(0.9999999999999998))
 ```
 
-다음 그림은 처음 100명 참가자의 표준점수 시퀀스를 보여줍니다.
+</CodePlayground>
+
+다음 그림은 처음 100명 참가자의 표준점수 시퀀스를 보여 줍니다.
 
 `subplot`에 `2, 1, 1`을 전달하면 Matplotlib은 그림들을 두 행과 한 열로 배치하고 첫 번째 그림을 준비합니다. 다시 `2, 1, 2`로 호출하면 두 번째 그림을 준비합니다. `axhline`은 좌표축 너비에 걸친 수평선을 그립니다.
 
-```python
-plt.subplot(2, 1, 1)
-plt.axhline(0, color="gray", lw=1, alpha=0.5)
-plt.plot(piat_math_standard.values[:100], label="PIAT math")
-decorate(ylabel="z-score", xticks=[])
-
-plt.subplot(2, 1, 2)
-plt.axhline(0, color="gray", lw=1, alpha=0.5)
-plt.plot(sat_math_standard.values[:100], label="SAT math", color="C1")
-decorate(ylabel="z-score", xticks=[])
-```
+<CodePlayground notebook="think-stats-07" title="셀 28" code={notebook.cells[28].code} language="python" timeout={60000}>
 
 ![처음 100명의 PIAT 수학과 SAT 수학 표준점수. 두 시퀀스가 평균 위아래에서 비슷하게 움직입니다.](/labs/think-stats/figures/chap07-063-0.png)
+
+</CodePlayground>
 
 두 변수는 분명히 관련이 있습니다. 한 점수가 평균보다 높으면 다른 점수도 평균보다 높은 경향이 있습니다. 관계의 강도를 수치로 나타내려고 표준점수들을 같은 위치끼리 곱하고, 곱의 평균을 구하겠습니다.
 
 두 점수가 모두 양수면 곱도 양수여서 평균을 높이는 쪽으로 작용합니다. 둘 다 음수여도 곱은 양수이므로 평균을 높입니다. 부호가 반대면 곱이 음수여서 평균을 낮춥니다. 따라서 곱의 평균은 두 시퀀스가 비슷하게 움직이는 정도를 측정합니다.
 
-```python
-np.mean(piat_math_standard * sat_math_standard)
-```
+<CodePlayground notebook="think-stats-07" title="셀 29" code={notebook.cells[29].code} language="python" timeout={60000}>
 
 ```text
 np.float64(0.639735816517885)
 ```
+
+</CodePlayground>
 
 약 0.64인 결과가 상관계수입니다. 다음과 같이 해석할 수 있습니다. 누군가의 PIAT 수학 점수가 평균보다 1표준편차 높으면, 그 사람의 SAT 수학 점수는 평균보다 0.64표준편차 높을 것으로 예상합니다.
 
@@ -400,26 +322,26 @@ np.float64(0.639735816517885)
 
 곱하는 순서를 바꾸어도 결과는 같습니다.
 
-```python
-np.mean(sat_math_standard * piat_math_standard)
-```
+<CodePlayground notebook="think-stats-07" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000}>
 
 ```text
 np.float64(0.639735816517885)
 ```
 
+</CodePlayground>
+
 상관계수는 대칭입니다. 누군가의 SAT 수학 점수가 평균보다 1표준편차 높으면, 그 사람의 PIAT 수학 점수도 평균보다 0.64표준편차 높을 것으로 예상합니다.
 
 상관은 흔히 사용하는 통계량이므로 NumPy에 이를 계산하는 함수가 있습니다.
 
-```python
-np.corrcoef(piat_math, sat_math)
-```
+<CodePlayground notebook="think-stats-07" title="셀 31" code={notebook.cells[31].code} language="python" timeout={60000}>
 
 ```text
 array([[1.        , 0.63973582],
        [0.63973582, 1.        ]])
 ```
+
+</CodePlayground>
 
 결과는 변수마다 행 하나와 열 하나가 있는 **상관행렬**(correlation matrix)입니다. 왼쪽 위는 `piat_math`와 자기 자신의 상관이고, 오른쪽 아래는 `sat_math`와 자기 자신의 상관입니다. 변수가 자기 자신과 갖는 상관은 1이며 완전한 상관을 뜻합니다. 단, 표준편차가 0인 상수 변수에서는 상관계수를 정의할 수 없습니다.
 
@@ -427,25 +349,23 @@ array([[1.        , 0.63973582],
 
 `thinkstats`의 `corrcoef`는 `DataFrame`과 두 열 이름을 받아 두 열이 모두 유효한 행을 선택하고 상관을 계산합니다.
 
-```python
-from thinkstats import corrcoef
-
-corrcoef(nlsy, "piat_math", "sat_math")
-```
+<CodePlayground notebook="think-stats-07" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000}>
 
 ```text
 np.float64(0.6397358165178849)
 ```
 
+</CodePlayground>
+
 이 함수로 `piat_math`와 `sat_verbal`의 상관을 구할 수 있습니다.
 
-```python
-corrcoef(nlsy, "piat_math", "sat_verbal")
-```
+<CodePlayground notebook="think-stats-07" title="셀 33" code={notebook.cells[33].code} language="python" timeout={60000}>
 
 ```text
 np.float64(0.509413914696731)
 ```
+
+</CodePlayground>
 
 상관은 약 0.51입니다. PIAT 수학 점수가 평균보다 1표준편차 높으면 SAT 언어 점수는 평균보다 0.51표준편차 높을 것으로 예측합니다.
 
@@ -457,24 +377,11 @@ np.float64(0.509413914696731)
 
 ## 상관의 강도
 
-산점도를 많이 보다 보면 서로 다른 상관이 어떤 모습인지 감을 잡게 됩니다. 다음 그림은 그 감을 기르도록 서로 다른 상관을 갖게 생성한 무작위 자료의 산점도를 보여줍니다.
+산점도를 많이 보다 보면 서로 다른 상관이 어떤 모습인지 감을 잡게 됩니다. 다음 그림은 그 감을 기르도록 서로 다른 상관을 갖게 생성한 무작위 자료의 산점도를 보여 줍니다.
 
-```python
-np.random.seed(17)
-xs = np.random.normal(size=300)
-ys = np.random.normal(size=300)
-```
+<CodePlayground notebook="think-stats-07" title="셀 34" code={notebook.cells[34].code} language="python" timeout={60000} />
 
-```python
-from thinkstats import make_correlated_scatter
-
-plt.figure(figsize=(10, 2.5))
-
-for i, rho in enumerate([0, 0.3, 0.7, 0.99]):
-    plt.subplot(1, 4, i + 1)
-    make_correlated_scatter(xs, ys, rho)
-decorate()
-```
+<CodePlayground notebook="think-stats-07" title="셀 35" code={notebook.cells[35].code} language="python" timeout={60000} />
 
 <Figure kind="scatter" props={plots["chap07-077-0-0"]} caption="ρ=0. 선형 관계가 강할수록 점들이 직선에 모입니다." />
 
@@ -488,14 +395,7 @@ decorate()
 
 상관은 음수일 수도 있습니다. 다음은 여러 음의 상관을 갖는 무작위 자료의 산점도입니다.
 
-```python
-plt.figure(figsize=(10, 2.5))
-
-for i, rho in enumerate([-0.1, -0.3, -0.7, -0.99]):
-    plt.subplot(1, 4, i + 1)
-    make_correlated_scatter(xs, ys, rho)
-decorate()
-```
+<CodePlayground notebook="think-stats-07" title="셀 36" code={notebook.cells[36].code} language="python" timeout={60000} />
 
 <Figure kind="scatter" props={plots["chap07-079-0-0"]} caption="ρ=-0.1. 선형 관계가 강할수록 점들이 직선에 모입니다." />
 
@@ -509,16 +409,7 @@ decorate()
 
 특히 비선형 관계에서는 상관계수가 0에 가까울 수 있습니다. 다음 예들은 한 변수의 값을 알면 다른 변수를 훨씬 잘 예측할 수 있다는 점에서 분명한 관계가 있습니다. 그런데도 모두 상관계수는 0에 가깝습니다.
 
-```python
-from thinkstats import make_nonlinear_scatter
-
-plt.figure(figsize=(10, 2.5))
-
-for i, kind in enumerate(["abs", "quadratic", "sinusoid"]):
-    plt.subplot(1, 4, i + 1)
-    make_nonlinear_scatter(xs, ys, kind)
-decorate()
-```
+<CodePlayground notebook="think-stats-07" title="셀 37" code={notebook.cells[37].code} language="python" timeout={60000} />
 
 <Figure kind="scatter" props={plots["chap07-081-0-0"]} caption="절댓값 관계. 관계가 분명해도 피어슨 상관은 0에 가까울 수 있습니다." />
 
@@ -528,7 +419,7 @@ decorate()
 
 상관은 변수 사이의 선형 관계가 얼마나 강한지를 수치로 나타냅니다. 비선형 관계에서는 상관계수가 오해를 부를 수 있습니다. 상관이 0에 가깝다고 해서 관계가 없는 것은 아닙니다.
 
-**브라우저 실습: 상관을 정하고 표본 뽑기**
+**직접 실행: 상관을 정하고 표본 뽑기**
 
 입력한 값은 모집단 상관입니다. 200쌍으로 계산한 표본 상관은 무작위 변동 때문에 설정값과 조금 다릅니다. 0.7과 -0.7을 비교해 보세요.
 
@@ -538,10 +429,7 @@ decorate()
 
 NLSY는 종단조사입니다. 같은 사람들을 시간에 따라 추적한다는 뜻입니다. 지금 살펴보는 집단은 1980~1984년생입니다. SAT를 치른 사람은 대개 18세쯤인 1990년대 말에 시험을 보았을 것입니다. 따라서 2021년에 소득을 조사했을 때는 30대 후반이나 40대 초반이었습니다. 소득 자료가 든 열에도 이해하기 쉬운 이름을 붙이겠습니다.
 
-```python
-nlsy["income"] = nlsy["U4949700"]
-nlsy["income"].describe()
-```
+<CodePlayground notebook="think-stats-07" title="셀 38" code={notebook.cells[38].code} language="python" timeout={60000}>
 
 ```text
 count      6051.000000
@@ -555,113 +443,99 @@ max      599728.000000
 Name: income, dtype: float64
 ```
 
+</CodePlayground>
+
 이 열은 세전 가족 총소득입니다. 응답자와 같은 가구의 다른 구성원이 모든 소득원에서 얻은 소득의 합이며, 미국 달러(USD)로 보고한 값입니다. 소득 분포는 다음과 같습니다.
 
-```python
-cdf_income = Cdf.from_seq(nlsy["income"])
-cdf_income.step()
+<CodePlayground notebook="think-stats-07" title="셀 39" code={notebook.cells[39].code} language="python" timeout={60000}>
 
-decorate(xlabel="Income (USD)", ylabel="CDF")
-```
+![세전 가족 총소득의 CDF. 약 60만 달러 부근의 계단은 상한 처리의 영향을 보여 줍니다.](/labs/think-stats/figures/chap07-086-0.png)
 
-![세전 가족 총소득의 CDF. 약 60만 달러 부근의 계단은 상한 처리의 영향을 보여줍니다.](/labs/think-stats/figures/chap07-086-0.png)
+</CodePlayground>
 
 60만 달러 근처의 계단을 눈여겨보세요. 참가자의 익명성을 보호하려고 이 기준을 넘는 소득에 상한 처리를 했습니다. 다음은 응답자의 PIAT 수학 점수와 훗날의 소득을 나타낸 산점도입니다.
 
 > 번역자 주: 원문의 이 문장은 SAT 수학이라고 쓰여 있지만, 아래 코드와 축은 `piat_math`를 사용합니다. 코드에 맞춰 PIAT 수학으로 옮겼습니다.
 
-```python
-scatter(nlsy, "piat_math", "income")
-
-decorate(xlabel="PIAT math", ylabel="Gross Family Income (USD)")
-```
+<CodePlayground notebook="think-stats-07" title="셀 40" code={notebook.cells[40].code} language="python" timeout={60000}>
 
 ![청소년기의 PIAT 수학 점수와 성인기 가족 소득의 산점도. 양의 관계와 큰 소득 차이가 함께 보입니다.](/labs/think-stats/figures/chap07-088-0.png)
 
+</CodePlayground>
+
 두 변수 사이에 관계가 있어 보입니다. 상관을 구해 보겠습니다.
 
-```python
-corrcoef(nlsy, "piat_math", "income")
-```
+<CodePlayground notebook="think-stats-07" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000}>
 
 ```text
 np.float64(0.30338587288641233)
 ```
 
+</CodePlayground>
+
 상관은 약 0.3입니다. 15세 때 PIAT 수학 점수가 평균보다 1표준편차 높았던 사람은 40세 때 소득이 평균보다 약 0.3표준편차 높을 것으로 선형 예측할 수 있습니다. PIAT와 SAT 점수 사이의 상관만큼 강하지는 않지만, 소득에 영향을 주는 요인이 얼마나 많은지 생각하면 꽤 강한 편입니다.
 
 사실 피어슨 상관계수는 이 관계의 강도를 작게 나타낼 수 있습니다. 앞 산점도에서 두 변수 모두 극단적인 값이 많아 보입니다. 상관계수는 평균으로부터의 편차를 곱해 계산하므로 이런 극단적인 값에 민감합니다.
 
-더 강건한 대안은 **순위상관**(rank correlation)입니다. 표준점수 대신 점수의 순위를 사용합니다. Pandas의 `rank` 메서드로 각 점수와 소득의 순위를 구할 수 있습니다.
+더 강건한 대안은 **순위상관**(rank correlation)입니다. 표준점수 대신 점수의 순위를 사용합니다. pandas의 `rank` 메서드로 각 점수와 소득의 순위를 구할 수 있습니다.
 
-```python
-valid = nlsy.dropna(subset=["piat_math", "income"])
-
-piat_math_rank = valid["piat_math"].rank(method="first")
-income_rank = valid["income"].rank(method="first")
-```
+<CodePlayground notebook="think-stats-07" title="셀 42" code={notebook.cells[42].code} language="python" timeout={60000} />
 
 `method="first"`를 전달하면 `rank`는 1부터 시퀀스 길이인 4,101까지 순위를 매깁니다. 값이 같으면 먼저 나타난 값에 앞 순위를 줍니다.
 
-```python
-income_rank.min(), income_rank.max()
-```
+<CodePlayground notebook="think-stats-07" title="셀 43" code={notebook.cells[43].code} language="python" timeout={60000}>
 
 ```text
 (np.float64(1.0), np.float64(4101.0))
 ```
 
+</CodePlayground>
+
 수학 점수 순위와 소득 순위의 산점도입니다.
 
-```python
-plt.scatter(piat_math_rank, income_rank, s=5, alpha=0.2)
-
-decorate(xlabel="PIAT math rank", ylabel="Income rank")
-```
+<CodePlayground notebook="think-stats-07" title="셀 44" code={notebook.cells[44].code} language="python" timeout={60000}>
 
 ![PIAT 수학 점수 순위와 소득 순위의 산점도. 원래 값보다 극단적인 값의 영향이 작습니다.](/labs/think-stats/figures/chap07-096-0.png)
 
+</CodePlayground>
+
 순위들의 상관을 계산합니다.
 
-```python
-np.corrcoef(piat_math_rank, income_rank)[0, 1]
-```
+<CodePlayground notebook="think-stats-07" title="셀 45" code={notebook.cells[45].code} language="python" timeout={60000}>
 
 ```text
 np.float64(0.38148396696764847)
 ```
 
+</CodePlayground>
+
 결과는 약 0.38로, 피어슨 상관인 0.30보다 조금 높습니다. 순위상관은 극단적인 값의 영향을 덜 받으므로 두 변수의 관계 강도를 나타내는 데 더 나을 수 있습니다.
 
 `thinkstats`의 `rankcorr` 함수에 이 절의 코드가 정리되어 있습니다.
 
-```python
-from thinkstats import rankcorr
-
-rankcorr(nlsy, "piat_math", "income")
-```
+<CodePlayground notebook="think-stats-07" title="셀 46" code={notebook.cells[46].code} language="python" timeout={60000}>
 
 ```text
 np.float64(0.38474681505344815)
 ```
+
+</CodePlayground>
 
 SciPy에도 비슷한 `spearmanr` 함수가 있습니다. 순위상관을 스피어먼 상관이라고도 부르기 때문입니다.
 
 > 번역자 주: 앞의 `rank(method="first")`는 동점에도 서로 다른 순위를 줍니다. `rankcorr`와 `spearmanr`는 동점에 평균 순위를 주므로 앞 계산과 값이 조금 다릅니다. 기본적인 스피어먼 상관은 뒤의 두 함수가 계산하는 값입니다.
 
-```python
-from scipy.stats import spearmanr
-
-spearmanr(valid["piat_math"], valid["income"]).statistic
-```
+<CodePlayground notebook="think-stats-07" title="셀 47" code={notebook.cells[47].code} language="python" timeout={60000}>
 
 ```text
 np.float64(0.38474681505344815)
 ```
 
+</CodePlayground>
+
 연습문제에서는 SAT 언어 점수와 소득 사이의 피어슨 상관과 순위상관을 구해 보겠습니다.
 
-**브라우저 실습: 상관 0과 관계없음 구분하기**
+**직접 실행: 상관 0과 관계없음 구분하기**
 
 square는 y=x², absolute는 y=|x|, linear는 y=x입니다. 앞의 두 관계는 x만 알면 y가 정해지지만, 좌우 대칭인 이 예제의 피어슨 상관은 0에 가깝습니다.
 
@@ -671,7 +545,7 @@ square는 y=x², absolute는 y=|x|, linear는 y=x입니다. 앞의 두 관계는
 
 변수 A와 B에서 상관이 관측되면, 표본추출의 우연한 결과일 수도 있고 대표성 없는 표본을 뽑은 결과일 수도 있으며, 모집단에 실제 상관이 있다는 뜻일 수도 있습니다.
 
-상관이 실제로 있다면 세 가지 설명이 가능합니다. A가 B의 원인이거나, B가 A의 원인이거나, 다른 요인들이 A와 B 모두의 원인일 수 있습니다. 이런 설명을 “인과관계”라고 합니다.
+모집단에도 상관이 있다면 대표적으로 세 가지 설명을 생각할 수 있습니다. A가 B의 원인이거나, B가 A의 원인이거나, 다른 요인들이 A와 B 모두의 원인일 수 있습니다. 이런 설명을 “인과관계”라고 합니다.
 
 상관만으로는 이 설명들을 구별할 수 없어 어느 것이 맞는지 알 수 없습니다. 이 원칙을 흔히 “상관이 인과를 뜻하지는 않는다”라고 요약합니다. 워낙 간결한 표현이라 위키백과 문서도 따로 있습니다.
 
@@ -680,9 +554,9 @@ square는 y=x², absolute는 y=|x|, linear는 y=x입니다. 앞의 두 관계는
 인과관계의 근거를 제시하려면 무엇을 할 수 있을까요?
 
 1. 시간 순서를 이용합니다. A가 B보다 먼저 일어났다면 A가 B의 원인일 수는 있지만 반대 방향은 아닙니다. 사건의 순서는 인과의 방향을 추론하는 데 도움이 됩니다. 다만 다른 무언가가 A와 B 모두의 원인일 가능성은 남습니다.
-2. 무작위성을 이용합니다. 큰 표본을 무작위로 두 집단으로 나누면 거의 어느 변수에서든 평균 차이는 작을 것으로 예상합니다. A와 B를 제외한 변수들에서 집단들이 거의 같다면, 다른 요인이 A와 B 모두의 원인일 가능성을 배제하는 데 도움이 됩니다.
+2. 무작위성을 이용합니다. 참가자를 두 집단에 무작위로 배정하면 처치 외의 특성도 평균적으로 비슷해집니다. 이렇게 하면 관측된 차이가 다른 요인 때문에 생겼을 가능성을 줄일 수 있습니다.
 
-이 생각이 **무작위 대조시험**(randomized controlled trial)의 바탕입니다. 참가자를 무작위로 두 집단 이상에 배정합니다. **처치군**(treatment group)은 새 약 같은 개입을 받고, **대조군**(control group)은 개입을 받지 않거나 효과가 알려진 다른 처치를 받습니다. 무작위 대조시험은 인과관계를 입증하는 가장 신뢰할 만한 방법이며, 근거중심의학의 토대입니다.
+이 생각이 **무작위 대조시험**(randomized controlled trial)의 바탕입니다. 참가자를 무작위로 두 집단 이상에 배정합니다. **처치군**(treatment group)은 새 약 같은 개입을 받고, **대조군**(control group)은 개입을 받지 않거나 효과가 알려진 다른 처치를 받습니다. 잘 설계된 무작위 대조시험은 처치의 인과효과를 검토하는 신뢰할 만한 방법이며, 근거중심의학의 토대입니다.
 
 안타깝게도 대조시험이 불가능하거나 윤리에 어긋나는 경우가 있습니다. 대안은 **자연실험**(natural experiment)을 찾는 것입니다. 연구자가 통제하지 못하는 사정 때문에 비슷한 집단들이 서로 다른 조건에 놓이는 경우를 말합니다.
 
@@ -690,14 +564,14 @@ square는 y=x², absolute는 y=|x|, linear는 y=x입니다. 앞의 두 관계는
 
 ## 용어 정리
 
-- **산점도**(scatter plot): 관측 하나마다 점 하나를 그려 두 변수 사이의 관계를 보여주는 그림.
+- **산점도**(scatter plot): 관측 하나마다 점 하나를 그려 두 변수 사이의 관계를 보여 주는 그림.
 - **점 겹침**(overplotting): 많은 표식이 겹쳐 서로 다른 밀도의 구간을 구별하기 어렵고 관계를 잘못 보여줄 수 있는 상태.
 - **지터**(jitter): 겹친 값들을 더 잘 보이게 하려고 그림의 데이터 지점에 더하는 무작위 잡음.
 - **십분위 그림**(decile plot): 한 변수로 자료를 열 집단으로 나눈 뒤, 각 집단에서 다른 변수를 요약해 그린 그림.
 - **십분위 집단**(decile): 자료를 정렬해 대략 같은 크기로 열 등분한 집단 중 하나.
-- **피어슨 상관계수**(Pearson correlation coefficient): 두 변수의 선형 관계에서 강도와 방향인 양·음을 나타내는 통계량.
+- **피어슨 상관계수**(Pearson correlation coefficient): 두 변수 사이 선형 관계의 강도와 방향을 나타내는 통계량.
 - **표준점수**(standard score): 평균에서 얼마나 떨어져 있는지 표준편차 단위로 나타내도록 표준화한 값.
-- **상관행렬**(correlation matrix): 데이터셋의 변수 쌍마다 상관계수를 보여주는 표.
+- **상관행렬**(correlation matrix): 데이터셋의 변수 쌍마다 상관계수를 보여 주는 표.
 - **순위상관**(rank correlation): 실제 값 대신 순위를 사용해 관계의 강도를 나타내는 강건한 방법.
 - **무작위 대조시험**(randomized controlled trial): 서로 다른 처치를 받는 집단에 참가자를 무작위로 배정하는 실험.
 - **처치군**(treatment group): 실험에서 검토하려는 개입을 받는 집단.
@@ -711,14 +585,11 @@ square는 y=x², absolute는 y=|x|, linear는 y=x입니다. 앞의 두 관계는
 
 `thinkstats`의 `decile_plot` 함수에는 이 장 앞부분의 코드가 정리되어 있습니다. 다음과 같이 호출해 SAT 언어 점수와 수학 점수의 관계를 시각화할 수 있습니다.
 
-```python
-from thinkstats import decile_plot
-
-decile_plot(nlsy, "sat_verbal", "sat_math")
-decorate(xlabel="SAT Verbal", ylabel="SAT Math")
-```
+<CodePlayground notebook="think-stats-07" title="셀 48" code={notebook.cells[48].code} language="python" timeout={60000} runAll={false}>
 
 ![SAT 언어 점수별 수학 점수의 십분위 그림. 제공된 함수로 앞 절의 결과를 다시 그립니다.](/labs/think-stats/figures/chap07-110-0.png)
+
+</CodePlayground>
 
 PIAT 수학 점수와 소득의 십분위 그림을 만드세요. 선형 관계로 보이나요?
 
@@ -732,11 +603,7 @@ SAT 언어 점수에 대한 소득의 산점도를 만들고 두 상관을 구�
 
 고등학교 평균학점(GPA)과 SAT 점수의 상관을 살펴보겠습니다. NLSY에서 GPA를 기록한 변수는 다음과 같습니다.
 
-```python
-missing_codes = [-6, -7, -8, -9]
-nlsy["gpa"] = nlsy["R9871900"].replace(missing_codes, np.nan) / 100
-nlsy["gpa"].describe()
-```
+<CodePlayground notebook="think-stats-07" title="셀 49" code={notebook.cells[49].code} language="python" timeout={60000} runAll={false}>
 
 ```text
 count    6004.000000
@@ -750,15 +617,15 @@ max         4.170000
 Name: gpa, dtype: float64
 ```
 
+</CodePlayground>
+
 GPA의 분포는 다음과 같습니다.
 
-```python
-cdf_income = Cdf.from_seq(nlsy["gpa"])
-cdf_income.step()
-decorate(xlabel="GPA", ylabel="CDF")
-```
+<CodePlayground notebook="think-stats-07" title="셀 50" code={notebook.cells[50].code} language="python" timeout={60000} runAll={false}>
 
 ![고등학교 평균학점 GPA의 누적분포함수. 연습문제에 제공된 자료 확인 그림입니다.](/labs/think-stats/figures/chap07-119-0.png)
+
+</CodePlayground>
 
 GPA와 SAT 수학 점수의 관계를 산점도로 그리고 상관계수를 구하세요. GPA와 SAT 언어 점수에 대해서도 같은 일을 하세요. 어느 SAT 점수가 GPA를 더 잘 예측하나요?
 
@@ -766,10 +633,7 @@ GPA와 SAT 수학 점수의 관계를 산점도로 그리고 상관계수를 구
 
 교육 수준과 소득의 관계를 살펴보겠습니다. NLSY에는 각 응답자가 취득한 가장 높은 학위를 기록한 열이 있습니다. 값은 정수로 부호화되어 있습니다.
 
-```python
-nlsy["degree"] = nlsy["Z9083900"]
-nlsy["degree"].value_counts().sort_index()
-```
+<CodePlayground notebook="think-stats-07" title="셀 51" code={notebook.cells[51].code} language="python" timeout={60000} runAll={false}>
 
 ```text
 degree
@@ -784,34 +648,19 @@ degree
 Name: count, dtype: int64
 ```
 
+</CodePlayground>
+
 다음 목록으로 정수의 뜻을 풀어낼 수 있습니다.
 
-```python
-positions = [0, 1, 2, 3, 4, 5, 6, 7]
-labels = [
-    "None",
-    "GED",
-    "High school diploma",
-    "Associate's degree",
-    "Bachelor's degree",
-    "Master's degree",
-    "PhD",
-    "Professional degree",
-]
-```
+<CodePlayground notebook="think-stats-07" title="셀 52" code={notebook.cells[52].code} language="python" timeout={60000} runAll={false} />
 
 학력 분포를 나타내는 `Pmf`를 만듭니다.
 
-```python
-from empiricaldist import Pmf
-
-Pmf.from_seq(nlsy["degree"]).bar()
-
-plt.xticks(positions, labels, rotation=30, ha="right")
-decorate(ylabel="PMF")
-```
+<CodePlayground notebook="think-stats-07" title="셀 53" code={notebook.cells[53].code} language="python" timeout={60000} runAll={false}>
 
 ![응답자의 최종 학력 분포. 학위 종류별 확률을 막대로 표시합니다.](/labs/think-stats/figures/chap07-129-0.png)
+
+</CodePlayground>
 
 `degree`에 대한 `income`의 산점도를 만드세요. 점 겹침을 줄이려고 `degree`에 지터를 주고, 표식 크기와 투명도를 조절하세요.
 
@@ -829,12 +678,9 @@ decorate(ylabel="PMF")
 
 자료는 다음과 같이 불러올 수 있습니다.
 
-```python
-from thinkstats import read_brfss
+> 브라우저용 `read_brfss`는 원저자 함수가 반환하는 414,509행·6열을 같은 값으로 보존한 CSV를 읽습니다. 고정폭 원자료 정제는 미리 수행했으며, 행을 줄이거나 표본을 뽑지 않았습니다.
 
-brfss = read_brfss()
-brfss["htm3"].describe()
-```
+<CodePlayground notebook="think-stats-07" title="셀 54" code={notebook.cells[54].code} language="python" timeout={60000} runAll={false}>
 
 ```text
 count    409129.000000
@@ -848,11 +694,13 @@ max         236.000000
 Name: htm3, dtype: float64
 ```
 
+</CodePlayground>
+
 키에 대한 체중의 십분위 그림을 만드세요. 선형 관계로 보이나요? 상관계수와 순위상관을 구하세요. 상당히 다른가요? 두 변수의 관계를 어느 쪽이 더 잘 나타낸다고 생각하나요?
 
 ## 번역과 실행에 관하여
 
-원문 셀의 출력과 원본 PNG 그림은 [같은 판의 실행된 원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap07.ipynb)에서 가져왔습니다. 시드가 고정된 난수 예제는 같은 실행 순서에서 재현됩니다. 시드가 없는 예제의 그림은 실행마다 달라질 수 있습니다. 연습문제의 해답은 넣지 않았습니다. 원문 설명과 코드가 어긋나는 곳에는 번역자 주를 붙였습니다.
+참고용 출력과 고정 그림은 [같은 판의 실행된 원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap07.ipynb)에서 가져왔습니다. 시드가 고정된 난수 예제는 같은 실행 순서에서 재현됩니다. 시드가 없는 예제의 그림은 실행마다 달라질 수 있습니다. 연습문제의 해답은 넣지 않았습니다. 원문 설명과 코드가 어긋나는 곳에는 번역자 주를 붙였습니다.
 
 [Think Stats: Exploratory Data Analysis in Python, 3rd Edition](https://allendowney.github.io/ThinkStats/index.html)
 
@@ -862,7 +710,7 @@ Copyright 2024 [Allen B. Downey](https://allendowney.com)
 
 본문·그림과 한국어 번역 라이선스: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-원문 코드가 불러오는 보조 모듈 `thinkstats.py`, `nsfg.py` 등은 각 파일의 라이선스 고지를 따릅니다. 블로그 실습은 이 모듈들을 재배포하지 않습니다.
+원문 코드가 불러오는 보조 모듈 `thinkstats.py`, `nsfg.py` 등은 각 파일의 라이선스 고지를 따릅니다. 독립 실습은 이 모듈들을 사용하지 않습니다. 본문 노트북 실행에 포함한 원저자 보조 모듈은 GPLv3 원문과 고지를 보존했습니다.
 
 《Think Stats》 3판은 [Bookshop.org](https://bookshop.org/a/98697/9781098190255)와 [Amazon](https://amzn.to/42lmxwu)에서 구할 수 있습니다. 두 링크는 원저자의 제휴 링크입니다. 책이 도움이 되었다면 Green Tea Press의 [무료 공개 교육 자료 제작을 후원](https://greenteapress.com/support/?book=ts3)하는 것도 생각해 주세요.
 
