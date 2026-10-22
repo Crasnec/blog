@@ -17,11 +17,17 @@ export function checkoutPreset(raw: JsonValue): QueueInput {
     const slow = maybe(p.slow, "props.slow", num) ?? 0;
     const seed = maybe(p.seed, "props.seed", num) ?? 4;
     if (!Number.isInteger(servers) || servers < 2 || servers > 4)
+    {
         throw new Error("props.registers must be 2, 3 or 4");
+    }
     if (!Number.isInteger(count) || count < 4 || count > 14)
+    {
         throw new Error("props.customers must be a whole number from 4 to 14");
+    }
     if (!Number.isInteger(slow) || slow < 0 || slow >= count)
+    {
         throw new Error("props.slow must be the index of one of the customers");
+    }
     const rand = random(seed);
     return {
         servers,

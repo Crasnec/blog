@@ -23,7 +23,9 @@ export function traceHexEditor(
     let state: HexEditorSnapshot = { bytes: [...bytes], selected };
     return actions.map((action) => {
         const next = [...state.bytes];
-        if (action.op === "write") next[action.index] = action.value;
+        if (action.op === "write") {
+            next[action.index] = action.value;
+        }
         const after = { bytes: next, selected: action.index };
         const step = { action: { ...action }, before: state, after };
         state = after;

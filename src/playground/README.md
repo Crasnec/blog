@@ -67,7 +67,9 @@ open without changing the source text available before JavaScript loads.
 Without a notebook ID, every execution starts a fresh Worker and terminates it on completion, Stop,
 timeout or page navigation. JavaScript and transpiled TypeScript execute as
 ECMAScript modules, supporting top-level `await`. Use `console.log`, `info`,
-`debug`, `warn` or `error` for output. TypeScript uses the official compiler's
+`debug`, `warn` or `error` for output. TypeScript uses the official TypeScript 6
+compatibility API (6.0.3 in the lockfile), independently of the native TypeScript 7
+CLI used to check the project. Browser compilation uses the API's
 `transpileModule` with syntax diagnostics; it does not perform type checking.
 Workers have browser APIs rather than Node.js APIs or access to the page DOM.
 JavaScript and TypeScript resolve npm names in static imports, re-exports and

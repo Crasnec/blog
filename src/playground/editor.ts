@@ -12,7 +12,9 @@ import { highlights, setTokens } from "./highlight-decorations.ts";
 let nextDocument = 0;
 
 function required<T extends Element>(element: T | null): T {
-    if (!element) throw new Error("Incomplete code editor markup");
+    if (!element) {
+        throw new Error("Incomplete code editor markup");
+    }
     return element;
 }
 
@@ -84,21 +86,28 @@ export function mountEditor(
         clearTimeout(watchdog);
         busy = false;
     }
+
     function fail(message: string) {
-        if (disposed || blocked) return;
+        if (disposed || blocked) {
+            return;
+        }
         blocked = true;
         stopHighlight(true);
         note.textContent = `${t("playground.highlightError")} ${message}`;
         note.hidden = false;
         root.dataset.highlight = "error";
     }
+
     function schedule() {
         ++version;
         clearTimeout(debounce);
         debounce = setTimeout(highlight, 120);
     }
+
     function highlight() {
-        if (disposed || blocked || busy) return;
+        if (disposed || blocked || busy) {
+            return;
+        }
         busy = true;
         watchdog = setTimeout(() => {
             fail(t("playground.highlightTimeout"));
@@ -115,7 +124,9 @@ export function mountEditor(
         cancelShared = sharedHighlight(request, (response) => {
             clearTimeout(watchdog);
             busy = false;
-            if (disposed) return;
+            if (disposed) {
+                return;
+            }
             if (response.id === version) {
                 if ("error" in response) {
                     fail(response.error);

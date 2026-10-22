@@ -65,7 +65,9 @@ let faces: SatoriOptions["fonts"] | undefined;
  * wherever Astro happens to have put this module.
  */
 function fonts(): SatoriOptions["fonts"] {
-    if (faces) return faces;
+    if (faces) {
+        return faces;
+    }
 
     const resolve = createRequire(import.meta.url).resolve;
 
@@ -111,9 +113,15 @@ const columns = (text: string): number =>
 /** Four steps, so a long title shrinks rather than being cut off. */
 function titleSize(text: string): number {
     const n = columns(text);
-    if (n <= 34) return 72;
-    if (n <= 56) return 60;
-    if (n <= 84) return 50;
+    if (n <= 34) {
+        return 72;
+    }
+    if (n <= 56) {
+        return 60;
+    }
+    if (n <= 84) {
+        return 50;
+    }
     return 42;
 }
 

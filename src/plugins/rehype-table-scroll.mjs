@@ -9,7 +9,9 @@ export function rehypeTableScroll() {
     /** @type {import("unified").Transformer<import("hast").Root>} */
     return (tree) => {
         visit(tree, "element", (node, index, parent) => {
-            if (node.tagName !== "table" || !parent || index === undefined) return;
+            if (node.tagName !== "table" || !parent || index === undefined) {
+                return;
+            }
             if (
                 parent.type === "element" &&
                 parent.properties.className?.includes("table-scroll")

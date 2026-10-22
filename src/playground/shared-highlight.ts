@@ -38,12 +38,17 @@ export function sharedHighlight(
             type: "module",
         });
         const fail = (message: string) => {
-            if (pools.get(key)?.worker !== worker) return;
+            if (pools.get(key)?.worker !== worker) {
+                return;
+            }
             worker.terminate();
             pools.delete(key);
-            for (const [id, done] of pending) done({ id, error: message });
+            for (const [id, done] of pending) {
+                done({ id, error: message });
+            }
             pending.clear();
         };
+
         worker.onmessage = (event: MessageEvent<MessageValue>) => {
             const response = decodeHighlightResponse(event.data);
             if (!response) {
@@ -54,6 +59,7 @@ export function sharedHighlight(
             pending.delete(response.id);
             done?.(response);
         };
+
         worker.onerror = (event) => {
             event.preventDefault();
             fail(event.message);
@@ -86,6 +92,8 @@ export function releaseHighlight(document: number, grammars: GrammarSource[]) {
 }
 
 document.addEventListener("astro:before-swap", () => {
-    for (const pool of pools.values()) pool.worker.terminate();
+    for (const pool of pools.values()) {
+        pool.worker.terminate();
+    }
     pools.clear();
 });

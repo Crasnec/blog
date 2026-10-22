@@ -5,11 +5,14 @@ type RuntimeFunction = (...args: MessageValue[]) => MessageValue;
 type PackageOptions = Parameters<PyodideAPI["loadPackagesFromImports"]>[1];
 const isRecord = (value: MessageValue): value is Record<string, MessageValue> =>
     typeof value === "object" && value !== null && !Array.isArray(value);
+
 const isFunction = (value: MessageValue): value is RuntimeFunction => typeof value === "function";
 
 function method(record: Record<string, MessageValue>, name: string): RuntimeFunction {
     const member = record[name];
-    if (!isFunction(member)) throw new Error(`Python runtime is missing ${name}()`);
+    if (!isFunction(member)) {
+        throw new Error(`Python runtime is missing ${name}()`);
+    }
     return member.bind(record);
 }
 
@@ -18,9 +21,13 @@ export async function initializePythonRuntime(
     module: MessageValue,
     options: Parameters<typeof loadPyodide>[0],
 ) {
-    if (!isRecord(module)) throw new Error("Invalid Python runtime module");
+    if (!isRecord(module)) {
+        throw new Error("Invalid Python runtime module");
+    }
     const runtime = await Promise.resolve(method(module, "loadPyodide")(options));
-    if (!isRecord(runtime)) throw new Error("Invalid Python runtime instance");
+    if (!isRecord(runtime)) {
+        throw new Error("Invalid Python runtime instance");
+    }
     const runPython = method(runtime, "runPython");
     const runPythonAsync = method(runtime, "runPythonAsync");
     const registerJsModule = method(runtime, "registerJsModule");
@@ -33,7 +40,9 @@ export async function initializePythonRuntime(
         runPythonString(code: string): string {
             const value = runPython(code);
             if (typeof value !== "string")
+            {
                 throw new Error("Python did not return the expected text");
+            }
             return value;
         },
         async runPythonAsync(code: string): Promise<void> {
@@ -50,7 +59,9 @@ export async function initializePythonRuntime(
         },
         isPackageLoaded(name: string): boolean {
             if (!isRecord(runtime.loadedPackages))
+            {
                 throw new Error("Invalid Python package registry");
+            }
             return Object.hasOwn(runtime.loadedPackages, name);
         },
     };

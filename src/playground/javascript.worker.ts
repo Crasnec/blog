@@ -6,7 +6,9 @@ self.addEventListener(
     "message",
     (event: MessageEvent<MessageValue>) => {
         const request = decodeRunRequest(event.data);
-        if (request) void run(request);
+        if (request) {
+            void run(request);
+        }
     },
     { once: true },
 );
@@ -23,7 +25,9 @@ async function run(request: RunRequest) {
                 values.length === 1 &&
                 (values[0] === "[vite] connected." || values[0] === "[vite] connecting...")
             )
+            {
                 return;
+            }
             send({
                 type: "output",
                 level: level === "warn" || level === "error" ? level : "log",
@@ -49,7 +53,9 @@ async function run(request: RunRequest) {
                 ? (await import("./transpile.ts")).transpileTypeScript(request.code)
                 : request.code;
         if (/\b(?:import|export)\b/u.test(code))
+        {
             code = (await import("./module-imports.ts")).rewriteModuleImports(code);
+        }
         send({ type: "ready" });
         url = URL.createObjectURL(new Blob([code], { type: "text/javascript" }));
         await import(/* @vite-ignore */ url);
@@ -60,6 +66,8 @@ async function run(request: RunRequest) {
             text: error instanceof Error ? `${error.name}: ${error.message}` : String(error),
         });
     } finally {
-        if (url) URL.revokeObjectURL(url);
+        if (url) {
+            URL.revokeObjectURL(url);
+        }
     }
 }

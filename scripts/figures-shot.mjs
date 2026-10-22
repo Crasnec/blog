@@ -87,14 +87,18 @@ function freePort() {
  */
 async function devServer() {
     const nothing = () => Promise.resolve();
-    if (process.env.FIGURES_BASE) return { base: process.env.FIGURES_BASE, stop: nothing };
+    if (process.env.FIGURES_BASE) {
+        return { base: process.env.FIGURES_BASE, stop: nothing };
+    }
 
     let stale = "";
     try {
         const lock = parseJson(await readFile(lockFile, "utf8"));
         const url = isJsonObject(lock) && typeof lock.url === "string" ? lock.url : "";
         const base = url ? await reachable(url) : undefined;
-        if (base) return { base, stop: nothing };
+        if (base) {
+            return { base, stop: nothing };
+        }
         stale = url;
     } catch {
         // No lock file: start our own below.
@@ -127,9 +131,13 @@ async function devServer() {
     };
 
     for (let waited = 0; waited < 90; waited++) {
-        if (child.exitCode !== null) throw new Error(`The dev server exited:\n${log}`);
+        if (child.exitCode !== null) {
+            throw new Error(`The dev server exited:\n${log}`);
+        }
         const ready = await reachable(base);
-        if (ready) return { base: ready, stop };
+        if (ready) {
+            return { base: ready, stop };
+        }
         await sleep(1000);
     }
     await stop();
@@ -157,7 +165,9 @@ async function buildError(page) {
  */
 async function whatWentWrong(page) {
     const error = await buildError(page);
-    if (error) return error;
+    if (error) {
+        return error;
+    }
     const body = await page.evaluate(() => document.body.innerText).catch(() => "");
     return body.split("\n").filter(Boolean).slice(0, 12).join("\n  ");
 }
@@ -183,14 +193,18 @@ try {
             const errors = [];
             page.on("pageerror", (error) => errors.push(error.message));
             page.on("console", (message) => {
-                if (message.type() === "error") errors.push(message.text());
+                if (message.type() === "error") {
+                    errors.push(message.text());
+                }
             });
 
             const url = new URL(path, server.base);
             url.searchParams.set("figure-at", String(at));
             const response = await page.goto(url.href, { waitUntil: "networkidle" });
             const error = await buildError(page);
-            if (error) throw new Error(`${url.pathname} failed to build:\n  ${error}`);
+            if (error) {
+                throw new Error(`${url.pathname} failed to build:\n  ${error}`);
+            }
             if (!response?.ok()) {
                 throw new Error(
                     `${url.pathname} answered ${String(response?.status())}. Page says:\n  ${await whatWentWrong(page)}`,
@@ -216,7 +230,9 @@ try {
             // The dev toolbar and back-to-top button float over the page.
             await page.evaluate(() => {
                 for (const el of document.querySelectorAll("astro-dev-toolbar, #back-to-top"))
+                {
                     el.remove();
+                }
             });
 
             for (const [i, figure] of figures.entries()) {
@@ -246,4 +262,6 @@ try {
     await server.stop();
 }
 
-if (failed) process.exitCode = 1;
+if (failed) {
+    process.exitCode = 1;
+}

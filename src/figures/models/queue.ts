@@ -22,10 +22,18 @@ export function simulateQueue(
         if (policy === "per-server") {
             const present = (s: number) =>
                 visits.filter((v) => v.server === s && v.end > at).length;
-            for (let s = 1; s < servers; s++) if (present(s) < present(server)) server = s;
+            for (let s = 1; s < servers; s++) {
+                if (present(s) < present(server)) {
+                    server = s;
+                }
+            }
         } else {
             for (let s = 1; s < servers; s++)
-                if ((freeAt[s] ?? 0) < (freeAt[server] ?? 0)) server = s;
+            {
+                if ((freeAt[s] ?? 0) < (freeAt[server] ?? 0)) {
+                    server = s;
+                }
+            }
         }
         const start = Math.max(at, freeAt[server] ?? 0);
         const end = start + (services[i] ?? 0);

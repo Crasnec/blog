@@ -55,9 +55,13 @@ export interface BstNode {
 function bstSnapshot(nodes: BstNode[], root: number | undefined): Snapshot {
     const order: { id: number; depth: number }[] = [];
     const walk = (id: number | undefined, depth: number) => {
-        if (id === undefined) return;
+        if (id === undefined) {
+            return;
+        }
         const n = nodes[id];
-        if (!n) return;
+        if (!n) {
+            return;
+        }
         walk(n.left, depth + 1);
         order.push({ id, depth });
         walk(n.right, depth + 1);
@@ -66,7 +70,9 @@ function bstSnapshot(nodes: BstNode[], root: number | undefined): Snapshot {
     const snap: Snapshot = new Map();
     for (const [rank, { id, depth }] of order.entries()) {
         const n = nodes[id];
-        if (!n) continue;
+        if (!n) {
+            continue;
+        }
         snap.set(id, { value: n.value, parent: n.parent, depth, x: (rank + 0.5) / order.length });
     }
     return snap;
@@ -88,7 +94,9 @@ function bstInsertAll(values: number[], record: boolean) {
         let made = 0;
         while (at !== undefined) {
             const n = nodes[at];
-            if (!n) break;
+            if (!n) {
+                break;
+            }
             path.push(at);
             comparisons++;
             made++;
@@ -109,9 +117,15 @@ function bstInsertAll(values: number[], record: boolean) {
         }
         nodes.push({ value, left: undefined, right: undefined, parent });
         const p = parent === undefined ? undefined : nodes[parent];
-        if (!p) root = id;
-        else if (value < p.value) p.left = id;
-        else p.right = id;
+        if (!p) {
+            root = id;
+        }
+        else if (value < p.value) {
+            p.left = id;
+        }
+        else {
+            p.right = id;
+        }
         last = made;
         if (record) {
             drafts.push({
@@ -164,7 +178,9 @@ export function traceTree(
         let found: number | undefined;
         while (at !== undefined) {
             const n = built.nodes[at];
-            if (!n) break;
+            if (!n) {
+                break;
+            }
             path.push(at);
             comparisons++;
             const sign = target === n.value ? "=" : (target ?? 0) < n.value ? "<" : ">";
@@ -231,7 +247,9 @@ export function traceTree(
                 born: undefined,
                 comparisons,
             });
-            if (!swap) break;
+            if (!swap) {
+                break;
+            }
             slots[up] = id;
             slots[slot] = parent;
             slot = up;
@@ -259,7 +277,9 @@ function finish(
 ): Trace {
     let maxDepth = 0;
     for (const snap of [initial, ...drafts.map((d) => d.after)]) {
-        for (const n of snap.values()) maxDepth = Math.max(maxDepth, n.depth);
+        for (const n of snap.values()) {
+            maxDepth = Math.max(maxDepth, n.depth);
+        }
     }
     return {
         initial,

@@ -73,7 +73,9 @@ export default defineFigure<Props>({
     decode(raw) {
         const p = obj(raw, "props");
         if (p.showValues !== undefined && typeof p.showValues !== "boolean")
+        {
             throw new Error("props.showValues must be true or false");
+        }
         const series = arr(p.series, "props.series").map((s, i) => {
             const o = obj(s, `props.series[${String(i)}]`);
             const values = nums(o.values, `props.series[${String(i)}].values`);
@@ -93,7 +95,9 @@ export default defineFigure<Props>({
             };
         });
         if (series.length === 0 || series.length > 8)
+        {
             throw new Error("props.series needs 1–8 series");
+        }
 
         const all = series.flatMap((series) => series.values);
         const lowest = Math.min(...all),
@@ -103,7 +107,9 @@ export default defineFigure<Props>({
             maybe(p.yMax, "props.yMax", num) ??
             (highest > 0 ? niceMax(highest) : lowest < 0 ? 0 : 1);
         if (yMax <= yMin || yMin > lowest || yMax < highest)
+        {
             throw new Error("props.yMin and props.yMax must be ordered and enclose all values");
+        }
 
         return {
             unit: maybe(p.unit, "props.unit", str),
@@ -187,7 +193,9 @@ export default defineFigure<Props>({
             row = nx < rowEnd ? row + 1 : 0;
             rowEnd = Math.max(nx + w, row === 0 ? -Infinity : rowEnd);
             const shown = progress(penX, nx - 1, 24);
-            if (shown <= 0) continue;
+            if (shown <= 0) {
+                continue;
+            }
             ctx.globalAlpha = shown;
             line(ctx, nx, top, nx, bottom, palette.inkFaint, 1, [3, 3]);
             text(frame, note.text, nx + 5, top + 10 + row * 16, {
@@ -213,7 +221,9 @@ export default defineFigure<Props>({
             // Every series is cut at the same x, so their pens move together in
             // time even when one of them climbs a long way.
             const pen = partialPath(ctx, upTo(points, Math.min(penX, x(s.values.length - 1))), 1);
-            if (!pen) continue;
+            if (!pen) {
+                continue;
+            }
 
             dot(ctx, pen.x, pen.y, 3.5, color);
             if (props.showValues) {

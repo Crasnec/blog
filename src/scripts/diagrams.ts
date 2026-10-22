@@ -13,6 +13,7 @@ import { t } from "../strings";
 
 let api: Mermaid | null = null;
 let counter = 0;
+const flowchartPadding = 8;
 
 function token(name: string): string {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -60,7 +61,12 @@ function themeConfig(): MermaidConfig {
             noteBorderColor: rule,
             noteTextColor: muted,
         },
-        flowchart: { curve: "basis", padding: 14, useMaxWidth: true },
+        flowchart: {
+            curve: "basis",
+            padding: 14,
+            diagramPadding: flowchartPadding,
+            useMaxWidth: true,
+        },
         sequence: { useMaxWidth: true },
     };
 }
@@ -70,9 +76,31 @@ async function getApi(): Promise<Mermaid> {
     return api;
 }
 
+function fitFlowchart(holder: HTMLElement): void {
+    const svg = holder.querySelector("svg.flowchart");
+    if (!(svg instanceof SVGSVGElement)) {
+        return;
+    }
+    // Mermaid's temporary HTML labels can leave a stale 2000px viewBox. Measure
+    // the attached, serialized diagram using the same padding as its renderer.
+    const { x, y, width, height } = svg.getBBox();
+    if (![x, y, width, height].every(Number.isFinite) || width <= 0 || height <= 0) {
+        return;
+    }
+    const paddedWidth = width + 2 * flowchartPadding;
+    const paddedHeight = height + 2 * flowchartPadding;
+    svg.setAttribute(
+        "viewBox",
+        [x - flowchartPadding, y - flowchartPadding, paddedWidth, paddedHeight].join(" "),
+    );
+    svg.style.maxWidth = `${String(paddedWidth)}px`;
+}
+
 export async function renderDiagrams() {
     const figures = [...document.querySelectorAll<HTMLElement>(".diagram[data-mermaid]")];
-    if (figures.length === 0) return;
+    if (figures.length === 0) {
+        return;
+    }
 
     const mermaid = await getApi();
     mermaid.initialize(themeConfig());
@@ -80,7 +108,9 @@ export async function renderDiagrams() {
     await Promise.all(
         figures.map(async (figure) => {
             const source = figure.dataset.mermaid;
-            if (!source) return;
+            if (!source) {
+                return;
+            }
 
             // Anything from a previous render, so a theme switch starts clean.
             figure.querySelector(".diagram-svg")?.remove();
@@ -95,6 +125,7 @@ export async function renderDiagrams() {
                 holder.innerHTML = svg;
 
                 figure.prepend(holder);
+                fitFlowchart(holder);
                 figure.classList.remove("is-pending", "is-failed");
                 figure.classList.add("is-rendered");
             } catch (error) {
@@ -116,5 +147,7 @@ export async function renderDiagrams() {
 }
 
 document.addEventListener("theme:change", () => {
-    if (document.querySelector(".diagram[data-mermaid]")) void renderDiagrams();
+    if (document.querySelector(".diagram[data-mermaid]")) {
+        void renderDiagrams();
+    }
 });

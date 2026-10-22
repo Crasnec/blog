@@ -16,9 +16,13 @@ export default function fontFaceGroups(): Plugin {
             const faces: AtRule[] = [];
             root.walkAtRules("font-face", (face) => {
                 const family = descriptor(face, "font-family").replace(/['"]/gu, "");
-                if (family === "IBM Plex Sans KR") faces.push(face);
+                if (family === "IBM Plex Sans KR") {
+                    faces.push(face);
+                }
             });
-            if (!faces.length) return;
+            if (!faces.length) {
+                return;
+            }
 
             // Custom, nested, variable, or differently styled faces may depend on order.
             // Only interleave the package's complete matching sets of static weights.
@@ -33,7 +37,9 @@ export default function fontFaceGroups(): Plugin {
                     descriptor(face, "font-style") !== "normal" ||
                     descriptor(face, "font-stretch") ||
                     !descriptor(face, "unicode-range")
-                ) return;
+                ) {
+                    return;
+                }
                 const group = weights.get(weight) ?? [];
                 group.push(face);
                 weights.set(weight, group);
@@ -41,13 +47,19 @@ export default function fontFaceGroups(): Plugin {
 
             const groups = [...weights.values()];
             const first = groups[0];
-            if (!first || groups.length < 2) return;
+            if (!first || groups.length < 2) {
+                return;
+            }
             const ranges = first.map((face) => descriptor(face, "unicode-range"));
-            if (new Set(ranges).size !== ranges.length) return;
+            if (new Set(ranges).size !== ranges.length) {
+                return;
+            }
             if (groups.some((group) =>
                 group.length !== ranges.length ||
                 group.some((face, index) => descriptor(face, "unicode-range") !== ranges[index]),
-            )) return;
+            )) {
+                return;
+            }
 
             const reordered = first.flatMap((_, index) => groups.flatMap((group) => {
                 const face = group[index];
@@ -55,7 +67,9 @@ export default function fontFaceGroups(): Plugin {
             }));
             faces.forEach((face, index) => {
                 const replacement = reordered[index];
-                if (replacement) face.replaceWith(replacement);
+                if (replacement) {
+                    face.replaceWith(replacement);
+                }
             });
         },
     };

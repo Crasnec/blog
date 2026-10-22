@@ -30,12 +30,16 @@ export function categoryFromFile(filePath: string, root: string): Category {
     const trail = segments.slice(0, -1).map((name) => {
         const segment = slug(name);
         if (!segment)
+        {
             throw new Error(`Category folder "${name}" must produce a nonempty URL slug.`);
+        }
         key = key ? `${key}/${segment}` : segment;
         return { key, name };
     });
     const leaf = trail.at(-1);
-    if (!leaf) throw new Error(`Post "${filePath}" has no category folder.`);
+    if (!leaf) {
+        throw new Error(`Post "${filePath}" has no category folder.`);
+    }
     return { ...leaf, trail };
 }
 
@@ -76,7 +80,9 @@ export function countCategories(categories: Iterable<Category>): CategoryCount[]
     }
     const sort = (siblings: CategoryCount[]): CategoryCount[] => {
         siblings.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
-        for (const node of siblings) sort(node.children);
+        for (const node of siblings) {
+            sort(node.children);
+        }
         return siblings;
     };
     return sort(roots);

@@ -18,13 +18,17 @@ let base: URL;
 const errors: string[] = [];
 
 before(async () => {
-    if (process.env.LOCALE_BASE) base = new URL(`${process.env.LOCALE_BASE.replace(/\/+$/u, "")}/`);
+    if (process.env.LOCALE_BASE) {
+        base = new URL(`${process.env.LOCALE_BASE.replace(/\/+$/u, "")}/`);
+    }
     else {
         const lock = parseJson(
             await readFile(new URL("../.astro/dev.json", import.meta.url), "utf8"),
         );
         if (!isJsonObject(lock) || typeof lock.url !== "string")
+        {
             throw new Error("Start astro dev --background or set LOCALE_BASE");
+        }
         base = new URL(`${lock.url.replace(/\/+$/u, "")}/`);
     }
     browser = await chromium.launch();

@@ -18,25 +18,34 @@ export function traceSort(algorithm: Algorithm, values: number[]) {
     const ops: { op: Op; settled: boolean[]; pivot: number; slots: number[] }[] = [];
     const slotsNow = () => {
         const slots = values.map(() => 0);
-        for (const [slot, id] of order.entries()) slots[id] = slot;
+        for (const [slot, id] of order.entries()) {
+            slots[id] = slot;
+        }
         return slots;
     };
+
     const record = (op: Op) => {
         ops.push({ op, settled: [...settled], pivot, slots: slotsNow() });
     };
+
     const settle = (slot: number) => {
         const id = order[slot];
-        if (id !== undefined) settled[id] = true;
+        if (id !== undefined) {
+            settled[id] = true;
+        }
     };
+
     const compare = (i: number, j: number) => {
         record({ kind: "compare", i, j });
     };
+
     const swap = (i: number, j: number) => {
         record({ kind: "swap", i, j });
         const a = order[i] ?? 0;
         order[i] = order[j] ?? 0;
         order[j] = a;
     };
+
     const move = (from: number, to: number) => {
         record({ kind: "move", from, to });
         const [id] = order.splice(from, 1);
@@ -56,26 +65,36 @@ export function traceSort(algorithm: Algorithm, values: number[]) {
                 }
                 settle(end);
                 // A pass without a swap means everything left is in order.
-                if (!swapped) break;
+                if (!swapped) {
+                    break;
+                }
             }
-            for (let s = 0; s < n; s++) settle(s);
+            for (let s = 0; s < n; s++) {
+                settle(s);
+            }
             break;
         }
         case "insertion": {
             for (let i = 1; i < n; i++) {
                 for (let j = i; j > 0; j--) {
                     compare(j - 1, j);
-                    if (v(j - 1) <= v(j)) break;
+                    if (v(j - 1) <= v(j)) {
+                        break;
+                    }
                     swap(j - 1, j);
                 }
             }
-            for (let s = 0; s < n; s++) settle(s);
+            for (let s = 0; s < n; s++) {
+                settle(s);
+            }
             break;
         }
         case "quick": {
             // Lomuto partition: the last bar of the range is the pivot.
             const quick = (lo: number, hi: number) => {
-                if (lo > hi) return;
+                if (lo > hi) {
+                    return;
+                }
                 if (lo === hi) {
                     settle(lo);
                     return;
@@ -85,11 +104,15 @@ export function traceSort(algorithm: Algorithm, values: number[]) {
                 for (let j = lo; j < hi; j++) {
                     compare(j, hi);
                     if (v(j) < v(hi)) {
-                        if (store !== j) swap(store, j);
+                        if (store !== j) {
+                            swap(store, j);
+                        }
                         store++;
                     }
                 }
-                if (store !== hi) swap(store, hi);
+                if (store !== hi) {
+                    swap(store, hi);
+                }
                 settle(store);
                 pivot = -1;
                 quick(lo, store - 1);
@@ -101,7 +124,9 @@ export function traceSort(algorithm: Algorithm, values: number[]) {
         case "merge": {
             // In place: when the right run's head is smaller, it moves in front.
             const sort = (lo: number, hi: number) => {
-                if (hi <= lo) return;
+                if (hi <= lo) {
+                    return;
+                }
                 const mid = Math.floor((lo + hi) / 2);
                 sort(lo, mid);
                 sort(mid + 1, hi);
@@ -121,7 +146,9 @@ export function traceSort(algorithm: Algorithm, values: number[]) {
                 }
             };
             sort(0, n - 1);
-            for (let s = 0; s < n; s++) settle(s);
+            for (let s = 0; s < n; s++) {
+                settle(s);
+            }
             break;
         }
     }

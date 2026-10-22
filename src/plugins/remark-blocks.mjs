@@ -46,7 +46,9 @@ export function remarkBlocks() {
     return (tree) => {
         visit(tree, "containerDirective", (node) => {
             const kind = node.name;
-            if (!(kind in ADMONITIONS)) return;
+            if (!(kind in ADMONITIONS)) {
+                return;
+            }
             const key = /** @type {keyof typeof ADMONITIONS} */ (kind);
             const admonition = ADMONITIONS[key];
 

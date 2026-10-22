@@ -95,7 +95,9 @@ export default defineFigure<Model>({
         const p = obj(raw, "props");
         const servers = num(p.servers, "props.servers");
         if (!Number.isInteger(servers) || servers < 2 || servers > 4)
+        {
             throw new Error("props.servers must be an integer from 2 to 4");
+        }
         const arrivals = nums(p.arrivals, "props.arrivals");
         const services = nums(p.services, "props.services");
         if (
@@ -103,12 +105,16 @@ export default defineFigure<Model>({
             arrivals.length > 14 ||
             arrivals.some((at, i) => at < 0 || at > 1e6 || at < (arrivals[i - 1] ?? 0))
         )
+        {
             throw new Error("props.arrivals needs 1–14 ordered times from 0 to 1e6");
+        }
         if (
             services.length !== arrivals.length ||
             services.some((duration) => duration < 1e-6 || duration > 1e6)
         )
+        {
             throw new Error("props.services needs one duration from 1e-6 to 1e6 per arrival");
+        }
         const policies = arr(
             p.policies ?? [
                 { policy: "per-server", label: "Dedicated queues" },
@@ -120,7 +126,9 @@ export default defineFigure<Model>({
             const policy = obj(v, path);
             const name = str(policy.policy, `${path}.policy`);
             if (name !== "per-server" && name !== "shared")
+            {
                 throw new Error(`${path}.policy must be per-server or shared`);
+            }
             return { policy: name, label: str(policy.label, `${path}.label`) };
         });
         if (
@@ -128,18 +136,24 @@ export default defineFigure<Model>({
             policies.length > 2 ||
             new Set(policies.map((p) => p.policy)).size !== policies.length
         )
+        {
             throw new Error("props.policies needs 1–2 unique policies");
+        }
         const highlight = maybe(p.highlight, "props.highlight", (v, path) => {
             const h = obj(v, path);
             const index = num(h.index, `${path}.index`);
             if (!Number.isInteger(index) || index < 0 || index >= arrivals.length)
+            {
                 throw new Error(`${path}.index must identify an arrival`);
+            }
             return { index, label: str(h.label, `${path}.label`) };
         });
         const warnAfter = maybe(p.warnAfter, "props.warnAfter", num) ?? 1.2;
         const dangerAfter = maybe(p.dangerAfter, "props.dangerAfter", num) ?? 2.4;
         if (warnAfter <= 0 || dangerAfter <= warnAfter)
+        {
             throw new Error("props.dangerAfter must exceed positive props.warnAfter");
+        }
         const lanes = policies.map((policy) => {
             const visits = simulateQueue(policy.policy, arrivals, services, servers);
             return {
@@ -170,9 +184,12 @@ export default defineFigure<Model>({
         withAlpha(frame.ctx, ease.out(progress(frame.time, 0, TIMES.appear)), () => {
             for (const [i, lane] of model.lanes.entries()) {
                 const panel = panels[i];
-                if (!panel) continue;
+                if (!panel) {
+                    continue;
+                }
                 drawLane(frame, model, lane, panel, lane.average === best);
                 if (i < panels.length - 1)
+                {
                     line(
                         frame.ctx,
                         0,
@@ -181,6 +198,7 @@ export default defineFigure<Model>({
                         panel.y + panel.h + 10,
                         frame.palette.ruleFaint,
                     );
+                }
             }
         });
     },
@@ -222,10 +240,15 @@ function drawLane(
         });
         return along(at(Math.floor(rank)), at(Math.ceil(rank)), rank % 1);
     };
+
     const arriveAt = (v: Visit) => TIMES.first + v.arrive * model.scale;
+
     const startAt = (v: Visit) => TIMES.first + v.start * model.scale;
+
     const endAt = (v: Visit) => TIMES.first + v.end * model.scale;
+
     const stepFor = (v: Visit) => Math.min(TIMES.step, ((v.end - v.start) * model.scale) / 3);
+
     const doneAt = (i: number): Point => ({
         x: doneX + (i % doneCols) * doneStep + 4,
         y: body.y + 24 + Math.floor(i / doneCols) * doneStep,
@@ -271,7 +294,9 @@ function drawLane(
             start = startAt(v),
             end = endAt(v),
             step = stepFor(v);
-        if (time < arrive - TIMES.walk) continue;
+        if (time < arrive - TIMES.walk) {
+            continue;
+        }
         const rank = v.ahead.reduce((k, j) => {
             const ahead = lane.visits[j];
             return k + (ahead ? 1 - progress(time, startAt(ahead), stepFor(ahead)) : 0);
@@ -280,18 +305,30 @@ function drawLane(
         const server = serverAt(v.server);
         let at: Point;
         if (time < arrive)
+        {
             at = along(door, waiting, ease.out(progress(time, arrive - TIMES.walk, TIMES.walk)));
-        else if (time < start) at = waiting;
+        }
+        else if (time < start) {
+            at = waiting;
+        }
         else if (time < start + step)
+        {
             at = along(slot(v, 0), server, ease.inOut(progress(time, start, step)));
-        else if (time < end) at = server;
-        else at = along(server, doneAt(i), ease.inOut(progress(time, end, TIMES.leave)));
+        }
+        else if (time < end) {
+            at = server;
+        }
+        else {
+            at = along(server, doneAt(i), ease.inOut(progress(time, end, TIMES.leave)));
+        }
         const waited = Math.max(
             0,
             Math.min((time - TIMES.first) / model.scale, v.start) - v.arrive,
         );
         dot(ctx, at.x, at.y, 3.5, heat(palette, waited, model.warnAfter, model.dangerAfter));
-        if (i === model.highlight?.index && time < end) ring(ctx, at.x, at.y, 6, palette.warn, 1.5);
+        if (i === model.highlight?.index && time < end) {
+            ring(ctx, at.x, at.y, 6, palette.warn, 1.5);
+        }
     }
     const highlighted = model.highlight && lane.visits[model.highlight.index];
     if (

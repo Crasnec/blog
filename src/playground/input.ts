@@ -6,8 +6,12 @@ export function inputChannel(port: MessagePort, send: (message: RunResponse) => 
     let pending: { id: number; resolve: (value: string | null) => void } | undefined;
     port.addEventListener("message", (event: MessageEvent<MessageValue>) => {
         const response = decodeInputResponse(event.data);
-        if (!response) return;
-        if (pending?.id !== response.id) return;
+        if (!response) {
+            return;
+        }
+        if (pending?.id !== response.id) {
+            return;
+        }
         const { resolve } = pending;
         pending = undefined;
         resolve(response.value);
@@ -15,9 +19,11 @@ export function inputChannel(port: MessagePort, send: (message: RunResponse) => 
     port.start();
     return (prompt: string | number | boolean | null = ""): Promise<string | null> => {
         if (pending)
+        {
             return Promise.reject(
                 new Error("Wait for the previous input before requesting another line"),
             );
+        }
         return new Promise((resolve) => {
             const id = ++sequence;
             pending = { id, resolve };

@@ -45,7 +45,9 @@ void test("hex editor validates byte values, action shapes, indices and address 
     assert.doesNotThrow(() => hexEditor.bind({ bytes: [0], baseOffset: 0xffffffff }));
     assert.doesNotThrow(() => hexEditor.bind({ bytes: [0, 255], actions: [] }));
     for (const bytes of [[], [256], [-1], [0.5], Array<number>(65).fill(0)])
+    {
         assert.throws(() => hexEditor.bind({ bytes }), /props.bytes/u);
+    }
     assert.throws(() => hexEditor.bind({ bytes: [0], selected: 1 }), /props.selected/u);
     assert.throws(
         () => hexEditor.bind({ bytes: [0, 1], baseOffset: 0xffffffff }),

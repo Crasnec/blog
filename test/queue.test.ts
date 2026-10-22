@@ -63,7 +63,9 @@ void test("queue rejects unschedulable input at the author boundary", () => {
         },
         { ...valid, highlight: { index: 2, label: "outside" } },
     ])
+    {
         assert.throws(() => queue.bind(props), /props\./u);
+    }
 });
 
 void test("shared element preparation validates before serializing author props", () => {
@@ -80,10 +82,12 @@ void test("shared element preparation validates before serializing author props"
     assert.equal(prepared.height, 420);
     assert.equal(prepared.fixedHeight, true);
     for (const height of [0, -1, NaN, Infinity])
+    {
         assert.throws(
             () => prepareFigure(queue, { kind: "queue", props, height }),
             /height must be a positive finite number/u,
         );
+    }
     assert.throws(
         () => prepareFigure(queue, { kind: "queue", props: {} }),
         /<Figure kind="queue">: props\.servers/u,

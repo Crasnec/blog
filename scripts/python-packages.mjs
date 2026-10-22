@@ -56,7 +56,9 @@ export function decodePythonLock(value) {
         throw new Error("Invalid Pyodide package catalog");
     }
     const packages = Object.entries(value.packages).map(([name, entry]) => {
-        if (!isPythonPackage(entry)) throw new Error(`Invalid Pyodide package entry: ${name}`);
+        if (!isPythonPackage(entry)) {
+            throw new Error(`Invalid Pyodide package entry: ${name}`);
+        }
         return /** @type {const} */ ([name, entry]);
     });
     return { ...value, info: value.info, packages: Object.fromEntries(packages) };
@@ -78,7 +80,9 @@ export function pythonDistribution() {
     const catalog = { ...source.packages };
     for (const { url, ...entry } of wheels) {
         if (new URL(url).origin !== "https://files.pythonhosted.org")
+        {
             throw new Error(`Invalid Python wheel source: ${url}`);
+        }
         catalog[entry.name] = entry;
     }
     const wheelURLs = new Map(wheels.map((entry) => [entry.file_name, entry.url]));
@@ -87,22 +91,30 @@ export function pythonDistribution() {
     /** @param {string} name */
     function add(name) {
         name = name.toLowerCase().replace(/[-_.]+/g, "-");
-        if (Object.hasOwn(packages, name)) return;
+        if (Object.hasOwn(packages, name)) {
+            return;
+        }
         const entry = catalog[name];
         if (
             !entry ||
             !/^[a-zA-Z0-9][a-zA-Z0-9._+-]*\.whl$/.test(entry.file_name) ||
             !/^[a-f0-9]{64}$/.test(entry.sha256)
         )
+        {
             throw new Error(`Invalid pinned Python package: ${name}`);
+        }
         // Normalize dependency keys using Python package-name conventions.
         const depends = entry.depends.map((dependency) =>
             dependency.toLowerCase().replace(/[-_.]+/g, "-"),
         );
         packages[name] = { ...entry, depends };
-        for (const dependency of depends) add(dependency);
+        for (const dependency of depends) {
+            add(dependency);
+        }
     }
-    for (const name of [...supportedPackages, "micropip"]) add(name);
+    for (const name of [...supportedPackages, "micropip"]) {
+        add(name);
+    }
     const cache = fileURLToPath(new URL(`../.cache/python/${metadata.version}/`, import.meta.url));
     const base = `https://cdn.jsdelivr.net/pyodide/v${metadata.version}/full/`;
     return {
@@ -146,7 +158,9 @@ export async function preparePythonPackages() {
         Array.from({ length: 3 }, async () => {
             for (let entry = pending.pop(); entry; entry = pending.pop()) {
                 try {
-                    if (verifyPackage(await readFile(entry.path), entry.sha256)) continue;
+                    if (verifyPackage(await readFile(entry.path), entry.sha256)) {
+                        continue;
+                    }
                 } catch {
                     /* A missing or invalid cached wheel is fetched below. */
                 }
@@ -155,12 +169,16 @@ export async function preparePythonPackages() {
                     redirect: "error",
                 });
                 if (!response.ok)
+                {
                     throw new Error(
                         `Python package ${entry.name}: HTTP ${String(response.status)}`,
                     );
+                }
                 const content = new Uint8Array(await response.arrayBuffer());
                 if (!verifyPackage(content, entry.sha256))
+                {
                     throw new Error(`Python package ${entry.name}: SHA-256 mismatch`);
+                }
                 const temporary = `${entry.path}.${randomUUID()}.tmp`;
                 try {
                     await writeFile(temporary, content);
@@ -177,4 +195,6 @@ export async function preparePythonPackages() {
     return distribution;
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) await preparePythonPackages();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    await preparePythonPackages();
+}

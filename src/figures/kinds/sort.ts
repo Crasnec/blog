@@ -118,7 +118,9 @@ export default defineFigure<Props>({
         const p = obj(raw, "props");
         const algorithm = str(p.algorithm, "props.algorithm");
         const algo = ALGORITHMS.find((a) => a === algorithm);
-        if (!algo) throw new Error(`props.algorithm must be one of ${ALGORITHMS.join(", ")}`);
+        if (!algo) {
+            throw new Error(`props.algorithm must be one of ${ALGORITHMS.join(", ")}`);
+        }
 
         let values: number[];
         if (p.values !== undefined) {
@@ -146,7 +148,9 @@ export default defineFigure<Props>({
         const units = ops.reduce((s, o) => s + weight(o.op), 0);
         const fitted = Math.min(AVAILABLE / Math.max(1, units), 0.25);
         const step = maybe(p.step, "props.step", num) ?? fitted;
-        if (step <= 0) throw new Error("props.step must be positive");
+        if (step <= 0) {
+            throw new Error("props.step must be positive");
+        }
         if (units * step > AVAILABLE + 1e-9) {
             throw new Error(
                 `props.step ${String(step)}s makes this sort take ${(units * step).toFixed(1)}s, ` +
@@ -160,8 +164,12 @@ export default defineFigure<Props>({
         const steps: Step[] = ops.map((o) => {
             const s: Step = { ...o, start: at, length: weight(o.op) * step, compares, writes };
             at += s.length;
-            if (o.op.kind === "compare") compares++;
-            else writes++;
+            if (o.op.kind === "compare") {
+                compares++;
+            }
+            else {
+                writes++;
+            }
             return s;
         });
 
@@ -237,7 +245,9 @@ export default defineFigure<Props>({
             } else {
                 const m = idAt(op.from);
                 for (const [id, s] of slots.entries()) {
-                    if (s >= op.to && s < op.from) pos[id] = s + t;
+                    if (s >= op.to && s < op.from) {
+                        pos[id] = s + t;
+                    }
                 }
                 pos[m] = lerp(op.from, op.to, t);
                 active.add(m);
@@ -247,7 +257,11 @@ export default defineFigure<Props>({
         // A finished compare or swap leaves the next state; only snap when idle.
         if (cur && !running && !done) {
             const next = props.steps[k + 1];
-            if (next) for (const [id, s] of next.slots.entries()) pos[id] = s;
+            if (next) {
+                for (const [id, s] of next.slots.entries()) {
+                    pos[id] = s;
+                }
+            }
         }
 
         /* layout */
@@ -321,7 +335,9 @@ export default defineFigure<Props>({
                 const isPivot = !done && base?.pivot === id;
                 // Slightly see-through while crossing, so the bar behind still shows.
                 const groupAlpha = ctx.globalAlpha;
-                if (active.has(id) && crossing > 0.2) ctx.globalAlpha = groupAlpha * 0.85;
+                if (active.has(id) && crossing > 0.2) {
+                    ctx.globalAlpha = groupAlpha * 0.85;
+                }
                 ctx.fillStyle = active.has(id)
                     ? palette.marker
                     : settled[id] === true || done

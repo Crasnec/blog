@@ -11,15 +11,19 @@ const errors: string[] = [];
 
 before(async () => {
     if (process.env.CATEGORIES_BASE)
+    {
         base = new URL(`${process.env.CATEGORIES_BASE.replace(/\/+$/u, "")}/`);
+    }
     else {
         const lock = parseJson(
             await readFile(new URL("../.astro/dev.json", import.meta.url), "utf8"),
         );
         if (!isJsonObject(lock) || typeof lock.url !== "string")
+        {
             throw new Error(
                 "Serve BLOG_POSTS_DIR=./src/fixtures/categories with astro dev --background, or set CATEGORIES_BASE.",
             );
+        }
         base = new URL(`${lock.url.replace(/\/+$/u, "")}/`);
     }
     browser = await chromium.launch();
@@ -34,6 +38,7 @@ after(async () => {
     assert.deepEqual(errors, []);
 });
 const url = (path: string) => new URL(path.replace(/^\/+/u, ""), base).href;
+
 const visit = async (path: string) => {
     const response = await page.goto(url(path));
     assert.equal(response?.status(), 200);

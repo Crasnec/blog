@@ -9,18 +9,24 @@ export const mosaic = defineFigure({
         const rows = arr(p.rows, "props.rows").map((s, i) => str(s, `props.rows[${String(i)}]`));
         const cols = arr(p.cols, "props.cols").map((s, i) => str(s, `props.cols[${String(i)}]`));
         if (rows.length < 2 || rows.length > 8 || cols.length < 2 || cols.length > 8)
+        {
             throw new Error("props.rows and props.cols need 2–8 labels each");
+        }
         const counts = arr(p.counts, "props.counts").map((row, r) =>
             arr(row, `props.counts[${String(r)}]`).map((n, c) =>
                 bounded(n, `props.counts[${String(r)}][${String(c)}]`, 0, 1e9, true),
             ),
         );
         if (counts.length !== rows.length || counts.some((r) => r.length !== cols.length))
+        {
             throw new Error("props.counts must match rows × cols");
+        }
         const rowTotals = counts.map((row) => row.reduce((a, b) => a + b, 0));
         const colTotals = cols.map((_, c) => counts.reduce((a, row) => a + (row[c] ?? 0), 0));
         if ([...rowTotals, ...colTotals].some((v) => v === 0))
+        {
             throw new Error("props.counts cannot have an empty row or column margin");
+        }
         const total = rowTotals.reduce((a, b) => a + b, 0);
         const cells = cols.flatMap((_, c) =>
             rows.map((_, r) => {

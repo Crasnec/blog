@@ -125,8 +125,12 @@ function readMaze(raw: JsonValue[], path: string): Maze {
                         `${path} has more than one ${ch}; there must be exactly one ${which}`,
                     );
                 }
-                if (ch === "S") start = cell;
-                else goal = cell;
+                if (ch === "S") {
+                    start = cell;
+                }
+                else {
+                    goal = cell;
+                }
             } else if (ch !== "#" && ch !== ".") {
                 throw new Error(
                     `${path}[${String(r)}] has "${ch}" at column ${String(c)}; use # . S G`,
@@ -135,8 +139,12 @@ function readMaze(raw: JsonValue[], path: string): Maze {
             walls.push(ch === "#");
         }
     }
-    if (start === -1) throw new Error(`${path} has no S (start)`);
-    if (goal === -1) throw new Error(`${path} has no G (goal)`);
+    if (start === -1) {
+        throw new Error(`${path} has no S (start)`);
+    }
+    if (goal === -1) {
+        throw new Error(`${path} has no G (goal)`);
+    }
     return { cols, rows: lines.length, walls, start, goal };
 }
 
@@ -196,6 +204,7 @@ export default defineFigure<Props>({
                 Math.floor(cell / maze.cols),
                 gap,
             );
+
         const centreOf = (cell: number): Point => {
             const r = cellAt(cell);
             return { x: r.x + r.w / 2, y: r.y + r.h / 2 };
@@ -233,7 +242,9 @@ export default defineFigure<Props>({
             /* layer 3: the search — expanded cells fill, the frontier is outlined */
             for (let cell = 0; cell < maze.cols * maze.rows; cell++) {
                 const disc = run.discoveredAt[cell] ?? -1;
-                if (disc === -1) continue;
+                if (disc === -1) {
+                    continue;
+                }
                 const exp = run.expandedAt[cell] ?? -1;
                 const r = cellAt(cell);
                 const filled = exp === -1 ? 0 : progress(time, stepTime(exp), TIMES.fade);

@@ -38,34 +38,49 @@ export class PythonNotebook {
             this.download();
         });
     }
+
     add(cell: NotebookCell) {
         this.cells.push(cell);
         this.buttons();
     }
+
     private status(message: string) {
         const el = this.toolbar?.querySelector(".notebook-status");
-        if (el) el.textContent = message;
+        if (el) {
+            el.textContent = message;
+        }
     }
+
     private buttons() {
         for (const cell of this.cells) {
             for (const button of cell.root.querySelectorAll<HTMLButtonElement>(
                 ".playground-run, .playground-reset",
             ))
+            {
                 button.disabled = !!this.active || this.batch;
+            }
         }
         for (const button of this.toolbar?.querySelectorAll<HTMLButtonElement>("button") ?? [])
+        {
             button.disabled = button.classList.contains("notebook-restart")
                 ? false
                 : !!this.active || this.batch;
+        }
     }
+
     changed(root: HTMLElement, edited = true) {
         const index = this.cells.findIndex((cell) => cell.root === root);
         for (const cell of this.cells.slice(index + (edited ? 0 : 1))) {
-            if (!cell.root.dataset.executed) continue;
+            if (!cell.root.dataset.executed) {
+                continue;
+            }
             const notice = cell.root.querySelector<HTMLElement>(".notebook-stale");
-            if (notice) notice.hidden = false;
+            if (notice) {
+                notice.hidden = false;
+            }
         }
     }
+
     start(
         cell: NotebookCell,
         code: string,
@@ -73,11 +88,15 @@ export class PythonNotebook {
         assets: string,
         receive: (response: RunResponse) => void,
     ): MessagePort | undefined {
-        if (this.active) return undefined;
+        if (this.active) {
+            return undefined;
+        }
         this.changed(cell.root, false);
         this.active = { cell, receive };
         this.buttons();
-        if (!this.batch) this.status(t("playground.loading"));
+        if (!this.batch) {
+            this.status(t("playground.loading"));
+        }
         try {
             if (!this.worker || !this.port) {
                 this.worker = new Worker(new URL("./python.worker.ts", import.meta.url), {
@@ -87,8 +106,11 @@ export class PythonNotebook {
                 this.port = channel.port1;
                 this.port.onmessage = (event: MessageEvent<MessageValue>) => {
                     const response = decodeRunResponse(event.data);
-                    if (response) this.message(response);
+                    if (response) {
+                        this.message(response);
+                    }
                 };
+
                 this.worker.onerror = (event) => {
                     event.preventDefault();
                     const active = this.active;
@@ -117,25 +139,38 @@ export class PythonNotebook {
         }
         return undefined;
     }
+
     private message(response: RunResponse) {
         const active = this.active;
-        if (!active) return;
+        if (!active) {
+            return;
+        }
         if (response.type === "ready") {
             active.cell.root.dataset.executed = "true";
             const count = active.cell.root.querySelector(".notebook-execution");
-            if (count) count.textContent = `[${String(++this.sequence)}]`;
+            if (count) {
+                count.textContent = `[${String(++this.sequence)}]`;
+            }
             const stale = active.cell.root.querySelector<HTMLElement>(".notebook-stale");
-            if (stale) stale.hidden = true;
+            if (stale) {
+                stale.hidden = true;
+            }
         }
-        if (response.type === "done" || response.type === "error") this.active = undefined;
+        if (response.type === "done" || response.type === "error") {
+            this.active = undefined;
+        }
         active.receive(response);
         if (!this.batch && (response.type === "done" || response.type === "error"))
+        {
             this.status(t(response.type === "done" ? "playground.done" : "playground.failed"));
+        }
         this.buttons();
     }
+
     input(response: InputResponse) {
         this.port?.postMessage(response);
     }
+
     restart(notify = true) {
         ++this.generation;
         this.batch = false;
@@ -149,24 +184,37 @@ export class PythonNotebook {
         active?.cell.cancel();
         for (const cell of this.cells) {
             const count = cell.root.querySelector(".notebook-execution");
-            if (count) count.textContent = "[ ]";
+            if (count) {
+                count.textContent = "[ ]";
+            }
             const notice = cell.root.querySelector<HTMLElement>(".notebook-stale");
-            if (notice) notice.hidden = !cell.root.dataset.executed;
+            if (notice) {
+                notice.hidden = !cell.root.dataset.executed;
+            }
         }
         this.buttons();
-        if (notify) this.status(t("notebook.resetNotice"));
+        if (notify) {
+            this.status(t("notebook.resetNotice"));
+        }
     }
+
     async runAll() {
-        if (this.active || this.batch) return;
+        if (this.active || this.batch) {
+            return;
+        }
         const generation = this.generation;
         this.batch = true;
         this.buttons();
         const cells = this.cells.filter((cell) => cell.root.dataset.runAll !== "false");
         for (const [index, cell] of cells.entries()) {
-            if (generation !== this.generation) return;
+            if (generation !== this.generation) {
+                return;
+            }
             this.status(t("notebook.progress", { current: index + 1, total: cells.length }));
             const success = await cell.run();
-            if (generation !== this.generation) return;
+            if (generation !== this.generation) {
+                return;
+            }
             if (!success) {
                 this.batch = false;
                 this.buttons();
@@ -178,6 +226,7 @@ export class PythonNotebook {
         this.buttons();
         this.status(t("playground.done"));
     }
+
     private download() {
         const title = document.querySelector("h1")?.textContent ?? this.id;
         const notebook = {

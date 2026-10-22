@@ -23,13 +23,19 @@ function classification(style: "roc" | "precision-recall" | "calibration") {
                 };
             });
             if (data.length < 2 || data.length > 4000)
+            {
                 throw new Error("props.data needs 2–4000 scored observations");
+            }
             const bins = p.bins === undefined ? 10 : bounded(p.bins, "props.bins", 2, 20, true);
             const calibrated = style === "calibration" ? calibrationBins(data, bins) : [];
             const curves = style === "calibration" ? undefined : binaryCurves(data);
             let plotted: Point[];
-            if (style === "calibration") plotted = calibrated;
-            else if (style === "roc") plotted = curves?.roc ?? [];
+            if (style === "calibration") {
+                plotted = calibrated;
+            }
+            else if (style === "roc") {
+                plotted = curves?.roc ?? [];
+            }
             else {
                 const pr = curves?.pr ?? [];
                 plotted = pr.flatMap((p, i) =>

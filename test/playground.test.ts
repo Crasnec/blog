@@ -119,7 +119,9 @@ void test("notebook configuration is explicit, Python-only and bounded", () => {
         "chapter-01",
     );
     for (const notebook of ["", "1chapter", "bad id", "x".repeat(81), 2])
+    {
         assert.throws(() => decodeConfig(JSON.stringify({ ...base, notebook })));
+    }
     assert.throws(() =>
         decodeConfig(JSON.stringify({ ...base, notebook: "chapter", runtime: "javascript" })),
     );
@@ -128,7 +130,9 @@ void test("notebook configuration is explicit, Python-only and bounded", () => {
 void test("common wheels stay pinned locally and the full Pyodide catalog loads from versioned URLs", () => {
     const distribution = pythonDistribution();
     for (const name of supportedPackages)
+    {
         assert.ok(Object.hasOwn(distribution.lock.packages, name));
+    }
     assert.ok(Object.hasOwn(distribution.lock.packages, "micropip"));
     for (const name of ["regex", "pyyaml", "scikit-learn"]) {
         const entry = distribution.lock.packages[name];
@@ -140,7 +144,9 @@ void test("common wheels stay pinned locally and the full Pyodide catalog loads 
         );
         assert.match(entry.sha256, /^[a-f0-9]{64}$/u);
         for (const dependency of entry.depends)
+        {
             assert.ok(Object.hasOwn(distribution.lock.packages, dependency));
+        }
     }
     assert.ok(distribution.lock.packages.pillow?.imports.includes("PIL"));
     assert.ok(
@@ -163,7 +169,9 @@ void test("common wheels stay pinned locally and the full Pyodide catalog loads 
         "matplotlib",
     ]);
     for (const name of ["statadict", "statsmodels", "ipython"])
+    {
         assert.ok(supportedPackages.includes(name));
+    }
     const data = new TextEncoder().encode("abc");
     assert.equal(
         verifyPackage(data, "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"),
@@ -190,7 +198,9 @@ void test("npm imports resolve without changing strings, comments, URLs, or impo
         "data:text/javascript,export default 4",
         "./relative.js",
     ])
+    {
         assert.equal(resolveModuleSpecifier(source), source);
+    }
     assert.throws(() => rewriteModuleImports('import fs from "node:fs"'), /Node.js built-in/u);
     const untouched =
         '// import "fake-comment"\nconst text = `import "fake-string"`;\nconst regex = /import "fake-regex"/;';
@@ -215,7 +225,9 @@ void test("plot transport rejects non-PNG data, oversized images and excess figu
     try {
         const send = outputChannel(channel.port1);
         for (let index = 0; index < 8; index++)
+        {
             send({ type: "plot", png: header.slice().buffer, alt: "Plot" });
+        }
         assert.throws(() => {
             send({ type: "plot", png: header.slice().buffer, alt: "Excess plot" });
         }, /Plot limit/);
@@ -257,10 +269,12 @@ void test("TextMate parses JSON and XML and preserves repository and external in
             "begin/end scope must persist across lines",
         );
         for (const token of all)
+        {
             assert.equal(
                 'emit 42 "first\nsecond"'.slice(token.offset, token.offset + token.content.length),
                 token.content,
             );
+        }
     } finally {
         highlighter.dispose();
     }
@@ -318,7 +332,9 @@ void test("input channel matches replies without replaying or accepting stale in
     const channel = new MessageChannel();
     const requests: { id: number; prompt: string }[] = [];
     const ask = inputChannel(channel.port1, (message) => {
-        if (message.type === "input") requests.push(message);
+        if (message.type === "input") {
+            requests.push(message);
+        }
     });
     try {
         const first = ask("이름: ");

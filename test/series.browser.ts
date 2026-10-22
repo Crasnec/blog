@@ -56,7 +56,9 @@ async function contextWithBuild(javaScriptEnabled = true): Promise<BrowserContex
             assert.equal(url.origin, origin);
             let file = resolve(dist, `.${decodeURIComponent(url.pathname)}`);
             assert.ok(file === dist || file.startsWith(`${dist}${sep}`));
-            if ((await stat(file)).isDirectory()) file = join(file, "index.html");
+            if ((await stat(file)).isDirectory()) {
+                file = join(file, "index.html");
+            }
             await route.fulfill({
                 contentType: contentTypes[extname(file)] ?? "application/octet-stream",
                 body: await readFile(file),
@@ -141,7 +143,9 @@ void test("chapter navigation and current markers follow each series", async () 
     for (const group of series) {
         for (const index of [...new Set([0, 1, group.parts.length - 1])]) {
             const part = group.parts[index];
-            if (!part) continue;
+            if (!part) {
+                continue;
+            }
             await visit(page, part.href);
             const contents = page.locator(".series-contents");
             assert.equal(await contents.getAttribute("aria-label"), group.name);
@@ -162,7 +166,9 @@ void test("chapter navigation and current markers follow each series", async () 
             ] as const) {
                 const link = page.locator(`.post-nav a[rel="${direction}"]`);
                 assert.equal(await link.count(), neighbour ? 1 : 0);
-                if (neighbour) assert.equal(await link.getAttribute("href"), neighbour.href);
+                if (neighbour) {
+                    assert.equal(await link.getAttribute("href"), neighbour.href);
+                }
             }
         }
     }

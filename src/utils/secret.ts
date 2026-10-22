@@ -292,7 +292,9 @@ export async function rewrap(
     from: string,
     to: string,
 ): Promise<PrivateKeyFile | null> {
-    if (priv.v !== VERSION) return null;
+    if (priv.v !== VERSION) {
+        return null;
+    }
 
     let pkcs8: ArrayBuffer;
     try {
@@ -401,7 +403,9 @@ export async function openWith(
     passphrase: string,
     payload: SecretPayload,
 ): Promise<SecretSource | null> {
-    if (priv.v !== VERSION || payload.v !== VERSION) return null;
+    if (priv.v !== VERSION || payload.v !== VERSION) {
+        return null;
+    }
 
     try {
         const pkcs8 = await crypto.subtle.decrypt(

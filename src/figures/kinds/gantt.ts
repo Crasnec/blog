@@ -93,6 +93,7 @@ const LEGEND = 20;
 const STRIP = 16;
 
 const laneHeight = (narrow: boolean) => (narrow ? 24 : 28);
+
 const stripsHeight = (cores: number) => (cores > 1 ? 10 + cores * (STRIP + 4) : 0);
 
 export default defineFigure<Props>({
@@ -109,16 +110,24 @@ export default defineFigure<Props>({
         const p = obj(raw, "props");
         const policyRaw = str(p.policy, "props.policy");
         const policy = POLICIES.find((x) => x === policyRaw);
-        if (!policy) throw new Error(`props.policy must be one of ${POLICIES.join(", ")}`);
+        if (!policy) {
+            throw new Error(`props.policy must be one of ${POLICIES.join(", ")}`);
+        }
 
         const quantum = maybe(p.quantum, "props.quantum", num) ?? 2;
-        if (!(quantum > 0)) throw new Error("props.quantum must be a positive number");
+        if (!(quantum > 0)) {
+            throw new Error("props.quantum must be a positive number");
+        }
         if (p.quantum !== undefined && policy !== "rr")
+        {
             throw new Error('props.quantum only applies to policy "rr"');
+        }
 
         const cores = maybe(p.cores, "props.cores", num) ?? 1;
         if (!Number.isInteger(cores) || cores < 1 || cores > 4)
+        {
             throw new Error("props.cores must be 1, 2, 3 or 4");
+        }
 
         let jobs: Job[];
         if (p.jobs !== undefined) {
@@ -130,22 +139,34 @@ export default defineFigure<Props>({
                     arrive: num(o.arrive, `${path}.arrive`),
                     burst: num(o.burst, `${path}.burst`),
                 };
-                if (job.arrive < 0) throw new Error(`${path}.arrive must be 0 or more`);
-                if (!(job.burst > 0)) throw new Error(`${path}.burst must be more than 0`);
+                if (job.arrive < 0) {
+                    throw new Error(`${path}.arrive must be 0 or more`);
+                }
+                if (!(job.burst > 0)) {
+                    throw new Error(`${path}.burst must be more than 0`);
+                }
                 if (job.id.length === 0 || job.id.length > 4)
+                {
                     throw new Error(`${path}.id must be 1–4 characters`);
+                }
                 return job;
             });
             const ids = new Set(jobs.map((j) => j.id));
-            if (ids.size !== jobs.length) throw new Error("props.jobs ids must be unique");
+            if (ids.size !== jobs.length) {
+                throw new Error("props.jobs ids must be unique");
+            }
         } else {
             const count = maybe(p.count, "props.count", num) ?? 5;
             if (!Number.isInteger(count) || count < 2 || count > 10)
+            {
                 throw new Error("props.count must be a whole number from 2 to 10");
+            }
             jobs = generateJobs(count, maybe(p.seed, "props.seed", num) ?? 1);
         }
         if (jobs.length < 1 || jobs.length > 10)
+        {
             throw new Error("props.jobs must have 1 to 10 jobs");
+        }
 
         const plan = schedule(jobs, policy, quantum, cores);
         const span = maybe(p.span, "props.span", num) ?? Math.ceil(plan.end);
@@ -183,6 +204,7 @@ export default defineFigure<Props>({
         const stripsTop = plot.y + plot.h + (props.cores > 1 ? 10 : 0);
         const axisY = stripsTop + (props.cores > 1 ? props.cores * (STRIP + 4) : 0) + 2;
         const x = (v: number) => plot.x + (v / span) * plot.w;
+
         const laneY = (i: number) => plot.y + i * laneH;
         const barH = laneH - 12;
 
@@ -201,7 +223,9 @@ export default defineFigure<Props>({
                     `Mean wait ${trimNumber(waitAvg)}`,
                     `${narrow ? "turn" : "turnaround"} ${trimNumber(turnAvg)}`,
                 ];
-                if (props.policy === "rr") parts.push(`switches ${String(plan.switches)}`);
+                if (props.policy === "rr") {
+                    parts.push(`switches ${String(plan.switches)}`);
+                }
                 withAlpha(ctx, verdict, () => {
                     label(frame, parts.join(" · "), width, narrow ? 34 : 14, {
                         size: narrow ? 11 : 12,
@@ -263,7 +287,9 @@ export default defineFigure<Props>({
             for (const [i, job] of jobs.entries()) {
                 const y = laneY(i) + 6;
                 const outcome = plan.outcomes[i];
-                if (!outcome) continue;
+                if (!outcome) {
+                    continue;
+                }
 
                 // Arrival: a tick above the lane, once the playhead reaches it.
                 if (now + EPS >= job.arrive) {
@@ -280,7 +306,9 @@ export default defineFigure<Props>({
                 // Waiting: ready but not running.
                 for (const w of outcome.waits) {
                     const end = Math.min(w.end, now);
-                    if (end <= w.start) continue;
+                    if (end <= w.start) {
+                        continue;
+                    }
                     hatch(
                         ctx,
                         { x: x(w.start), y: y + 2, w: x(end) - x(w.start), h: barH - 4 },
@@ -290,7 +318,9 @@ export default defineFigure<Props>({
 
                 // Running.
                 for (const s of plan.slices) {
-                    if (s.job !== i || now <= s.start) continue;
+                    if (s.job !== i || now <= s.start) {
+                        continue;
+                    }
                     const end = Math.min(s.end, now);
                     const live = sweeping && now < s.end;
                     ctx.fillStyle = live ? palette.marker : palette.inkMuted;
@@ -330,7 +360,9 @@ export default defineFigure<Props>({
                     ctx.fillStyle = palette.ruleFaint;
                     ctx.fillRect(plot.x, y, plot.w, STRIP);
                     for (const s of plan.slices) {
-                        if (s.core !== c || now <= s.start) continue;
+                        if (s.core !== c || now <= s.start) {
+                            continue;
+                        }
                         const end = Math.min(s.end, now);
                         ctx.fillStyle = palette.inkMuted;
                         ctx.fillRect(x(s.start), y, Math.max(1, x(end) - x(s.start) - 1), STRIP);

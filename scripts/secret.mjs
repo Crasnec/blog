@@ -80,7 +80,9 @@ async function readKey(which, decode) {
     try {
         const value = parseJson(await readFile(resolve(ROOT.pathname, which), "utf8"));
         const decoded = decode(value);
-        if (decoded) return decoded;
+        if (decoded) {
+            return decoded;
+        }
         fail(`${which} has an invalid key structure.`);
     } catch {
         fail(
@@ -146,10 +148,10 @@ export function publicFrontmatter(frontmatter) {
  * @param {string} message
  * @returns {never}
  */
-const fail = (message) => {
+function fail(message) {
     console.error(`\nsecret: ${message}\n`);
     process.exit(1);
-};
+}
 
 /**
  * @param {string} question
@@ -174,7 +176,9 @@ async function askHidden(question) {
 
     let muted = false;
     rl._writeToOutput = (chunk) => {
-        if (!muted) process.stdout.write(chunk);
+        if (!muted) {
+            process.stdout.write(chunk);
+        }
     };
 
     /** @type {Promise<string>} */
@@ -192,16 +196,22 @@ async function askHidden(question) {
 /** @param {"keygen" | "rekey" | "open"} action */
 async function passphraseFor(action) {
     const fromEnv = process.env.SECRET_PASSPHRASE;
-    if (fromEnv) return fromEnv;
+    if (fromEnv) {
+        return fromEnv;
+    }
 
     const first = await askHidden("passphrase: ");
-    if (!first) fail("no passphrase given.");
+    if (!first) {
+        fail("no passphrase given.");
+    }
 
     if (action === "keygen" || action === "rekey") {
         // A mistyped passphrase locks every post that will ever be sealed to
         // this key, and there is no second copy of it anywhere.
         const again = await askHidden("again: ");
-        if (first !== again) fail("the two passphrases do not match.");
+        if (first !== again) {
+            fail("the two passphrases do not match.");
+        }
     }
 
     return first;
@@ -275,7 +285,9 @@ async function doSeal(input) {
     const publicMetadata = publicFrontmatter(frontmatter);
 
     for (const [key, why] of Object.entries(LEAKY_KEYS)) {
-        if (key in frontmatter) fail(`remove \`${key}\` from ${rel}: ${why}.`);
+        if (key in frontmatter) {
+            fail(`remove \`${key}\` from ${rel}: ${why}.`);
+        }
     }
 
     const unsupported = Object.keys(frontmatter).filter((k) => !PUBLIC_KEYS.has(k));
@@ -289,7 +301,9 @@ async function doSeal(input) {
     }
 
     const md = content.replace(/^\n+/, "");
-    if (!md.trim()) fail(`${rel} has no body to seal.`);
+    if (!md.trim()) {
+        fail(`${rel} has no body to seal.`);
+    }
 
     const outPath = resolve(ROOT.pathname, out);
     const html = await render(md, pathToFileURL(outPath));
@@ -324,7 +338,9 @@ async function doOpen(input) {
     const publicMetadata = publicFrontmatter(frontmatter);
 
     const sealed = parseSecretPayload(parseJson(JSON.stringify(frontmatter.sealed)));
-    if (!sealed) fail(`${rel} is not a valid sealed post.`);
+    if (!sealed) {
+        fail(`${rel} is not a valid sealed post.`);
+    }
 
     const passphrase = await passphraseFor("open");
     const opened = await openWith(
@@ -401,17 +417,25 @@ async function doRekey() {
     const priv = await readKey(PRIVATE_KEY, parsePrivateKeyFile);
 
     const from = process.env.SECRET_PASSPHRASE ?? (await askHidden("current passphrase: "));
-    if (!from) fail("no passphrase given.");
+    if (!from) {
+        fail("no passphrase given.");
+    }
 
     const to = process.env.SECRET_PASSPHRASE_NEW ?? (await askHidden("new passphrase: "));
-    if (!to) fail("no new passphrase given.");
+    if (!to) {
+        fail("no new passphrase given.");
+    }
     if (!process.env.SECRET_PASSPHRASE_NEW) {
         const again = await askHidden("again: ");
-        if (to !== again) fail("the two passphrases do not match.");
+        if (to !== again) {
+            fail("the two passphrases do not match.");
+        }
     }
 
     const rewrapped = await rewrap(priv, from, to);
-    if (!rewrapped) fail("the current passphrase is wrong.");
+    if (!rewrapped) {
+        fail("the current passphrase is wrong.");
+    }
 
     await writeFile(
         resolve(ROOT.pathname, PRIVATE_KEY),
@@ -430,11 +454,20 @@ async function doRekey() {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const [action, target] = process.argv.slice(2);
 
-    if (action === "keygen") await doKeygen();
-    else if (action === "rekey") await doRekey();
-    else if (action === "seal" && target) await doSeal(target);
-    else if (action === "open" && target) await doOpen(target);
+    if (action === "keygen") {
+        await doKeygen();
+    }
+    else if (action === "rekey") {
+        await doRekey();
+    }
+    else if (action === "seal" && target) {
+        await doSeal(target);
+    }
+    else if (action === "open" && target) {
+        await doOpen(target);
+    }
     else
+    {
         fail(
             "usage:\n" +
                 "    npm run secret:keygen\n" +
@@ -442,4 +475,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
                 `    npm run secret:seal ${PLAIN_DIR}/<slug>.md\n` +
                 `    npm run secret:open ${SEALED_DIR}/<slug>.md`,
         );
+    }
 }

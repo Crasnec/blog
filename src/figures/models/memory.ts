@@ -31,10 +31,14 @@ export function holesOf(blocks: Block[], heap: number): Hole[] {
     const holes: Hole[] = [];
     let at = 0;
     for (const b of used) {
-        if (b.start > at) holes.push({ start: at, size: b.start - at });
+        if (b.start > at) {
+            holes.push({ start: at, size: b.start - at });
+        }
         at = Math.max(at, b.start + b.size);
     }
-    if (at < heap) holes.push({ start: at, size: heap - at });
+    if (at < heap) {
+        holes.push({ start: at, size: heap - at });
+    }
     return holes;
 }
 
@@ -59,7 +63,9 @@ function choose(policy: Policy, holes: Hole[], size: number, cursor: number): Ho
             for (const h of holes) {
                 const start = Math.max(h.start, cursor);
                 const available = h.start + h.size - start;
-                if (available >= size) return { start, size: available };
+                if (available >= size) {
+                    return { start, size: available };
+                }
             }
             return fits[0];
     }
@@ -83,7 +89,9 @@ export function simulate(policy: Policy, heap: number, requests: Request[]): Ste
                 throw new Error(`${path}: "${request.id}" is already allocated`);
             }
             if (request.size > heap)
+            {
                 throw new Error(`${path}: size ${String(request.size)} is larger than the heap`);
+            }
             freed.delete(request.id);
             const holes = holesOf(blocks, heap);
             const hole = choose(policy, holes, request.size, cursor);

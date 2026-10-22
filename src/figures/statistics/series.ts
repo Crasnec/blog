@@ -45,12 +45,14 @@ function correlogram(partial: boolean) {
                 yLabel: partial ? "partial autocorrelation" : "autocorrelation",
             });
             for (const value of [-p.band, 0, p.band])
+            {
                 reference(
                     frame,
                     plot,
                     { x: 0.5, y: value },
                     { x: p.correlations.length + 0.5, y: value },
                 );
+            }
             clipped(frame, plot.rect, () => {
                 p.correlations.forEach((value, i) => {
                     withAlpha(

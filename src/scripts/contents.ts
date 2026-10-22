@@ -23,10 +23,14 @@ export function mountContents() {
     teardown();
 
     const root = document.getElementById("contents");
-    if (!root) return;
+    if (!root) {
+        return;
+    }
 
     const items = [...root.querySelectorAll<HTMLAnchorElement>(".contents-item")];
-    if (items.length === 0) return;
+    if (items.length === 0) {
+        return;
+    }
 
     listeners = new AbortController();
     const links = [
@@ -36,7 +40,9 @@ export function mountContents() {
     const linksBySlug = new Map<string, HTMLAnchorElement[]>();
     for (const link of links) {
         const slug = link.dataset.slug;
-        if (!slug) continue;
+        if (!slug) {
+            continue;
+        }
         const matches = linksBySlug.get(slug) ?? [];
         matches.push(link);
         linksBySlug.set(slug, matches);
@@ -52,14 +58,20 @@ export function mountContents() {
                     event.shiftKey ||
                     event.altKey
                 )
+                {
                     return;
+                }
                 const heading = document.getElementById(slug);
-                if (!heading) return;
+                if (!heading) {
+                    return;
+                }
 
                 // Collapse before the browser follows the fragment, so its scroll
                 // position accounts for the space the open outline used to occupy.
                 const details = link.closest("details");
-                if (details) details.open = false;
+                if (details) {
+                    details.open = false;
+                }
                 heading.tabIndex = -1;
                 heading.focus({ preventScroll: true });
             },
@@ -73,10 +85,14 @@ export function mountContents() {
 
     items.forEach((item, i) => {
         const slug = item.dataset.slug;
-        if (!slug) return;
+        if (!slug) {
+            return;
+        }
         const heading = document.getElementById(slug);
         const section = heading?.closest("section") ?? heading?.parentElement;
-        if (!section) return;
+        if (!section) {
+            return;
+        }
         sections[i] = section;
         indexOfSection.set(section, i);
     });
@@ -89,7 +105,9 @@ export function mountContents() {
         let found = -1;
         for (let i = 0; i < sections.length; i++) {
             const section = sections[i];
-            if (!section) continue;
+            if (!section) {
+                continue;
+            }
             if (section.getBoundingClientRect().top <= window.innerHeight * 0.3) {
                 found = i;
             }
@@ -101,39 +119,61 @@ export function mountContents() {
 
     function mark(index: number, active: boolean) {
         const slug = items[index]?.dataset.slug;
-        if (!slug) return;
+        if (!slug) {
+            return;
+        }
         for (const link of linksBySlug.get(slug) ?? []) {
             link.classList.toggle("is-active", active);
-            if (active) link.setAttribute("aria-current", "location");
-            else link.removeAttribute("aria-current");
+            if (active) {
+                link.setAttribute("aria-current", "location");
+            }
+            else {
+                link.removeAttribute("aria-current");
+            }
         }
     }
 
     function paint() {
         paintFrame = 0;
         const next = crossing.size > 0 ? Math.max(...crossing) : nearest();
-        if (next === marked) return;
+        if (next === marked) {
+            return;
+        }
 
-        if (marked !== -1) mark(marked, false);
+        if (marked !== -1) {
+            mark(marked, false);
+        }
         marked = next;
-        if (marked !== -1) mark(marked, true);
+        if (marked !== -1) {
+            mark(marked, true);
+        }
     }
 
     observer = new IntersectionObserver(
         (entries) => {
             for (const entry of entries) {
                 const i = indexOfSection.get(entry.target);
-                if (i === undefined) continue;
-                if (entry.isIntersecting) crossing.add(i);
-                else crossing.delete(i);
+                if (i === undefined) {
+                    continue;
+                }
+                if (entry.isIntersecting) {
+                    crossing.add(i);
+                }
+                else {
+                    crossing.delete(i);
+                }
             }
-            if (!paintFrame) paintFrame = requestAnimationFrame(paint);
+            if (!paintFrame) {
+                paintFrame = requestAnimationFrame(paint);
+            }
         },
         { rootMargin: `${BAND.top} 0px ${BAND.bottom} 0px`, threshold: 0 },
     );
 
     for (const section of sections) {
-        if (section) observer.observe(section);
+        if (section) {
+            observer.observe(section);
+        }
     }
 
     paint();

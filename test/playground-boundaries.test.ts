@@ -36,7 +36,9 @@ void test("execution messages decode only complete, bounded transport values", (
         { type: "plot", png: new ArrayBuffer(8), alt: "Plot" },
         { type: "plot", png: new ArrayBuffer(MAX_PNG + 1), alt: "Plot" },
     ])
+    {
         assert.equal(decodeRunResponse(value), undefined);
+    }
     assert.deepEqual(decodeRunResponse({ type: "ready", ignored: 1 }), { type: "ready" });
     assert.deepEqual(decodeRunResponse({ type: "done" }), { type: "done" });
     assert.deepEqual(decodeRunResponse({ type: "status", text: "Loading" }), {
@@ -79,7 +81,9 @@ void test("run requests require actual ports and valid source/package combinatio
             { persistent: "true" },
             { runtime: "javascript" },
         ])
+        {
             assert.equal(decodeRunRequest({ ...request, ...change }), undefined);
+        }
         assert.deepEqual(decodeCellRequest({ type: "run", code: "", pythonPackages: [] }), {
             type: "run",
             code: "",
@@ -110,7 +114,9 @@ void test("highlighting rejects malformed tokens, overlap, and invalid grammar r
         [token, token],
         [{ ...token, to: MAX_CODE + 1 }],
     ])
+    {
         assert.equal(decodeHighlightResponse({ ...response, tokens }), undefined);
+    }
     const request = { id: 1, language: "python", code: "x = 2", grammars: [] };
     assert.deepEqual(decodeHighlightRequest(request), request);
     for (const change of [
@@ -122,7 +128,9 @@ void test("highlighting rejects malformed tokens, overlap, and invalid grammar r
         { code: null },
         { grammars: [{ filename: "x", content: "x".repeat(1_000_001) }] },
     ])
+    {
         assert.equal(decodeHighlightRequest({ ...request, ...change }), undefined);
+    }
     const patch = { ...response, from: 0, to: 5 };
     assert.deepEqual(decodeHighlightResponse(patch), patch);
     for (const bounds of [{ from: 1, to: 5 }, { from: 0, to: 4 }, { from: 0 }, { to: 5 }]) {
@@ -158,7 +166,9 @@ void test(
                 { type: "input", id: 1, value: "x".repeat(MAX_INPUT + 1) },
                 { type: "input", id: 2, value: "stale" },
             ])
+            {
                 channel.port2.postMessage(value);
+            }
             channel.port2.postMessage({ type: "input", id: 1, value: "accepted" });
             assert.equal(await pending, "accepted");
         } finally {
@@ -187,9 +197,13 @@ void test("TextMate validation traverses nested rules before the tokenizer sees 
         { applyEndPatternLast: "yes" },
         { repository: { value: { patterns: [null] } } },
     ])
+    {
         assert.throws(() => parse([rule]), /grammar/);
+    }
     let nested: JsonValue = { match: "x" };
-    for (let index = 0; index < 66; index++) nested = { patterns: [nested] };
+    for (let index = 0; index < 66; index++) {
+        nested = { patterns: [nested] };
+    }
     assert.throws(() => parse([nested]), /nesting/);
     const valid = parse([
         { begin: "a", end: "b", applyEndPatternLast: 1, beginCaptures: { 0: { name: "keyword" } } },
@@ -206,7 +220,9 @@ void test("Python runtime adapter validates exports and returned Python text", a
         { loadPyodide: () => null },
         { loadPyodide: () => ({ runPython: 1 }) },
     ])
+    {
         await assert.rejects(initializePythonRuntime(module, {}), /Python/);
+    }
     const calls: string[] = [];
     const runtime = {
         runPython: (code: string) => (code === "imports" ? '["numpy"]' : 42),

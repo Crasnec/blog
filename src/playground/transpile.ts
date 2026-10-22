@@ -16,6 +16,7 @@ export function transpileTypeScript(code: string): string {
             (diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error,
         ) ?? [];
     if (errors.length)
+    {
         throw new SyntaxError(
             errors
                 .map((diagnostic) => {
@@ -26,5 +27,6 @@ export function transpileTypeScript(code: string): string {
                 })
                 .join("\n"),
         );
+    }
     return result.outputText;
 }

@@ -19,7 +19,9 @@ export default function SvgFigure({
     maxWidth?: number | string;
 }) {
     if (![width, height].every((n) => Number.isFinite(n) && n > 0))
+    {
         throw new Error("SvgFigure width and height must be positive finite numbers");
+    }
     return (
         <figure className="figure" data-static-figure={name}>
             <svg

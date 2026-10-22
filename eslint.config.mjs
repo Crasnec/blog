@@ -7,11 +7,49 @@ import jsxA11y from "eslint-plugin-jsx-a11y";
 import tseslint from "typescript-eslint";
 import stylistic from "@stylistic/eslint-plugin";
 
+const functionStatements = {
+    selector: [
+        "FunctionDeclaration",
+        "VariableDeclaration[declarations.0.init.type=/^(ArrowFunctionExpression|FunctionExpression)$/]",
+        "ExportNamedDeclaration[declaration.type=FunctionDeclaration]",
+        "ExportDefaultDeclaration[declaration.type=/^(FunctionDeclaration|ArrowFunctionExpression|FunctionExpression)$/]",
+        "ExportNamedDeclaration[declaration.declarations.0.init.type=/^(ArrowFunctionExpression|FunctionExpression)$/]",
+        "ExpressionStatement[expression.type=AssignmentExpression][expression.right.type=/^(ArrowFunctionExpression|FunctionExpression)$/]",
+    ].join(", "),
+};
+
 /**
  * Only the source-style choices agreed for this project.
  * @type {import("eslint").Linter.RulesRecord}
  */
 export const sourceStyleRules = {
+    curly: ["error", "all"],
+    "@stylistic/curly-newline": [
+        "error",
+        {
+            consistent: true,
+            IfStatementConsequent: "always",
+            IfStatementAlternative: "always",
+            ForStatement: "always",
+            ForInStatement: "always",
+            ForOfStatement: "always",
+            WhileStatement: "always",
+            DoWhileStatement: "always",
+            SwitchStatement: "always",
+            TryStatementBlock: "always",
+            TryStatementHandler: "always",
+            TryStatementFinalizer: "always",
+        },
+    ],
+    "@stylistic/padding-line-between-statements": [
+        "error",
+        { blankLine: "always", prev: functionStatements, next: functionStatements },
+    ],
+    "@stylistic/lines-between-class-members": [
+        "error",
+        { enforce: [{ blankLine: "always", prev: "method", next: "method" }] },
+    ],
+    "@stylistic/no-multiple-empty-lines": ["error", { max: 1 }],
     "@stylistic/indent": ["error", 4, { SwitchCase: 1 }],
     "@stylistic/semi": ["error", "always"],
     "@stylistic/max-len": [

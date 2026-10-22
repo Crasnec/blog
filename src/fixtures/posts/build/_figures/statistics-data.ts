@@ -74,7 +74,9 @@ const studies = [0.35, 0.7, 0.2, 0.5, 0.45].map((estimate, i) => {
 const totalWeight = studies.reduce((a, s) => a + s.weight, 0);
 const pooled = studies.reduce((a, s) => a + s.estimate * s.weight, 0) / totalWeight;
 const series: number[] = [];
-for (let i = 0; i < 96; i++) series.push(round(0.72 * (series.at(-1) ?? 0) + normal(rand) * 0.7));
+for (let i = 0; i < 96; i++) {
+    series.push(round(0.72 * (series.at(-1) ?? 0) + normal(rand) * 0.7));
+}
 const scored: ScoredObservation[] = Array.from({ length: 140 }, () => {
     const score = round(0.01 + rand() * 0.98);
     return { score, label: rand() < score ? 1 : 0 };

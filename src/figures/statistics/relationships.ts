@@ -112,8 +112,12 @@ export const hexbin = defineFigure({
                     () => {
                         frame.ctx.beginPath();
                         bin.vertices.forEach((v, j) => {
-                            if (j === 0) frame.ctx.moveTo(plot.x(v.x), plot.y(v.y));
-                            else frame.ctx.lineTo(plot.x(v.x), plot.y(v.y));
+                            if (j === 0) {
+                                frame.ctx.moveTo(plot.x(v.x), plot.y(v.y));
+                            }
+                            else {
+                                frame.ctx.lineTo(plot.x(v.x), plot.y(v.y));
+                            }
                         });
                         frame.ctx.closePath();
                         frame.ctx.fillStyle = frame.palette.surface;
@@ -171,6 +175,7 @@ export const densityContour = defineFigure({
             p.contours.forEach((contour, i) => {
                 withAlpha(frame.ctx, progress(frame.time, 1.3 + i * 0.7, 0.6), () => {
                     for (const [a, b] of contour.segments)
+                    {
                         line(
                             frame.ctx,
                             plot.x(a.x),
@@ -182,6 +187,7 @@ export const densityContour = defineFigure({
                                 : frame.palette.inkMuted,
                             1.2 + i * 0.4,
                         );
+                    }
                 });
             });
         });
@@ -198,12 +204,16 @@ export const pairplot = defineFigure({
             str(c, `props.columns[${String(i)}]`),
         );
         if (columns.length < 2 || columns.length > 5 || new Set(columns).size !== columns.length)
+        {
             throw new Error("props.columns needs 2–5 unique variable names");
+        }
         const rows = arr(p.rows, "props.rows").map((r, i) =>
             sample(r, `props.rows[${String(i)}]`, columns.length, columns.length),
         );
         if (rows.length < 3 || rows.length > 500)
+        {
             throw new Error("props.rows needs 3–500 observations");
+        }
         const domains = columns.map((_, i) => extent(rows.map((r) => r[i] ?? 0)));
         const histograms = columns.map((_, i) =>
             histogram(
@@ -220,6 +230,7 @@ export const pairplot = defineFigure({
         const tile = Math.min((frame.width - 44) / n, (frame.height - 96) / n);
         const top = 66;
         for (let r = 0; r < n; r++)
+        {
             for (let c = 0; c < n; c++) {
                 const rect = {
                     x: 40 + c * tile + 3,
@@ -239,6 +250,7 @@ export const pairplot = defineFigure({
                 );
                 line(frame.ctx, rect.x, rect.y, rect.x, rect.y + rect.h, frame.palette.rule);
                 if (r === 0)
+                {
                     fittedText(
                         frame,
                         p.columns[c] ?? "",
@@ -248,7 +260,9 @@ export const pairplot = defineFigure({
                         frame.palette.inkStrong,
                         "center",
                     );
+                }
                 if (c === 0)
+                {
                     fittedText(
                         frame,
                         p.columns[r] ?? "",
@@ -257,6 +271,7 @@ export const pairplot = defineFigure({
                         35,
                         frame.palette.inkMuted,
                     );
+                }
                 if (r === n - 1) {
                     fittedText(
                         frame,
@@ -282,6 +297,7 @@ export const pairplot = defineFigure({
                     y: (y: number) => rect.y + rect.h - ((y - yd[0]) / (yd[1] - yd[0])) * rect.h,
                 };
                 if (r !== c)
+                {
                     points(
                         frame,
                         plot,
@@ -289,6 +305,7 @@ export const pairplot = defineFigure({
                         frame.palette.marker,
                         frame.width < 520 ? 1.4 : 2,
                     );
+                }
                 else {
                     const counts = p.histograms[r] ?? [];
                     const max = Math.max(...counts);
@@ -305,6 +322,7 @@ export const pairplot = defineFigure({
                     });
                 }
             }
+        }
     },
 });
 
@@ -388,6 +406,7 @@ export const blandAltman = defineFigure({
         points(frame, plot, p.data);
         withAlpha(frame.ctx, progress(frame.time, 2.6, 1), () => {
             for (const value of [p.bias, ...p.limits])
+            {
                 reference(
                     frame,
                     plot,
@@ -395,6 +414,7 @@ export const blandAltman = defineFigure({
                     { x: p.xd[1], y: value },
                     value === p.bias ? frame.palette.inkStrong : frame.palette.warn,
                 );
+            }
         });
     },
 });

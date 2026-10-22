@@ -161,7 +161,9 @@ export function phases<K extends string>(steps: Record<K, number>): Record<K | "
     let at = 0;
     const out: Record<K | "end", number> = { ...steps, end: 0 };
     for (const key in steps) {
-        if (!Object.hasOwn(steps, key)) continue;
+        if (!Object.hasOwn(steps, key)) {
+            continue;
+        }
         out[key] = at;
         at += steps[key];
     }
@@ -225,7 +227,9 @@ export const mean = (values: readonly number[]): number =>
 
 /** The `p`th percentile (0–100) of already sorted values, nearest-rank. */
 export function percentile(sorted: readonly number[], p: number): number {
-    if (sorted.length === 0) return 0;
+    if (sorted.length === 0) {
+        return 0;
+    }
     const i = Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1);
     return sorted[Math.max(0, i)] ?? 0;
 }
@@ -263,7 +267,11 @@ export function trimNumber(v: number, digits = 1): string {
 export function tickStep(span: number, maxTicks: number): number {
     const raw = span / maxTicks;
     const base = 10 ** Math.floor(Math.log10(raw));
-    for (const m of [1, 2, 5, 10]) if (base * m >= raw) return base * m;
+    for (const m of [1, 2, 5, 10]) {
+        if (base * m >= raw) {
+            return base * m;
+        }
+    }
     return base * 10;
 }
 
@@ -275,7 +283,9 @@ export const scale =
 
 /** A round number at or above `v`, for axis maxima: 7.3k → 8k, 0.42 → 0.5. */
 export function niceMax(v: number): number {
-    if (v <= 0) return 1;
+    if (v <= 0) {
+        return 1;
+    }
     const step = 10 ** Math.floor(Math.log10(v));
     const m = v / step;
     const nice = m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10;
@@ -285,8 +295,12 @@ export function niceMax(v: number): number {
 /** 1200 → "1.2k", 3_400_000 → "3.4M". */
 export function compact(v: number): string {
     const abs = Math.abs(v);
-    if (abs >= 1e6) return `${trim(v / 1e6)}M`;
-    if (abs >= 1e3) return `${trim(v / 1e3)}k`;
+    if (abs >= 1e6) {
+        return `${trim(v / 1e6)}M`;
+    }
+    if (abs >= 1e3) {
+        return `${trim(v / 1e3)}k`;
+    }
     return trim(v);
 }
 
@@ -398,9 +412,13 @@ export function text(
 /** Draw text within a width, preserving complete graphemes when truncating. */
 /** Compact numeric labels, retaining small magnitudes in scientific notation. */
 export const formatNumber = (n: number): string => {
-    if (n === 0) return "0";
+    if (n === 0) {
+        return "0";
+    }
     if (Math.abs(n) >= 10000 || Math.abs(n) < 0.001)
+    {
         return n.toExponential(1).replace(".0e", "e").replace("e+", "e");
+    }
     return Number(n.toFixed(Math.abs(n) < 1 ? 3 : 2)).toString();
 };
 
@@ -416,7 +434,9 @@ export function fittedText(
     align: CanvasTextAlign = "left",
 ): void {
     frame.ctx.font = `400 11px ${frame.palette.sans}`;
-    if (width < frame.ctx.measureText("…").width) return;
+    if (width < frame.ctx.measureText("…").width) {
+        return;
+    }
     let shown = value;
     if (frame.ctx.measureText(shown).width > width) {
         const characters = Array.from(graphemes.segment(value), (part) => part.segment);
@@ -424,7 +444,9 @@ export function fittedText(
             characters.length > 0 &&
             frame.ctx.measureText(`${characters.join("")}…`).width > width
         )
+        {
             characters.pop();
+        }
         shown = `${characters.join("")}…`;
     }
     text(frame, shown, x, y, { size: 11, color, align });
@@ -450,7 +472,9 @@ export function label(
     const maxX = style.maxX ?? frame.width;
     const centred = style.align === "center";
     let left = centred ? x - w / 2 : x;
-    if (!centred && left + w > maxX) left = x - w - 8;
+    if (!centred && left + w > maxX) {
+        left = x - w - 8;
+    }
     ctx.fillStyle = palette.paper;
     ctx.fillRect(left, y - size, w, size + 6);
     text(frame, value, left + 4, y, { ...style, align: "left" });
@@ -529,7 +553,9 @@ export function partialPath(
     t: number,
 ): Point | undefined {
     const first = points[0];
-    if (!first) return undefined;
+    if (!first) {
+        return undefined;
+    }
 
     const lengths: number[] = [];
     let total = 0;
@@ -549,7 +575,9 @@ export function partialPath(
         const a = points[i - 1];
         const b = points[i];
         const len = lengths[i - 1] ?? 0;
-        if (!a || !b) break;
+        if (!a || !b) {
+            break;
+        }
         if (remaining >= len) {
             ctx.lineTo(b.x, b.y);
             end = b;
@@ -585,7 +613,9 @@ export function alongPath(points: Point[], t: number): Point {
         const a = points[i - 1] ?? first;
         const b = points[i] ?? a;
         const len = Math.hypot(b.x - a.x, b.y - a.y);
-        if (remaining <= len) return along(a, b, len === 0 ? 0 : remaining / len);
+        if (remaining <= len) {
+            return along(a, b, len === 0 ? 0 : remaining / len);
+        }
         remaining -= len;
     }
     return points[points.length - 1] ?? first;
@@ -618,7 +648,9 @@ export function burst(
     age: number,
     color: string,
 ): void {
-    if (age <= 0 || age >= 1) return;
+    if (age <= 0 || age >= 1) {
+        return;
+    }
     const alpha = ctx.globalAlpha;
     ctx.globalAlpha = alpha * (1 - ease.out(age) * 0.9);
     ring(ctx, x, y, 5 + ease.out(age) * 9, color, 2);
@@ -689,7 +721,9 @@ export function curvedArrow(
     }
     ctx.stroke();
     ctx.setLineDash([]);
-    if (end < 1) return;
+    if (end < 1) {
+        return;
+    }
     const tail = alongCurve(a, c, b, 0.94);
     arrowHead(ctx, b, Math.atan2(b.y - tail.y, b.x - tail.x), color);
 }
@@ -747,7 +781,9 @@ export function edgePoint(c: Point, w: number, h: number, toward: Point, gap = 4
  * space that is taken but idle: waiting, reserved, blocked.
  */
 export function hatch(ctx: CanvasRenderingContext2D, r: Rect, color: string): void {
-    if (r.w <= 0.5) return;
+    if (r.w <= 0.5) {
+        return;
+    }
     ctx.save();
     ctx.beginPath();
     ctx.rect(r.x, r.y, r.w, r.h);
@@ -865,14 +901,18 @@ export function labelSpot(
         let clear = Infinity;
         for (const f of [-0.5, -0.25, 0, 0.25, 0.5]) {
             const p = { x: cx + ux * w * f, y: cy + uy * w * f };
-            for (const o of others) clear = Math.min(clear, distanceToSegment(p, o));
+            for (const o of others) {
+                clear = Math.min(clear, distanceToSegment(p, o));
+            }
         }
         // Prefer the middle when clearances are close.
         const score = Math.min(clear, 40) - Math.abs(along - 0.5) * 6;
         if (score > bestScore) {
             bestScore = score;
             let angle = Math.atan2(uy, ux);
-            if (ux < 0) angle += Math.PI;
+            if (ux < 0) {
+                angle += Math.PI;
+            }
             best = { x: cx, y: cy, angle, along };
         }
     }
@@ -974,7 +1014,9 @@ export function badge(
  * reset `globalAlpha`.
  */
 export function withAlpha(ctx: CanvasRenderingContext2D, alpha: number, paint: () => void): void {
-    if (alpha <= 0) return;
+    if (alpha <= 0) {
+        return;
+    }
     const before = ctx.globalAlpha;
     ctx.globalAlpha = before * clamp(alpha);
     paint();
@@ -1045,7 +1087,9 @@ export function nums(v: JsonValue | undefined, path: string): number[] {
 }
 
 export function tone(v: JsonValue | undefined, path: string, fallback: Tone): Tone {
-    if (v === undefined) return fallback;
+    if (v === undefined) {
+        return fallback;
+    }
     const found = TONES.find((t) => t === v);
     return found ?? fail(path, `one of ${TONES.join(", ")}`);
 }

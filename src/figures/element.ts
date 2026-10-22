@@ -19,7 +19,9 @@ export function prepareFigure(
 ) {
     try {
         if (height !== undefined && (!Number.isFinite(height) || height <= 0))
+        {
             throw new Error("height must be a positive finite number");
+        }
         figure.bind(props);
     } catch (error) {
         const reason = error instanceof Error ? error.message : String(error);

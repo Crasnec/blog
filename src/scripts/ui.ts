@@ -88,7 +88,9 @@ function readPagefindReferences(value: object | null | undefined): PagefindRefer
     if (typeof value !== "object" || value === null || !("results" in value)) {
         throw new TypeError("Invalid Pagefind search response");
     }
-    if (!Array.isArray(value.results)) throw new TypeError("Invalid Pagefind result list");
+    if (!Array.isArray(value.results)) {
+        throw new TypeError("Invalid Pagefind result list");
+    }
     return value.results.map((entry: object | null | undefined) => {
         if (typeof entry !== "object" || entry === null || !isPagefindReference(entry)) {
             throw new TypeError("Invalid Pagefind result reference");
@@ -119,13 +121,17 @@ function readPagefindResult(value: object | null | undefined): PagefindResult {
         }
         if ("title" in meta && meta.title !== undefined) {
             if (typeof meta.title !== "string")
+            {
                 throw new TypeError("Invalid Pagefind result title");
+            }
             result.meta = { title: meta.title };
         }
     }
     if ("excerpt" in value && value.excerpt !== undefined) {
         if (typeof value.excerpt !== "string")
+        {
             throw new TypeError("Invalid Pagefind result excerpt");
+        }
         result.excerpt = value.excerpt;
     }
     return result;
@@ -145,15 +151,21 @@ let pagefind: Pagefind | null = null;
 let pagefindLoading: Promise<Pagefind | null> | null = null;
 
 async function loadPagefind(): Promise<Pagefind | null> {
-    if (pagefind) return pagefind;
-    if (pagefindLoading) return pagefindLoading;
+    if (pagefind) {
+        return pagefind;
+    }
+    if (pagefindLoading) {
+        return pagefindLoading;
+    }
     pagefindLoading = (async () => {
         try {
             const url = `${import.meta.env.BASE_URL}pagefind/pagefind.js`.replace("//", "/");
             // An ECMAScript module namespace is always an object. Its callable surface
             // is still checked below before it reaches application code.
             const loaded = (await import(/* @vite-ignore */ url)) as object;
-            if (!isPagefind(loaded)) throw new TypeError("Invalid Pagefind module");
+            if (!isPagefind(loaded)) {
+                throw new TypeError("Invalid Pagefind module");
+            }
             await loaded.options?.({ excerptLength: 24 });
             pagefind = loaded;
             return pagefind;
@@ -174,7 +186,9 @@ function wireSearch() {
     const input = document.getElementById("search-input");
     const list = document.getElementById("search-results");
     const note = document.getElementById("search-note");
-    if (!panel || !openBtn || !(input instanceof HTMLInputElement) || !list || !note) return;
+    if (!panel || !openBtn || !(input instanceof HTMLInputElement) || !list || !note) {
+        return;
+    }
 
     const emptyText = panel.dataset.empty ?? "";
     const loadingText = panel.dataset.loading ?? "";
@@ -206,7 +220,9 @@ function wireSearch() {
     };
 
     const restoreBackground = () => {
-        for (const [element, inert] of background) element.inert = inert;
+        for (const [element, inert] of background) {
+            element.inert = inert;
+        }
         background.clear();
     };
 
@@ -219,7 +235,9 @@ function wireSearch() {
         active = true;
         lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         for (const sibling of document.body.children) {
-            if (!(sibling instanceof HTMLElement) || sibling.contains(panel)) continue;
+            if (!(sibling instanceof HTMLElement) || sibling.contains(panel)) {
+                continue;
+            }
             background.set(sibling, sibling.inert);
             sibling.inert = true;
         }
@@ -234,13 +252,17 @@ function wireSearch() {
     };
 
     const close = () => {
-        if (!active) return;
+        if (!active) {
+            return;
+        }
         active = false;
         cancelAnimationFrame(openFrame);
         panel.inert = true;
         panel.classList.remove("is-open");
         restoreBackground();
-        if (lastFocused?.isConnected) lastFocused.focus();
+        if (lastFocused?.isConnected) {
+            lastFocused.focus();
+        }
         closeTimer = window.setTimeout(() => {
             panel.hidden = true;
         }, 220);
@@ -265,7 +287,9 @@ function wireSearch() {
     closeBtn?.addEventListener("click", close);
 
     panel.addEventListener("click", (event) => {
-        if (event.target === panel) close();
+        if (event.target === panel) {
+            close();
+        }
     });
 
     /*
@@ -275,7 +299,9 @@ function wireSearch() {
      * which is what makes the marked row the same one a screen reader announces.
      */
     panel.addEventListener("keydown", (event) => {
-        if (!active || event.isComposing) return;
+        if (!active || event.isComposing) {
+            return;
+        }
         if (event.key === "Escape") {
             event.preventDefault();
             event.stopPropagation();
@@ -299,10 +325,14 @@ function wireSearch() {
             return;
         }
 
-        if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+        if (event.key !== "ArrowDown" && event.key !== "ArrowUp") {
+            return;
+        }
 
         const items = hits();
-        if (items.length === 0) return;
+        if (items.length === 0) {
+            return;
+        }
         event.preventDefault();
 
         const here =
@@ -311,14 +341,22 @@ function wireSearch() {
                 : -1;
         const next = event.key === "ArrowDown" ? here + 1 : here - 1;
 
-        if (next < 0) input.focus();
-        else items[Math.min(next, items.length - 1)]?.focus();
+        if (next < 0) {
+            input.focus();
+        }
+        else {
+            items[Math.min(next, items.length - 1)]?.focus();
+        }
     });
 
     input.addEventListener("keydown", (event) => {
-        if (event.isComposing || event.key !== "Enter") return;
+        if (event.isComposing || event.key !== "Enter") {
+            return;
+        }
         const first = hits()[0];
-        if (!first) return;
+        if (!first) {
+            return;
+        }
         event.preventDefault();
         first.click();
     });
@@ -340,18 +378,26 @@ function wireSearch() {
 
         try {
             const engine = await loadPagefind();
-            if (mine !== token) return;
-            if (!engine) throw new Error("Search index unavailable");
+            if (mine !== token) {
+                return;
+            }
+            if (!engine) {
+                throw new Error("Search index unavailable");
+            }
 
             const results = readPagefindReferences(await engine.search(query));
-            if (mine !== token) return;
+            if (mine !== token) {
+                return;
+            }
 
             const top = await Promise.all(
                 results
                     .slice(0, 8)
                     .map(async (reference) => readPagefindResult(await reference.data())),
             );
-            if (mine !== token) return;
+            if (mine !== token) {
+                return;
+            }
 
             list.replaceChildren(
                 ...top.map((hit) => {
@@ -379,7 +425,9 @@ function wireSearch() {
             note.hidden = top.length > 0;
             note.textContent = top.length ? "" : emptyText;
         } catch {
-            if (mine !== token) return;
+            if (mine !== token) {
+                return;
+            }
             list.replaceChildren();
             note.textContent = unavailableText;
             note.hidden = false;
@@ -426,14 +474,18 @@ function menuParts() {
 
 function setMenuOpen(open: boolean) {
     const { button, menu } = menuParts();
-    if (!button || !menu) return;
+    if (!button || !menu) {
+        return;
+    }
     menu.hidden = !open;
     button.setAttribute("aria-expanded", String(open));
 }
 
 function wireMenu() {
     const { button, menu } = menuParts();
-    if (!button || !menu) return;
+    if (!button || !menu) {
+        return;
+    }
 
     // `hidden` is typed `string | boolean` because of `hidden="until-found"`.
     button.addEventListener("click", () => {
@@ -445,26 +497,37 @@ function wireMenu() {
 
 function preparePlaygrounds() {
     const targets = document.querySelectorAll("[data-code-playground], [data-python-notebook]");
-    if (!targets.length) return;
+    if (!targets.length) {
+        return;
+    }
     let started = false;
     let disposed = false;
     const cleanup = () => {
         disposed = true;
         observer.disconnect();
-        for (const target of targets) target.removeEventListener("focusin", activate);
+        for (const target of targets) {
+            target.removeEventListener("focusin", activate);
+        }
         document.removeEventListener("astro:before-swap", cleanup);
     };
+
     const activate = () => {
-        if (started || disposed) return;
+        if (started || disposed) {
+            return;
+        }
         started = true;
         observer.disconnect();
         void import("./playgrounds").then(({ mountPlaygrounds }) => {
-            if (!disposed) mountPlaygrounds();
+            if (!disposed) {
+                mountPlaygrounds();
+            }
         });
     };
     const observer = new IntersectionObserver(
         (entries) => {
-            if (entries.some((entry) => entry.isIntersecting)) activate();
+            if (entries.some((entry) => entry.isIntersecting)) {
+                activate();
+            }
         },
         { rootMargin: "300px" },
     );
@@ -525,19 +588,27 @@ async function init() {
                 event.target instanceof Element &&
                 event.target.closest("#sidebar, #navbar-wrapper")
             )
+            {
                 event.preventDefault();
+            }
         });
 
         document.addEventListener("click", (event) => {
             const { button, menu } = menuParts();
             const target = event.target instanceof Node ? event.target : null;
-            if (!menu || menu.hidden || !target) return;
-            if (menu.contains(target) || button?.contains(target)) return;
+            if (!menu || menu.hidden || !target) {
+                return;
+            }
+            if (menu.contains(target) || button?.contains(target)) {
+                return;
+            }
             setMenuOpen(false);
         });
 
         document.addEventListener("keydown", (event) => {
-            if (event.key !== "Escape") return;
+            if (event.key !== "Escape") {
+                return;
+            }
             const { button, menu } = menuParts();
             if (menu && !menu.hidden) {
                 setMenuOpen(false);

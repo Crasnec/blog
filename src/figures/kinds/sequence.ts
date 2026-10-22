@@ -128,15 +128,21 @@ export default defineFigure<Props>({
             readActor(a, `props.actors[${String(i)}]`),
         );
         if (actors.length < 2 || actors.length > 5)
+        {
             throw new Error("props.actors needs 2 to 5 actors");
+        }
         const ids = actors.map((a) => a.id);
-        if (new Set(ids).size !== ids.length) throw new Error("props.actors ids must be unique");
+        if (new Set(ids).size !== ids.length) {
+            throw new Error("props.actors ids must be unique");
+        }
         const actorIndex = (id: string, path: string) => {
             const i = ids.indexOf(id);
             if (i < 0)
+            {
                 throw new Error(
                     `${path} is "${id}", which is not one of the actor ids: ${ids.join(", ")}`,
                 );
+            }
             return i;
         };
 
@@ -146,16 +152,24 @@ export default defineFigure<Props>({
             const o = obj(m, path);
             const from = actorIndex(str(o.from, `${path}.from`), `${path}.from`);
             const to = actorIndex(str(o.to, `${path}.to`), `${path}.to`);
-            if (from === to) throw new Error(`${path} goes from an actor to itself`);
+            if (from === to) {
+                throw new Error(`${path} goes from an actor to itself`);
+            }
             const latency = maybe(o.latency, `${path}.latency`, num) ?? 1;
-            if (latency <= 0) throw new Error(`${path}.latency must be more than 0`);
+            if (latency <= 0) {
+                throw new Error(`${path}.latency must be more than 0`);
+            }
             const prev = messages[i - 1];
             // By default a message leaves when the previous one has arrived.
             const gap = maybe(o.gap, `${path}.gap`, num) ?? (prev ? prev.end - prev.start : 0);
-            if (gap < 0) throw new Error(`${path}.gap must not be negative`);
+            if (gap < 0) {
+                throw new Error(`${path}.gap must not be negative`);
+            }
             const lost = o.lost === undefined ? false : o.lost === true;
             if (o.lost !== undefined && typeof o.lost !== "boolean")
+            {
                 throw new Error(`${path}.lost must be true or false`);
+            }
             const retransmits = maybe(o.retransmits, `${path}.retransmits`, num);
             if (retransmits !== undefined) {
                 const target = messages[retransmits];
@@ -165,7 +179,9 @@ export default defineFigure<Props>({
                     );
                 }
                 if (target.from !== from)
+                {
                     throw new Error(`${path} retransmits a message that a different actor sent`);
+                }
             }
             const start = prev ? prev.start + gap : 0;
             messages.push({
@@ -179,7 +195,9 @@ export default defineFigure<Props>({
                 retransmits,
             });
         }
-        if (messages.length === 0) throw new Error("props.messages needs at least one message");
+        if (messages.length === 0) {
+            throw new Error("props.messages needs at least one message");
+        }
 
         const notes = arr(p.notes ?? [], "props.notes").map((n, i) => {
             const path = `props.notes[${String(i)}]`;
@@ -233,6 +251,7 @@ export default defineFigure<Props>({
         // Story time → canvas y, and story time → animation time. Both are
         // fitted from the story's own length, so any exchange fits.
         const y = (s: number) => bodyTop + (s / props.total) * (bodyBottom - bodyTop);
+
         const at = (s: number) => TIMES.first + (s / props.total) * (TIMES.last - TIMES.first);
         const appear = ease.out(progress(time, 0, TIMES.appear));
 
@@ -265,18 +284,26 @@ export default defineFigure<Props>({
 
             /* layer 2: timeout brackets, behind the arrows they explain */
             for (const m of props.messages) {
-                if (m.retransmits === undefined) continue;
+                if (m.retransmits === undefined) {
+                    continue;
+                }
                 const lost = props.messages[m.retransmits];
-                if (!lost) continue;
+                if (!lost) {
+                    continue;
+                }
                 const grow = progress(time, at(lost.start), at(m.start) - at(lost.start));
-                if (grow <= 0) continue;
+                if (grow <= 0) {
+                    continue;
+                }
                 const outward = m.from === 0 || m.from !== last ? -12 : 12;
                 const x = actorX(m.from) + outward;
                 const y0 = y(lost.start);
                 const y1 = y0 + (y(m.start) - y0) * grow;
                 line(ctx, x, y0, x, y1, palette.warn, 2);
                 line(ctx, x - 4, y0, x + 4, y0, palette.warn, 2);
-                if (grow >= 1) line(ctx, x - 4, y1, x + 4, y1, palette.warn, 2);
+                if (grow >= 1) {
+                    line(ctx, x - 4, y1, x + 4, y1, palette.warn, 2);
+                }
                 const side = outward < 0 ? "right" : "left";
                 withAlpha(ctx, progress(time, at(lost.end), 0.3), () => {
                     text(
@@ -314,7 +341,9 @@ export default defineFigure<Props>({
             ctx.font = `600 ${String(labelSize)}px ${palette.mono}`;
             const spots = props.messages.map((m, i) => {
                 const seg = segments[i];
-                if (!seg) return undefined;
+                if (!seg) {
+                    return undefined;
+                }
                 return labelSpot(
                     seg,
                     ctx.measureText(m.label).width,
@@ -327,7 +356,9 @@ export default defineFigure<Props>({
             const riders: { at: Point; color: string }[] = [];
             for (const [i, m] of props.messages.entries()) {
                 const leave = at(m.start);
-                if (time < leave) continue;
+                if (time < leave) {
+                    continue;
+                }
                 const a: Point = { x: actorX(m.from), y: y(m.start) };
                 const full: Point = {
                     x: actorX(m.to),
@@ -349,7 +380,9 @@ export default defineFigure<Props>({
 
                 // The packet riding the tip is drawn after every label, below.
                 if (!done)
+                {
                     riders.push({ at: tip, color: m.lost ? palette.danger : palette.marker });
+                }
                 if (m.lost) {
                     burst(ctx, tip.x, tip.y, progress(time, at(m.end), 0.8), palette.danger);
                     // Once the burst has faded, a small × keeps the loss on the page.
@@ -381,12 +414,16 @@ export default defineFigure<Props>({
                 }
             }
 
-            for (const r of riders) dot(ctx, r.at.x, r.at.y, 4, r.color);
+            for (const r of riders) {
+                dot(ctx, r.at.x, r.at.y, 4, r.color);
+            }
 
             /* layer 4: notes, beside the message they comment on */
             for (const [n, note] of props.notes.entries()) {
                 const m = props.messages[note.after];
-                if (!m) continue;
+                if (!m) {
+                    continue;
+                }
                 withAlpha(ctx, progress(time, at(m.end), 0.4), () => {
                     const ny = y(m.end) + 4;
                     if (!narrow) {

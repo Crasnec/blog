@@ -5,6 +5,7 @@ import { chromium, type Browser, type Page } from "playwright";
 
 import { isJsonObject, parseJson } from "../src/utils/json.ts";
 import { statisticsExamples } from "../src/fixtures/posts/build/_figures/statistics-data.ts";
+import { serveStaticSite } from "./helpers/static-site.ts";
 
 let browser: Browser | undefined;
 let page: Page;
@@ -12,7 +13,9 @@ let base: string;
 const errors: string[] = [];
 
 before(async () => {
-    if (process.env.FIGURES_BASE) {
+    if (process.env.FIGURES_DIST) {
+        base = "https://figures.test";
+    } else if (process.env.FIGURES_BASE) {
         base = process.env.FIGURES_BASE;
     } else {
         const lock = parseJson(
@@ -30,12 +33,57 @@ before(async () => {
         viewport: { width: 900, height: 1200 },
         reducedMotion: "reduce",
     });
+    if (process.env.FIGURES_DIST) {
+        await serveStaticSite(page.context(), process.env.FIGURES_DIST, base);
+    }
     page.on("pageerror", (error) => errors.push(error.message));
 });
 
 after(async () => {
     await browser?.close();
     assert.deepEqual(errors, []);
+});
+
+void test("Mermaid flowcharts keep readable bounds on mobile and after theme changes", async () => {
+    for (const width of [390, 1200]) {
+        await page.setViewportSize({ width, height: 950 });
+        await page.goto(new URL("/posts/build/markdown-and-mdx-features/", base).href);
+        const diagram = page.locator(".diagram.is-rendered svg");
+        await diagram.waitFor();
+        await page.evaluate(() => document.fonts.ready);
+        for (const changedTheme of [false, true]) {
+            if (changedTheme) {
+                const previous = await diagram.getAttribute("id");
+                await page.locator("#theme-toggle").click();
+                await page.waitForFunction((id) => {
+                    const svg = document.querySelector(".diagram.is-rendered svg");
+                    return svg && svg.id !== id;
+                }, previous);
+            }
+            const bounds = await diagram.evaluate((element) => {
+                if (!(element instanceof SVGSVGElement)) {
+                    throw new Error("Missing Mermaid SVG");
+                }
+                const view = element.viewBox.baseVal;
+                const content = element.getBBox();
+                return {
+                    viewWidth: view.width,
+                    viewHeight: view.height,
+                    contentWidth: content.width,
+                    contentHeight: content.height,
+                    labels: [...element.querySelectorAll(".node foreignObject")].map(
+                        (label) => label.getBoundingClientRect().height,
+                    ),
+                    overflow: document.documentElement.scrollWidth > innerWidth,
+                };
+            });
+            assert.ok(bounds.viewWidth < bounds.contentWidth * 2, JSON.stringify(bounds));
+            assert.ok(bounds.viewHeight < bounds.contentHeight * 1.5, JSON.stringify(bounds));
+            assert.equal(bounds.labels.length, 5);
+            assert.ok(bounds.labels.every((height) => height >= 11), JSON.stringify(bounds));
+            assert.equal(bounds.overflow, false);
+        }
+    }
 });
 
 void test("reduced motion holds the end frame and allows a manual replay", async () => {
@@ -98,9 +146,11 @@ void test("replaying and finishing preserve figure bounds with and without a cap
         });
     for (const caption of [true, false]) {
         if (!caption)
+        {
             await figure.locator("figcaption span").evaluate((span) => {
                 span.remove();
             });
+        }
         await replay.waitFor({ state: "visible" });
         const finished = await measure();
         await replay.click();
@@ -168,8 +218,12 @@ void test("all 30 statistical figures animate, resize and repaint in dark mode",
                         root.dataset.statisticsOverflow = `${value} at (${String(x)}, ${String(y)}) in ${String(this.canvas.clientWidth)} × ${String(this.canvas.clientHeight)}`;
                     }
                 }
-                if (maxWidth === undefined) original.call(this, value, x, y);
-                else original.call(this, value, x, y, maxWidth);
+                if (maxWidth === undefined) {
+                    original.call(this, value, x, y);
+                }
+                else {
+                    original.call(this, value, x, y, maxWidth);
+                }
             };
         },
         statisticsExamples.map((e) => e.kind),
@@ -185,6 +239,7 @@ void test("all 30 statistical figures animate, resize and repaint in dark mode",
         );
         await page.evaluate(() => document.fonts.ready);
     };
+
     const snapshots = () =>
         page
             .locator(".figure canvas")
@@ -250,6 +305,7 @@ void test("post-specific TSX figures render in MDX and reuse the canvas runtime"
         );
         await page.evaluate(() => document.fonts.ready);
     };
+
     const snapshots = () =>
         page
             .locator('.figure[data-figure="queue"] canvas')

@@ -16,7 +16,9 @@ interface CachedDocument {
 
 /** State stacks include multiline delimiters/captures; scope names alone are insufficient. */
 function sameState(left: GrammarState | undefined, right: GrammarState | undefined): boolean {
-    if (left === right) return true;
+    if (left === right) {
+        return true;
+    }
     const before = left?.getInternalStack();
     const after = right?.getInternalStack();
     return before !== undefined && after !== undefined && before.equals(after);
@@ -36,7 +38,9 @@ export class IncrementalHighlighter {
 
     release(document: number) {
         const cached = this.documents.get(document);
-        if (cached) this.size -= cached.length;
+        if (cached) {
+            this.size -= cached.length;
+        }
         this.documents.delete(document);
     }
 
@@ -52,14 +56,18 @@ export class IncrementalHighlighter {
         const source = splitLines(code);
         const old = cached?.lines ?? [];
         let first = 0;
-        while (first < source.length && source[first]?.[0] === old[first]?.text) first++;
+        while (first < source.length && source[first]?.[0] === old[first]?.text) {
+            first++;
+        }
         let suffix = 0;
         while (
             suffix < source.length - first &&
             suffix < old.length - first &&
             source[source.length - suffix - 1]?.[0] === old[old.length - suffix - 1]?.text
         )
+        {
             suffix++;
+        }
 
         const lines = old.slice(0, first);
         let state = lines.at(-1)?.state;
@@ -75,7 +83,9 @@ export class IncrementalHighlighter {
                 break;
             }
             const line = source[index];
-            if (!line) throw new Error("Missing source line");
+            if (!line) {
+                throw new Error("Missing source line");
+            }
             const themed = this.engine.codeToTokensBase(line[0], {
                 lang: language,
                 theme: this.theme,
@@ -104,7 +114,9 @@ export class IncrementalHighlighter {
         for (let index = full ? 0 : first; index < (full ? lines.length : end); index++) {
             const line = lines[index];
             const offset = source[index]?.[1];
-            if (!line || offset === undefined) throw new Error("Missing cached source line");
+            if (!line || offset === undefined) {
+                throw new Error("Missing cached source line");
+            }
             for (const token of line.tokens) {
                 tokens.push({ ...token, from: token.from + offset, to: token.to + offset });
             }
@@ -115,7 +127,9 @@ export class IncrementalHighlighter {
         // Bound long notebook sessions; an evicted cell safely starts with a full patch.
         while (this.size > MAX_CODE * 8 || this.documents.size > 128) {
             const oldest = this.documents.keys().next().value;
-            if (oldest === undefined) break;
+            if (oldest === undefined) {
+                break;
+            }
             this.release(oldest);
         }
         return { from, to, tokens, tokenizedLines };

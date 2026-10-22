@@ -16,14 +16,20 @@ const playground = (language: string) =>
 
 before(async () => {
     const staticDist = process.env.PLAYGROUND_DIST;
-    if (staticDist) base = "https://playground.test";
-    else if (process.env.PLAYGROUND_BASE) base = process.env.PLAYGROUND_BASE;
+    if (staticDist) {
+        base = "https://playground.test";
+    }
+    else if (process.env.PLAYGROUND_BASE) {
+        base = process.env.PLAYGROUND_BASE;
+    }
     else {
         const lock = parseJson(
             await readFile(new URL("../.astro/dev.json", import.meta.url), "utf8"),
         );
         if (!isJsonObject(lock) || typeof lock.url !== "string")
+        {
             throw new Error("Set PLAYGROUND_DIST, PLAYGROUND_BASE or start astro dev --background");
+        }
         base = lock.url;
     }
     browser = await chromium.launch();
@@ -31,7 +37,9 @@ before(async () => {
         viewport: { width: 1100, height: 1000 },
         reducedMotion: "reduce",
     });
-    if (staticDist) base = await serveStaticSite(context, staticDist, base);
+    if (staticDist) {
+        base = await serveStaticSite(context, staticDist, base);
+    }
     page = await context.newPage();
     page.setDefaultTimeout(20_000);
     page.on("pageerror", (error) => errors.push(error.message));
@@ -69,6 +77,7 @@ async function edit(root: Locator, code: string) {
         throw error;
     }
 }
+
 async function execute(
     root: Locator,
     code: string,
@@ -118,7 +127,9 @@ void test("first focus on the fallback transfers into the editor after its lazy 
         const fallback = root.locator(".playground-fallback");
         assert.equal(await root.locator(".cm-editor").count(), 0);
         await fallback.evaluate((element) => {
-            if (!(element instanceof HTMLTextAreaElement)) throw new Error("Missing fallback");
+            if (!(element instanceof HTMLTextAreaElement)) {
+                throw new Error("Missing fallback");
+            }
             element.focus({ preventScroll: true });
         });
         await request;
@@ -285,7 +296,9 @@ void test("approved scientific libraries load on demand and produce downloadable
         .nth(1);
     const scientificRequests: string[] = [];
     const record = (request: Request) => {
-        if (request.url().includes(".whl")) scientificRequests.push(request.url());
+        if (request.url().includes(".whl")) {
+            scientificRequests.push(request.url());
+        }
     };
     page.on("request", record);
     try {
@@ -320,9 +333,11 @@ void test("approved scientific libraries load on demand and produce downloadable
             "explicit show and automatic final capture must not duplicate figures",
         );
         for (const image of await root.locator(".playground-plot img").all())
+        {
             await image.evaluate(async (element: HTMLImageElement) => {
                 await element.decode();
             });
+        }
         const download = page.waitForEvent("download");
         await root.locator(".playground-plot a").first().click();
         assert.equal((await download).suggestedFilename(), "plot-1.png");
@@ -341,7 +356,9 @@ void test("approved statistics packages import, compute and capture empiricaldis
         .nth(1);
     const requests: string[] = [];
     const record = (request: Request) => {
-        if (request.url().includes(".whl")) requests.push(request.url());
+        if (request.url().includes(".whl")) {
+            requests.push(request.url());
+        }
     };
     page.on("request", record);
     try {
@@ -371,10 +388,12 @@ freq.plot()`,
             await img.decode();
         });
         for (const name of ["empiricaldist", "statadict", "statsmodels", "ipython"])
+        {
             assert.ok(
                 requests.some((url) => url.includes(`/${name}-`)),
                 name,
             );
+        }
         assert.ok(requests.every((url) => new URL(url).origin === new URL(base).origin));
     } finally {
         page.off("request", record);
@@ -656,11 +675,13 @@ async function notebookCells() {
     await page.locator('[data-code-playground][data-ready="true"]').first().waitFor();
     return page.locator('[data-notebook="notebook-example"]');
 }
+
 async function notebookEdit(cell: Locator, code: string) {
     await cell.locator(".playground-editor").scrollIntoViewIfNeeded();
     await cell.locator(".cm-content").waitFor();
     await edit(cell, code);
 }
+
 async function notebookRun(cell: Locator, expected = "done") {
     await cell.locator(".playground-editor").scrollIntoViewIfNeeded();
     await cell.locator(".cm-content").waitFor();

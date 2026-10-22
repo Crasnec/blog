@@ -9,7 +9,9 @@ export default function FigureExamples({
     idPrefix?: string;
 }) {
     const counts = new Map<string, number>();
-    for (const example of examples) counts.set(example.kind, (counts.get(example.kind) ?? 0) + 1);
+    for (const example of examples) {
+        counts.set(example.kind, (counts.get(example.kind) ?? 0) + 1);
+    }
     return examples.map((example, index) => {
         const repeated = (counts.get(example.kind) ?? 0) > 1;
         const id =

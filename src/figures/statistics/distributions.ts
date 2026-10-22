@@ -59,7 +59,9 @@ function decodeGroups(raw: Parameters<typeof obj>[0], title: string): Distributi
     const groups = readGroups(p);
     const specified = maybe(p.bandwidth, "props.bandwidth", num);
     if (specified !== undefined && (specified <= 0 || specified > 1e12))
+    {
         throw new Error("props.bandwidth must be positive and at most 1e12");
+    }
     const hs = groups.map((g) => specified ?? bandwidth(g.values));
     const domain: Domain = [
         Math.min(...groups.map((g, i) => (g.values[0] ?? 0) - 3 * (hs[i] ?? 1))),
@@ -75,7 +77,9 @@ function decodeGroups(raw: Parameters<typeof obj>[0], title: string): Distributi
             (g) => !g.density.every((d) => Number.isFinite(d.y)) || !g.density.some((d) => d.y > 0),
         )
     )
+    {
         throw new Error("props.bandwidth is too small for a finite, resolved density curve");
+    }
     return {
         ...common(p, title),
         unit: maybe(p.unit, "props.unit", str) ?? "value",
@@ -166,9 +170,12 @@ function grouped(style: GroupStyle, title: string) {
                                     v < quantile(g.values, 0.5 ** (levels + 1)) ||
                                     v > quantile(g.values, 1 - 0.5 ** (levels + 1)),
                             ))
+                            {
                                 dot(ctx, x, plot.y(v), 2, color);
+                            }
                         }
                         if (style === "boxplot" || style === "violin" || style === "raincloud")
+                        {
                             drawBox(
                                 frame,
                                 plot,
@@ -178,7 +185,9 @@ function grouped(style: GroupStyle, title: string) {
                                 color,
                                 style === "boxplot",
                             );
+                        }
                         if (style === "boxen")
+                        {
                             line(
                                 ctx,
                                 x - lane * 0.3,
@@ -188,6 +197,7 @@ function grouped(style: GroupStyle, title: string) {
                                 palette.inkStrong,
                                 2,
                             );
+                        }
                     });
                 });
                 if (style === "beeswarm" || style === "raincloud") {
@@ -220,8 +230,12 @@ function polygon(frame: Frame, vertices: Point[], color: string) {
     const { ctx } = frame;
     ctx.beginPath();
     vertices.forEach((p, i) => {
-        if (i === 0) ctx.moveTo(p.x, p.y);
-        else ctx.lineTo(p.x, p.y);
+        if (i === 0) {
+            ctx.moveTo(p.x, p.y);
+        }
+        else {
+            ctx.lineTo(p.x, p.y);
+        }
     });
     ctx.closePath();
     withAlpha(ctx, 0.2, () => {
@@ -245,7 +259,9 @@ function drawBox(
     const { ctx, palette } = frame;
     line(ctx, x, plot.y(b.low), x, plot.y(b.high), color, 1.5);
     for (const value of [b.low, b.high])
+    {
         line(ctx, x - w * 0.25, plot.y(value), x + w * 0.25, plot.y(value), color, 1.5);
+    }
     box(
         ctx,
         x - w / 2,
@@ -258,7 +274,11 @@ function drawBox(
         1.5,
     );
     line(ctx, x - w / 2, plot.y(b.median), x + w / 2, plot.y(b.median), color, 2.5);
-    if (outliers) for (const value of b.outliers) dot(ctx, x, plot.y(value), 2.8, color);
+    if (outliers) {
+        for (const value of b.outliers) {
+            dot(ctx, x, plot.y(value), 2.8, color);
+        }
+    }
 }
 
 export const boxplot = grouped("boxplot", "Box plot · Tukey 1.5 IQR");
@@ -356,9 +376,11 @@ function probabilityPlot(style: "qq" | "pp") {
                     ? Math.sqrt(variance(values))
                     : bounded(p.sd, "props.sd", Number.MIN_VALUE, 1e12);
             if (!referenceSample && sd === 0)
+            {
                 throw new Error(
                     "props.samples must vary for a fitted normal reference, or set props.sd",
                 );
+            }
             let data: Point[];
             let ref: [Point, Point];
             if (style === "qq") {

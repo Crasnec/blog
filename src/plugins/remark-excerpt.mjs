@@ -22,9 +22,13 @@ export function remarkExcerpt() {
 
         let excerpt = "";
         for (const node of tree.children) {
-            if (node.type !== "paragraph" || skip.has(node.type)) continue;
+            if (node.type !== "paragraph" || skip.has(node.type)) {
+                continue;
+            }
             const text = toString(node).trim();
-            if (!text) continue;
+            if (!text) {
+                continue;
+            }
             excerpt = text;
             break;
         }

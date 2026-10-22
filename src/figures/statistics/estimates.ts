@@ -21,7 +21,9 @@ function estimate(raw: JsonValue | undefined, path: string, pooled = false) {
     const value = bounded(p.estimate, `${path}.estimate`, -1e12, 1e12);
     const low = bounded(p.low, `${path}.low`, -1e12, 1e12);
     const high = bounded(p.high, `${path}.high`, -1e12, 1e12);
-    if (low > value || value > high) throw new Error(`${path} needs low <= estimate <= high`);
+    if (low > value || value > high) {
+        throw new Error(`${path} needs low <= estimate <= high`);
+    }
     return {
         label: str(p.label, `${path}.label`),
         value,
@@ -54,9 +56,13 @@ function intervals(forest: boolean) {
                 estimate(v, `props.estimates[${String(i)}]`),
             );
             if (estimates.length < 1 || estimates.length > 20)
+            {
                 throw new Error("props.estimates needs 1–20 intervals");
+            }
             if (p.pooled !== undefined) {
-                if (!forest) throw new Error("props.pooled only applies to forest");
+                if (!forest) {
+                    throw new Error("props.pooled only applies to forest");
+                }
                 estimates.push(estimate(p.pooled, "props.pooled", true));
             }
             const baseline =
@@ -118,6 +124,7 @@ function intervals(forest: boolean) {
                             } else {
                                 line(frame.ctx, plot.x(e.low), y, plot.x(e.high), y, color, 1.7);
                                 for (const value of [e.low, e.high])
+                                {
                                     line(
                                         frame.ctx,
                                         plot.x(value),
@@ -127,6 +134,7 @@ function intervals(forest: boolean) {
                                         color,
                                         1.3,
                                     );
+                                }
                                 if (forest) {
                                     const side = 5 + 9 * Math.sqrt(e.weight / maxWeight);
                                     frame.ctx.fillStyle = color;
@@ -136,7 +144,9 @@ function intervals(forest: boolean) {
                                         side,
                                         side,
                                     );
-                                } else dot(frame.ctx, plot.x(e.value), y, 4, color);
+                                } else {
+                                    dot(frame.ctx, plot.x(e.value), y, 4, color);
+                                }
                             }
                         });
                     },
@@ -163,7 +173,9 @@ export const funnel = defineFigure({
             };
         });
         if (studies.length < 3 || studies.length > 1000)
+        {
             throw new Error("props.studies needs 3–1000 studies");
+        }
         // Normalize weights to avoid overflow without changing the weighted mean.
         const minSe = Math.min(...studies.map((s) => s.y));
         const weights = studies.map((s) => (minSe / s.y) ** 2);
@@ -189,12 +201,14 @@ export const funnel = defineFigure({
             reverseY: true,
         });
         for (const sign of [-1, 1])
+        {
             reference(
                 frame,
                 plot,
                 { x: p.center, y: 0 },
                 { x: p.center + sign * 1.96 * p.end, y: p.end },
             );
+        }
         reference(
             frame,
             plot,

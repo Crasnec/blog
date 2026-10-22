@@ -45,7 +45,9 @@ const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)"
 
 function frozenAt(): number | null {
     const raw = new URLSearchParams(location.search).get("figure-at");
-    if (raw === null) return null;
+    if (raw === null) {
+        return null;
+    }
     const at = Number(raw);
     return Number.isFinite(at) ? Math.min(1, Math.max(0, at)) : null;
 }
@@ -83,10 +85,14 @@ function render(m: Mounted) {
         // Setting the height resizes the canvas, which calls render again
         // through the ResizeObserver; the comparison stops that at one round.
         const wanted = `${String(Math.round(m.heightFor(width)))}px`;
-        if (m.canvas.style.height !== wanted) m.canvas.style.height = wanted;
+        if (m.canvas.style.height !== wanted) {
+            m.canvas.style.height = wanted;
+        }
     }
     const height = m.canvas.clientHeight;
-    if (width === 0 || height === 0) return;
+    if (width === 0 || height === 0) {
+        return;
+    }
 
     const pxW = Math.round(width * ratio);
     const pxH = Math.round(height * ratio);
@@ -96,7 +102,9 @@ function render(m: Mounted) {
     }
 
     const ctx = m.canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) {
+        return;
+    }
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     ctx.clearRect(0, 0, width, height);
 
@@ -135,7 +143,9 @@ function tick(now: number) {
             } else {
                 m.time = m.kind.duration;
                 m.playing = false;
-                if (m.replay) m.replay.hidden = false;
+                if (m.replay) {
+                    m.replay.hidden = false;
+                }
             }
         }
 
@@ -143,7 +153,9 @@ function tick(now: number) {
         active ||= m.playing;
     }
 
-    if (active) schedule();
+    if (active) {
+        schedule();
+    }
 }
 
 function schedule() {
@@ -154,7 +166,9 @@ function play(m: Mounted, from = 0) {
     m.time = from;
     m.playing = true;
     m.last = null;
-    if (m.replay) m.replay.hidden = true;
+    if (m.replay) {
+        m.replay.hidden = true;
+    }
     schedule();
 }
 
@@ -167,9 +181,13 @@ const observer =
             (entries) => {
                 for (const entry of entries) {
                     const m = [...mounted].find((x) => x.root === entry.target);
-                    if (!m) continue;
+                    if (!m) {
+                        continue;
+                    }
                     m.visible = entry.isIntersecting;
-                    if (m.visible && m.playing) schedule();
+                    if (m.visible && m.playing) {
+                        schedule();
+                    }
                 }
             },
             { threshold: 0.35 },
@@ -181,7 +199,9 @@ const resize =
         : new ResizeObserver((entries) => {
             for (const entry of entries) {
                 const m = [...mounted].find((x) => x.canvas === entry.target);
-                if (m) render(m);
+                if (m) {
+                    render(m);
+                }
             }
         });
 
@@ -189,7 +209,9 @@ async function mount(root: HTMLElement) {
     const name = root.dataset.figure ?? "";
     const load = kinds[`../figures/kinds/${name}.ts`];
     const canvas = root.querySelector("canvas");
-    if (!load || !canvas) return;
+    if (!load || !canvas) {
+        return;
+    }
 
     const kind = (await load()).default;
     const bound = kind.bind(parseJson(root.dataset.props ?? "{}"));
@@ -228,7 +250,9 @@ async function mount(root: HTMLElement) {
     if (reducedMotion()) {
         m.time = kind.duration;
         render(m);
-        if (m.replay && !kind.loop) m.replay.hidden = false;
+        if (m.replay && !kind.loop) {
+            m.replay.hidden = false;
+        }
         return;
     }
 
@@ -241,14 +265,18 @@ export async function mountFigures(): Promise<void> {
     const roots = document.querySelectorAll<HTMLElement>(".figure[data-figure]:not(.is-ready)");
     await Promise.all([...roots].map(mount));
 
-    if (globalsWired) return;
+    if (globalsWired) {
+        return;
+    }
     globalsWired = true;
 
     // Canvas text is painted in whatever face is loaded at that moment and is
     // not updated when the webfont arrives, so a held frame would keep the
     // fallback. Repaint once fonts land.
     const repaint = () => {
-        for (const m of mounted) render(m);
+        for (const m of mounted) {
+            render(m);
+        }
     };
     void document.fonts.ready.then(repaint);
     document.fonts.addEventListener("loadingdone", repaint);

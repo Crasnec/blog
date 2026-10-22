@@ -35,9 +35,11 @@ export function dailyPeak(
         arr(spec.weekend ?? [], `${path}.weekend`).map((v, i) => {
             const name = str(v, `${path}.weekend[${String(i)}]`);
             if (!rows.includes(name))
+            {
                 throw new Error(
                     `${path}.weekend[${String(i)}] is "${name}", which is not one of the rows`,
                 );
+            }
             return name;
         }),
     );
@@ -46,8 +48,12 @@ export function dailyPeak(
         const o = obj(s, p);
         const row = rows.indexOf(str(o.row, `${p}.row`));
         const col = cols.indexOf(str(o.col, `${p}.col`));
-        if (row < 0) throw new Error(`${p}.row is not one of the rows: ${rows.join(", ")}`);
-        if (col < 0) throw new Error(`${p}.col is not one of the cols`);
+        if (row < 0) {
+            throw new Error(`${p}.row is not one of the rows: ${rows.join(", ")}`);
+        }
+        if (col < 0) {
+            throw new Error(`${p}.col is not one of the cols`);
+        }
         return { row, col, add: num(o.add, `${p}.add`) };
     });
 

@@ -99,9 +99,13 @@ export default defineFigure<Props>({
         const rows = arr(p.rows, "props.rows").map((v, i) => str(v, `props.rows[${String(i)}]`));
         const cols = arr(p.cols, "props.cols").map((v, i) => str(v, `props.cols[${String(i)}]`));
         if (rows.length < 1 || rows.length > 16)
+        {
             throw new Error("props.rows must have 1 to 16 labels");
+        }
         if (cols.length < 2 || cols.length > 48)
+        {
             throw new Error("props.cols must have 2 to 48 labels");
+        }
 
         let values: number[][];
         if (Array.isArray(p.values)) {
@@ -123,14 +127,18 @@ export default defineFigure<Props>({
         } else {
             const spec = obj(p.values, "props.values");
             const model = str(spec.model, "props.values.model");
-            if (model !== "daily-peak") throw new Error('props.values.model must be "daily-peak"');
+            if (model !== "daily-peak") {
+                throw new Error('props.values.model must be "daily-peak"');
+            }
             values = dailyPeak(spec, rows, cols, "props.values");
         }
 
         const flat = values.flatMap((row, r) => row.map((value, col) => ({ row: r, col, value })));
         const k = maybe(p.highlight, "props.highlight", num) ?? 3;
         if (!Number.isInteger(k) || k < 0 || k > 10)
+        {
             throw new Error("props.highlight must be a whole number from 0 to 10");
+        }
         let lo = maybe(p.min, "props.min", num) ?? Math.min(...flat.map((c) => c.value));
         let hi = maybe(p.max, "props.max", num) ?? Math.max(...flat.map((c) => c.value));
         if (hi === lo && p.min === undefined && p.max === undefined) {
@@ -139,7 +147,9 @@ export default defineFigure<Props>({
             hi += padding;
         }
         if (hi <= lo || !Number.isFinite(hi - lo))
+        {
             throw new Error("props.max must be above props.min with a finite range");
+        }
 
         return {
             rows,
@@ -199,6 +209,7 @@ function drawHeatmap(frame: Frame, props: Props) {
         w: cellW,
         h: cellH,
     });
+
     const tOf = (v: number) => (v - props.lo) / (props.hi - props.lo);
     const appear = ease.out(progress(time, 0, TIMES.appear));
     const colStart = (c: number) => TIMES.sweep + (TIMES.sweepFor * c) / props.cols.length;
@@ -206,7 +217,9 @@ function drawHeatmap(frame: Frame, props: Props) {
     withAlpha(ctx, appear, () => {
         /* layer 1: header */
         if (props.title)
+        {
             text(frame, props.title, 0, 14, { size: 12, weight: 700, color: palette.inkStrong });
+        }
 
         /* layer 2: cells — an empty track everywhere, the value once the sweep passes */
         for (const [r, row] of props.values.entries()) {
@@ -217,9 +230,11 @@ function drawHeatmap(frame: Frame, props: Props) {
                 ctx.fillRect(box_.x, box_.y, box_.w, box_.h);
                 const shown = ease.out(progress(time, colStart(c), TIMES.cellFade));
                 if (shown > 0)
+                {
                     withAlpha(ctx, shown, () => {
                         rampFill(ctx, palette, box_, tOf(v));
                     });
+                }
             }
         }
 
@@ -250,7 +265,9 @@ function drawHeatmap(frame: Frame, props: Props) {
         const step = [1, 2, 3, 4, 6, 8, 12, 24].find((s) => s >= every) ?? every;
         const labelY = gridY + props.rows.length * L.cellH + 14;
         for (const [c, name] of props.cols.entries()) {
-            if (c % step !== 0) continue;
+            if (c % step !== 0) {
+                continue;
+            }
             const b = cell(0, c);
             fittedText(frame, name, b.x, labelY, width - b.x, palette.inkFaint);
         }
@@ -293,7 +310,9 @@ function drawHeatmap(frame: Frame, props: Props) {
         const rankY = L.narrow ? legendY + 44 : legendY + 8;
         for (const [i, hot] of props.top.entries()) {
             const shown = ease.out(progress(time, TIMES.highlight + i * TIMES.highlightGap, 0.35));
-            if (shown <= 0) continue;
+            if (shown <= 0) {
+                continue;
+            }
             const b = cell(hot.row, hot.col);
             withAlpha(ctx, shown, () => {
                 box(ctx, b.x - 1.5, b.y - 1.5, b.w + 3, b.h + 3, 2, null, palette.inkStrong, 2);
@@ -346,7 +365,9 @@ function drawHeatmap(frame: Frame, props: Props) {
             let seen = -Infinity;
             for (const row of props.values) {
                 for (const [c, v] of row.entries()) {
-                    if (time >= colStart(c) && v > seen) seen = v;
+                    if (time >= colStart(c) && v > seen) {
+                        seen = v;
+                    }
                 }
             }
             const message = Number.isFinite(seen)

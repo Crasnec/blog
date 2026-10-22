@@ -16,13 +16,19 @@ const ruleMaps = [
 function optionalString(value: JsonObject, key: string): string | undefined {
     const field = value[key];
     if (field !== undefined && typeof field !== "string")
+    {
         throw new Error(`grammar ${key} must be a string`);
+    }
     return field;
 }
 
 function ruleMap(value: JsonValue | undefined, depth: number): Record<string, GrammarRule> {
-    if (value === undefined) return {};
-    if (!isJsonObject(value)) throw new Error("grammar captures and repositories must be objects");
+    if (value === undefined) {
+        return {};
+    }
+    if (!isJsonObject(value)) {
+        throw new Error("grammar captures and repositories must be objects");
+    }
     return Object.fromEntries(
         Object.entries(value)
             .filter(([name]) => name !== "$vscodeTextmateLocation")
@@ -32,22 +38,34 @@ function ruleMap(value: JsonValue | undefined, depth: number): Record<string, Gr
 
 /** Copy only validated raw fields; tokenizer-internal compiled rule IDs are never imported. */
 function parseRule(value: JsonValue, depth: number): GrammarRule {
-    if (depth > 64) throw new Error("grammar nesting exceeds 64 levels");
-    if (!isJsonObject(value)) throw new Error("grammar rules must be objects");
+    if (depth > 64) {
+        throw new Error("grammar nesting exceeds 64 levels");
+    }
+    if (!isJsonObject(value)) {
+        throw new Error("grammar rules must be objects");
+    }
     const strings: Partial<Record<(typeof ruleStrings)[number], string>> = {};
     for (const key of ruleStrings) {
         const field = optionalString(value, key);
-        if (field !== undefined) strings[key] = field;
+        if (field !== undefined) {
+            strings[key] = field;
+        }
     }
     const maps: Partial<Record<(typeof ruleMaps)[number], Record<string, GrammarRule>>> = {};
     for (const key of ruleMaps) {
-        if (value[key] !== undefined) maps[key] = ruleMap(value[key], depth);
+        if (value[key] !== undefined) {
+            maps[key] = ruleMap(value[key], depth);
+        }
     }
     if (value.patterns !== undefined && !Array.isArray(value.patterns))
+    {
         throw new Error("grammar patterns must be an array");
+    }
     const last = value.applyEndPatternLast;
     if (last !== undefined && typeof last !== "boolean" && last !== 0 && last !== 1)
+    {
         throw new Error("grammar applyEndPatternLast must be a boolean or 0/1");
+    }
     return {
         ...strings,
         ...maps,
@@ -64,7 +82,9 @@ export function parseGrammars(sources: readonly GrammarSource[]): LanguageRegist
         sources.length > 16 ||
         sources.reduce((n, source) => n + source.content.length, 0) > MAX_GRAMMAR
     )
+    {
         throw new Error("Provide at most 16 grammars totalling 1 MB");
+    }
     const scopes = new Set<string>();
     return sources.map(({ filename, content }, index) => {
         const parsed = textmate.parseRawGrammar(
@@ -80,9 +100,13 @@ export function parseGrammars(sources: readonly GrammarSource[]): LanguageRegist
             !grammar.scopeName.trim() ||
             !Array.isArray(grammar.patterns)
         )
+        {
             throw new Error(`${filename}: grammar needs scopeName and patterns`);
+        }
         if (scopes.has(grammar.scopeName))
+        {
             throw new Error(`${filename}: duplicate scope ${grammar.scopeName}`);
+        }
         scopes.add(grammar.scopeName);
         const injectionSelector = optionalString(grammar, "injectionSelector");
         const firstLineMatch = optionalString(grammar, "firstLineMatch");
@@ -91,7 +115,9 @@ export function parseGrammars(sources: readonly GrammarSource[]): LanguageRegist
             (!Array.isArray(grammar.fileTypes) ||
                 !grammar.fileTypes.every((value) => typeof value === "string"))
         )
+        {
             throw new Error(`${filename}: grammar fileTypes must be strings`);
+        }
         return {
             scopeName: grammar.scopeName,
             patterns: grammar.patterns.map((rule) => parseRule(rule, 0)),

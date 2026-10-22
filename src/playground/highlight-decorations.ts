@@ -13,9 +13,13 @@ export const highlights = StateField.define<DecorationSet>({
     create: () => Decoration.none,
     update(value, transaction) {
         // Keep existing colours attached to their text while the worker catches up.
-        if (transaction.docChanged) value = value.map(transaction.changes);
+        if (transaction.docChanged) {
+            value = value.map(transaction.changes);
+        }
         for (const effect of transaction.effects) {
-            if (!effect.is(setTokens)) continue;
+            if (!effect.is(setTokens)) {
+                continue;
+            }
             const patch = effect.value;
             value = value.update({
                 filterFrom: patch.from,

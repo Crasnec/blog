@@ -36,7 +36,9 @@ const {
     runAll = true,
 } = Astro.props;
 if (typeof code !== "string" || code.length > MAX_CODE)
+{
     throw new Error("CodePlayground code must be a string of at most 100000 characters");
+}
 const config = decodeConfig(
     JSON.stringify({
         language,

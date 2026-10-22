@@ -129,16 +129,22 @@ export default defineFigure<Props>({
         const p = obj(raw, "props");
         const policyRaw = str(p.policy, "props.policy");
         const policy = POLICIES.find((x) => x === policyRaw);
-        if (!policy) throw new Error(`props.policy must be one of ${POLICIES.join(", ")}`);
+        if (!policy) {
+            throw new Error(`props.policy must be one of ${POLICIES.join(", ")}`);
+        }
         const heap = maybe(p.heap, "props.heap", num) ?? 32;
         if (!Number.isInteger(heap) || heap < 8 || heap > 64)
+        {
             throw new Error("props.heap must be a whole number from 8 to 64");
+        }
 
         let requests: Request[];
         if (p.requests === undefined) {
             const count = maybe(p.count, "props.count", num) ?? 12;
             if (!Number.isInteger(count) || count < 1 || count > 24)
+            {
                 throw new Error("props.count must be a whole number from 1 to 24");
+            }
             requests = generateRequests(count, maybe(p.seed, "props.seed", num) ?? 1);
         } else {
             requests = arr(p.requests, "props.requests").map((r, i) => {
@@ -147,17 +153,27 @@ export default defineFigure<Props>({
                 const op = str(o.op, `${path}.op`);
                 const id = str(o.id, `${path}.id`);
                 if (id.length === 0 || id.length > 3)
+                {
                     throw new Error(`${path}.id must be 1–3 characters`);
-                if (op === "free") return { op, id };
-                if (op !== "alloc") throw new Error(`${path}.op must be "alloc" or "free"`);
+                }
+                if (op === "free") {
+                    return { op, id };
+                }
+                if (op !== "alloc") {
+                    throw new Error(`${path}.op must be "alloc" or "free"`);
+                }
                 const size = num(o.size, `${path}.size`);
                 if (!Number.isInteger(size) || size <= 0)
+                {
                     throw new Error(`${path}.size must be a positive whole number`);
+                }
                 return { op, id, size };
             });
         }
         if (requests.length === 0 || requests.length > 24)
+        {
             throw new Error("props.requests must have 1 to 24 entries");
+        }
 
         const steps = simulate(policy, heap, requests);
         const step = Math.min(TIMES.maxStep, (DURATION - TIMES.start - TIMES.tail) / steps.length);
@@ -188,6 +204,7 @@ export default defineFigure<Props>({
         const { perRow, rows } = rowsFor(width, heap);
         const unitW = area.w / perRow;
         const rowY = (r: number) => TOP + r * (ROW_H + ROW_GAP);
+
         /** The on-screen pieces of a run of units, one per heap row it touches. */
         const pieces = (start: number, size: number): Rect[] => {
             const out: Rect[] = [];
@@ -195,12 +212,14 @@ export default defineFigure<Props>({
                 const a = Math.max(start, r * perRow);
                 const b = Math.min(start + size, (r + 1) * perRow);
                 if (b > a)
+                {
                     out.push({
                         x: (a - r * perRow) * unitW,
                         y: rowY(r),
                         w: (b - a) * unitW,
                         h: ROW_H,
                     });
+                }
             }
             return out;
         };
@@ -241,7 +260,9 @@ export default defineFigure<Props>({
             /* layer 4: blocks — the settled heap, minus whatever is being freed */
             const freeing = current?.request.op === "free" && frac > 0 ? current.block : undefined;
             for (const b of settled) {
-                if (b === freeing) continue;
+                if (b === freeing) {
+                    continue;
+                }
                 drawBlock(frame, pieces(b.start, b.size), b.id, palette.inkMuted, 1);
             }
 
@@ -267,6 +288,7 @@ export default defineFigure<Props>({
                     });
                     const land = ease.out(progress(frac, 0.4, 0.45));
                     if (land > 0)
+                    {
                         drawBlock(
                             frame,
                             pieces(current.block.start, current.block.size),
@@ -274,6 +296,7 @@ export default defineFigure<Props>({
                             palette.marker,
                             land,
                         );
+                    }
                 } else if (current.request.op === "free" && current.block) {
                     drawBlock(
                         frame,
@@ -289,6 +312,7 @@ export default defineFigure<Props>({
                     );
                     const at = largest ? pieces(largest.start, largest.size)[0] : undefined;
                     if (at)
+                    {
                         burst(
                             ctx,
                             at.x + at.w / 2,
@@ -296,6 +320,7 @@ export default defineFigure<Props>({
                             progress(frac, 0.15, 0.8),
                             palette.danger,
                         );
+                    }
                 }
             }
 
@@ -358,7 +383,9 @@ export default defineFigure<Props>({
 function drawBlock(frame: Frame, parts: Rect[], id: string, fill: string, alpha: number) {
     const { ctx, palette } = frame;
     withAlpha(ctx, alpha, () => {
-        for (const p of parts) box(ctx, p.x + 1, p.y + 1, p.w - 2, p.h - 2, 3, fill, null);
+        for (const p of parts) {
+            box(ctx, p.x + 1, p.y + 1, p.w - 2, p.h - 2, 3, fill, null);
+        }
         const widest = parts.reduce<Rect | undefined>(
             (m, p) => (!m || p.w > m.w ? p : m),
             undefined,

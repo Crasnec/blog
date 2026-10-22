@@ -13,7 +13,9 @@ export function translate(locale: Locale, key: UIKey, values: TranslationValues 
     return dictionaries[locale][key].replace(/\{(\w+)\}/gu, (placeholder, name: string) => {
         const value = values[name];
         if (value === undefined)
+        {
             throw new Error(`Missing "${name}" for ${locale}:${key} (${placeholder})`);
+        }
         return String(value);
     });
 }

@@ -185,7 +185,9 @@ export default defineFigure<Props>({
                 const leave = 0.6 + (k + jitter) / edge.rate;
                 const dropped = rand() < edge.drop;
                 const t = (time - leave) / travel;
-                if (t < 0) continue;
+                if (t < 0) {
+                    continue;
+                }
 
                 if (t <= 1) {
                     const pos = along(start, end, t);
@@ -195,7 +197,9 @@ export default defineFigure<Props>({
 
                 // A dropped packet bursts at the far end instead of arriving.
                 const after = (t - 1) * travel;
-                if (dropped) burst(ctx, end.x, end.y, after / 0.8, palette.danger);
+                if (dropped) {
+                    burst(ctx, end.x, end.y, after / 0.8, palette.danger);
+                }
             }
         });
 
@@ -204,11 +208,15 @@ export default defineFigure<Props>({
         // packets riding it. Above the edge, or right of a vertical one.
         ctx.globalAlpha = appear;
         for (const { edge, start, end, length } of segments) {
-            if (!edge.label) continue;
+            if (!edge.label) {
+                continue;
+            }
             ctx.font = `400 11px ${palette.mono}`;
             const w = ctx.measureText(edge.label).width + 8;
             // A label longer than its edge would float free of it; the caption has to carry it.
-            if (w + 16 > length) continue;
+            if (w + 16 > length) {
+                continue;
+            }
 
             const dx = (end.x - start.x) / length;
             const dy = (end.y - start.y) / length;

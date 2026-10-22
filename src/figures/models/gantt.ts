@@ -61,8 +61,11 @@ export function schedule(jobs: Job[], policy: Policy, quantum: number, cores: nu
             next++;
         }
     };
+
     const pick = (): number | undefined => {
-        if (ready.length === 0) return undefined;
+        if (ready.length === 0) {
+            return undefined;
+        }
         let at = 0;
         if (policy === "sjf") {
             for (let k = 1; k < ready.length; k++) {
@@ -75,7 +78,9 @@ export function schedule(jobs: Job[], policy: Policy, quantum: number, cores: nu
                     (Math.abs(da - db) <= EPS &&
                         (jobs[a]?.arrive ?? 0) < (jobs[b]?.arrive ?? 0) - EPS)
                 )
+                {
                     at = k;
+                }
             }
         }
         return ready.splice(at, 1)[0];
@@ -84,9 +89,13 @@ export function schedule(jobs: Job[], policy: Policy, quantum: number, cores: nu
     admit();
     for (let guard = 0; guard < MAX_EVENTS; guard++) {
         for (let c = 0; c < cores; c++) {
-            if (running[c]) continue;
+            if (running[c]) {
+                continue;
+            }
             const job = pick();
-            if (job === undefined) break;
+            if (job === undefined) {
+                break;
+            }
             const length =
                 policy === "rr" ? Math.min(quantum, remaining[job] ?? 0) : (remaining[job] ?? 0);
             running[c] = { job, start: t, end: t + length };
@@ -95,17 +104,23 @@ export function schedule(jobs: Job[], policy: Policy, quantum: number, cores: nu
         const busy = running.filter((r) => r !== null);
         const nextArrival =
             next < order.length ? (jobs[order[next] ?? 0]?.arrive ?? Infinity) : Infinity;
-        if (busy.length === 0 && nextArrival === Infinity) break;
+        if (busy.length === 0 && nextArrival === Infinity) {
+            break;
+        }
         t = Math.min(nextArrival, ...busy.map((r) => r.end));
 
         // Arrivals at this instant queue up before a job preempted at it.
         admit();
         for (let c = 0; c < cores; c++) {
             const r = running[c];
-            if (!r || r.end > t + EPS) continue;
+            if (!r || r.end > t + EPS) {
+                continue;
+            }
             slices.push({ job: r.job, core: c, start: r.start, end: r.end });
             remaining[r.job] = (remaining[r.job] ?? 0) - (r.end - r.start);
-            if ((remaining[r.job] ?? 0) > EPS) ready.push(r.job);
+            if ((remaining[r.job] ?? 0) > EPS) {
+                ready.push(r.job);
+            }
             running[c] = null;
         }
     }
@@ -122,7 +137,9 @@ export function schedule(jobs: Job[], policy: Policy, quantum: number, cores: nu
         const waits: Outcome["waits"] = [];
         let cursor = job.arrive;
         for (const s of own) {
-            if (s.start > cursor + EPS) waits.push({ start: cursor, end: s.start });
+            if (s.start > cursor + EPS) {
+                waits.push({ start: cursor, end: s.start });
+            }
             cursor = s.end;
         }
         return { done, turnaround: done - job.arrive, wait: done - job.arrive - job.burst, waits };
@@ -131,7 +148,11 @@ export function schedule(jobs: Job[], policy: Policy, quantum: number, cores: nu
     let switches = 0;
     for (let c = 0; c < cores; c++) {
         const own = slices.filter((s) => s.core === c).sort((a, b) => a.start - b.start);
-        for (let k = 1; k < own.length; k++) if (own[k]?.job !== own[k - 1]?.job) switches++;
+        for (let k = 1; k < own.length; k++) {
+            if (own[k]?.job !== own[k - 1]?.job) {
+                switches++;
+            }
+        }
     }
 
     return { slices, outcomes, end: Math.max(...slices.map((s) => s.end)), switches };

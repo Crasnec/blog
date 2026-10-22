@@ -58,7 +58,9 @@ export function runMachine(
         const index = transitions.findIndex((t) => t.from === state && t.on === input.event);
         const next = counters.map((c, i) => {
             const t = transitions[i];
-            if (t?.from !== state) return 0;
+            if (t?.from !== state) {
+                return 0;
+            }
             return t.on === input.event ? c + 1 : 0;
         });
 

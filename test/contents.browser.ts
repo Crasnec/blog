@@ -98,6 +98,7 @@ async function openFixture(controlled = false): Promise<Page> {
                 frames.set(id, callback);
                 return id;
             };
+
             window.cancelAnimationFrame = (id) => frames.delete(id);
             const observers: ObserverRecord[] = [];
             window.contentsHarness = {
@@ -123,7 +124,9 @@ async function openFixture(controlled = false): Promise<Page> {
                         disconnects: 0,
                         emit: () => {
                             const target = document.getElementById("section-beta");
-                            if (!target) throw new Error("Missing section");
+                            if (!target) {
+                                throw new Error("Missing section");
+                            }
                             const rect = target.getBoundingClientRect();
                             callback(
                                 [
@@ -147,12 +150,15 @@ async function openFixture(controlled = false): Promise<Page> {
                 observe() {
                     /* Entries are delivered explicitly by the test. */
                 }
+
                 unobserve() {
                     /* There are no native observations to remove. */
                 }
+
                 takeRecords(): IntersectionObserverEntry[] {
                     return [];
                 }
+
                 disconnect() {
                     this.record.disconnects++;
                 }
@@ -203,7 +209,9 @@ void test("modified activations leave the outline and keyboard focus alone", asy
             '.contents-inline-list a[href="#beta"]',
         );
         const details = document.querySelector("details");
-        if (!link || !details) throw new Error("Missing outline");
+        if (!link || !details) {
+            throw new Error("Missing outline");
+        }
         link.focus();
         link.addEventListener("click", (event) => {
             event.preventDefault();
@@ -234,7 +242,9 @@ void test("remount replaces listeners and swapping cancels pending paints and na
         );
         const heading = document.getElementById("beta");
         const details = document.querySelector("details");
-        if (!link || !heading || !details) throw new Error("Missing outline");
+        if (!link || !heading || !details) {
+            throw new Error("Missing outline");
+        }
         let focusCalls = 0;
         const focus = heading.focus.bind(heading);
         heading.focus = (options) => {

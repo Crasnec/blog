@@ -60,18 +60,28 @@ async function listen(server: Server): Promise<number> {
         });
     });
     const address = server.address();
-    if (!address || typeof address === "string") throw new Error("No TCP port was assigned");
+    if (!address || typeof address === "string") {
+        throw new Error("No TCP port was assigned");
+    }
     return address.port;
 }
 
 async function close(server: Server): Promise<void> {
-    if (!server.listening) return;
+    if (!server.listening) {
+        return;
+    }
     await new Promise<void>((done, reject) => {
         server.close((error) => {
-            if (error) reject(error);
-            else done();
+            if (error) {
+                reject(error);
+            }
+            else {
+                done();
+            }
         });
-        if (server instanceof HttpServer) server.closeAllConnections();
+        if (server instanceof HttpServer) {
+            server.closeAllConnections();
+        }
     });
 }
 
@@ -191,15 +201,21 @@ function selections() {
                 new URL(path, "http://127.0.0.1").origin !== "http://127.0.0.1",
         )
     )
+    {
         throw new Error(
             "LIGHTHOUSE_PATHS must contain comma-separated local paths beginning with /",
         );
+    }
     const devices: Device[] = [];
     for (const device of (process.env.LIGHTHOUSE_DEVICES ?? "mobile,desktop").split(",")) {
         const value = device.trim();
         if (value !== "mobile" && value !== "desktop")
+        {
             throw new Error("LIGHTHOUSE_DEVICES accepts mobile and desktop");
-        if (!devices.includes(value)) devices.push(value);
+        }
+        if (!devices.includes(value)) {
+            devices.push(value);
+        }
     }
     return { paths, devices };
 }
@@ -276,26 +292,34 @@ async function main() {
                 activeServer ? close(activeServer) : Promise.resolve(),
             ]);
             for (const result of results) {
-                if (result.status !== "rejected") continue;
+                if (result.status !== "rejected") {
+                    continue;
+                }
                 console.error(`Cleanup failed: ${String(result.reason)}`);
                 process.exitCode = 1;
             }
         });
         return cleanupTask;
     }
+
     const interrupt = (code: number) => {
         cancellation.abort();
         process.exitCode = code;
         void cleanup();
     };
+
     const onInterrupt = () => {
         interrupt(130);
     };
+
     const onTerminate = () => {
         interrupt(143);
     };
+
     const checkInterrupt = () => {
-        if (cancellation.signal.aborted) throw new Error("Lighthouse audit interrupted");
+        if (cancellation.signal.aborted) {
+            throw new Error("Lighthouse audit interrupted");
+        }
     };
     await mkdir(output, { recursive: true });
     process.once("SIGINT", onInterrupt);
@@ -332,9 +356,13 @@ async function main() {
                         device === "desktop" ? desktopConfig : undefined,
                     );
                     if (!result || !Array.isArray(result.report))
+                    {
                         throw new Error("Lighthouse did not produce HTML and JSON reports");
+                    }
                     const [html, json] = result.report;
-                    if (!html || !json) throw new Error("Lighthouse returned an incomplete report");
+                    if (!html || !json) {
+                        throw new Error("Lighthouse returned an incomplete report");
+                    }
                     const slug =
                         path === "/"
                             ? "home"
@@ -351,11 +379,15 @@ async function main() {
                     const run = { path, device, reports, ...summarize(result.lhr) };
                     runs.push(run);
                     console.log(JSON.stringify({ path, device, scores: run.scores }));
-                    if (!run.passed) process.exitCode = 1;
+                    if (!run.passed) {
+                        process.exitCode = 1;
+                    }
                 } catch (error) {
                     errors.push({ path, device, error: String(error) });
                     console.error(`${device} ${path}: ${String(error)}`);
-                    if (!cancellation.signal.aborted) process.exitCode = 1;
+                    if (!cancellation.signal.aborted) {
+                        process.exitCode = 1;
+                    }
                 }
             }
         }

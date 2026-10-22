@@ -22,7 +22,9 @@ export interface PostSeries<T> {
 /** Human-readable Unicode URLs; names themselves remain exactly as authored. */
 export function seriesSlug(name: string): string {
     const key = slug(name.trim().normalize("NFC"));
-    if (!key) throw new Error(`Series "${name}" must produce a nonempty URL slug.`);
+    if (!key) {
+        throw new Error(`Series "${name}" must produce a nonempty URL slug.`);
+    }
     return key;
 }
 
@@ -34,7 +36,9 @@ export function groupSeries<T extends SeriesSource>(posts: Iterable<T>): PostSer
     const groups = new Map<string, PostSeries<T>>();
     for (const post of posts) {
         const metadata = post.entry.data.series;
-        if (!metadata) continue;
+        if (!metadata) {
+            continue;
+        }
         const name = metadata.name.trim();
         const key = seriesSlug(name);
         const { order } = metadata;
@@ -61,14 +65,18 @@ export function groupSeries<T extends SeriesSource>(posts: Iterable<T>): PostSer
         }
         series.parts.push({ post, order });
     }
-    for (const series of groups.values()) series.parts.sort((a, b) => a.order - b.order);
+    for (const series of groups.values()) {
+        series.parts.sort((a, b) => a.order - b.order);
+    }
     return [...groups.values()].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
 }
 
 /** Series navigation follows the author's order even when publication dates differ. */
 export function seriesNeighbours<T extends SeriesSource>(series: PostSeries<T>, id: string) {
     const index = series.parts.findIndex(({ post }) => post.entry.id === id);
-    if (index === -1) return { prev: undefined, next: undefined };
+    if (index === -1) {
+        return { prev: undefined, next: undefined };
+    }
     return { prev: series.parts[index - 1]?.post, next: series.parts[index + 1]?.post };
 }
 
@@ -85,8 +93,12 @@ export function comparePostOrder(a: OrderedPost, b: OrderedPost): number {
     const left = a.entry.data.order;
     const right = b.entry.data.order;
     if (left !== right) {
-        if (left === undefined) return 1;
-        if (right === undefined) return -1;
+        if (left === undefined) {
+            return 1;
+        }
+        if (right === undefined) {
+            return -1;
+        }
         return left - right;
     }
     return (
@@ -98,7 +110,9 @@ export function comparePostOrder(a: OrderedPost, b: OrderedPost): number {
 /** Manual lists read forward; purely chronological lists retain older/newer navigation. */
 export function postNeighbours<T extends OrderedPost>(posts: readonly T[], id: string) {
     const index = posts.findIndex(({ entry }) => entry.id === id);
-    if (index === -1) return { prev: undefined, next: undefined };
+    if (index === -1) {
+        return { prev: undefined, next: undefined };
+    }
     const step = posts.some(({ entry }) => entry.data.order !== undefined) ? 1 : -1;
     return { prev: posts[index - step], next: posts[index + step] };
 }

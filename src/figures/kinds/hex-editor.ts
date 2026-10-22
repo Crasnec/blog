@@ -47,16 +47,23 @@ interface Props {
 }
 
 const columnsFor = (width: number): number => (width < 520 ? 4 : width < 760 ? 8 : 16);
+
 const address = (value: number): string => value.toString(16).toUpperCase().padStart(8, "0");
 
 function keys(value: JsonObject, allowed: readonly string[], path: string): void {
     for (const key of Object.keys(value))
-        if (!allowed.includes(key)) throw new Error(`${path}.${key} is not a supported field`);
+    {
+        if (!allowed.includes(key)) {
+            throw new Error(`${path}.${key} is not a supported field`);
+        }
+    }
 }
 
 function integer(value: number, min: number, max: number, path: string): number {
     if (!Number.isInteger(value) || value < min || value > max)
+    {
         throw new Error(`${path} must be a whole number from ${String(min)} to ${String(max)}`);
+    }
     return value;
 }
 
@@ -72,7 +79,9 @@ export default defineFigure<Props>({
             integer(num(value, `props.bytes[${String(i)}]`), 0, 255, `props.bytes[${String(i)}]`),
         );
         if (bytes.length < 1 || bytes.length > 64)
+        {
             throw new Error("props.bytes must contain 1 to 64 bytes");
+        }
         const baseOffset = integer(
             maybe(p.baseOffset, "props.baseOffset", num) ?? 0,
             0,
@@ -86,16 +95,22 @@ export default defineFigure<Props>({
             "props.selected",
         );
         const title = maybe(p.title, "props.title", str) ?? "Byte buffer";
-        if (title.length > 48) throw new Error("props.title must be at most 48 characters");
+        if (title.length > 48) {
+            throw new Error("props.title must be at most 48 characters");
+        }
         const rawActions = p.actions === undefined ? [] : arr(p.actions, "props.actions");
         if (rawActions.length > 12)
+        {
             throw new Error("props.actions must contain at most 12 actions");
+        }
         const actions: HexEditorAction[] = rawActions.map((rawAction, i) => {
             const path = `props.actions[${String(i)}]`;
             const action = obj(rawAction, path);
             const op = str(action.op, `${path}.op`);
             if (op !== "select" && op !== "write")
+            {
                 throw new Error(`${path}.op must be "select" or "write"`);
+            }
             keys(
                 action,
                 op === "write" ? ["op", "index", "value", "label"] : ["op", "index", "label"],
@@ -109,7 +124,9 @@ export default defineFigure<Props>({
             );
             const label = maybe(action.label, `${path}.label`, str);
             if (label !== undefined && label.length > 80)
+            {
                 throw new Error(`${path}.label must be at most 80 characters`);
+            }
             const description = label === undefined ? {} : { label };
             return op === "write"
                 ? {
@@ -181,12 +198,14 @@ export default defineFigure<Props>({
             text(frame, "Hex", hexX, 42, { size: 11, color: palette.inkMuted });
             text(frame, "ASCII", asciiX, 42, { size: 11, color: palette.inkMuted });
             for (let col = 0; col < columns; col++)
+            {
                 text(frame, hexByte(col), hexX + (col + 0.5) * hexCell, 64, {
                     mono: true,
                     align: "center",
                     size: 11,
                     color: palette.inkFaint,
                 });
+            }
             ctx.strokeStyle = palette.rule;
             ctx.beginPath();
             ctx.moveTo(0, TOP - 7);
@@ -204,7 +223,9 @@ export default defineFigure<Props>({
                 for (let col = 0; col < columns; col++) {
                     const index = row * columns + col;
                     const byte = current.bytes[index];
-                    if (byte === undefined) continue;
+                    if (byte === undefined) {
+                        continue;
+                    }
                     const selected = index === current.selected;
                     const modified = byte !== initial.bytes[index];
                     const hexLeft = hexX + col * hexCell;
@@ -301,7 +322,9 @@ export default defineFigure<Props>({
                 palette.marker,
             );
             if (active?.action.label)
+            {
                 fittedText(frame, actionText, 0, footerY + 83, width, palette.inkMuted);
+            }
         });
     },
 });

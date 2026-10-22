@@ -4,10 +4,14 @@ import { normalCdf } from "../../../../figures/statistics/math";
 
 export default function NormalCoverage({ deviations = 1.96 }: { deviations?: number }) {
     if (!Number.isFinite(deviations) || deviations < 0.1 || deviations > 3.5)
+    {
         throw new Error("NormalCoverage deviations must be from 0.1 to 3.5");
+    }
     const coverage = ((2 * normalCdf(deviations) - 1) * 100).toFixed(1);
     const x = (z: number) => 30 + ((z + 4) / 8) * 340;
+
     const y = (z: number) => 180 - (Math.exp((-z * z) / 2) / Math.sqrt(2 * Math.PI)) * 300;
+
     const path = (low: number, high: number) =>
         Array.from({ length: 121 }, (_, i) => {
             const z = low + ((high - low) * i) / 120;

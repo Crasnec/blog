@@ -37,7 +37,9 @@ export async function serveStaticSite(
                 await route.fulfill({ status: 403, body: "Forbidden" });
                 return;
             }
-            if ((await stat(file)).isDirectory()) file = join(file, "index.html");
+            if ((await stat(file)).isDirectory()) {
+                file = join(file, "index.html");
+            }
             await route.fulfill({
                 status: 200,
                 contentType: contentTypes[extname(file)] ?? "application/octet-stream",

@@ -25,10 +25,18 @@ function neighbours(maze: Maze, cell: number): number[] {
     const c = cell % maze.cols;
     const r = Math.floor(cell / maze.cols);
     const out: number[] = [];
-    if (r > 0) out.push(cell - maze.cols);
-    if (c < maze.cols - 1) out.push(cell + 1);
-    if (r < maze.rows - 1) out.push(cell + maze.cols);
-    if (c > 0) out.push(cell - 1);
+    if (r > 0) {
+        out.push(cell - maze.cols);
+    }
+    if (c < maze.cols - 1) {
+        out.push(cell + 1);
+    }
+    if (r < maze.rows - 1) {
+        out.push(cell + maze.cols);
+    }
+    if (c > 0) {
+        out.push(cell - 1);
+    }
     return out.filter((n) => !maze.walls[n]);
 }
 
@@ -60,6 +68,7 @@ export function searchGrid(maze: Maze, algorithm: Algorithm): Search {
     cost[maze.start] = 0;
 
     const h = (cell: number) => manhattan(maze, cell, maze.goal);
+
     const score = (cell: number): number => {
         switch (algorithm) {
             case "bfs":
@@ -78,9 +87,13 @@ export function searchGrid(maze: Maze, algorithm: Algorithm): Search {
         for (let i = 1; i < open.length; i++) {
             const a = open[i];
             const b = open[pick];
-            if (!a || !b) continue;
+            if (!a || !b) {
+                continue;
+            }
             if (algorithm === "dfs") {
-                if (a.seq > b.seq) pick = i;
+                if (a.seq > b.seq) {
+                    pick = i;
+                }
                 continue;
             }
             const sa = score(a.cell);
@@ -91,28 +104,42 @@ export function searchGrid(maze: Maze, algorithm: Algorithm): Search {
                 sa < sb ||
                 (sa === sb && algorithm === "astar" && h(a.cell) < h(b.cell)) ||
                 (sa === sb && (algorithm !== "astar" || h(a.cell) === h(b.cell)) && a.seq < b.seq);
-            if (better) pick = i;
+            if (better) {
+                pick = i;
+            }
         }
         const next = open[pick];
         open = open.filter((_, i) => i !== pick);
-        if (!next || expandedAt[next.cell] !== -1) continue;
+        if (!next || expandedAt[next.cell] !== -1) {
+            continue;
+        }
 
         const step = expanded.length;
         expandedAt[next.cell] = step;
         expanded.push(next.cell);
-        if (next.cell === maze.goal) break;
+        if (next.cell === maze.goal) {
+            break;
+        }
 
         for (const m of neighbours(maze, next.cell)) {
-            if (expandedAt[m] !== -1) continue;
+            if (expandedAt[m] !== -1) {
+                continue;
+            }
             const g = (cost[next.cell] ?? 0) + 1;
             // BFS and DFS keep a cell's first parent; the weighted searches
             // take a cheaper route when they find one.
             const firstVisit = discoveredAt[m] === -1;
             const cheaper = g < (cost[m] ?? Infinity);
             if (firstVisit || ((algorithm === "astar" || algorithm === "greedy") && cheaper)) {
-                if (firstVisit) discoveredAt[m] = step;
-                if (cheaper) cost[m] = g;
-                if (firstVisit || cheaper) parent[m] = next.cell;
+                if (firstVisit) {
+                    discoveredAt[m] = step;
+                }
+                if (cheaper) {
+                    cost[m] = g;
+                }
+                if (firstVisit || cheaper) {
+                    parent[m] = next.cell;
+                }
                 open.push({ cell: m, seq: seq++ });
             }
         }
@@ -120,7 +147,9 @@ export function searchGrid(maze: Maze, algorithm: Algorithm): Search {
 
     const path: number[] = [];
     if (expandedAt[maze.goal] !== -1) {
-        for (let c = maze.goal; c !== -1; c = parent[c] ?? -1) path.unshift(c);
+        for (let c = maze.goal; c !== -1; c = parent[c] ?? -1) {
+            path.unshift(c);
+        }
     }
     return { expanded, discoveredAt, expandedAt, path };
 }

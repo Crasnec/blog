@@ -7,7 +7,9 @@ interface Props {
     attribution?: string;
 }
 const { id, title = t("notebook.title"), attribution } = Astro.props;
-if (!/^[a-zA-Z][\w-]{0,79}$/u.test(id)) throw new Error("PythonNotebook needs a valid ID");
+if (!/^[a-zA-Z][\w-]{0,79}$/u.test(id)) {
+    throw new Error("PythonNotebook needs a valid ID");
+}
 ---
 
 <aside

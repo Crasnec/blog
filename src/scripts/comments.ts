@@ -26,8 +26,12 @@ function readStoredAuthor(): string {
 
 function storeAuthor(author: string) {
     try {
-        if (author) localStorage.setItem(AUTHOR_STORAGE_KEY, author);
-        else localStorage.removeItem(AUTHOR_STORAGE_KEY);
+        if (author) {
+            localStorage.setItem(AUTHOR_STORAGE_KEY, author);
+        }
+        else {
+            localStorage.removeItem(AUTHOR_STORAGE_KEY);
+        }
     } catch {
         // Storage may be unavailable in a restricted browsing context. The form
         // still works for the current page, so persistence remains optional.
@@ -44,7 +48,9 @@ export function mountComments() {
 function wireForm() {
     const form = document.getElementById("comment-form");
     const status = document.getElementById("comment-status");
-    if (!(form instanceof HTMLFormElement) || !status) return;
+    if (!(form instanceof HTMLFormElement) || !status) {
+        return;
+    }
 
     const authorField = form.elements.namedItem("author");
     const authorInput = authorField instanceof HTMLInputElement ? authorField : null;
@@ -57,7 +63,9 @@ function wireForm() {
     }
 
     const { endpoint, token, branch, post, lang, sending, sent, failed } = form.dataset;
-    if (!endpoint || !token) return;
+    if (!endpoint || !token) {
+        return;
+    }
 
     const button = form.querySelector<HTMLButtonElement>("button[type=submit]");
     const bodyField = document.getElementById("comment-body");
@@ -66,7 +74,9 @@ function wireForm() {
     const resetForm = () => {
         const author = readStoredAuthor();
         form.reset();
-        if (authorInput) authorInput.value = author;
+        if (authorInput) {
+            authorInput.value = author;
+        }
         body?.dispatchEvent(new Event("input"));
     };
 
@@ -108,9 +118,13 @@ function wireForm() {
             return;
         }
 
-        if (!author || !text) return;
+        if (!author || !text) {
+            return;
+        }
 
-        if (button) button.disabled = true;
+        if (button) {
+            button.disabled = true;
+        }
         say(sending ?? "", "busy");
 
         try {
@@ -128,14 +142,18 @@ function wireForm() {
             });
 
             // A dispatch that is accepted returns 204 with no body.
-            if (!response.ok) throw new Error(String(response.status));
+            if (!response.ok) {
+                throw new Error(String(response.status));
+            }
 
             say(sent ?? "", "ok");
             resetForm();
         } catch {
             say(failed ?? "", "error");
         } finally {
-            if (button) button.disabled = false;
+            if (button) {
+                button.disabled = false;
+            }
         }
     };
 
@@ -159,7 +177,9 @@ function wireLeavePrompt() {
     const url = document.getElementById("leave-url");
     const go = document.getElementById("leave-go");
     const cancel = document.getElementById("leave-cancel");
-    if (!panel || !host || !url || !(go instanceof HTMLAnchorElement) || !cancel) return;
+    if (!panel || !host || !url || !(go instanceof HTMLAnchorElement) || !cancel) {
+        return;
+    }
 
     let lastFocused: HTMLElement | null = null;
 
@@ -187,13 +207,21 @@ function wireLeavePrompt() {
     };
 
     document.addEventListener("click", (event) => {
-        if (event.defaultPrevented || event.button !== 0) return;
-        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (event.defaultPrevented || event.button !== 0) {
+            return;
+        }
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+            return;
+        }
 
         const target = event.target;
-        if (!(target instanceof Element)) return;
+        if (!(target instanceof Element)) {
+            return;
+        }
         const link = target.closest(".comment-body a[data-external]");
-        if (!(link instanceof HTMLAnchorElement)) return;
+        if (!(link instanceof HTMLAnchorElement)) {
+            return;
+        }
 
         event.preventDefault();
         open(link.href, link.dataset.host ?? link.hostname);
@@ -203,10 +231,14 @@ function wireLeavePrompt() {
     go.addEventListener("click", close);
 
     panel.addEventListener("click", (event) => {
-        if (event.target === panel) close();
+        if (event.target === panel) {
+            close();
+        }
     });
 
     panel.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") close();
+        if (event.key === "Escape") {
+            close();
+        }
     });
 }

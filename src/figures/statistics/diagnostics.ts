@@ -22,9 +22,11 @@ function diagnostic(style: "residual" | "scale-location" | "influence", title: s
             const p = obj(raw, "props");
             const fit = linearFit(readPoints(p, 4));
             if (style !== "residual" && fit.diagnostics.some((d) => d.leverage >= 1 - 1e-12))
+            {
                 throw new Error(
                     "props.points has unit leverage; standardized residuals are undefined",
                 );
+            }
             const data = fit.diagnostics.map((d) => ({
                 x: style === "influence" ? d.leverage : d.fitted,
                 y:
@@ -59,7 +61,9 @@ function diagnostic(style: "residual" | "scale-location" | "influence", title: s
                             : "√|standardized residual|",
             });
             reference(frame, plot, { x: p.xd[0], y: 0 }, { x: p.xd[1], y: 0 });
-            if (style !== "influence") points(frame, plot, p.data);
+            if (style !== "influence") {
+                points(frame, plot, p.data);
+            }
             else {
                 const maxCook = Math.max(...p.data.map((d) => d.cook));
                 clipped(frame, plot.rect, () => {

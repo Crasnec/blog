@@ -42,7 +42,9 @@ const SITE_HOST = (() => {
 function remarkCommentSubset() {
     return (tree: MdastRoot) => {
         visit(tree, (node, index, parent) => {
-            if (!parent || index === undefined) return undefined;
+            if (!parent || index === undefined) {
+                return undefined;
+            }
 
             // A heading in a comment claims a place in the document's outline that
             // it has not earned. The emphasis was the point, so keep that.
@@ -83,8 +85,12 @@ function remarkCommentSubset() {
 
         // Removing an image can leave the paragraph that held it standing empty.
         visit(tree, "paragraph", (node, index, parent) => {
-            if (!parent || index === undefined) return undefined;
-            if (node.children.length > 0) return undefined;
+            if (!parent || index === undefined) {
+                return undefined;
+            }
+            if (node.children.length > 0) {
+                return undefined;
+            }
             parent.children.splice(index, 1);
             return index;
         });
@@ -92,7 +98,9 @@ function remarkCommentSubset() {
         // An escaped HTML block lands at the root as bare text, which would sit
         // outside the block rhythm. Give it the paragraph it would have had.
         tree.children = tree.children.map((child) => {
-            if (child.type !== "text") return child;
+            if (child.type !== "text") {
+                return child;
+            }
             const paragraph: Paragraph = { type: "paragraph", children: [child] };
             return paragraph;
         });
@@ -141,7 +149,9 @@ const schema = {
 function rehypeMarkExternal() {
     return (tree: HastRoot) => {
         visit(tree, "element", (node, index, parent) => {
-            if (node.tagName !== "a") return undefined;
+            if (node.tagName !== "a") {
+                return undefined;
+            }
 
             const href = node.properties.href ?? "";
 
@@ -166,7 +176,9 @@ function rehypeMarkExternal() {
 
             const leaving =
                 (url.protocol === "http:" || url.protocol === "https:") && url.host !== SITE_HOST;
-            if (!leaving) return undefined;
+            if (!leaving) {
+                return undefined;
+            }
 
             node.properties = {
                 ...node.properties,

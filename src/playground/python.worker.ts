@@ -19,7 +19,9 @@ self.addEventListener(
     "message",
     (event: MessageEvent<MessageValue>) => {
         const request = decodeRunRequest(event.data);
-        if (request) void start(request);
+        if (request) {
+            void start(request);
+        }
     },
     { once: true },
 );
@@ -52,7 +54,9 @@ async function start(request: RunRequest) {
             request_input: inputChannel(request.port, send),
             input_unsupported: t("playground.inputUnsupported"),
             emit_png: (encoded: MessageValue, title: MessageValue) => {
-                if (typeof encoded !== "string") throw new Error("Plot output must be PNG text");
+                if (typeof encoded !== "string") {
+                    throw new Error("Plot output must be PNG text");
+                }
                 send({
                     type: "plot",
                     png: pngFromBase64(encoded),
@@ -68,12 +72,16 @@ async function start(request: RunRequest) {
         let plots = false;
         let busy = false;
         async function execute(cell: Pick<CellRequest, "code" | "pythonPackages">) {
-            if (busy) return;
+            if (busy) {
+                return;
+            }
             busy = true;
             emit = outputChannel(request.port);
             try {
                 if (typeof cell.code !== "string" || cell.code.length > MAX_CODE)
+                {
                     throw new Error("Invalid notebook cell source");
+                }
                 source.code = cell.code;
                 python.runPython(
                     "from _playground import source as __pg_bridge\n__pg_source = __pg_bridge.code",
@@ -83,7 +91,9 @@ async function start(request: RunRequest) {
                         "import json as __pg_json\nfrom pyodide.code import find_imports as __pg_find_imports\n__pg_json.dumps(__pg_find_imports(__pg_source))",
                     ),
                 );
-                if (!Array.isArray(imported)) throw new Error("Could not inspect Python imports");
+                if (!Array.isArray(imported)) {
+                    throw new Error("Could not inspect Python imports");
+                }
                 const options = {
                     checkIntegrity: true,
                     messageCallback: () => {
@@ -100,10 +110,12 @@ async function start(request: RunRequest) {
                     ]),
                 ];
                 if (packages.length)
+                {
                     send({
                         type: "status",
                         text: t("playground.packagesLoading", { packages: packages.join(", ") }),
                     });
+                }
                 if (cell.pythonPackages.length) {
                     await python.loadPackage("micropip", options);
                     source.requirements = JSON.stringify(cell.pythonPackages);
@@ -116,15 +128,21 @@ async function start(request: RunRequest) {
                     python.runPython(installPlotCapture);
                     plots = true;
                 }
-                if (request.persistent) python.runPython(installNotebookDisplay);
+                if (request.persistent) {
+                    python.runPython(installNotebookDisplay);
+                }
                 send({ type: "ready" });
                 await python.runPythonAsync(
                     request.persistent ? "await __nb_run_cell(__pg_source)" : cell.code,
                 );
-                if (plots) python.runPython("__playground_flush_plots()");
+                if (plots) {
+                    python.runPython("__playground_flush_plots()");
+                }
                 send({ type: "done" });
             } catch (error) {
-                if (plots) python.runPython("__pg_plt.close('all')");
+                if (plots) {
+                    python.runPython("__pg_plt.close('all')");
+                }
                 send({
                     type: "error",
                     text: error instanceof Error ? error.message : String(error),
@@ -134,10 +152,14 @@ async function start(request: RunRequest) {
             }
         }
         if (request.persistent)
+        {
             request.port.addEventListener("message", (event: MessageEvent<MessageValue>) => {
                 const cell = decodeCellRequest(event.data);
-                if (cell) void execute(cell);
+                if (cell) {
+                    void execute(cell);
+                }
             });
+        }
         await execute(request);
     } catch (error) {
         send({ type: "error", text: error instanceof Error ? error.message : String(error) });

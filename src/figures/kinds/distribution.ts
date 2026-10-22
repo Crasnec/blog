@@ -62,14 +62,20 @@ const SPAN = 3.6;
 function readMarker(v: JsonValue, path: string): number {
     if (typeof v === "number") {
         if (!Number.isFinite(v) || v < 0 || v > 100)
+        {
             throw new Error(`${path} must be a percentile from 0 to 100`);
+        }
         return v;
     }
     const s = str(v, path);
     const m = /^p(\d+(?:\.\d+)?)$/.exec(s);
-    if (!m?.[1]) throw new Error(`${path} must be a number or like "p99"`);
+    if (!m?.[1]) {
+        throw new Error(`${path} must be a number or like "p99"`);
+    }
     const value = Number(m[1]);
-    if (value < 0 || value > 100) throw new Error(`${path} must be a percentile from 0 to 100`);
+    if (value < 0 || value > 100) {
+        throw new Error(`${path} must be a percentile from 0 to 100`);
+    }
     return value;
 }
 
@@ -83,7 +89,9 @@ export default defineFigure<Props>({
             const path = `props.groups[${String(i)}]`;
             const o = obj(g, path);
             let samples: number[] = [];
-            if (o.samples !== undefined) samples = nums(o.samples, `${path}.samples`);
+            if (o.samples !== undefined) {
+                samples = nums(o.samples, `${path}.samples`);
+            }
             if (o.generate !== undefined) {
                 const gen = obj(o.generate, `${path}.generate`);
                 samples = samples.concat(
@@ -108,7 +116,9 @@ export default defineFigure<Props>({
             return { label: str(o.label ?? "", `${path}.label`), samples };
         });
         if (groups.length === 0 || groups.length > 4)
+        {
             throw new Error("props.groups needs 1–4 groups");
+        }
 
         const samples = groups.flatMap((group) => group.samples);
         const low = Math.min(...samples),
@@ -116,9 +126,13 @@ export default defineFigure<Props>({
         const min = maybe(p.min, "props.min", num) ?? Math.min(0, low);
         const max = maybe(p.max, "props.max", num) ?? (high > 0 ? high : low < 0 ? 0 : 1);
         const bins = maybe(p.bins, "props.bins", num) ?? 48;
-        if (max <= min) throw new Error("props.max must exceed props.min");
+        if (max <= min) {
+            throw new Error("props.max must exceed props.min");
+        }
         if (!Number.isInteger(bins) || bins < 2 || bins > 200)
+        {
             throw new Error("props.bins must be an integer from 2 to 200");
+        }
 
         return {
             unit: maybe(p.unit, "props.unit", str) ?? "",
@@ -172,7 +186,9 @@ export default defineFigure<Props>({
             group.samples.forEach((value, i) => {
                 const start = DROP + (i / total) * SPAN;
                 const t = progress(time, start, 0.45);
-                if (t <= 0) return;
+                if (t <= 0) {
+                    return;
+                }
 
                 const bin = Math.min(
                     props.bins - 1,

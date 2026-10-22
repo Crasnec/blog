@@ -14,14 +14,18 @@ export const kaplanMeierFigure = defineFigure({
                 const at = `${path}.observations[${String(j)}]`;
                 const point = obj(d, at);
                 if (point.event === undefined)
+                {
                     throw new Error(`${at}.event must be true (event) or false (censored)`);
+                }
                 return {
                     time: bounded(point.time, `${at}.time`, 0, 1e12),
                     event: bool(point.event, `${at}.event`),
                 };
             });
             if (observations.length < 1 || observations.length > 2000)
+            {
                 throw new Error(`${path}.observations needs 1–2000 observations`);
+            }
             return {
                 label: str(group.label, `${path}.label`),
                 steps: kaplanMeier(observations),
@@ -29,7 +33,9 @@ export const kaplanMeierFigure = defineFigure({
             };
         });
         if (groups.length < 1 || groups.length > 6)
+        {
             throw new Error("props.groups needs 1–6 survival groups");
+        }
         return {
             ...common(p, "Kaplan–Meier · log-log Greenwood 95% bands"),
             groups,
@@ -67,8 +73,12 @@ export const kaplanMeierFigure = defineFigure({
                     const band = [...stepPoints("high"), ...stepPoints("low").reverse()];
                     frame.ctx.beginPath();
                     band.forEach((v, i) => {
-                        if (i === 0) frame.ctx.moveTo(plot.x(v.x), plot.y(v.y));
-                        else frame.ctx.lineTo(plot.x(v.x), plot.y(v.y));
+                        if (i === 0) {
+                            frame.ctx.moveTo(plot.x(v.x), plot.y(v.y));
+                        }
+                        else {
+                            frame.ctx.lineTo(plot.x(v.x), plot.y(v.y));
+                        }
                     });
                     frame.ctx.closePath();
                     frame.ctx.fillStyle = color;
@@ -92,7 +102,9 @@ export const kaplanMeierFigure = defineFigure({
                         s.censored === 0 ||
                         frame.time < TIMES.start + (s.time / p.end) * TIMES.reveal
                     )
+                    {
                         return;
+                    }
                     line(
                         frame.ctx,
                         plot.x(s.time),

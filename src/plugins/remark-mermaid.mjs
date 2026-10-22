@@ -15,7 +15,9 @@ export function remarkMermaid() {
     /** @type {import("unified").Transformer<import("mdast").Root>} */
     return (tree) => {
         visit(tree, "code", (node, index, parent) => {
-            if (node.lang !== "mermaid" || index === undefined || !parent) return;
+            if (node.lang !== "mermaid" || index === undefined || !parent) {
+                return;
+            }
 
             const source = node.value;
             const caption = (node.meta ?? "").trim();

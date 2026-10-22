@@ -41,24 +41,32 @@ export function bounded(
 ): number {
     const value = num(v, path);
     if (value < lo || value > hi || (integer && !Number.isInteger(value)))
+    {
         throw new Error(
             `${path} must be ${integer ? "an integer" : "a number"} from ${String(lo)} to ${String(hi)}`,
         );
+    }
     return value;
 }
 
 export function sample(v: JsonValue | undefined, path: string, min = 2, max = 2000): number[] {
     const values = nums(v, path);
     if (values.length < min || values.length > max || values.some((n) => Math.abs(n) > 1e12))
+    {
         throw new Error(
             `${path} needs ${String(min)}–${String(max)} finite values with magnitude at most 1e12`,
         );
+    }
     return values;
 }
 
 export function bool(v: JsonValue | undefined, path: string, fallback = false): boolean {
-    if (v === undefined) return fallback;
-    if (typeof v !== "boolean") throw new Error(`${path} must be true or false`);
+    if (v === undefined) {
+        return fallback;
+    }
+    if (typeof v !== "boolean") {
+        throw new Error(`${path} must be true or false`);
+    }
     return v;
 }
 
@@ -75,7 +83,9 @@ export function readGroups(p: JsonObject): Group[] {
             values: sample(g.values, `${path}.values`).sort((a, b) => a - b),
         };
     });
-    if (groups.length < 1 || groups.length > 8) throw new Error("props.groups needs 1–8 groups");
+    if (groups.length < 1 || groups.length > 8) {
+        throw new Error("props.groups needs 1–8 groups");
+    }
     return groups;
 }
 
@@ -89,7 +99,9 @@ export function readPoints(p: JsonObject, min = 2): Point[] {
         };
     });
     if (points.length < min || points.length > 2000)
+    {
         throw new Error(`props.points needs ${String(min)}–2000 points`);
+    }
     return points;
 }
 
@@ -182,6 +194,7 @@ export function axes(
     }
     line(ctx, rect.x, rect.y + rect.h, rect.x + rect.w, rect.y + rect.h, palette.rule);
     if (options.xLabel)
+    {
         fittedText(
             frame,
             options.xLabel,
@@ -191,8 +204,11 @@ export function axes(
             palette.inkMuted,
             "center",
         );
+    }
     if (options.yLabel)
+    {
         fittedText(frame, options.yLabel, rect.x, rect.y - 10, rect.w, palette.inkMuted);
+    }
     return { rect, x, y };
 }
 
@@ -278,7 +294,9 @@ export function swarmPositions(
         let x = 0;
         for (let step = 0; step < 300; step++) {
             const candidate = Math.ceil(step / 2) * radius * 1.8 * (step % 2 === 0 ? -1 : 1);
-            if (Math.abs(candidate) > maxOffset) break;
+            if (Math.abs(candidate) > maxOffset) {
+                break;
+            }
             if (placed.every((p) => Math.hypot(p.x - candidate, p.y - y) >= radius * 2 + 0.2)) {
                 x = candidate;
                 break;

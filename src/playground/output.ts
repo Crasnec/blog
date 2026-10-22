@@ -3,18 +3,28 @@ import { MAX_OUTPUT, MAX_PLOTS, MAX_PNG, MAX_PLOT_TOTAL, type RunResponse } from
 type ConsoleValue = object | string | number | boolean | bigint | symbol | null | undefined;
 
 export function formatValue(value: ConsoleValue): string {
-    if (typeof value === "string") return value;
-    if (value instanceof Error) return `${value.name}: ${value.message}`;
-    if (typeof value !== "object" || value === null) return String(value);
+    if (typeof value === "string") {
+        return value;
+    }
+    if (value instanceof Error) {
+        return `${value.name}: ${value.message}`;
+    }
+    if (typeof value !== "object" || value === null) {
+        return String(value);
+    }
     const seen = new WeakSet<object>();
     try {
         // toJSON may return undefined, despite the standard library's string type.
         const encoded = JSON.stringify(
             value,
             (_key: string, item: ConsoleValue) => {
-                if (typeof item === "bigint") return `${String(item)}n`;
+                if (typeof item === "bigint") {
+                    return `${String(item)}n`;
+                }
                 if (typeof item === "object" && item !== null) {
-                    if (seen.has(item)) return "[Circular]";
+                    if (seen.has(item)) {
+                        return "[Circular]";
+                    }
                     seen.add(item);
                 }
                 return item;
@@ -37,7 +47,9 @@ export function outputChannel(port: MessagePort) {
         if (message.type === "output") {
             size += message.text.length;
             if (++lines > 500 || size > MAX_OUTPUT)
+            {
                 throw new Error("Output limit exceeded (500 messages / 64 KB)");
+            }
         }
         if (message.type === "plot") {
             plotBytes += message.png.byteLength;
@@ -46,7 +58,9 @@ export function outputChannel(port: MessagePort) {
                 message.png.byteLength > MAX_PNG ||
                 plotBytes > MAX_PLOT_TOTAL
             )
+            {
                 throw new Error("Plot limit exceeded (8 images / 4 MB each / 16 MB total)");
+            }
             port.postMessage(message, [message.png]);
             return;
         }

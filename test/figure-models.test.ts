@@ -79,9 +79,11 @@ void test("real key names determine ownership and only the new ring server takes
             ),
         );
         if (scheme === "ring")
+        {
             assert.ok(
                 plan.keys.filter((key) => key.before !== key.after).every((key) => key.after === 2),
             );
+        }
     }
     assert.doesNotThrow(() =>
         hashRing.bind({ scheme: "ring", servers: ["a", "b"], add: "c", keys: names }),

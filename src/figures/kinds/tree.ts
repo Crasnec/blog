@@ -114,9 +114,15 @@ function readValues(raw: JsonValue | undefined): number[] {
         maybe(g.seed, "props.values.seed", num) ?? 5,
     ).slice(0, count);
     const sorted = maybe(g.sorted, "props.values.sorted", str);
-    if (sorted === "asc") values.sort((a, b) => a - b);
-    else if (sorted === "desc") values.sort((a, b) => b - a);
-    else if (sorted !== undefined) throw new Error('props.values.sorted must be "asc" or "desc"');
+    if (sorted === "asc") {
+        values.sort((a, b) => a - b);
+    }
+    else if (sorted === "desc") {
+        values.sort((a, b) => b - a);
+    }
+    else if (sorted !== undefined) {
+        throw new Error('props.values.sorted must be "asc" or "desc"');
+    }
     return values;
 }
 
@@ -156,7 +162,9 @@ export default defineFigure<Props>({
         const units = t.steps.reduce((sum, s) => sum + WEIGHT[s.kind], 0);
         const given = maybe(p.step, "props.step", num);
         const step = given ?? Math.min(AVAILABLE / Math.max(1, units), 0.6);
-        if (step <= 0) throw new Error("props.step must be positive");
+        if (step <= 0) {
+            throw new Error("props.step must be positive");
+        }
         if (units * step > AVAILABLE + 1e-9) {
             throw new Error(
                 `props.step ${String(step)} needs ${(units * step).toFixed(1)}s, but the figure has ` +
@@ -176,7 +184,11 @@ export default defineFigure<Props>({
 
         /* where we are in the trace */
         let k = -1;
-        for (const [i, s] of t.steps.entries()) if (now >= s.start) k = i;
+        for (const [i, s] of t.steps.entries()) {
+            if (now >= s.start) {
+                k = i;
+            }
+        }
         const step = t.steps[k];
         const before = k > 0 ? (t.steps[k - 1]?.after ?? t.initial) : t.initial;
         const after = step?.after ?? t.initial;
@@ -204,9 +216,12 @@ export default defineFigure<Props>({
             x: board.x + n.x * board.w,
             y: board.y + n.depth * dy,
         });
+
         const posOf = (id: number): Point | undefined => {
             const a = after.get(id);
-            if (!a) return undefined;
+            if (!a) {
+                return undefined;
+            }
             const b = before.get(id);
             return b ? along(toPx(b), toPx(a), blend) : toPx(a);
         };
@@ -252,15 +267,21 @@ export default defineFigure<Props>({
             // In a heap swap the slots stay put and only the values travel, so edges
             // are drawn between slots; elsewhere they follow the easing layout.
             const edgeAt = (id: number): Point | undefined => {
-                if (step?.kind !== "swap") return posOf(id);
+                if (step?.kind !== "swap") {
+                    return posOf(id);
+                }
                 const a = after.get(id);
                 return a && toPx(a);
             };
             for (const [id, n] of after) {
-                if (n.parent === undefined) continue;
+                if (n.parent === undefined) {
+                    continue;
+                }
                 const a = edgeAt(n.parent);
                 const b = edgeAt(id);
-                if (!a || !b) continue;
+                if (!a || !b) {
+                    continue;
+                }
                 const lit = onPath.has(`${String(n.parent)}-${String(id)}`);
                 const grow = step?.born === id ? ease.out(p) : 1;
                 const end = along(a, b, grow);
@@ -280,9 +301,13 @@ export default defineFigure<Props>({
             const pathSet = new Set(step && !done ? step.path : []);
             for (const [id, n] of after) {
                 const at = posOf(id);
-                if (!at) continue;
+                if (!at) {
+                    continue;
+                }
                 const scale = step?.born === id ? ease.back(p) : 1;
-                if (scale <= 0) continue;
+                if (scale <= 0) {
+                    continue;
+                }
                 const rr = r * scale;
                 const isFound = done && t.result === "찾음" && step?.focus[0] === id;
                 const fill = isFound

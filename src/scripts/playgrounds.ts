@@ -50,17 +50,22 @@ function mount(root: HTMLElement) {
     let plotBytes = 0;
     const plotURLs: string[] = [];
     function clearOutput() {
-        for (const url of plotURLs) URL.revokeObjectURL(url);
+        for (const url of plotURLs) {
+            URL.revokeObjectURL(url);
+        }
         plotURLs.length = 0;
         plotBytes = 0;
         output?.replaceChildren();
         outputSize = 0;
         outputLines = 0;
     }
+
     function finish(message: string, state: string) {
         clearTimeout(timer);
         pendingInput = undefined;
-        if (inputForm) inputForm.hidden = true;
+        if (inputForm) {
+            inputForm.hidden = true;
+        }
         if (!notebook) {
             worker?.terminate();
             port?.close();
@@ -68,16 +73,25 @@ function mount(root: HTMLElement) {
         worker = undefined;
         port = undefined;
         if (status)
+        {
             status.textContent =
                 state === "done" && !output?.hasChildNodes() ? t("playground.doneEmpty") : message;
-        if (runButton) runButton.disabled = false;
-        if (stopButton) stopButton.disabled = true;
+        }
+        if (runButton) {
+            runButton.disabled = false;
+        }
+        if (stopButton) {
+            stopButton.disabled = true;
+        }
         root.dataset.runState = state;
         settle?.(state === "done");
         settle = undefined;
     }
+
     function append(text: string, level: string) {
-        if (!output) return;
+        if (!output) {
+            return;
+        }
         if (++outputLines > 500 || outputSize + text.length > MAX_OUTPUT) {
             abort(t("playground.outputLimit"), "error");
             return;
@@ -89,8 +103,11 @@ function mount(root: HTMLElement) {
         output.append(line);
         output.scrollTop = output.scrollHeight;
     }
+
     function appendPlot(png: ArrayBuffer, alt: string) {
-        if (!output) return;
+        if (!output) {
+            return;
+        }
         plotBytes += png.byteLength;
         if (
             plotURLs.length >= MAX_PLOTS ||
@@ -114,6 +131,7 @@ function mount(root: HTMLElement) {
         figure.append(image, link);
         output.append(figure);
     }
+
     function resumeClock() {
         activeSince = performance.now();
         timer = setTimeout(
@@ -123,8 +141,11 @@ function mount(root: HTMLElement) {
             Math.max(0, remaining),
         );
     }
+
     function requestInput(id: number, prompt: string) {
-        if (pendingInput || !inputForm || !inputField || !inputPrompt) return;
+        if (pendingInput || !inputForm || !inputField || !inputPrompt) {
+            return;
+        }
         clearTimeout(timer);
         remaining -= performance.now() - activeSince;
         pendingInput = { id, prompt };
@@ -132,18 +153,29 @@ function mount(root: HTMLElement) {
         inputField.value = "";
         inputForm.hidden = false;
         root.dataset.runState = "input";
-        if (status) status.textContent = t("playground.inputWaiting");
+        if (status) {
+            status.textContent = t("playground.inputWaiting");
+        }
         inputField.focus();
     }
+
     function submitInput(value: string | null) {
-        if (!pendingInput || !port || (value !== null && value.length > MAX_INPUT)) return;
+        if (!pendingInput || !port || (value !== null && value.length > MAX_INPUT)) {
+            return;
+        }
         const { id, prompt } = pendingInput;
         pendingInput = undefined;
-        if (inputForm) inputForm.hidden = true;
+        if (inputForm) {
+            inputForm.hidden = true;
+        }
         append(`${prompt}${value ?? t("playground.inputEof")}`, "log");
-        if (root.dataset.runState === "error") return;
+        if (root.dataset.runState === "error") {
+            return;
+        }
         root.dataset.runState = "running";
-        if (status) status.textContent = t("playground.running");
+        if (status) {
+            status.textContent = t("playground.running");
+        }
         resumeClock();
         const response: InputResponse = { type: "input", id, value };
         port.postMessage(response);
@@ -167,12 +199,16 @@ function mount(root: HTMLElement) {
                 appendPlot(response.png, response.alt);
                 break;
             case "status":
-                if (status) status.textContent = response.text;
+                if (status) {
+                    status.textContent = response.text;
+                }
                 break;
             case "ready":
                 clearTimeout(timer);
                 root.dataset.runState = "running";
-                if (status) status.textContent = t("playground.running");
+                if (status) {
+                    status.textContent = t("playground.running");
+                }
                 remaining = config.timeout;
                 resumeClock();
                 break;
@@ -185,6 +221,7 @@ function mount(root: HTMLElement) {
                 break;
         }
     }
+
     function run(): Promise<boolean> {
         if (
             disposed ||
@@ -193,15 +230,23 @@ function mount(root: HTMLElement) {
             root.dataset.runState === "input" ||
             !config.runtime
         )
+        {
             return Promise.resolve(false);
+        }
         const completion = new Promise<boolean>((resolve) => {
             settle = resolve;
         });
         clearOutput();
         root.dataset.runState = "loading";
-        if (status) status.textContent = t("playground.loading");
-        if (runButton) runButton.disabled = true;
-        if (stopButton) stopButton.disabled = false;
+        if (status) {
+            status.textContent = t("playground.loading");
+        }
+        if (runButton) {
+            runButton.disabled = true;
+        }
+        if (stopButton) {
+            stopButton.disabled = false;
+        }
         if (notebook) {
             timer = setTimeout(() => {
                 abort(t("playground.loadTimeout"), "timeout");
@@ -216,7 +261,9 @@ function mount(root: HTMLElement) {
                 ).href,
                 receive,
             );
-            if (!port && root.dataset.runState === "loading") finish(t("notebook.busy"), "idle");
+            if (!port && root.dataset.runState === "loading") {
+                finish(t("notebook.busy"), "idle");
+            }
             return completion;
         }
         try {
@@ -232,8 +279,11 @@ function mount(root: HTMLElement) {
             port = channel.port1;
             port.onmessage = (event: MessageEvent<MessageValue>) => {
                 const response = decodeRunResponse(event.data);
-                if (response) receive(response);
+                if (response) {
+                    receive(response);
+                }
             };
+
             worker.onerror = (event) => {
                 event.preventDefault();
                 append(event.message, "error");
@@ -259,6 +309,7 @@ function mount(root: HTMLElement) {
         }
         return completion;
     }
+
     function abort(message: string, state: string) {
         notebook?.restart(false);
         finish(message, state);
@@ -321,13 +372,21 @@ function mount(root: HTMLElement) {
         abort(t(notebook ? "notebook.stopping" : "playground.stopped"), "stopped");
     });
     resetButton?.addEventListener("click", () => {
-        if (notebook) finish(t("playground.idle"), "idle");
-        else abort(t("playground.idle"), "idle");
+        if (notebook) {
+            finish(t("playground.idle"), "idle");
+        }
+        else {
+            abort(t("playground.idle"), "idle");
+        }
         editor.reset();
         clearOutput();
     });
-    if (runButton) runButton.disabled = false;
-    if (resetButton) resetButton.disabled = false;
+    if (runButton) {
+        runButton.disabled = false;
+    }
+    if (resetButton) {
+        resetButton.disabled = false;
+    }
     root.dataset.ready = "true";
     return () => {
         disposed = true;
@@ -340,12 +399,16 @@ function mount(root: HTMLElement) {
 
 export function mountPlaygrounds() {
     for (const [root, dispose] of mounted)
+    {
         if (!root.isConnected) {
             dispose();
             mounted.delete(root);
         }
+    }
     for (const root of document.querySelectorAll<HTMLElement>("[data-code-playground]")) {
-        if (mounted.has(root)) continue;
+        if (mounted.has(root)) {
+            continue;
+        }
         try {
             mounted.set(root, mount(root));
         } catch (error) {
@@ -359,8 +422,12 @@ export function mountPlaygrounds() {
 }
 
 document.addEventListener("astro:before-swap", () => {
-    for (const dispose of mounted.values()) dispose();
+    for (const dispose of mounted.values()) {
+        dispose();
+    }
     mounted.clear();
-    for (const notebook of notebooks.values()) notebook.restart(false);
+    for (const notebook of notebooks.values()) {
+        notebook.restart(false);
+    }
     notebooks.clear();
 });

@@ -78,7 +78,9 @@ const DURATION = 6.4;
 function readCount(raw: JsonValue | undefined): number {
     const count = raw === undefined ? 24 : num(raw, "props.keys");
     if (!Number.isInteger(count) || count < 1 || count > 40)
+    {
         throw new Error("props.keys must be an integer from 1 to 40 or an array of key names");
+    }
     return count;
 }
 
@@ -98,9 +100,13 @@ export default defineFigure<Plan>({
             str(s, `props.servers[${String(i)}]`),
         );
         if (servers.length < 2 || servers.length > 6)
+        {
             throw new Error("props.servers needs 2 to 6 names");
+        }
         if (new Set(servers).size !== servers.length)
+        {
             throw new Error("props.servers must not repeat a name");
+        }
         if (servers.some((s) => s.length === 0 || s.length > 8)) {
             throw new Error("each name in props.servers must be 1 to 8 characters");
         }
@@ -149,8 +155,12 @@ export default defineFigure<Plan>({
 
         withAlpha(frame.ctx, ease.out(progress(frame.time, 0, TIMES.appear)), () => {
             drawHeader(frame, plan);
-            if (plan.scheme === "ring") drawRing(frame, plan, left);
-            else drawModulo(frame, plan, left, narrow);
+            if (plan.scheme === "ring") {
+                drawRing(frame, plan, left);
+            }
+            else {
+                drawModulo(frame, plan, left, narrow);
+            }
             drawColumns(frame, plan, right);
         });
     },
@@ -160,7 +170,9 @@ export default defineFigure<Plan>({
 
 /** When key `k` starts and finishes moving; undefined for a key that stays. */
 function moveTimes(plan: Plan, k: Key): { start: number; end: number } | undefined {
-    if (k.moveRank < 0) return undefined;
+    if (k.moveRank < 0) {
+        return undefined;
+    }
     const start = stagger(
         k.moveRank,
         plan.moved,
@@ -202,7 +214,9 @@ function headerRows(frame: Frame, plan: Plan): 1 | 2 {
 }
 
 function headerTitle(plan: Plan): string {
-    if (plan.scheme === "modulo") return "Modulo · hash % N";
+    if (plan.scheme === "modulo") {
+        return "Modulo · hash % N";
+    }
     return plan.vnodes > 1
         ? `Hash ring · ${String(plan.vnodes)} virtual nodes/server`
         : "Hash ring · one point/server";
@@ -226,19 +240,23 @@ function drawHeader(frame: Frame, plan: Plan) {
     if (verdict <= 0) {
         const live = `Moved ${String(landed)} / ${String(total)}`;
         if (two)
+        {
             text(frame, live, countX, countY, {
                 size: 12,
                 mono: true,
                 color: palette.inkMuted,
                 align: "left",
             });
+        }
         else
+        {
             label(frame, live, countX, countY, {
                 size: 12,
                 mono: true,
                 color: palette.inkMuted,
                 maxX: width,
             });
+        }
         return;
     }
     // Close to the new server's fair share is good; far above means churn,
@@ -252,8 +270,12 @@ function drawHeader(frame: Frame, plan: Plan) {
         color: fair ? palette.marker : palette.danger,
     };
     withAlpha(frame.ctx, verdict, () => {
-        if (two) text(frame, final, countX, countY, { ...style, align: "left" });
-        else label(frame, final, countX, countY, { ...style, maxX: width });
+        if (two) {
+            text(frame, final, countX, countY, { ...style, align: "left" });
+        }
+        else {
+            label(frame, final, countX, countY, { ...style, maxX: width });
+        }
     });
 }
 
@@ -272,7 +294,9 @@ function drawRing(frame: Frame, plan: Plan, area: Rect) {
     ctx.arc(c.x, c.y, radius, 0, Math.PI * 2);
     ctx.stroke();
     for (const [i, p] of points.entries()) {
-        if (p.server !== added) continue;
+        if (p.server !== added) {
+            continue;
+        }
         // A server owns the slice from the previous point up to itself.
         const prev = points[(i + points.length - 1) % points.length]?.at ?? 0;
         const from = prev <= p.at ? prev : prev - 1;
@@ -304,7 +328,9 @@ function drawRing(frame: Frame, plan: Plan, area: Rect) {
     /* layer 3: keys, just inside the ring, in the marker once they have moved */
     for (const [i, k] of plan.keys.entries()) {
         const shown = progress(time, keyAppear(plan, i), TIMES.keyFade);
-        if (shown <= 0) continue;
+        if (shown <= 0) {
+            continue;
+        }
         const m = moveTimes(plan, k);
         const moving = m !== undefined && time >= m.start;
         const p = polar(c, radius - 15, k.at);
@@ -372,7 +398,9 @@ function drawModulo(frame: Frame, plan: Plan, area: Rect, narrow: boolean) {
     const mappingWidth = (area.w - keyWidth - 8) / 2;
     for (let i = 0; i < rows; i++) {
         const k = plan.keys[i];
-        if (!k) continue;
+        if (!k) {
+            continue;
+        }
         const ry = area.y + 50 + i * 20;
         const shown = progress(time, keyAppear(plan, i), TIMES.keyFade);
         const m = moveTimes(plan, k);
@@ -413,6 +441,7 @@ function drawColumns(frame: Frame, plan: Plan, area: Rect) {
     const chipW = ((columns[0]?.w ?? 60) - 8 - (perRow - 1) * 3) / perRow;
     const chipH = Math.min(18, (bodyH - 14 - (rowsNeeded - 1) * 3) / rowsNeeded);
     const body = (col: Rect): Rect => ({ x: col.x, y: col.y + 22, w: col.w, h: bodyH });
+
     const slot = (server: number, s: number): Rect => {
         const col = columns[server] ?? area;
         const b = body(col);
@@ -428,7 +457,9 @@ function drawColumns(frame: Frame, plan: Plan, area: Rect) {
     for (const [s, col] of columns.entries()) {
         const isNew = s === added;
         const count = plan.keys.filter((k, i) => {
-            if (time < keyAppear(plan, i)) return false;
+            if (time < keyAppear(plan, i)) {
+                return false;
+            }
             const m = moveTimes(plan, k);
             const landed = m !== undefined && time >= m.end;
             return (landed ? k.after : k.before) === s;
@@ -473,7 +504,9 @@ function drawColumns(frame: Frame, plan: Plan, area: Rect) {
     const flying: (() => void)[] = [];
     for (const [i, k] of plan.keys.entries()) {
         const shown = progress(time, keyAppear(plan, i), TIMES.keyFade);
-        if (shown <= 0) continue;
+        if (shown <= 0) {
+            continue;
+        }
         const m = moveTimes(plan, k);
         const from = slot(k.before, k.slotBefore);
         if (!m || time < m.start) {
@@ -495,5 +528,7 @@ function drawColumns(frame: Frame, plan: Plan, area: Rect) {
             chip(frame, { ...from, x: p.x - from.w / 2, y: p.y - from.h / 2 }, i, palette.marker);
         });
     }
-    for (const paint of flying) paint();
+    for (const paint of flying) {
+        paint();
+    }
 }

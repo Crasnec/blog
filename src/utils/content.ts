@@ -27,7 +27,9 @@ export interface PostMeta {
 
 /** Narrows metadata produced by remark plugins instead of trusting a cast. */
 export function parsePostMeta(value: object | null | undefined): PostMeta {
-    if (!value || Array.isArray(value)) return {};
+    if (!value || Array.isArray(value)) {
+        return {};
+    }
 
     const readingTime = "readingTime" in value ? value.readingTime : undefined;
     const excerpt = "excerpt" in value ? value.excerpt : undefined;
@@ -55,7 +57,9 @@ export function parsePostMeta(value: object | null | undefined): PostMeta {
 export async function postMeta(entry: Post): Promise<PostMeta> {
     const rawStored = entry.rendered?.metadata?.frontmatter;
     const stored = parsePostMeta(typeof rawStored === "object" ? rawStored : undefined);
-    if (Object.keys(stored).length > 0) return stored;
+    if (Object.keys(stored).length > 0) {
+        return stored;
+    }
 
     const { remarkPluginFrontmatter } = await render(entry);
     return parsePostMeta(remarkPluginFrontmatter);
@@ -78,7 +82,9 @@ export interface PostRef {
 const isPublished = (entry: Post) => import.meta.env.DEV || !entry.data.draft;
 
 function toRef(entry: Post): PostRef {
-    if (!entry.filePath) throw new Error(`Post "${entry.id}" has no source path for its category.`);
+    if (!entry.filePath) {
+        throw new Error(`Post "${entry.id}" has no source path for its category.`);
+    }
     return {
         entry,
         category: categoryFromFile(entry.filePath, POSTS_DIRECTORY),
@@ -163,8 +169,12 @@ export async function groupByYear(): Promise<YearGroup[]> {
     for (const ref of posts) {
         const year = ref.entry.data.published.getUTCFullYear();
         const bucket = years.get(year);
-        if (bucket) bucket.push(ref);
-        else years.set(year, [ref]);
+        if (bucket) {
+            bucket.push(ref);
+        }
+        else {
+            years.set(year, [ref]);
+        }
     }
 
     return [...years.entries()]

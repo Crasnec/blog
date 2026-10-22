@@ -116,7 +116,9 @@ export default defineFigure<Props>({
                 y: clamp(num(o.y, `${path}.y`)),
             };
         });
-        if (states.length < 2) throw new Error("props.states needs at least two states");
+        if (states.length < 2) {
+            throw new Error("props.states needs at least two states");
+        }
         const stateIndex = (id: string, path: string) => {
             const i = states.findIndex((s) => s.id === id);
             if (i < 0) {
@@ -128,7 +130,9 @@ export default defineFigure<Props>({
         };
         for (const [i, s] of states.entries()) {
             if (states.findIndex((o) => o.id === s.id) !== i)
+            {
                 throw new Error(`props.states has "${s.id}" twice`);
+            }
         }
 
         const events = arr(p.events, "props.events").map((e, i) => {
@@ -136,7 +140,9 @@ export default defineFigure<Props>({
             const o = obj(e, path);
             const tone = maybe(o.tone, `${path}.tone`, str) ?? "ok";
             const found = EVENT_TONES.find((t) => t === tone);
-            if (!found) throw new Error(`${path}.tone must be one of ${EVENT_TONES.join(", ")}`);
+            if (!found) {
+                throw new Error(`${path}.tone must be one of ${EVENT_TONES.join(", ")}`);
+            }
             return {
                 id: str(o.id, `${path}.id`),
                 label: str(o.label, `${path}.label`),
@@ -157,7 +163,9 @@ export default defineFigure<Props>({
             const o = obj(t, path);
             const count = maybe(o.count, `${path}.count`, num) ?? 1;
             if (!Number.isInteger(count) || count < 1)
+            {
                 throw new Error(`${path}.count must be a whole number of 1 or more`);
+            }
             const on = eventId(str(o.on, `${path}.on`), `${path}.on`);
             return {
                 from: stateIndex(str(o.from, `${path}.from`), `${path}.from`),
@@ -278,10 +286,14 @@ function geometry(
     height: number,
 ): Geometry | undefined {
     const t = props.transitions[i];
-    if (!t) return undefined;
+    if (!t) {
+        return undefined;
+    }
     const from = centres[t.from];
     const to = centres[t.to];
-    if (!from || !to) return undefined;
+    if (!from || !to) {
+        return undefined;
+    }
 
     if (t.from === t.to) {
         // A loop sits on the side of the box with more room: above in the lower
@@ -326,11 +338,17 @@ function geometry(
 /** The counter shown on a counting transition's label at `time`, e.g. "2/3". */
 function counterAt(props: Props, i: number, time: number): number {
     const t = props.transitions[i];
-    if (!t || t.count <= 1) return 0;
+    if (!t || t.count <= 1) {
+        return 0;
+    }
     const last = [...props.steps].reverse().find((s) => s.at <= time);
-    if (!last) return 0;
+    if (!last) {
+        return 0;
+    }
     // Hold n/n on screen while the arrow it fired is still lit.
-    if (last.fired === i && time < last.at + TIMES.flash) return t.count;
+    if (last.fired === i && time < last.at + TIMES.flash) {
+        return t.count;
+    }
     return last.fired === undefined ? (last.counters[i] ?? 0) : 0;
 }
 
@@ -345,7 +363,9 @@ function drawTransitions(
     const { ctx, time, palette, height, width } = frame;
     for (const [i, t] of props.transitions.entries()) {
         const g = geometry(props, i, centres, boxW, boxH, height);
-        if (!g) continue;
+        if (!g) {
+            continue;
+        }
 
         // The arrow lights up for a moment each time this transition fires.
         const lit = Math.max(
@@ -396,11 +416,17 @@ function drawStates(
     for (const [i, s] of props.states.entries()) {
         const c = centres[i];
         const w = boxW[i] ?? 80;
-        if (!c) continue;
+        if (!c) {
+            continue;
+        }
         let on = i === current ? 1 : 0;
         if (trip && leaving !== arriving) {
-            if (i === leaving) on = 1 - t;
-            if (i === arriving) on = t;
+            if (i === leaving) {
+                on = 1 - t;
+            }
+            if (i === arriving) {
+                on = t;
+            }
         }
         box(ctx, c.x - w / 2, c.y - boxH / 2, w, boxH, 8, palette.paper, palette.rule, 1);
         if (on > 0) {
@@ -436,9 +462,13 @@ function drawToken(
     trip: Step | undefined,
 ) {
     const { ctx, time, palette, height } = frame;
-    if (trip?.fired === undefined) return;
+    if (trip?.fired === undefined) {
+        return;
+    }
     const g = geometry(props, trip.fired, centres, boxW, boxH, height);
-    if (!g) return;
+    if (!g) {
+        return;
+    }
     const t = ease.inOut(progress(time, trip.at, TIMES.travel));
     const p =
         g.kind === "loop" && g.loop

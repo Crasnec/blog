@@ -44,7 +44,9 @@ const codeThemeEntries = [
 ];
 const codeThemeLoaders = new Map(codeThemeEntries);
 const loadCodeTheme = codeThemeLoaders.get(THEME);
-if (!loadCodeTheme) throw new Error(`No code theme loader registered for "${THEME}".`);
+if (!loadCodeTheme) {
+    throw new Error(`No code theme loader registered for "${THEME}".`);
+}
 const { codeThemes, DARK_CODE_THEME } = await loadCodeTheme();
 
 /** Named so a sealed post can record which theme drew its code blocks. */

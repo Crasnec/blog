@@ -47,7 +47,9 @@ export function mountSecret() {
     try {
         const decodedPayload = parseSecretPayload(parseJson(source.textContent));
         const decodedKey = parsePrivateKeyFile(parseJson(wrapped.textContent));
-        if (!decodedPayload || !decodedKey) return;
+        if (!decodedPayload || !decodedKey) {
+            return;
+        }
         payload = decodedPayload;
         key = decodedKey;
     } catch {
@@ -60,9 +62,13 @@ export function mountSecret() {
         event.preventDefault();
 
         const passphrase = input.value;
-        if (!passphrase) return;
+        if (!passphrase) {
+            return;
+        }
 
-        if (button) button.disabled = true;
+        if (button) {
+            button.disabled = true;
+        }
         status.textContent = working ?? "";
         status.classList.remove("is-error");
         status.hidden = false;
@@ -75,7 +81,9 @@ export function mountSecret() {
         if (opened === null) {
             status.textContent = wrong ?? "";
             status.classList.add("is-error");
-            if (button) button.disabled = false;
+            if (button) {
+                button.disabled = false;
+            }
             input.select();
             return;
         }

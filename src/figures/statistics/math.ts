@@ -4,7 +4,9 @@ import { mean, sum, type Point } from "../kit.ts";
 /** R-7 / NumPy's default linear sample quantile. Input must be sorted. */
 export function quantile(sorted: readonly number[], p: number): number {
     if (sorted.length === 0 || p < 0 || p > 1 || !Number.isFinite(p))
+    {
         throw new Error("quantile needs a nonempty sample and a probability in [0, 1]");
+    }
     const index = (sorted.length - 1) * p;
     const lo = Math.floor(index);
     const a = sorted[lo] ?? 0;
@@ -12,7 +14,9 @@ export function quantile(sorted: readonly number[], p: number): number {
 }
 
 export function variance(values: readonly number[]): number {
-    if (values.length < 2) return 0;
+    if (values.length < 2) {
+        return 0;
+    }
     const m = mean(values);
     return sum(values.map((v) => (v - m) ** 2)) / (values.length - 1);
 }
@@ -66,7 +70,9 @@ export function ecdf(sorted: readonly number[]): Point[] {
     for (let i = 0; i < sorted.length;) {
         const x = sorted[i] ?? 0;
         let end = i + 1;
-        while (sorted[end] === x) end++;
+        while (sorted[end] === x) {
+            end++;
+        }
         points.push({ x, y: before }, { x, y: end / sorted.length });
         before = end / sorted.length;
         i = end;
@@ -89,23 +95,33 @@ export function normalCdf(z: number): number {
 
 /** Invert the CDF by bisection; plotting positions never include 0 or 1. */
 export function normalQuantile(p: number): number {
-    if (!(p > 0 && p < 1)) throw new Error("normal quantile probability must be between 0 and 1");
+    if (!(p > 0 && p < 1)) {
+        throw new Error("normal quantile probability must be between 0 and 1");
+    }
     let lo = -9;
     let hi = 9;
     for (let i = 0; i < 60; i++) {
         const mid = (lo + hi) / 2;
-        if (normalCdf(mid) < p) lo = mid;
-        else hi = mid;
+        if (normalCdf(mid) < p) {
+            lo = mid;
+        }
+        else {
+            hi = mid;
+        }
     }
     return (lo + hi) / 2;
 }
 
 export function linearFit(points: readonly Point[]) {
-    if (points.length < 3) throw new Error("regression needs at least 3 points");
+    if (points.length < 3) {
+        throw new Error("regression needs at least 3 points");
+    }
     const mx = mean(points.map((p) => p.x));
     const my = mean(points.map((p) => p.y));
     const xx = sum(points.map((p) => (p.x - mx) ** 2));
-    if (xx === 0) throw new Error("regression needs at least two distinct x values");
+    if (xx === 0) {
+        throw new Error("regression needs at least two distinct x values");
+    }
     const slope = sum(points.map((p) => (p.x - mx) * (p.y - my))) / xx;
     const intercept = my - slope * mx;
     const residuals = points.map((p) => p.y - (intercept + slope * p.x));
@@ -137,7 +153,9 @@ export function autocorrelation(values: readonly number[], maxLag: number): numb
     const m = mean(values);
     const centered = values.map((v) => v - m);
     const denominator = sum(centered.map((v) => v * v));
-    if (denominator === 0) throw new Error("autocorrelation is undefined for a constant series");
+    if (denominator === 0) {
+        throw new Error("autocorrelation is undefined for a constant series");
+    }
     return Array.from(
         { length: maxLag + 1 },
         (_, lag) => sum(centered.slice(lag).map((v, i) => v * (centered[i] ?? 0))) / denominator,
@@ -172,7 +190,9 @@ export function binaryCurves(data: readonly Scored[]) {
     const positives = data.filter((d) => d.positive).length;
     const negatives = data.length - positives;
     if (positives === 0 || negatives === 0)
+    {
         throw new Error("binary curves need both positive and negative labels");
+    }
     const roc: Point[] = [{ x: 0, y: 0 }];
     const pr: Point[] = [{ x: 0, y: 1 }];
     let tp = 0;
@@ -184,8 +204,12 @@ export function binaryCurves(data: readonly Scored[]) {
         const beforeTp = tp;
         const beforeFp = fp;
         do {
-            if (sorted[i]?.positive) tp++;
-            else fp++;
+            if (sorted[i]?.positive) {
+                tp++;
+            }
+            else {
+                fp++;
+            }
             i++;
         } while (i < sorted.length && sorted[i]?.score === score);
         const recall = tp / positives;
@@ -202,9 +226,13 @@ export function binaryCurves(data: readonly Scored[]) {
 export function calibrationBins(data: readonly Scored[], count: number) {
     const bins = Array.from({ length: count }, (): Scored[] => []);
     for (const point of data)
+    {
         bins[Math.min(count - 1, Math.floor(point.score * count))]?.push(point);
+    }
     return bins.flatMap((bin) => {
-        if (bin.length === 0) return [];
+        if (bin.length === 0) {
+            return [];
+        }
         return [
             {
                 x: mean(bin.map((p) => p.score)),
@@ -232,12 +260,18 @@ export function kaplanMeier(data: readonly SurvivalObservation[]) {
         let events = 0;
         let censored = 0;
         do {
-            if (sorted[i]?.event) events++;
-            else censored++;
+            if (sorted[i]?.event) {
+                events++;
+            }
+            else {
+                censored++;
+            }
             i++;
         } while (sorted[i]?.time === time);
         survival *= 1 - events / risk;
-        if (events > 0 && risk > events) greenwood += events / (risk * (risk - events));
+        if (events > 0 && risk > events) {
+            greenwood += events / (risk * (risk - events));
+        }
         let low = survival;
         let high = survival;
         if (survival > 0 && survival < 1) {
@@ -289,8 +323,12 @@ export function hexBins(
         const da = Math.abs(a - q);
         const db = Math.abs(b - r);
         const dc = Math.abs(c + q + r);
-        if (da > db && da > dc) a = -b - c;
-        else if (db > dc) b = -a - c;
+        if (da > db && da > dc) {
+            a = -b - c;
+        }
+        else if (db > dc) {
+            b = -a - c;
+        }
         const key = `${String(a)},${String(b)}`;
         const previous = bins.get(key);
         bins.set(key, { q: a, r: b, count: (previous?.count ?? 0) + 1 });
@@ -336,13 +374,16 @@ export function densityContours(
     );
     const peak = Math.max(...grid.flat());
     if (!Number.isFinite(peak) || peak <= 0)
+    {
         throw new Error(
             "props.bandwidthX and props.bandwidthY must resolve a finite density on the data range",
         );
+    }
     return [0.15, 0.35, 0.6, 0.85].map((fraction) => {
         const level = peak * fraction;
         const segments: [Point, Point][] = [];
         for (let r = 0; r < size - 1; r++)
+        {
             for (let c = 0; c < size - 1; c++) {
                 const corners = [
                     { x: c, y: r },
@@ -356,7 +397,9 @@ export function densityContours(
                     const j = (i + 1) % 4;
                     const a = values[i] ?? 0;
                     const b = values[j] ?? 0;
-                    if (a >= level === b >= level) continue;
+                    if (a >= level === b >= level) {
+                        continue;
+                    }
                     const from = corners[i] ?? { x: 0, y: 0 };
                     const to = corners[j] ?? from;
                     const t = (level - a) / (b - a);
@@ -366,13 +409,18 @@ export function densityContours(
                     });
                 }
                 if (crossings.length === 4 && (values[0] ?? 0) >= level !== mean(values) >= level)
+                {
                     crossings.push(crossings.shift() ?? { x: 0, y: 0 });
+                }
                 for (let i = 0; i + 1 < crossings.length; i += 2) {
                     const a = crossings[i];
                     const b = crossings[i + 1];
-                    if (a && b) segments.push([a, b]);
+                    if (a && b) {
+                        segments.push([a, b]);
+                    }
                 }
             }
+        }
         return { fraction, level, segments };
     });
 }

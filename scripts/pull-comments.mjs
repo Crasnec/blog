@@ -24,7 +24,9 @@ const ifMissing = process.argv.includes("--if-missing");
 
 if (!repo) {
     // Comments are optional. A checkout without them still has to build.
-    if (!existsSync(DIR)) mkdirSync(DIR, { recursive: true });
+    if (!existsSync(DIR)) {
+        mkdirSync(DIR, { recursive: true });
+    }
     console.log("comments: PUBLIC_COMMENTS_REPO is not set — building without comments");
     process.exit(0);
 }
@@ -54,7 +56,11 @@ try {
     console.error(error instanceof Error ? error.message : error);
 
     // Strict for a build, forgiving for dev — see the note at the top.
-    if (!ifMissing) process.exit(1);
-    if (!existsSync(DIR)) mkdirSync(DIR, { recursive: true });
+    if (!ifMissing) {
+        process.exit(1);
+    }
+    if (!existsSync(DIR)) {
+        mkdirSync(DIR, { recursive: true });
+    }
     console.warn("comments: carrying on with whatever is already on disk");
 }
