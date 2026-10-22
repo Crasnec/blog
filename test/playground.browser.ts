@@ -106,8 +106,8 @@ void test("approved scientific libraries load on demand and produce downloadable
 });
 
 
-void test("Think Stats packages import, compute and capture empiricaldist plots", async () => {
-	const root = playground("python");
+void test("approved statistics packages import, compute and capture empiricaldist plots", async () => {
+	const root = page.locator('[data-code-playground][data-config*=\'"language":"python"\']').nth(1);
 	const requests: string[] = [];
 	const record = (request: Request) => { if (request.url().includes(".whl")) requests.push(request.url()); };
 	page.on("request", record);
@@ -258,4 +258,78 @@ void test("navigation disposes active Workers and mounts editors again without d
 	await page.locator('[data-code-playground][data-ready="true"]').nth(4).waitFor();
 	assert.equal(await page.locator(".cm-editor").count(), 5);
 	assert.match(await execute(playground("javascript"), 'console.log("after navigation")'), /after navigation/);
+});
+
+const notebookDemo = "/posts/build/python-notebook/";
+async function notebookCells() {
+	await page.goto(new URL(notebookDemo, base).href);
+	await page.locator('[data-code-playground][data-ready="true"]').first().waitFor();
+	return page.locator('[data-notebook="notebook-example"]');
+}
+async function notebookEdit(cell: Locator, code: string) {
+	await cell.locator(".playground-editor").scrollIntoViewIfNeeded();
+	await cell.locator(".cm-content").waitFor();
+	await edit(cell, code);
+}
+async function notebookRun(cell: Locator, expected = "done") {
+	await cell.locator(".playground-run").click();
+	await cell.locator("xpath=self::*[@data-run-state='done' or @data-run-state='error' or @data-run-state='timeout']").waitFor({ timeout: 185_000 });
+	const output = (await cell.locator(".playground-output-line").allTextContents()).join("");
+	assert.equal(await cell.getAttribute("data-run-state"), expected, output);
+	return output;
+}
+
+void test("notebook cells share state, mark edited results stale and restart independently", async () => {
+	const cells = await notebookCells();
+	const first = cells.nth(0), second = cells.nth(1);
+	const toolbar = page.locator('[data-python-notebook="notebook-example"]');
+	await toolbar.locator(".notebook-run-all").click();
+	await second.locator("xpath=self::*[@data-run-state='done']").waitFor({ timeout: 185_000 });
+	assert.match(await first.locator(".playground-output").innerText(), /\[2, 4, 6\]/);
+	assert.match(await second.locator(".playground-output").innerText(), /5\.0/);
+	assert.match(await notebookRun(second), /5\.6/);
+	assert.equal(await cells.nth(2).getAttribute("data-run-state"), null, "Run all skips author-excluded exercises");
+	assert.match(await notebookRun(page.locator('[data-notebook="another-notebook"]')), /False/);
+	await notebookEdit(first, "values = [100]\nvalues");
+	assert.equal(await second.locator(".notebook-stale").isVisible(), true);
+	await notebookRun(first);
+	assert.match(await notebookRun(second), /54\.0/);
+	assert.equal(await second.locator(".notebook-stale").isVisible(), false);
+	await notebookEdit(cells.nth(3), "DATA_URL = '/datasets/example/'");
+	const download = page.waitForEvent("download");
+	await toolbar.locator(".notebook-download").click();
+	const downloaded = await download;
+	const contents = parseJson(await readFile(await downloaded.path(), "utf8"));
+	assert.ok(isJsonObject(contents));
+	assert.equal(contents.nbformat, 4);
+	assert.ok(Array.isArray(contents.cells) && contents.cells.some((cell) => isJsonObject(cell) && Array.isArray(cell.source) && cell.source.some((line) => typeof line === "string" && line.includes("values = [100]"))));
+	assert.ok(Array.isArray(contents.cells) && contents.cells.some((cell) => isJsonObject(cell) && Array.isArray(cell.source) && cell.source.includes(`DATA_URL = "${new URL("/datasets/example/", base).href}"`)));
+	await first.locator(".playground-reset").click();
+	assert.match(await notebookRun(second), /38\.666/, "resetting a cell's source must preserve shared variables");
+	await notebookEdit(first, "values = [100]\nvalues");
+	await toolbar.locator(".notebook-restart").click();
+	assert.match(await notebookRun(second, "error"), /NameError/);
+	await notebookRun(first);
+	assert.match(await notebookRun(second), /54\.0/);
+});
+
+void test("notebook display and input use the current state, and Run all stops at errors", async () => {
+	const cells = await notebookCells();
+	const first = cells.nth(0), second = cells.nth(1), input = cells.nth(2);
+	await notebookEdit(first, 'from IPython.display import HTML, display\nvalues = [2, 4, 6]\ndisplay(HTML("<b>Readable</b><script>alert(1)</script>"))\nvalues');
+	assert.match(await notebookRun(first), /Readable[\s\S]*\[2, 4, 6\]/);
+	assert.equal(await first.locator(".playground-output b, .playground-output script").count(), 0);
+	assert.doesNotMatch(await first.locator(".playground-output").innerText(), /alert/);
+	await input.locator(".playground-run").click();
+	await submitLine(input, "7");
+	await input.locator("xpath=self::*[@data-run-state='done']").waitFor();
+	assert.match(await input.locator(".playground-output").innerText(), /2, 4, 6, 7\.0/);
+	await notebookEdit(second, "sum(values)");
+	assert.match(await notebookRun(second), /19\.0/);
+	const badge = await second.locator(".notebook-execution").innerText();
+	await notebookEdit(first, 'raise ValueError("stop this notebook")');
+	await page.locator('[data-python-notebook="notebook-example"] .notebook-run-all').click();
+	await page.locator('[data-python-notebook="notebook-example"] .notebook-status').filter({ hasText: /오류|error/i }).waitFor({ timeout: 185_000 });
+	assert.equal(await first.getAttribute("data-run-state"), "error");
+	assert.equal(await second.locator(".notebook-execution").innerText(), badge, "the following cell must not execute after a failure");
 });

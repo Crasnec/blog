@@ -74,3 +74,20 @@
 .playground-input-value { width: 100%; min-width: 0; border: 1px solid var(--rule-strong); background: var(--paper-sunk); color: var(--ink); padding: 0.45rem; font: inherit; }
 .playground-input-value:focus-visible { outline: 2px solid var(--marker); outline-offset: 2px; }
 .playground-input-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.python-notebook { margin-block: var(--space-6); padding: 1rem; border: 1px solid var(--rule-strong); background: var(--paper-sunk); font: 0.875rem/1.6 var(--font-sans); }
+.python-notebook p { margin-block: 0.5rem 0.8rem; }
+.notebook-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.notebook-actions button { padding: 0.4rem 0.65rem; border: 1px solid var(--rule-strong); background: var(--paper); font: inherit; cursor: pointer; }
+.notebook-actions button:disabled { opacity: 0.5; cursor: default; }
+.notebook-status { flex-basis: 100%; font-size: 0.75rem; color: var(--ink-muted); }
+.notebook-execution { color: var(--marker); font-family: var(--font-mono); }
+.code-playground .notebook-stale { margin: 0; padding: 0.5rem 0.85rem; color: var(--ink-muted); font-size: 0.75rem; border-bottom: 1px solid var(--rule); }
+.code-playground .playground-reference { white-space: normal; font-family: var(--font-sans); }
+.code-playground .notebook-reference-label { margin-top: 0; font-size: 0.7rem; color: var(--ink-muted); }
+.code-playground[data-notebook] .cm-scroller { min-height: 0; }
+.code-playground[data-notebook] .playground-fallback { min-height: 3rem; }
+.code-playground .playground-reference .expressive-code { margin-block: 0.5rem; }
+.code-playground[data-notebook] .playground-output-line { display: block; white-space: pre; overflow-wrap: normal; min-width: max-content; }
+.code-playground[data-notebook] .playground-output:has(.playground-reference img) { max-height: 48rem; }
+.code-playground[data-notebook][data-run-state="done"] .playground-results:has(.playground-output:empty) { display: none; }

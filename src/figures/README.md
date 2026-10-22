@@ -19,7 +19,7 @@ The import path climbs one `../` per directory between the post and `src/`.
 `src/content/posts/build/animated-figures.mdx` introduces `line`,
 `distribution`, `flow`, `queue` and post-specific TSX compositions. Read it at `/posts/build/animated-figures/`.
 
-## Typed components for all 43 reusable kinds
+## Typed components for all 44 reusable kinds
 
 Import a named TSX component from `src/components/figures`. Every component
 accepts `props` with that kind's input type, plus `caption`, `label` and
@@ -33,9 +33,9 @@ import { Sort, Heatmap, Boxplot } from "../../../../components/figures";
 <Boxplot props={{ groups: [{ label: "A", values: [1, 2, 3, 8] }] }} />
 ```
 
-The thirteen mechanism/data components are `Line`, `Distribution`, `Flow`,
+The fourteen mechanism/data components are `Line`, `Distribution`, `Flow`,
 `Sequence`, `StateMachine`, `Sort`, `GridSearch`, `HashRing`, `Tree`, `Gantt`,
-`Heatmap`, `Memory` and `Queue`. The thirty statistical components use the
+`Heatmap`, `Memory`, `HexEditor` and `Queue`. The thirty statistical components use the
 PascalCase version of the kind name, with `ECDF`, `QQ`, `KDE`, `PP`, `ACF`,
 `PACF` and `ROC` capitalized. The index exports the full list. `<Figure>` is
 also available for newly added kinds and for old JSON shorthand inputs.
@@ -68,7 +68,9 @@ explicit arrays and matrices. The `checkout` preset is the compatibility story.
 signed and zero-only sorting, a constant matrix, actual key names and an
 unreachable maze. Numeric axes fit negative and constant data automatically.
 `Line` supports 1–8 series with 2–2000 values each; `Distribution` supports
-1–4 groups with 1–2000 samples each. Both limit magnitude to 1e12. Their
+1–4 groups with 1–2000 samples each. Both limit magnitude to 1e12.
+Line endpoint value labels can be hidden with `showValues: false` when
+several curves end close together; this defaults to `true`. Their
 explicit axis bounds must be ordered; a line's bounds must enclose its data,
 while distribution values outside its bounds pile into the end bins. `Sort`
 accepts 2–40 values of magnitude at most 1e12, including ties and negatives;
@@ -137,6 +139,7 @@ Most figures do not need new code. Try these first.
 | `gantt` | work laid out on a timeline, from a real scheduler: FCFS, SJF, round robin, several cores | no |
 | `heatmap` | a matrix of values revealed over time, with the hottest cells ranked: latency by day and hour | no |
 | `memory` | an allocator placing and freeing blocks, from a real run: first/best/worst/next fit, fragmentation | no |
+| `hex-editor` | selections and byte replacements in offset, hexadecimal and printable ASCII views of one buffer | no |
 | `queue` | the same arrival/service workload under dedicated and shared FCFS queues | no |
 | `checkout` | compatibility preset for old posts; new posts compose `queue` in TSX | no |
 
@@ -215,6 +218,28 @@ wait-colour thresholds in the input's unit; require 0 < warn < danger.
 The whole trace fits the animation automatically. Mean and maximum waits are
 computed in original time units, before fitting. The legacy `checkout` kind
 uses `presets/checkout.ts` to translate its old props to this workload.
+
+### `hex-editor`
+
+`bytes` contains 1–64 integer values from 0 to 255. Optional `actions` has at
+most twelve `{ op: "select", index, label? }` or `{ op: "write", index, value,
+label? }` entries. An index is a zero-based position in `bytes`; a write
+selects its target and replaces one byte without inserting or deleting data.
+The decoder rejects unknown fields and invalid action/value combinations.
+
+`baseOffset` defaults to 0 and sets the displayed address of `bytes[0]`.
+The last byte's address must fit an unsigned 32-bit integer. `selected` is
+the initial index (default 0); `title` is an optional label of up to 48
+characters. Action labels accept at most 80 characters and truncate to fit.
+An omitted or empty `actions` array gives a static buffer with an inspector.
+
+The hex and ASCII columns read one immutable snapshot and change at the same
+instant. Printable ASCII is 0x20–0x7E; other bytes display a middle dot. This
+is not a UTF-8 decoder. Modified bytes have an underline, and the inspector
+shows the selected address, hexadecimal value, decimal value and eight bits.
+The row width adapts to four, eight or sixteen bytes while preserving every
+byte. `models/hex-editor.ts` exports `traceHexEditor` for other renderers.
+The working guide is `/posts/build/figure-hex-editor/`.
 
 ### Common props of `<Figure>`
 
@@ -421,7 +446,7 @@ larger round-robin quantum or smaller job bursts to keep the trace bounded.
 - `src/components/SvgFigure.tsx` frames a post-specific SVG with a caption
   and accessible description. It renders HTML/SVG at build time.
 - `src/components/FigureExamples.tsx` renders a data-driven gallery of kinds.
-- `src/components/figures/index.tsx` exposes all 43 typed data components.
+- `src/components/figures/index.tsx` exposes all 44 typed data components.
 - `src/content/posts/build/_figures/*.tsx` contains examples of post-specific
   compositions and SVG drawings. These do not register new kinds.
 - `src/scripts/figures.ts` is the runtime: canvas sizing, the theme palette,

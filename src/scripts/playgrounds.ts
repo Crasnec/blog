@@ -1,11 +1,20 @@
 import { t } from "../strings";
 import { decodeConfig, MAX_INPUT, MAX_OUTPUT, MAX_PLOTS, MAX_PNG, MAX_PLOT_TOTAL, type InputResponse, type RunRequest, type RunResponse } from "../playground/contracts";
+import { PythonNotebook, type NotebookCell } from "../playground/notebook";
 import { mountEditor } from "../playground/editor";
 
+const notebooks = new Map<string, PythonNotebook>();
 const mounted = new Map<HTMLElement, () => void>();
 
 function mount(root: HTMLElement) {
 	const config = decodeConfig(root.dataset.config ?? "{}");
+	let notebook: PythonNotebook | undefined;
+	if (config.notebook) {
+		notebook = notebooks.get(config.notebook);
+		if (!notebook) { notebook = new PythonNotebook(config.notebook); notebooks.set(config.notebook, notebook); }
+	}
+	let settle: ((success: boolean) => void) | undefined;
+
 	const runButton = root.querySelector<HTMLButtonElement>(".playground-run");
 	const stopButton = root.querySelector<HTMLButtonElement>(".playground-stop");
 	const resetButton = root.querySelector<HTMLButtonElement>(".playground-reset");
@@ -33,18 +42,19 @@ function mount(root: HTMLElement) {
 	function finish(message: string, state: string) {
 		clearTimeout(timer); pendingInput = undefined;
 		if (inputForm) inputForm.hidden = true;
-		worker?.terminate(); worker = undefined;
-		port?.close(); port = undefined;
+		if (!notebook) { worker?.terminate(); port?.close(); }
+		worker = undefined; port = undefined;
 		if (status) status.textContent = message;
 		if (runButton) runButton.disabled = false;
 		if (stopButton) stopButton.disabled = true;
 		root.dataset.runState = state;
+		settle?.(state === "done"); settle = undefined;
 	}
 	function append(text: string, level: string) {
 		if (!output) return;
 		output.querySelector(".playground-output-placeholder")?.remove();
 		if (++outputLines > 500 || outputSize + text.length > MAX_OUTPUT) {
-			finish(t("playground.outputLimit"), "error"); return;
+			abort(t("playground.outputLimit"), "error"); return;
 		}
 		outputSize += text.length;
 		const line = document.createElement("span");
@@ -56,7 +66,7 @@ function mount(root: HTMLElement) {
 	function appendPlot(png: ArrayBuffer, alt: string) {
 		if (!output) return;
 		plotBytes += png.byteLength;
-		if (plotURLs.length >= MAX_PLOTS || png.byteLength > MAX_PNG || plotBytes > MAX_PLOT_TOTAL) { finish(t("playground.plotLimit"), "error"); return; }
+		if (plotURLs.length >= MAX_PLOTS || png.byteLength > MAX_PNG || plotBytes > MAX_PLOT_TOTAL) { abort(t("playground.plotLimit"), "error"); return; }
 		output.querySelector(".playground-output-placeholder")?.remove();
 		const url = URL.createObjectURL(new Blob([png], { type: "image/png" }));
 		plotURLs.push(url);
@@ -67,7 +77,7 @@ function mount(root: HTMLElement) {
 	}
 	function resumeClock() {
 		activeSince = performance.now();
-		timer = setTimeout(() => { finish(t("playground.timedOut"), "timeout"); }, Math.max(0, remaining));
+		timer = setTimeout(() => { abort(t("playground.timedOut"), "timeout"); }, Math.max(0, remaining));
 	}
 	function requestInput(id: number, prompt: string) {
 		if (pendingInput || !inputForm || !inputField || !inputPrompt) return;
@@ -84,7 +94,7 @@ function mount(root: HTMLElement) {
 		const { id, prompt } = pendingInput; pendingInput = undefined;
 		if (inputForm) inputForm.hidden = true;
 		append(`${prompt}${value ?? t("playground.inputEof")}`, "log");
-		if (!worker) return;
+		if (root.dataset.runState === "error") return;
 		root.dataset.runState = "running";
 		if (status) status.textContent = t("playground.running");
 		resumeClock();
@@ -93,35 +103,42 @@ function mount(root: HTMLElement) {
 	}
 	inputForm?.addEventListener("submit", (event) => { event.preventDefault(); submitInput(inputField?.value ?? ""); });
 	root.querySelector(".playground-input-eof")?.addEventListener("click", () => { submitInput(null); });
-	function run() {
-		if (disposed || worker || !config.runtime) return;
+	function receive(response: RunResponse) {
+		switch (response.type) {
+			case "input": requestInput(response.id, response.prompt); break;
+			case "output": append(response.text, response.level); break;
+			case "plot": appendPlot(response.png, response.alt); break;
+			case "status": if (status) status.textContent = response.text; break;
+			case "ready":
+				clearTimeout(timer); root.dataset.runState = "running";
+				if (status) status.textContent = t("playground.running");
+				remaining = config.timeout; resumeClock();
+				break;
+			case "error": append(response.text, "error"); finish(t("playground.failed"), "error"); break;
+			case "done": finish(t("playground.done"), "done"); break;
+		}
+	}
+	function run(): Promise<boolean> {
+		if (disposed || root.dataset.runState === "loading" || root.dataset.runState === "running" || root.dataset.runState === "input" || !config.runtime) return Promise.resolve(false);
+		const completion = new Promise<boolean>((resolve) => { settle = resolve; });
 		clearOutput();
 		root.dataset.runState = "loading";
 		if (status) status.textContent = t("playground.loading");
 		if (runButton) runButton.disabled = true;
 		if (stopButton) stopButton.disabled = false;
+		if (notebook) {
+			timer = setTimeout(() => { abort(t("playground.loadTimeout"), "timeout"); }, 180_000);
+			port = notebook.start(cell, editor.code(), config.pythonPackages, new URL(`${import.meta.env.BASE_URL.replace(/\/?$/, "/")}runtime/pyodide/`, location.origin).href, receive);
+			if (!port && root.dataset.runState === "loading") finish(t("notebook.busy"), "idle");
+			return completion;
+		}
 		try {
 			worker = config.runtime === "python"
 				? new Worker(new URL("../playground/python.worker.ts", import.meta.url), { type: "module" })
 				: new Worker(new URL("../playground/javascript.worker.ts", import.meta.url), { type: "module" });
 			const channel = new MessageChannel();
 			port = channel.port1;
-			port.onmessage = (event: MessageEvent<RunResponse>) => {
-				const response = event.data;
-				switch (response.type) {
-					case "input": requestInput(response.id, response.prompt); break;
-					case "output": append(response.text, response.level); break;
-					case "plot": appendPlot(response.png, response.alt); break;
-					case "status": if (status) status.textContent = response.text; break;
-					case "ready":
-						clearTimeout(timer); root.dataset.runState = "running";
-						if (status) status.textContent = t("playground.running");
-						remaining = config.timeout; resumeClock();
-						break;
-					case "error": append(response.text, "error"); finish(t("playground.failed"), "error"); break;
-					case "done": finish(t("playground.done"), "done"); break;
-				}
-			};
+			port.onmessage = (event: MessageEvent<RunResponse>) => { receive(event.data); };
 			worker.onerror = (event) => { event.preventDefault(); append(event.message, "error"); finish(t("playground.failed"), "error"); };
 			timer = setTimeout(() => { finish(t("playground.loadTimeout"), "timeout"); }, 180_000);
 			const request: RunRequest = { code: editor.code(), runtime: config.runtime, port: channel.port2, pythonPackages: config.pythonPackages, assets: new URL(`${import.meta.env.BASE_URL.replace(/\/?$/, "/")}runtime/pyodide/`, location.origin).href };
@@ -130,18 +147,37 @@ function mount(root: HTMLElement) {
 			append(error instanceof Error ? error.message : String(error), "error");
 			finish(t("playground.failed"), "error");
 		}
+		return completion;
 	}
-	const editor = mountEditor(root, config, run);
-	runButton?.addEventListener("click", run);
-	stopButton?.addEventListener("click", () => { finish(t("playground.stopped"), "stopped"); });
+	function abort(message: string, state: string) { notebook?.restart(false); finish(message, state); }
+	let liveEditor: ReturnType<typeof mountEditor> | undefined;
+	const fallback = root.querySelector<HTMLTextAreaElement>("textarea");
+	const activateEditor = () => { liveEditor ??= mountEditor(root, config, () => { void run(); }, () => { notebook?.changed(root); }); };
+	const editor = {
+		code: () => liveEditor?.code() ?? fallback?.value ?? "",
+		reset: () => { activateEditor(); liveEditor?.reset(); },
+		destroy: () => { liveEditor?.destroy(); },
+	};
+	let observer: IntersectionObserver | undefined;
+	if (notebook) {
+		observer = new IntersectionObserver((entries) => { if (entries.some((entry) => entry.isIntersecting)) { activateEditor(); observer?.disconnect(); } }, { rootMargin: "300px" });
+		observer.observe(root);
+		fallback?.addEventListener("focus", () => { activateEditor(); liveEditor?.focus(); });
+	} else activateEditor();
+	const cell: NotebookCell = { root, code: editor.code, run, cancel: () => { finish(t("playground.stopped"), "stopped"); } };
+	notebook?.add(cell);
+	runButton?.addEventListener("click", () => { void run(); });
+	stopButton?.addEventListener("click", () => { abort(t(notebook ? "notebook.stopping" : "playground.stopped"), "stopped"); });
 	resetButton?.addEventListener("click", () => {
-		finish(t("playground.idle"), "idle"); editor.reset();
+		if (notebook) finish(t("playground.idle"), "idle");
+		else abort(t("playground.idle"), "idle");
+		editor.reset();
 		clearOutput();
 	});
 	if (runButton) runButton.disabled = false;
 	if (resetButton) resetButton.disabled = false;
 	root.dataset.ready = "true";
-	return () => { disposed = true; finish("", "disposed"); clearOutput(); editor.destroy(); };
+	return () => { disposed = true; observer?.disconnect(); finish("", "disposed"); clearOutput(); editor.destroy(); };
 }
 
 export function mountPlaygrounds() {
@@ -159,4 +195,6 @@ export function mountPlaygrounds() {
 document.addEventListener("astro:before-swap", () => {
 	for (const dispose of mounted.values()) dispose();
 	mounted.clear();
+	for (const notebook of notebooks.values()) notebook.restart(false);
+	notebooks.clear();
 });

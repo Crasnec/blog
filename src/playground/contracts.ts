@@ -17,6 +17,7 @@ export interface PlaygroundConfig {
 	timeout: number;
 	label: string;
 	pythonPackages: PythonPackage[];
+	notebook?: string;
 }
 export const MAX_CODE = 100_000;
 export const MAX_GRAMMAR = 1_000_000;
@@ -54,12 +55,14 @@ export function decodeConfig(source: string): PlaygroundConfig {
 		return name;
 	});
 	if (new Set(pythonPackages).size !== pythonPackages.length || (runtime !== "python" && pythonPackages.length)) throw new Error("pythonPackages must be unique and require the Python runtime");
-	return { language: value.language, label: value.label, runtime, timeout: value.timeout, grammars, pythonPackages };
+	if (value.notebook !== undefined && (typeof value.notebook !== "string" || !/^[a-zA-Z][\w-]{0,79}$/u.test(value.notebook) || runtime !== "python")) throw new Error("A notebook needs a valid ID and the Python runtime");
+	return { language: value.language, label: value.label, runtime, timeout: value.timeout, grammars, pythonPackages, ...(typeof value.notebook === "string" ? { notebook: value.notebook } : {}) };
 }
 
 export interface HighlightRequest { id: number; code: string; language: string; grammars: GrammarSource[] }
 export interface HighlightToken { from: number; to: number; color: string; fontStyle: number }
 export type HighlightResponse = { id: number; tokens: HighlightToken[]; name: string } | { id: number; error: string };
-export interface RunRequest { code: string; runtime: Runtime; port: MessagePort; assets: string; pythonPackages: PythonPackage[] }
+export interface RunRequest { code: string; runtime: Runtime; port: MessagePort; assets: string; pythonPackages: PythonPackage[]; persistent?: boolean }
+export interface CellRequest { type: "run"; code: string; pythonPackages: PythonPackage[] }
 export interface InputResponse { type: "input"; id: number; value: string | null }
 export type RunResponse = { type: "input"; id: number; prompt: string } | { type: "output"; text: string; level: "log" | "error" | "warn" } | { type: "ready" | "done" } | { type: "error" | "status"; text: string } | { type: "plot"; png: ArrayBuffer; alt: string };

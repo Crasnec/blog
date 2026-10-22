@@ -1,0 +1,51 @@
+---
+title: One byte, two views in a hex editor
+published: 2026-10-22
+description: Follow byte selections and replacements while offsets, hexadecimal values and printable ASCII stay in sync.
+category: backend
+tags: [figures, binary, hex-editor]
+---
+
+import { GreetingBytes, HeaderBytes } from "./_figures/HexEditorExamples.tsx";
+
+A hex editor shows the same bytes in two columns. Hexadecimal gives every byte a two-digit value from `00` to `FF`; the ASCII column gives printable bytes a familiar character. The offset on the left is the address of the first byte in that row.
+
+## Replacing a character changes one byte
+
+The first byte below is `48` in hexadecimal, or 72 in decimal: ASCII `H`. Replacing it with `68` (decimal 104) makes the character `h`. Both highlighted cells change together because they are views of one stored value.
+
+<GreetingBytes />
+
+The line feed at address `0000100D` starts as `0A`. It appears as `·` because a line feed is not a printable character. The final write replaces it with `2E`, a full stop. Two bytes differ from the original buffer; the file still contains sixteen bytes. A replacement does not insert data or shift later offsets.
+
+## A dot can stand for many different values
+
+This ASCII view displays bytes `20` through `7E` as characters, including the space at `20`. Everything else is `·`. That dot is a placeholder rather than a stored full stop (`2E`).
+
+<HeaderBytes />
+
+At offset `00000004`, changing `01` to `03` sets the second lowest bit. The inspector shows `00000011`, but the ASCII cell still shows `·`. Later, replacing `7F` with `41` produces `A`. This column does not decode UTF-8: bytes above `7F` remain placeholders, even when a sequence would represent a Unicode character.
+
+## Use your own buffer
+
+Import `HexEditor` from the existing typed figure components. The animation needs no React hydration or separate browser engine.
+
+```tsx
+import { HexEditor } from "../../../../components/figures";
+
+<HexEditor
+  props={{
+    bytes: [0x43, 0x61, 0x74, 0x00],
+    baseOffset: 0x2000,
+    actions: [
+      { op: "select", index: 2 },
+      { op: "write", index: 2, value: 0x72 },
+    ],
+  }}
+  caption="At address 00002002, 74 becomes 72 and Cat becomes Car."
+/>
+```
+
+`index` is always a zero-based position in `bytes`; `baseOffset` only changes the displayed addresses. The `actions` array is an author-supplied script, so replay and seeking reproduce the same changes. A write selects its target and replaces exactly one byte. Use the existing replay button to watch again. Reduced motion starts at the final buffer.
+
+The kind accepts 1–64 integer bytes and up to twelve actions. Invalid bytes, out-of-range indices, overflowing 32-bit addresses and unknown fields fail the build with a field path. The layout uses four bytes per row on a phone, then eight or sixteen on wider canvases. Every byte remains visible; narrowing the screen changes row wrapping, not the data.

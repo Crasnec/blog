@@ -1,0 +1,61 @@
+---
+title: Run Python cells as a notebook
+description: Share variables between editable Python cells, rerun them, and restart the environment without leaving the article.
+published: 2026-10-22
+category: backend
+tags: [python, notebook, playground]
+---
+
+import PythonNotebook from '../../../components/PythonNotebook.astro';
+import CodePlayground from '../../../components/CodePlayground.astro';
+
+Cells with the same author-specified `notebook` ID share one Python environment. Run the first cell, then the second. Edit the list or run the second cell again: the existing list changes, and the last expression is displayed automatically.
+
+<PythonNotebook id="notebook-example" />
+
+<CodePlayground notebook="notebook-example" language="python" title="Create a list" code={`values = [2, 4, 6]
+values`} />
+
+<CodePlayground notebook="notebook-example" language="python" title="Reuse the list" code={`values.append(8)
+sum(values) / len(values)`} />
+
+Restart Python clears variables and files while keeping edited code. Running the second cell immediately after a restart raises `NameError`; run the first cell again to restore the list. Run all follows article order and stops at the first error. Earlier edits mark later results as needing another execution; dependencies are not recomputed automatically.
+
+Reset code restores that cell's original source and clears its output. It keeps the current variables; use Restart Python to clear the environment.
+
+## Input and plots use the same environment
+
+This optional exercise uses the existing line-input interface. It is excluded from Run all, so the main example completes without waiting for an answer.
+
+<CodePlayground notebook="notebook-example" runAll={false} language="python" title="Add a number" code={`answer = await read_input("Number to add: ")
+values.append(float(answer))
+values`} />
+
+<CodePlayground notebook="notebook-example" runAll={false} language="python" title="Plot the current list" timeout={60000} code={`import matplotlib.pyplot as plt
+plt.plot(values, marker="o")
+plt.xlabel("Position")
+plt.ylabel("Value")
+plt.show()`} />
+
+Notebook IDs keep environments separate. This cell cannot access the list above.
+
+<PythonNotebook id="another-notebook" />
+
+<CodePlayground notebook="another-notebook" language="python" title="Separate environment" code={`"values" in globals()`} />
+
+## Authoring
+
+```mdx
+import PythonNotebook from '../../../components/PythonNotebook.astro';
+import CodePlayground from '../../../components/CodePlayground.astro';
+
+<PythonNotebook id="my-example" />
+<CodePlayground notebook="my-example" language="python" title="Data"
+  code={`samples = [1, 2, 3]`} />
+<CodePlayground notebook="my-example" language="python" title="Mean"
+  code={`sum(samples) / len(samples)`} />
+```
+
+The notebook is an opt-in mode of the existing CodePlayground and Python worker. Ordinary playgrounds remain independent. Each notebook allows one running cell at a time; loading packages has its own deadline, and each cell has the existing active-execution limit. Waiting for input pauses that cell's timer. Stop terminates the worker and clears the shared environment. Navigation also disposes it.
+
+The final expression and `display()` produce text; Matplotlib produces PNGs. DataFrames and model summaries keep their readable text representations. HTML objects are converted to text, and arbitrary HTML or notebook widgets are not rendered. Saving a notebook downloads the current code as `.ipynb` without claiming that previous outputs have been rerun. Edits stay in the current page unless downloaded.

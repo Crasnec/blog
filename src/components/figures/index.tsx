@@ -22,6 +22,7 @@ export const Tree = component("tree");
 export const Gantt = component("gantt");
 export const Heatmap = component("heatmap");
 export const Memory = component("memory");
+export const HexEditor = component("hex-editor");
 export const Queue = component("queue");
 export const Scatter = component("scatter");
 export const Boxplot = component("boxplot");

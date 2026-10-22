@@ -7,3 +7,4 @@ export { schedule } from "./gantt.ts";
 export { simulate as simulateAllocation, holesOf } from "./memory.ts";
 export { runMachine } from "./state-machine.ts";
 export { simulateQueue } from "./queue.ts";
+export { traceHexEditor } from "./hex-editor.ts";

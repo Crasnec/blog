@@ -35,6 +35,13 @@ void test("playground config infers supported runtimes and rejects malformed bou
 	assert.deepEqual(decodeConfig(JSON.stringify({ ...config, runtime: "python", pythonPackages: ["numpy", "seaborn"] })).pythonPackages, ["numpy", "seaborn"]);
 });
 
+void test("notebook configuration is explicit, Python-only and bounded", () => {
+ const base = { language: "python", label: "Cell", runtime: "python", timeout: 1000, grammars: [], pythonPackages: [] };
+ assert.equal(decodeConfig(JSON.stringify({ ...base, notebook: "chapter-01" })).notebook, "chapter-01");
+ for (const notebook of ["", "1chapter", "bad id", "x".repeat(81), 2]) assert.throws(() => decodeConfig(JSON.stringify({ ...base, notebook })));
+ assert.throws(() => decodeConfig(JSON.stringify({ ...base, notebook: "chapter", runtime: "javascript" })));
+});
+
 void test("scientific packages resolve a closed, pinned dependency graph from official sources", () => {
 	const distribution = pythonDistribution();
 	for (const name of supportedPackages) assert.ok(Object.hasOwn(distribution.lock.packages, name));

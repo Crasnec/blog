@@ -52,6 +52,7 @@ interface Note {
 
 interface Props {
 	unit: string | undefined;
+	showValues: boolean;
 	xLabels: string[];
 	yMin: number;
 	yMax: number;
@@ -69,6 +70,7 @@ export default defineFigure<Props>({
 
 	decode(raw) {
 		const p = obj(raw, "props");
+		if (p.showValues !== undefined && typeof p.showValues !== "boolean") throw new Error("props.showValues must be true or false");
 		const series = arr(p.series, "props.series").map((s, i) => {
 			const o = obj(s, `props.series[${String(i)}]`);
 			const values = nums(o.values, `props.series[${String(i)}].values`);
@@ -91,6 +93,7 @@ export default defineFigure<Props>({
 
 		return {
 			unit: maybe(p.unit, "props.unit", str),
+			showValues: p.showValues ?? true,
 			xLabels: arr(p.xLabels ?? [], "props.xLabels").map((l, i) =>
 				str(l, `props.xLabels[${String(i)}]`),
 			),
@@ -179,8 +182,10 @@ export default defineFigure<Props>({
 			if (!pen) continue;
 
 			dot(ctx, pen.x, pen.y, 3.5, color);
-			const value = valueAt(s.values, ((pen.x - left) / (right - left)) * (longest - 1));
-			fittedText(frame, formatNumber(value), pen.x + 7, pen.y + 4, width - pen.x - 7, color);
+			if (props.showValues) {
+				const value = valueAt(s.values, ((pen.x - left) / (right - left)) * (longest - 1));
+				fittedText(frame, formatNumber(value), pen.x + 7, pen.y + 4, width - pen.x - 7, color);
+			}
 		}
 
 		// Each label owns a cell, so arbitrary series names cannot collide.

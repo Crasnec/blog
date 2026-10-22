@@ -6,6 +6,8 @@ import { LOCALE, t } from "../strings.ts";
 import { editorPhrases } from "../locales/editor.ts";
 import { MAX_CODE, type HighlightRequest, type HighlightResponse, type HighlightToken, type PlaygroundConfig } from "./contracts.ts";
 
+import { sharedHighlight } from "./shared-highlight.ts";
+
 const setTokens = StateEffect.define<HighlightToken[]>();
 const highlights = StateField.define<DecorationSet>({
 	create: () => Decoration.none,
@@ -28,13 +30,14 @@ function required<T extends Element>(element: T | null): T {
 	return element;
 }
 
-export function mountEditor(root: HTMLElement, config: PlaygroundConfig, run: () => void) {
+export function mountEditor(root: HTMLElement, config: PlaygroundConfig, run: () => void, changed: () => void = () => { /* Standalone editors have no dependents. */ }) {
 	const parent = required(root.querySelector<HTMLElement>(".playground-editor"));
 	const fallback = required(root.querySelector<HTMLTextAreaElement>("textarea"));
 	const note = required(root.querySelector<HTMLElement>(".playground-highlight-status"));
 	const original = fallback.value;
 	const grammars = config.grammars;
 	let worker: Worker | undefined;
+	let cancelShared: (() => void) | undefined;
 	let version = 0;
 	let debounce: ReturnType<typeof setTimeout> | undefined;
 	let watchdog: ReturnType<typeof setTimeout> | undefined;
@@ -50,14 +53,14 @@ export function mountEditor(root: HTMLElement, config: PlaygroundConfig, run: ()
 				EditorView.contentAttributes.of({ "aria-label": `${config.label}: ${t("playground.code")}`, spellcheck: "false" }),
 				EditorState.transactionFilter.of((transaction) => transaction.newDoc.length > MAX_CODE ? [] : transaction),
 				keymap.of([{ key: "Mod-Enter", run: () => { run(); return true; } }, indentWithTab]),
-				EditorView.updateListener.of((update) => { if (update.docChanged) schedule(); }),
+				EditorView.updateListener.of((update) => { if (update.docChanged) { changed(); schedule(); } }),
 			],
 		}),
 	});
 	fallback.hidden = true;
 
 	function stopHighlight() {
-		worker?.terminate(); worker = undefined;
+		worker?.terminate(); worker = undefined; cancelShared?.(); cancelShared = undefined;
 		clearTimeout(watchdog); busy = false;
 	}
 	function fail(message: string) {
@@ -74,6 +77,21 @@ export function mountEditor(root: HTMLElement, config: PlaygroundConfig, run: ()
 	function highlight() {
 		if (disposed || blocked) return;
 		if (busy) { queued = true; return; }
+		if (config.notebook) {
+			busy = true;
+			watchdog = setTimeout(() => { fail(t("playground.highlightTimeout")); }, 15_000);
+			const request: HighlightRequest = { id: version, code: view.state.doc.toString(), language: config.language, grammars };
+			cancelShared = sharedHighlight(request, (response) => {
+				clearTimeout(watchdog); busy = false;
+				if (response.id === version) {
+					if ("error" in response) { fail(response.error); return; }
+					view.dispatch({ effects: setTokens.of(response.tokens) });
+					root.dataset.highlight = "ready";
+				}
+				if (queued) { queued = false; highlight(); }
+			});
+			return;
+		}
 		if (!worker) {
 			worker = new Worker(new URL("./highlight.worker.ts", import.meta.url), { type: "module" });
 			worker.onmessage = (event: MessageEvent<HighlightResponse>) => {
@@ -98,6 +116,7 @@ export function mountEditor(root: HTMLElement, config: PlaygroundConfig, run: ()
 	schedule();
 	return {
 		code: () => view.state.doc.toString(),
+		focus: () => { view.focus(); },
 		reset: () => { view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: original } }); },
 		destroy: () => { disposed = true; clearTimeout(debounce); stopHighlight(); view.destroy(); },
 	};

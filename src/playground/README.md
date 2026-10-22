@@ -47,7 +47,7 @@ text colour. Colours use CSS variables, so changing the site's theme does not
 discard editor contents, selection or undo history. A 15-second highlighting
 deadline terminates a stalled grammar worker; the code remains editable.
 
-Every execution starts a fresh Worker and terminates it on completion, Stop,
+Without a notebook ID, every execution starts a fresh Worker and terminates it on completion, Stop,
 timeout or page navigation. JavaScript and transpiled TypeScript execute as
 ECMAScript modules, supporting top-level `await`. Use `console.log`, `info`,
 `debug`, `warn` or `error` for output. TypeScript uses the official compiler's
@@ -60,7 +60,7 @@ running hostile code with access to browser Worker APIs.
 
 ## Python libraries and plots
 
-Python provides its standard library and nine approved packages:
+Python provides its standard library and eleven approved packages:
 
 | Import | Pinned version | Distribution |
 | --- | --- | --- |
@@ -73,6 +73,8 @@ Python provides its standard library and nine approved packages:
 | `statadict` | 1.1.0 | Official pure-Python PyPI wheel |
 | `statsmodels` | 0.14.6 | Pyodide 314.0.7 |
 | `IPython` | 9.12.0 | Pyodide 314.0.7 |
+| `lxml` | 6.1.3 | Pyodide 314.0.7 |
+| `sympy` | 1.14.0 | Pyodide 314.0.7 |
 
 The approved roots are defined in `python-libraries.json`. The versioned npm
 runtime's lockfile fixes native wheel versions, dependency metadata and
@@ -80,7 +82,7 @@ SHA-256 digests. `python-wheels.json` pins official PyPI wheels for Seaborn,
 empiricaldist and statadict, which are absent from that catalog. Their native
 dependencies come from Pyodide. Dependency keys use normalized Python package
 names, including IPython's `prompt_toolkit` dependency. The resulting closed
-graph contains thirty wheels; readers fetch only those required by their code.
+graph contains thirty-three wheels; readers fetch only those required by their code.
 No new npm dependencies are needed.
 
 At development-server startup and build time, `python-packages.mjs` downloads
@@ -123,7 +125,7 @@ desktop backends, notebook widgets and animation export are not provided.
 Readers can set figure size, DPI and styles through normal Matplotlib APIs;
 generated images retain their plot colours when the site theme changes.
 
-`print` and stderr are captured; use `print` for values. There is no `micropip`, arbitrary PyPI resolution, reader wheel
+`print` and stderr are captured; standalone scripts use `print` for values. There is no `micropip`, arbitrary PyPI resolution, reader wheel
 URL installer or `loadPackagesFromImports` call. Other native packages must
 have compatible Pyodide builds. Adding a package requires an explicit change
 to the approved roots or a pinned pure-Python wheel, review of its dependency
@@ -150,8 +152,8 @@ and requires WebAssembly JavaScript Promise Integration (JSPI). A runtime check
 reports a useful error in unsupported browsers. `await read_input(prompt)` is
 also available and works without JSPI; use it in async functions or at the top
 level. Source is not rewritten or replayed. `sys.stdin` streaming APIs are not
-connected to the line-input UI. IPython HTML values remain text; this is not a
-Jupyter kernel or rich display renderer.
+connected to the line-input UI. IPython HTML values remain text; notebook mode does not provide a Jupyter
+server, arbitrary HTML display or widget runtime.
 
 JavaScript and TypeScript use `await input(prompt)`; EOF returns `null`.
 Python raises `EOFError` on EOF. Empty strings, Unicode, and repeated requests
@@ -171,7 +173,67 @@ References: [Pyodide JSPI and run_sync](https://blog.pyodide.org/posts/jspi/),
 `npm run test:playground:browser` uses a running `astro dev --background`
 server, or `PLAYGROUND_BASE`, and exercises real runtimes, cancellation,
 errors, approved scientific libraries, PNG plots, author-defined grammars and
-navigation. The published example route is
-`/posts/build/browser-code/`. For a production check, run `npm run build`,
+navigation. Notebook regression tests additionally cover shared state, last-expression
+display, stale results, environment isolation, source reset, restart, edited
+notebook export, interactive input and stopping Run all after an error. The
+published example routes are `/posts/build/browser-code/` and
+`/posts/build/python-notebook/`. For a production check, run `npm run build`,
 start `astro preview`, then run the same browser tests with `PLAYGROUND_BASE`
 set to the preview URL.
+
+## Linked Python notebook cells
+
+Place `PythonNotebook.astro` once, then give body `CodePlayground` components
+its `notebook` ID. IDs are author-controlled, unique per document, and only
+valid with the Python runtime. Cells with another ID and ordinary playgrounds
+have separate environments. The published guide is
+`/posts/build/python-notebook/`.
+
+```mdx
+import PythonNotebook from '../../../components/PythonNotebook.astro';
+import CodePlayground from '../../../components/CodePlayground.astro';
+
+<PythonNotebook id="lesson" />
+<CodePlayground notebook="lesson" language="python" title="Data"
+  code={`values = [2, 4, 6]`} />
+<CodePlayground notebook="lesson" language="python" title="Mean"
+  code={`sum(values) / len(values)`} />
+```
+
+One persistent Python worker handles a notebook serially. Its namespace and
+virtual files persist between cells; the worker loads once and approved
+packages are cached for subsequent cells. Results are not replayed to rebuild
+state. Last expressions and `display()` automatically produce readable text;
+DataFrames and model tables retain their text data. HTML display objects are
+parsed into text, never inserted as executable HTML. Plots use the existing
+bounded PNG channel. Limits reset per cell, with the existing input/deadline
+behaviour. Stdout, errors and images stay in the cell that produced them.
+
+Run all follows DOM order, skips `runAll={false}` exercises, and stops at the
+first failed cell. It uses current edited code. An error keeps changes already
+made before the exception, as in an interactive Python session. Restart clears
+the worker/variables/files while preserving source and marking old results as
+stale. Stop and timeouts also restart the environment because this deployment
+does not provide a shared-memory interrupt buffer. A change or rerun marks
+later results stale; the application does not infer or rerun dependencies.
+Execution counts reflect actual execution order, rather than document order.
+Reset code only restores a cell's original source and clears its output; it
+preserves shared variables. Source reset is disabled while a notebook is running.
+
+Default component children can supply a book/reference output. It is labelled
+as unexecuted, available without JavaScript, and replaced when that cell runs.
+Reference Figure components outside cells remain independent of computed cell
+plots; explain that distinction in the surrounding prose.
+
+Editors mount near the viewport, so Run all can use untouched source directly
+from its server-rendered textarea. Notebook editors share a tokenizer worker
+per author grammar set. A long chapter does not launch one highlighter worker
+for every cell. Navigation disposes both execution and highlighting workers.
+
+Save edited notebook exports current source as nbformat 4, with empty outputs
+and null counts; it does not imply that earlier outputs match edited source.
+`PythonNotebook` accepts an optional `attribution` string, included in the
+export's introductory Markdown cell, for source and license information.
+Simple top-level `DATA_URL = "/datasets/example/"` assignments are made absolute
+on export so dataset links retain the site's origin. This does not install
+dependencies or translate browser-specific APIs for desktop Python.

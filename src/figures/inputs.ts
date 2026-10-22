@@ -21,7 +21,7 @@ type Classification = Titled & { data: ScoredObservation[] };
 export type FigureInputs = {
 	line: {
 		series: { label?: string; values: number[]; tone?: Tone }[];
-		unit?: string; xLabels?: string[]; yMin?: number; yMax?: number;
+		unit?: string; xLabels?: string[]; yMin?: number; yMax?: number; showValues?: boolean;
 		notes?: { at: number; text: string }[];
 	};
 	distribution: {
@@ -51,6 +51,10 @@ export type FigureInputs = {
 	gantt: Titled & { policy: "fcfs" | "sjf" | "rr"; jobs: { id: string; arrive: number; burst: number }[]; quantum?: number; cores?: number; span?: number };
 	heatmap: Titled & { rows: string[]; cols: string[]; values: number[][]; min?: number; max?: number; unit?: string; highlight?: number };
 	memory: Titled & { policy: "first-fit" | "best-fit" | "worst-fit" | "next-fit"; heap?: number; requests: ({ op: "alloc"; id: string; size: number } | { op: "free"; id: string })[] };
+	"hex-editor": Titled & {
+		bytes: number[]; baseOffset?: number; selected?: number;
+		actions?: ({ op: "select"; index: number; label?: string } | { op: "write"; index: number; value: number; label?: string })[];
+	};
 	queue: QueueInput;
 	scatter: Paired & { fit?: boolean; xLabel?: string; yLabel?: string };
 	boxplot: Grouped;

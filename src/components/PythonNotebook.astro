@@ -1,0 +1,17 @@
+---
+import { t } from "../strings";
+import "../playground/style.css";
+interface Props { id: string; title?: string; attribution?: string }
+const { id, title = t("notebook.title"), attribution } = Astro.props;
+if (!/^[a-zA-Z][\w-]{0,79}$/u.test(id)) throw new Error("PythonNotebook needs a valid ID");
+---
+<aside class="python-notebook" data-python-notebook={id} data-attribution={attribution} aria-label={title}>
+  <strong>{title}</strong>
+  <p>{t("notebook.instructions")}</p>
+  <div class="notebook-actions">
+    <button type="button" class="notebook-run-all" disabled>{t("notebook.runAll")}</button>
+    <button type="button" class="notebook-restart" disabled>{t("notebook.restart")}</button>
+    <button type="button" class="notebook-download" disabled>{t("notebook.download")}</button>
+    <span class="notebook-status" role="status">{t("playground.idle")}</span>
+  </div>
+</aside>
