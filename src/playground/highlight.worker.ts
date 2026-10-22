@@ -4,7 +4,15 @@ import javascript from "shiki/langs/javascript.mjs";
 import typescript from "shiki/langs/typescript.mjs";
 import python from "shiki/langs/python.mjs";
 import { parseGrammars } from "./grammar.ts";
-import { runtimeFor, type HighlightRequest, type HighlightResponse } from "./contracts.ts";
+import { IncrementalHighlighter } from "./incremental-highlight.ts";
+import {
+    runtimeFor,
+    decodeHighlightRequest,
+    decodeHighlightRelease,
+    type MessageValue,
+    type HighlightRequest,
+    type HighlightResponse,
+} from "./contracts.ts";
 
 const highlighter = createHighlighterCore({
     engine: createOnigurumaEngine(import("shiki/wasm")),
@@ -12,37 +20,55 @@ const highlighter = createHighlighterCore({
     langs: [javascript, typescript, python],
 });
 let activeGrammars = "";
+let customName: string | undefined;
+let incremental: IncrementalHighlighter | undefined;
+let pending = Promise.resolve();
+const released = new Set<number>();
 
-self.addEventListener("message", (event: MessageEvent<HighlightRequest>) => {
-    void highlight(event.data);
+self.addEventListener("message", (event: MessageEvent<MessageValue>) => {
+    const document = decodeHighlightRelease(event.data);
+    if (document !== undefined) {
+        released.add(document);
+        incremental?.release(document);
+        return;
+    }
+    const request = decodeHighlightRequest(event.data);
+    // Language registration is async. Serialize requests so a shared worker's
+    // first cells cannot tokenize before their author grammar finishes loading.
+    if (request) pending = pending.then(() => highlight(request));
 });
 
 async function highlight(request: HighlightRequest) {
+    const document = request.document ?? 0;
+    if (released.has(document)) return;
     let response: HighlightResponse;
     try {
         const engine = await highlighter;
-        const fingerprint = JSON.stringify(request.grammars);
-        if (fingerprint !== activeGrammars) {
+        const fingerprint = request.grammars ? JSON.stringify(request.grammars) : activeGrammars;
+        if (request.grammars && fingerprint !== activeGrammars) {
             // Custom grammars may reuse scope names; replacing a grammar starts a
             // fresh worker in the editor, so registrations never leak between sets.
             await engine.loadLanguage(...parseGrammars(request.grammars));
             activeGrammars = fingerprint;
+            customName = request.grammars[0]?.filename;
+            incremental = undefined;
         }
-        const lang = request.grammars.length ? "custom-0" : runtimeFor(request.language) || "text";
-        const lines = engine.codeToTokensBase(request.code, { lang, theme: "blog-editor" });
+        if (released.has(document)) return;
+        const lang = customName !== undefined ? "custom-0" : runtimeFor(request.language) || "text";
+        incremental ??= new IncrementalHighlighter(engine, "blog-editor");
+        const { from, to, tokens } = incremental.highlight(
+            document,
+            request.revision ?? request.id,
+            request.base,
+            request.code,
+            lang,
+        );
         response = {
             id: request.id,
-            name: request.grammars[0]?.filename ?? request.language,
-            tokens: lines.flatMap((line) =>
-                line
-                    .filter((token) => token.content.length > 0)
-                    .map((token) => ({
-                        from: token.offset,
-                        to: token.offset + token.content.length,
-                        color: token.color ?? "var(--shiki-foreground)",
-                        fontStyle: token.fontStyle ?? 0,
-                    })),
-            ),
+            name: customName ?? request.language,
+            from,
+            to,
+            tokens,
         };
     } catch (error) {
         response = {

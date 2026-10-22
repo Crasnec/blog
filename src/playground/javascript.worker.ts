@@ -1,11 +1,12 @@
-import type { RunRequest } from "./contracts.ts";
+import { decodeRunRequest, type MessageValue, type RunRequest } from "./contracts.ts";
 import { inputChannel } from "./input.ts";
 import { formatValue, outputChannel } from "./output.ts";
 
 self.addEventListener(
     "message",
-    (event: MessageEvent<RunRequest>) => {
-        void run(event.data);
+    (event: MessageEvent<MessageValue>) => {
+        const request = decodeRunRequest(event.data);
+        if (request) void run(request);
     },
     { once: true },
 );
@@ -32,7 +33,10 @@ async function run(request: RunRequest) {
     }
     self.addEventListener("unhandledrejection", (event) => {
         event.preventDefault();
-        send({ type: "error", text: formatValue(event.reason as object | string) });
+        send({
+            type: "error",
+            text: formatValue(event.reason as Parameters<typeof formatValue>[0]),
+        });
     });
     self.addEventListener("error", (event) => {
         event.preventDefault();

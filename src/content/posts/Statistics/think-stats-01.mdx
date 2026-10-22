@@ -4,6 +4,10 @@ published: 2026-10-21
 description: 'Allen B. Downey의 Think Stats 3판 1장 한국어 번역. NSFG 자료를 읽고 검증·정제하며 평균, 분산, 표준편차를 계산합니다.'
 lang: ko
 tags: [statistics, think-stats, python, translation]
+order: 1
+series:
+  name: Think Stats
+  order: 1
 ---
 
 import CodePlayground from '../../../components/CodePlayground.astro';
@@ -132,7 +136,7 @@ NSFG 자료를 내려받기 전에 다음 이용 조건에 동의해야 합니�
 
 <CodePlayground notebook="think-stats-01" title="셀 5" code={notebook.cells[5].code} language="python" timeout={60000}>
 
-|  | caseid | pregordr | howpreg_n | howpreg_p | moscurrp | nowprgdk | pregend1 | pregend2 | nbrnaliv | multbrth | ... | poverty_i | laborfor_i | religion_i | metro_i | basewgt | adj_mod_basewgt | finalwgt | secu_p | sest | cmintvw |
+| 인덱스 | caseid | pregordr | howpreg_n | howpreg_p | moscurrp | nowprgdk | pregend1 | pregend2 | nbrnaliv | multbrth | ... | poverty_i | laborfor_i | religion_i | metro_i | basewgt | adj_mod_basewgt | finalwgt | secu_p | sest | cmintvw |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 0 | 1 | 1 | NaN | NaN | NaN | NaN | 6.0 | NaN | 1.0 | NaN | ... | 0 | 0 | 0 | 0 | 3410.389399 | 3869.349602 | 6448.271112 | 2 | 9 | 1231 |
 | 1 | 1 | 2 | NaN | NaN | NaN | NaN | 6.0 | NaN | 1.0 | NaN | ... | 0 | 0 | 0 | 0 | 3410.389399 | 3869.349602 | 6448.271112 | 2 | 9 | 1231 |

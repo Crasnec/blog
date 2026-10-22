@@ -4,6 +4,10 @@ published: 2026-10-22
 description: '중도절단, 위험함수와 Kaplan–Meier 추정, 기대 잔여시간을 다루는 Think Stats 3판 13장 한국어 번역.'
 lang: ko
 tags: [statistics, think-stats, python, translation]
+order: 13
+series:
+  name: Think Stats
+  order: 13
 ---
 
 import CodePlayground from '../../../components/CodePlayground.astro';
@@ -94,7 +98,16 @@ CDF와 생존함수를 함께 그리면 모든 시각에서 두 값의 합이 1�
 
 <CodePlayground notebook="think-stats-13" title="셀 6" code={notebook.cells[6].code} language="python" timeout={60000}>
 
-![전구 수명의 CDF와 생존함수. 두 값은 각 시간에서 1로 합쳐집니다.](/labs/think-stats/figures/chap13-020-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap13-020-0.png"
+        alt="전구 수명의 CDF와 생존함수. 두 값은 각 시간에서 1로 합쳐집니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap13-020-0.png)
 
@@ -150,7 +163,16 @@ np.float64(0.15384615384615397)
 
 <CodePlayground notebook="think-stats-13" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000}>
 
-![전구의 위험함수. 각 시점까지 생존한 전구 중 그때 고장 날 비율입니다.](/labs/think-stats/figures/chap13-031-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap13-031-0.png"
+        alt="전구의 위험함수. 각 시점까지 생존한 전구 중 그때 고장 날 비율입니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap13-031-0.png)
 
@@ -160,7 +182,16 @@ np.float64(0.15384615384615397)
 
 <CodePlayground notebook="think-stats-13" title="셀 12" code={notebook.cells[12].code} language="python" timeout={60000}>
 
-![전구의 누적위험함수. 앞서 구한 시점별 위험을 누적해 더한 값입니다.](/labs/think-stats/figures/chap13-033-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap13-033-0.png"
+        alt="전구의 누적위험함수. 앞서 구한 시점별 위험을 누적해 더한 값입니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap13-033-0.png)
 
@@ -248,7 +279,16 @@ Name: count, dtype: int64
 
 <CodePlayground notebook="think-stats-13" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000}>
 
-![미혼자의 관측 종료 나이를 반영하지 않은 코호트별 미혼 곡선.](/labs/think-stats/figures/chap13-052-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap13-052-0.png"
+        alt="미혼자의 관측 종료 나이를 반영하지 않은 코호트별 미혼 곡선."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap13-052-0.png)
 
@@ -281,7 +321,16 @@ Name: count, dtype: int64
 
 <CodePlayground notebook="think-stats-13" title="셀 26" code={notebook.cells[26].code} language="python" timeout={60000}>
 
-![가중 재표집 후의 미혼 곡선. 미혼자의 중도절단은 아직 반영하지 않았습니다.](/labs/think-stats/figures/chap13-062-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap13-062-0.png"
+        alt="가중 재표집 후의 미혼 곡선. 미혼자의 중도절단은 아직 반영하지 않았습니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap13-062-0.png)
 
@@ -405,7 +454,16 @@ np.float64(0.011188271604938271)
 
 <CodePlayground notebook="think-stats-13" title="셀 42" code={notebook.cells[42].code} language="python" timeout={60000}>
 
-![1960년대생의 결혼 누적위험함수. 사건과 중도절단을 위험집합에 반영했습니다.](/labs/think-stats/figures/chap13-094-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap13-094-0.png"
+        alt="1960년대생의 결혼 누적위험함수. 사건과 중도절단을 위험집합에 반영했습니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap13-094-0.png)
 
@@ -429,7 +487,16 @@ np.float64(0.011188271604938271)
 
 <CodePlayground notebook="think-stats-13" title="셀 45" code={notebook.cells[45].code} language="python" timeout={60000}>
 
-![1960년대생의 미혼 생존함수. 중도절단을 반영하지 않은 곡선과 카플란–마이어 추정을 비교합니다.](/labs/think-stats/figures/chap13-101-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap13-101-0.png"
+        alt="1960년대생의 미혼 생존함수. 중도절단을 반영하지 않은 곡선과 카플란–마이어 추정을 비교합니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap13-101-0.png)
 
@@ -491,7 +558,16 @@ Python의 `lifelines` 패키지에는 카플란–마이어 추정 등 생존분
 
 <CodePlayground notebook="think-stats-13" title="셀 51" code={notebook.cells[51].code} language="python" timeout={60000}>
 
-![Lifelines로 계산한 1960년대생 Kaplan–Meier 곡선과 점별 구간.](/labs/think-stats/figures/chap13-119-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap13-119-0.png"
+        alt="Lifelines로 계산한 1960년대생 Kaplan–Meier 곡선과 점별 구간."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap13-119-0.png)
 
@@ -529,7 +605,16 @@ True
 
 <CodePlayground notebook="think-stats-13" title="셀 56" code={notebook.cells[56].code} language="python" timeout={60000}>
 
-![가중 부트스트랩으로 만든 미혼 생존함수의 점별 구간. 복합표본 설계 전체를 반영한 구간은 아닙니다.](/labs/think-stats/figures/chap13-130-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap13-130-0.png"
+        alt="가중 부트스트랩으로 만든 미혼 생존함수의 점별 구간. 복합표본 설계 전체를 반영한 구간은 아닙니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap13-130-0.png)
 
@@ -585,7 +670,16 @@ np.float64(0.9155006558810669)
 
 <CodePlayground notebook="think-stats-13" title="셀 63" code={notebook.cells[63].code} language="python" timeout={60000}>
 
-![36주까지 이어진 임신에서 남은 기간의 PMF. 각 막대는 잔여 주 수의 확률입니다.](/labs/think-stats/figures/chap13-149-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap13-149-0.png"
+        alt="36주까지 이어진 임신에서 남은 기간의 PMF. 각 막대는 잔여 주 수의 확률입니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap13-149-0.png)
 
@@ -631,7 +725,16 @@ dtype: float64
 
 <CodePlayground notebook="think-stats-13" title="셀 68" code={notebook.cells[68].code} language="python" timeout={60000}>
 
-![임신 기간 자료를 가중 재표집해 구한 기대 잔여시간 곡선 21개. 재표집에 따라 추정도 달라집니다.](/labs/think-stats/figures/chap13-159-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap13-159-0.png"
+        alt="임신 기간 자료를 가중 재표집해 구한 기대 잔여시간 곡선 21개. 재표집에 따라 추정도 달라집니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap13-159-0.png)
 

@@ -16,16 +16,16 @@ if (!/^[a-zA-Z][\w-]{0,79}$/u.test(id)) throw new Error("PythonNotebook needs a 
     data-attribution={attribution}
     aria-label={title}
 >
-    <strong>{title}</strong>
+    <strong class="notebook-title">{title}</strong>
     <p>{t("notebook.instructions")}</p>
     <div class="notebook-actions">
-        <button type="button" class="notebook-run-all" disabled>
+        <button type="button" class="btn-solid notebook-run-all" disabled>
             {t("notebook.runAll")}
         </button>
-        <button type="button" class="notebook-restart" disabled>
+        <button type="button" class="btn bloom notebook-restart" disabled>
             {t("notebook.restart")}
         </button>
-        <button type="button" class="notebook-download" disabled>
+        <button type="button" class="btn bloom notebook-download" disabled>
             {t("notebook.download")}
         </button>
         <span class="notebook-status" role="status">

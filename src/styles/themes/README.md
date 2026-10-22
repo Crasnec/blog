@@ -8,7 +8,9 @@ export const THEME = "swiss";
 ```
 
 `astro.config.mjs` reads that, aliases `@theme` at `themes/<name>/`, and loads
-that theme's code themes. Nothing else in the codebase names a theme.
+that theme's code themes. When adding a theme, register its literal `code.mjs`
+import in `codeThemeLoaders` in `src/markdown.config.mjs`. The registry keeps
+the theme module's exports checked by TypeScript and ESLint.
 
 ```
 themes/<name>/

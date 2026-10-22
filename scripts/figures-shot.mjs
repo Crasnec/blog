@@ -37,6 +37,7 @@ import { mkdir, readFile, rm } from "node:fs/promises";
 import { createServer } from "node:net";
 import { setTimeout as sleep } from "node:timers/promises";
 import { chromium } from "playwright";
+import { isJsonObject, parseJson } from "../src/utils/json.ts";
 
 const path = process.argv[2] ?? "/";
 const out = process.env.FIGURES_OUT ?? ".figures-shots";
@@ -85,16 +86,16 @@ function freePort() {
  * @returns {Promise<{ base: string, stop: () => Promise<void> }>}
  */
 async function devServer() {
-    const nothing = async () => {};
+    const nothing = () => Promise.resolve();
     if (process.env.FIGURES_BASE) return { base: process.env.FIGURES_BASE, stop: nothing };
 
     let stale = "";
     try {
-        /** @type {{ url?: string }} */
-        const lock = JSON.parse(await readFile(lockFile, "utf8"));
-        const base = lock.url ? await reachable(lock.url) : undefined;
+        const lock = parseJson(await readFile(lockFile, "utf8"));
+        const url = isJsonObject(lock) && typeof lock.url === "string" ? lock.url : "";
+        const base = url ? await reachable(url) : undefined;
         if (base) return { base, stop: nothing };
-        stale = lock.url ?? "";
+        stale = url;
     } catch {
         // No lock file: start our own below.
     }
@@ -145,7 +146,7 @@ async function buildError(page) {
     return page
         .evaluate(() => {
             const overlay = document.querySelector("vite-error-overlay")?.shadowRoot;
-            return overlay?.querySelector("#message-content")?.textContent?.trim() ?? "";
+            return overlay?.querySelector("#message-content")?.textContent.trim() ?? "";
         })
         .catch(() => "");
 }
@@ -221,7 +222,8 @@ try {
             for (const [i, figure] of figures.entries()) {
                 const kind =
                     (await figure.getAttribute("data-figure")) ??
-                    (await figure.getAttribute("data-static-figure"));
+                    (await figure.getAttribute("data-static-figure")) ??
+                    "figure";
                 await figure.scrollIntoViewIfNeeded();
                 const file = `${out}/${String(i + 1)}-${kind}-${theme}-${String(at)}.png`;
                 await figure.screenshot({ path: file });

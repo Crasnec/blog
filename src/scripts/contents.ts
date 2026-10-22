@@ -1,5 +1,5 @@
 /**
- * Marks the section you are in on the contents rail.
+ * Marks the current section in the rail and mobile outline.
  *
  * Sections come from remark-sectionize, which nests a <section> around each
  * heading and its content — that is what makes "which heading am I under"
@@ -16,6 +16,8 @@
 const BAND = { top: "-30%", bottom: "-68%" };
 
 let observer: IntersectionObserver | null = null;
+let listeners: AbortController | null = null;
+let paintFrame = 0;
 
 export function mountContents() {
     teardown();
@@ -25,6 +27,45 @@ export function mountContents() {
 
     const items = [...root.querySelectorAll<HTMLAnchorElement>(".contents-item")];
     if (items.length === 0) return;
+
+    listeners = new AbortController();
+    const links = [
+        ...items,
+        ...document.querySelectorAll<HTMLAnchorElement>(".contents-inline-list a[data-slug]"),
+    ];
+    const linksBySlug = new Map<string, HTMLAnchorElement[]>();
+    for (const link of links) {
+        const slug = link.dataset.slug;
+        if (!slug) continue;
+        const matches = linksBySlug.get(slug) ?? [];
+        matches.push(link);
+        linksBySlug.set(slug, matches);
+        link.classList.remove("is-active");
+        link.removeAttribute("aria-current");
+        link.addEventListener(
+            "click",
+            (event) => {
+                if (
+                    event.button !== 0 ||
+                    event.metaKey ||
+                    event.ctrlKey ||
+                    event.shiftKey ||
+                    event.altKey
+                )
+                    return;
+                const heading = document.getElementById(slug);
+                if (!heading) return;
+
+                // Collapse before the browser follows the fragment, so its scroll
+                // position accounts for the space the open outline used to occupy.
+                const details = link.closest("details");
+                if (details) details.open = false;
+                heading.tabIndex = -1;
+                heading.focus({ preventScroll: true });
+            },
+            { signal: listeners.signal },
+        );
+    }
 
     const sections: (HTMLElement | undefined)[] = [];
     const indexOfSection = new Map<Element, number>();
@@ -58,17 +99,24 @@ export function mountContents() {
 
     let marked = -1;
 
+    function mark(index: number, active: boolean) {
+        const slug = items[index]?.dataset.slug;
+        if (!slug) return;
+        for (const link of linksBySlug.get(slug) ?? []) {
+            link.classList.toggle("is-active", active);
+            if (active) link.setAttribute("aria-current", "location");
+            else link.removeAttribute("aria-current");
+        }
+    }
+
     function paint() {
+        paintFrame = 0;
         const next = crossing.size > 0 ? Math.max(...crossing) : nearest();
         if (next === marked) return;
 
-        if (marked !== -1) items[marked]?.classList.remove("is-active");
+        if (marked !== -1) mark(marked, false);
         marked = next;
-        if (marked === -1) return;
-
-        const item = items[marked];
-        if (!item) return;
-        item.classList.add("is-active");
+        if (marked !== -1) mark(marked, true);
     }
 
     observer = new IntersectionObserver(
@@ -79,7 +127,7 @@ export function mountContents() {
                 if (entry.isIntersecting) crossing.add(i);
                 else crossing.delete(i);
             }
-            requestAnimationFrame(paint);
+            if (!paintFrame) paintFrame = requestAnimationFrame(paint);
         },
         { rootMargin: `${BAND.top} 0px ${BAND.bottom} 0px`, threshold: 0 },
     );
@@ -94,6 +142,10 @@ export function mountContents() {
 function teardown() {
     observer?.disconnect();
     observer = null;
+    listeners?.abort();
+    listeners = null;
+    cancelAnimationFrame(paintFrame);
+    paintFrame = 0;
 }
 
 document.addEventListener("astro:before-swap", teardown);

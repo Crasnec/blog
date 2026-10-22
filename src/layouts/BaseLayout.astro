@@ -49,7 +49,7 @@ const { title, description, article, publishedTime, modifiedTime, card, section 
             <div id="main-grid" class="shell">
                 <slot name="sidebar" />
 
-                <main id="content" class="onload" transition:animate={pageTurn}>
+                <main id="content" class="onload" tabindex="-1" transition:animate={pageTurn}>
                     <slot />
                 </main>
             </div>

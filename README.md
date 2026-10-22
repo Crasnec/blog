@@ -39,7 +39,7 @@ See [`src/playground/README.md`](src/playground/README.md) and
 
 ## Requirements
 
-- Node.js 22.12 or newer
+- Node.js 22.19 or newer
 - npm
 - Git
 
@@ -77,14 +77,26 @@ npm run build
 npm run preview
 ```
 
-TypeScript uses Astro's strictest configuration. ESLint applies type-aware
-strict and stylistic rules to TypeScript, plus Astro and accessibility rules to
-components. Security-sensitive Markdown and encryption boundaries have focused
+TypeScript uses Astro's strictest configuration, including checked JavaScript.
+ESLint applies type-aware strict and stylistic rules to JavaScript, TypeScript
+and Astro, plus accessibility rules to components. External messages and runtime
+results are validated before use. Markdown and encryption boundaries have focused
 tests. The deployment workflow runs the complete check before building.
 
 `npm run build` creates the static site in `dist/` and then builds the Pagefind
 index. Use `npm run build:clean` after changing a remark or rehype plugin, the
 content schema or the active theme.
+
+Search and table-of-contents browser checks run without a development server:
+
+```bash
+npm run test:search:browser
+npm run test:contents:browser
+```
+
+These checks require Playwright Chromium. They load the actual browser scripts
+through intercepted requests and cover keyboard navigation, Korean input
+composition, search failures, and mobile section links.
 
 ## Code style
 
@@ -228,6 +240,40 @@ parents are separate categories. Names producing the same URL under the same
 parent fail validation. Renaming or moving folders can change URLs. Empty
 folders do not appear in the tree. Tags are free-form. Drafts are visible during
 development and excluded from production builds.
+
+### Reading order and series
+
+Set `order` to put a post at an author-selected position in the home, category
+and tag listings. Lower numbers come first. Posts without a position follow,
+newest first. Positions may have gaps or repeat; equal positions use publication
+date (newest first), then the post path to break ties. The archive still groups
+posts by publication year.
+
+A series has its own name and reading order, independent of the folder category
+and the global `order` field:
+
+```yaml
+order: 10
+series:
+  name: Building an operating system
+  order: 1
+```
+
+Both order fields are optional positive safe integers. Omit the whole `series`
+block for a standalone post; when present, its trimmed name and order are
+required. Series names are displayed literally and are never translated.
+The same series can span category folders. Its parts appear in ascending
+`series.order`, with gaps allowed and duplicate part numbers rejected at build
+time. Names that produce the same URL also fail the build instead of being
+silently merged. Draft parts are omitted from production, including the series
+count and previous/next links.
+
+The series label appears on post listings. Articles link to `/series/` and the
+series page, and provide a collapsible list with the current part highlighted.
+For example, `Think Stats` is available at `/series/think-stats/`; Unicode names
+remain in their URL. Previous/next links on a series article stay within that
+series. Standalone articles follow the displayed list when any global positions
+exist. With no global positions, they retain older/newer chronological navigation.
 
 ## Markdown features
 
@@ -389,3 +435,21 @@ npm run test:categories:browser
 `CATEGORIES_BASE` can instead point the browser suite at a fixture build.
 Screenshots are written to `.figures-shots-category-hierarchy/`. Restart the
 server without `BLOG_POSTS_DIR` to return to real articles.
+
+## Lighthouse audits
+
+Build first, then run `npm run audit:lighthouse`. The audit starts a temporary
+static server and Playwright Chromium, and closes both on completion or interruption.
+Install Chromium with `npx playwright install chromium` when needed.
+
+```sh
+LIGHTHOUSE_PATHS='/,/series/,/posts/statistics/think-stats-01/' npm run audit:lighthouse
+```
+
+The default runs Lighthouse's standard mobile and desktop presets with all four
+categories. Reports are saved in `.cache/lighthouse/` as HTML, raw JSON, and a
+summary containing versions, settings, metrics, and failures. The command fails
+unless every category scores 100. `LIGHTHOUSE_DIST`, `LIGHTHOUSE_OUTPUT`, and
+`LIGHTHOUSE_DEVICES` override the build directory, report directory, and devices.
+Local reports measure the production build with gzip and a ten-minute cache;
+real hosting, network conditions, content, and browser versions can change scores.

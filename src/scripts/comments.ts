@@ -42,11 +42,12 @@ export function mountComments() {
 /* — the form ——————————————————————————————————— */
 
 function wireForm() {
-    const form = document.getElementById("comment-form") as HTMLFormElement | null;
+    const form = document.getElementById("comment-form");
     const status = document.getElementById("comment-status");
-    if (!form || !status) return;
+    if (!(form instanceof HTMLFormElement) || !status) return;
 
-    const authorInput = form.elements.namedItem("author") as HTMLInputElement | null;
+    const authorField = form.elements.namedItem("author");
+    const authorInput = authorField instanceof HTMLInputElement ? authorField : null;
     if (authorInput) {
         const max = authorInput.maxLength > 0 ? authorInput.maxLength : Infinity;
         authorInput.value = readStoredAuthor().slice(0, max);
@@ -59,7 +60,8 @@ function wireForm() {
     if (!endpoint || !token) return;
 
     const button = form.querySelector<HTMLButtonElement>("button[type=submit]");
-    const body = document.getElementById("comment-body") as HTMLTextAreaElement | null;
+    const bodyField = document.getElementById("comment-body");
+    const body = bodyField instanceof HTMLTextAreaElement ? bodyField : null;
     const count = document.getElementById("comment-count");
     const resetForm = () => {
         const author = readStoredAuthor();
@@ -155,9 +157,9 @@ function wireLeavePrompt() {
     const panel = document.getElementById("leave-panel");
     const host = document.getElementById("leave-host");
     const url = document.getElementById("leave-url");
-    const go = document.getElementById("leave-go") as HTMLAnchorElement | null;
+    const go = document.getElementById("leave-go");
     const cancel = document.getElementById("leave-cancel");
-    if (!panel || !host || !url || !go || !cancel) return;
+    if (!panel || !host || !url || !(go instanceof HTMLAnchorElement) || !cancel) return;
 
     let lastFocused: HTMLElement | null = null;
 
@@ -170,7 +172,7 @@ function wireLeavePrompt() {
     };
 
     const open = (href: string, hostname: string) => {
-        lastFocused = document.activeElement as HTMLElement;
+        lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         host.textContent = hostname;
         url.textContent = href;
         go.href = href;
@@ -188,9 +190,10 @@ function wireLeavePrompt() {
         if (event.defaultPrevented || event.button !== 0) return;
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
-        const target = event.target as Element | null;
-        const link = target?.closest<HTMLAnchorElement>(".comment-body a[data-external]");
-        if (!link) return;
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const link = target.closest(".comment-body a[data-external]");
+        if (!(link instanceof HTMLAnchorElement)) return;
 
         event.preventDefault();
         open(link.href, link.dataset.host ?? link.hostname);

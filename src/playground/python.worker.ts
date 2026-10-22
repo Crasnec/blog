@@ -1,22 +1,25 @@
-import type * as Pyodide from "pyodide";
 import { t } from "../strings.ts";
 import {
     MAX_CODE,
-    type InputResponse,
+    decodeRunRequest,
+    decodeCellRequest,
+    type MessageValue,
     type CellRequest,
     type RunRequest,
     type RunResponse,
 } from "./contracts.ts";
 import { parseJson } from "../utils/json.ts";
 import { inputChannel, installPythonInput } from "./input.ts";
-import { outputChannel } from "./output.ts";
+import { formatValue, outputChannel } from "./output.ts";
 import { installPlotCapture, installWarningCapture, pngFromBase64 } from "./python-plots.ts";
 import { installNotebookDisplay } from "./python-display.ts";
+import { initializePythonRuntime } from "./python-runtime.ts";
 
 self.addEventListener(
     "message",
-    (event: MessageEvent<RunRequest>) => {
-        void start(event.data);
+    (event: MessageEvent<MessageValue>) => {
+        const request = decodeRunRequest(event.data);
+        if (request) void start(request);
     },
     { once: true },
 );
@@ -28,11 +31,9 @@ async function start(request: RunRequest) {
     };
     try {
         const url = new URL("pyodide.mjs", request.assets).href;
-        const { loadPyodide } = (await import(/* @vite-ignore */ url)) as Pick<
-            typeof Pyodide,
-            "loadPyodide"
-        >;
-        const python = await loadPyodide({
+        // ECMAScript guarantees a module namespace object; its members are decoded below.
+        const module = (await import(/* @vite-ignore */ url)) as object;
+        const python = await initializePythonRuntime(module, {
             indexURL: request.assets,
             packageBaseUrl: request.assets,
             stdin: () => {
@@ -50,15 +51,16 @@ async function start(request: RunRequest) {
             source,
             request_input: inputChannel(request.port, send),
             input_unsupported: t("playground.inputUnsupported"),
-            emit_png: (encoded: string, title: string) => {
+            emit_png: (encoded: MessageValue, title: MessageValue) => {
+                if (typeof encoded !== "string") throw new Error("Plot output must be PNG text");
                 send({
                     type: "plot",
                     png: pngFromBase64(encoded),
                     alt: typeof title === "string" ? title.slice(0, 300) : "Matplotlib figure",
                 });
             },
-            emit_warning: (text: string) => {
-                send({ type: "output", level: "warn", text });
+            emit_warning: (text: MessageValue) => {
+                send({ type: "output", level: "warn", text: formatValue(text) });
             },
         });
         python.runPython(installWarningCapture);
@@ -77,9 +79,9 @@ async function start(request: RunRequest) {
                     "from _playground import source as __pg_bridge\n__pg_source = __pg_bridge.code",
                 );
                 const imported = parseJson(
-                    python.runPython(
+                    python.runPythonString(
                         "import json as __pg_json\nfrom pyodide.code import find_imports as __pg_find_imports\n__pg_json.dumps(__pg_find_imports(__pg_source))",
-                    ) as string,
+                    ),
                 );
                 if (!Array.isArray(imported)) throw new Error("Could not inspect Python imports");
                 const options = {
@@ -110,7 +112,7 @@ async function start(request: RunRequest) {
                     );
                 }
                 await python.loadPackagesFromImports(cell.code, options);
-                if (!plots && Object.hasOwn(python.loadedPackages, "matplotlib")) {
+                if (!plots && python.isPackageLoaded("matplotlib")) {
                     python.runPython(installPlotCapture);
                     plots = true;
                 }
@@ -132,12 +134,10 @@ async function start(request: RunRequest) {
             }
         }
         if (request.persistent)
-            request.port.addEventListener(
-                "message",
-                (event: MessageEvent<CellRequest | InputResponse>) => {
-                    if (event.data.type === "run") void execute(event.data);
-                },
-            );
+            request.port.addEventListener("message", (event: MessageEvent<MessageValue>) => {
+                const cell = decodeCellRequest(event.data);
+                if (cell) void execute(cell);
+            });
         await execute(request);
     } catch (error) {
         send({ type: "error", text: error instanceof Error ? error.message : String(error) });

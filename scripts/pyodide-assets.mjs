@@ -51,7 +51,10 @@ export default function pyodideAssets() {
                                 configureServer(server) {
                                     server.middlewares.use((request, response, next) => {
                                         const pathname = request.url?.split("?")[0] ?? "";
-                                        if (!pathname.startsWith(prefix)) return next();
+                                        if (!pathname.startsWith(prefix)) {
+                                            next();
+                                            return;
+                                        }
                                         const name = pathname.slice(prefix.length);
                                         const mime =
                                             files.get(name) ??

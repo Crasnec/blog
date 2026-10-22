@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
+import { parseFrontmatter } from "@astrojs/markdown-remark";
+import { stringify } from "yaml";
 
+import { publicFrontmatter } from "../scripts/secret.mjs";
 import { parseJson } from "../src/utils/json.ts";
+import { parsePostOrder, parseSeriesMetadata } from "../src/utils/post-order.ts";
 import {
     generateKeys,
     openWith,
@@ -13,6 +17,46 @@ import {
 } from "../src/utils/secret.ts";
 
 void describe("locked post data boundaries", () => {
+    void test("public ordering metadata survives sealing and opening frontmatter", () => {
+        const metadata = {
+            title: "Private chapter",
+            published: new Date("2026-01-01T00:00:00Z"),
+            order: 8,
+            series: { name: "  Statistics  ", order: 2 },
+            sealed: { data: "ciphertext" },
+        };
+        const expected = {
+            title: "Private chapter",
+            published: "2026-01-01",
+            order: 8,
+            series: { name: "Statistics", order: 2 },
+        };
+        const visible = publicFrontmatter(metadata);
+        assert.deepEqual(visible, expected);
+        const reopened = parseFrontmatter(`---\n${stringify(visible)}---\nBody`);
+        assert.deepEqual(publicFrontmatter(reopened.frontmatter), expected);
+        assert.deepEqual(publicFrontmatter({ title: "No ordering" }), { title: "No ordering" });
+    });
+
+    void test("ordering metadata rejects invalid values before sealing or opening", () => {
+        assert.equal(parsePostOrder(undefined), undefined);
+        assert.equal(parseSeriesMetadata(undefined), undefined);
+        for (const order of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1, "1", null]) {
+            assert.throws(
+                () => publicFrontmatter({ order }),
+                /order must be a positive safe integer/,
+            );
+            assert.throws(
+                () => publicFrontmatter({ series: { name: "Series", order } }),
+                /series.order must be a positive safe integer/,
+            );
+        }
+        for (const series of [null, [], { name: "  ", order: 1 }, { name: 1, order: 1 }]) {
+            assert.throws(() => publicFrontmatter({ series }), /series.name/);
+        }
+        assert.throws(() => publicFrontmatter({ series: { name: "Series" } }), /series.order/);
+    });
+
     void test("rejects incomplete external data", () => {
         assert.equal(parseSecretSource({ html: "<p>body</p>" }), null);
         assert.equal(parsePrivateKeyFile({ v: 3, it: -1, salt: "", iv: "", data: "" }), null);

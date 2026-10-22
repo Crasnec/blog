@@ -4,6 +4,10 @@ published: 2026-10-22
 description: '정규 근사와 중심극한정리의 조건, t검정과 카이제곱 검정을 다루는 Think Stats 3판 14장 한국어 번역.'
 lang: ko
 tags: [statistics, think-stats, python, translation]
+order: 14
+series:
+  name: Think Stats
+  order: 14
 ---
 
 import CodePlayground from '../../../components/CodePlayground.astro';
@@ -74,7 +78,16 @@ CSV를 읽습니다.
 
 <CodePlayground notebook="think-stats-14" title="셀 6" code={notebook.cells[6].code} language="python" timeout={60000}>
 
-![아델리펭귄 체중의 경험적 CDF와 같은 평균·표준편차의 정규분포 CDF 비교.](/labs/think-stats/figures/chap14-019-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap14-019-0.png"
+        alt="아델리펭귄 체중의 경험적 CDF와 같은 평균·표준편차의 정규분포 CDF 비교."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap14-019-0.png)
 
@@ -98,7 +111,16 @@ x축에는 대응하는 표준정규분포의 분위수를 놓습니다. `norm.p
 
 <CodePlayground notebook="think-stats-14" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000}>
 
-![표준정규분포의 이론 분위수와 체중의 정규확률그림. 점들이 직선에 가까운지 살핍니다.](/labs/think-stats/figures/chap14-027-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap14-027-0.png"
+        alt="표준정규분포의 이론 분위수와 체중의 정규확률그림. 점들이 직선에 가까운지 살핍니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap14-027-0.png)
 
@@ -112,7 +134,16 @@ x축에는 대응하는 표준정규분포의 분위수를 놓습니다. `norm.p
 
 <CodePlayground notebook="think-stats-14" title="셀 12" code={notebook.cells[12].code} language="python" timeout={60000}>
 
-![아델리펭귄 암수 체중의 정규확률그림. 집단별로 나누면 점들이 더 직선에 가깝습니다.](/labs/think-stats/figures/chap14-031-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap14-031-0.png"
+        alt="아델리펭귄 암수 체중의 정규확률그림. 집단별로 나누면 점들이 더 직선에 가깝습니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap14-031-0.png)
 
@@ -164,7 +195,16 @@ Normal(3368.8356164383563, 72565.63926940637)
 
 <CodePlayground notebook="think-stats-14" title="셀 17" code={notebook.cells[17].code} language="python" timeout={60000}>
 
-![서로 독립인 두 정규 체중 모형에서 뽑은 합의 정규확률그림.](/labs/think-stats/figures/chap14-042-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap14-042-0.png"
+        alt="서로 독립인 두 정규 체중 모형에서 뽑은 합의 정규확률그림."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap14-042-0.png)
 
@@ -192,7 +232,16 @@ Normal(7412.328767123288, 192843.8926940639)
 
 <CodePlayground notebook="think-stats-14" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000}>
 
-![두 정규변수 합의 이론 CDF와 모의 표본 합의 경험적 CDF.](/labs/think-stats/figures/chap14-050-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap14-050-0.png"
+        alt="두 정규변수 합의 이론 CDF와 모의 표본 합의 경험적 CDF."
+        width={441}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap14-050-0.png)
 
@@ -220,7 +269,16 @@ n개 합의 모형은 평균과 분산을 각각 n배 해 만듭니다.
 
 <CodePlayground notebook="think-stats-14" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000}>
 
-![독립 정규변수 73개 합의 이론 CDF와 모의실험의 비교.](/labs/think-stats/figures/chap14-058-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap14-058-0.png"
+        alt="독립 정규변수 73개 합의 이론 CDF와 모의실험의 비교."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap14-058-0.png)
 
@@ -250,7 +308,16 @@ n개 합의 모형은 평균과 분산을 각각 n배 해 만듭니다.
 
 <CodePlayground notebook="think-stats-14" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000}>
 
-![정규 모형의 표본평균에 대한 해석적 CDF와 모의실험 CDF.](/labs/think-stats/figures/chap14-068-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap14-068-0.png"
+        alt="정규 모형의 표본평균에 대한 해석적 CDF와 모의실험 CDF."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap14-068-0.png)
 
@@ -316,7 +383,16 @@ Normal(674.6575342465753, 2641.697160192656)
 
 <CodePlayground notebook="think-stats-14" title="셀 37" code={notebook.cells[37].code} language="python" timeout={60000}>
 
-![서로 독립인 두 집단 평균 차이의 정규 근사와 모의실험 CDF.](/labs/think-stats/figures/chap14-083-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap14-083-0.png"
+        alt="서로 독립인 두 집단 평균 차이의 정규 근사와 모의실험 CDF."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap14-083-0.png)
 
@@ -547,7 +623,16 @@ Normal(0.0, 0.003235837567930557)
 
 <CodePlayground notebook="think-stats-14" title="셀 62" code={notebook.cells[62].code} language="python" timeout={60000}>
 
-![임신 기간 평균 차이의 귀무 정규 근사와 재표집 CDF. 관측 차이의 양·음 위치를 표시합니다.](/labs/think-stats/figures/chap14-142-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap14-142-0.png"
+        alt="임신 기간 평균 차이의 귀무 정규 근사와 재표집 CDF. 관측 차이의 양·음 위치를 표시합니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap14-142-0.png)
 
@@ -635,7 +720,16 @@ t분포 CDF를 만드는 함수로 비교합니다.
 
 <CodePlayground notebook="think-stats-14" title="셀 74" code={notebook.cells[74].code} language="python" timeout={60000}>
 
-![독립 정규표본의 상관을 변환한 통계량과 자유도 n−2 t분포 CDF.](/labs/think-stats/figures/chap14-167-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap14-167-0.png"
+        alt="독립 정규표본의 상관을 변환한 통계량과 자유도 n−2 t분포 CDF."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap14-167-0.png)
 
@@ -677,7 +771,16 @@ np.float64(0.0688339703541091)
 
 <CodePlayground notebook="think-stats-14" title="셀 80" code={notebook.cells[80].code} language="python" timeout={60000}>
 
-![임신 자료의 순열 상관 통계량과 이론 t분포 CDF 비교.](/labs/think-stats/figures/chap14-179-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap14-179-0.png"
+        alt="임신 자료의 순열 상관 통계량과 이론 t분포 CDF 비교."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap14-179-0.png)
 
@@ -775,7 +878,16 @@ np.float64(5.722947107314364e-11)
 
 <CodePlayground notebook="think-stats-14" title="셀 94" code={notebook.cells[94].code} language="python" timeout={60000}>
 
-![공정한 주사위 카이제곱 통계량의 모의 CDF와 자유도 5 카이제곱 CDF 비교.](/labs/think-stats/figures/chap14-207-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap14-207-0.png"
+        alt="공정한 주사위 카이제곱 통계량의 모의 CDF와 자유도 5 카이제곱 CDF 비교."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap14-207-0.png)
 

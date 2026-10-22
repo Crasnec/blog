@@ -23,6 +23,17 @@ const posts = defineCollection({
         /** Free, and as many as apply. What the post is about, not where it sits. */
         tags: z.array(z.string()).default([]),
 
+        /** Author-selected list position. Unnumbered posts follow in date order. */
+        order: z.number().int().positive().optional(),
+
+        /** A reading sequence independent of categories and global list positions. */
+        series: z
+            .object({
+                name: z.string().trim().min(1),
+                order: z.number().int().positive(),
+            })
+            .optional(),
+
         /** Excluded from every listing and from the build in production. */
         draft: z.boolean().default(false),
 

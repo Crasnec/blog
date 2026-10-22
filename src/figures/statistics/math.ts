@@ -200,7 +200,7 @@ export function binaryCurves(data: readonly Scored[]) {
 
 /** Equal-width probability bins. Empty bins stay absent, never become zeros. */
 export function calibrationBins(data: readonly Scored[], count: number) {
-    const bins = Array.from({ length: count }, () => [] as Scored[]);
+    const bins = Array.from({ length: count }, (): Scored[] => []);
     for (const point of data)
         bins[Math.min(count - 1, Math.floor(point.score * count))]?.push(point);
     return bins.flatMap((bin) => {

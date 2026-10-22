@@ -17,6 +17,7 @@ import {
 } from "./src/markdown.config.mjs";
 import { siteConfig } from "./src/config.ts";
 import pyodideAssets from "./scripts/pyodide-assets.mjs";
+import fontFaceGroups from "./scripts/font-face-groups.ts";
 
 export default defineConfig({
     site: siteConfig.url,
@@ -53,12 +54,16 @@ export default defineConfig({
     build: { format: "directory" },
 
     vite: {
+        css: { postcss: { plugins: [fontFaceGroups()] } },
         resolve: {
             alias: {
                 "@theme": fileURLToPath(themeDir).replace(/[\\/]$/, ""),
             },
         },
         build: {
+            // Inlined subsets lose unicode-range's demand loading and bloat blocking CSS.
+            assetsInlineLimit: (filePath) =>
+                /\.(?:woff2?|ttf|otf)$/u.test(filePath) ? false : undefined,
             // Mermaid is large; keep it in its own async chunk.
             chunkSizeWarningLimit: 1600,
         },

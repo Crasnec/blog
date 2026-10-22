@@ -28,7 +28,6 @@ export const sourceStyleRules = {
 };
 
 const scriptFiles = ["**/*.{js,cjs,mjs,ts,cts,mts,tsx}"];
-const typedFiles = ["**/*.{ts,cts,mts,tsx}"];
 /** @type {import("eslint").Linter.RulesRecord} */
 const projectTypeRules = {
     "@typescript-eslint/consistent-type-imports": [
@@ -69,8 +68,8 @@ export default defineConfig([
     },
 
     {
-        name: "project/typescript-type-checked",
-        files: typedFiles,
+        name: "project/scripts-type-checked",
+        files: scriptFiles,
         extends: [...tseslint.configs.strictTypeChecked, ...tseslint.configs.stylisticTypeChecked],
         languageOptions: {
             parserOptions: {

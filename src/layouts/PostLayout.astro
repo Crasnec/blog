@@ -11,8 +11,9 @@ import Contents from "../components/Contents.astro";
 import Icon from "../components/Icon.astro";
 import Profile from "../components/Profile.astro";
 import SecretLock from "../components/SecretLock.astro";
+import SeriesContents from "../components/SeriesContents.astro";
 import type { PostRef } from "../utils/content";
-import { getNeighbours, parsePostMeta } from "../utils/content";
+import { getNeighbours, getPostSeries, parsePostMeta } from "../utils/content";
 import { cardPath } from "../utils/og";
 import { THEME } from "../theme.config.mjs";
 import BaseLayout from "./BaseLayout.astro";
@@ -28,6 +29,7 @@ const { Content, headings, remarkPluginFrontmatter } = await render(entry);
 const { readingTime, excerpt } = parsePostMeta(remarkPluginFrontmatter);
 
 const { prev, next } = await getNeighbours(post);
+const series = await getPostSeries(post);
 
 const sealed = entry.data.sealed;
 
@@ -99,6 +101,8 @@ const revisedLabel = revised ? t("post.updated", { date: revised }) : undefined;
             {!sealed && entry.data.description && <p class="post-lede">{entry.data.description}</p>}
         </header>
 
+        {series && <SeriesContents series={series} currentId={entry.id} />}
+
         <!-- Only where the sidebar has dropped below the article, and never on a
 		     locked post: the outline is part of what is being kept back. -->
         {!sealed && (
@@ -119,12 +123,15 @@ const revisedLabel = revised ? t("post.updated", { date: revised }) : undefined;
     {!sealed && <Comments postKey={post.key} />}
 
     {(prev ?? next) && (
-        <nav class:list={["post-nav", { "is-single": !prev || !next }]} aria-label={t("nav.posts")}>
+        <nav
+            class:list={["post-nav", { "is-single": !prev || !next }]}
+            aria-label={series?.name ?? t("nav.posts")}
+        >
             {prev && (
                 <a class="post-nav-item is-prev" href={prev.href} rel="prev">
                     <span class="label">
                         <Icon name="arrow-left" class="post-nav-arrow" />
-                        {t("post.prev")}
+                        {t(series ? "series.prev" : "post.prev")}
                     </span>
                     <span class="post-nav-title">{prev.entry.data.title}</span>
                 </a>
@@ -133,7 +140,7 @@ const revisedLabel = revised ? t("post.updated", { date: revised }) : undefined;
             {next && (
                 <a class="post-nav-item is-next" href={next.href} rel="next">
                     <span class="label">
-                        {t("post.next")}
+                        {t(series ? "series.next" : "post.next")}
                         <Icon name="arrow-right" class="post-nav-arrow" />
                     </span>
                     <span class="post-nav-title">{next.entry.data.title}</span>

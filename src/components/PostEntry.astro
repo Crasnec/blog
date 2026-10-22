@@ -50,6 +50,13 @@ const readLabel = !locked && readingTime !== undefined ? readingTimeLabel(readin
 				*/}
                 <span class="category-mark">{categoryLabel(post.category)}</span>
 
+                {entry.data.series && (
+                    <span class="entry-series">
+                        {entry.data.series.name} ·{" "}
+                        {t("series.part", { order: entry.data.series.order })}
+                    </span>
+                )}
+
                 {entry.data.tags.length > 0 && (
                     <ul class="tag-row">
                         {entry.data.tags.slice(0, 4).map((tag) => (
@@ -62,3 +69,13 @@ const readLabel = !locked && readingTime !== undefined ? readingTimeLabel(readin
         </div>
     </a>
 </li>
+
+<style>
+    .entry-series {
+        color: var(--ink-muted);
+        font-family: var(--font-mono);
+        font-size: var(--step--1);
+        font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
+    }
+</style>

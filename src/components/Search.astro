@@ -11,6 +11,7 @@ import Icon from "./Icon.astro";
     aria-label={t("action.search")}
     data-empty={t("search.empty")}
     data-loading={t("search.loading")}
+    data-unavailable={t("search.unavailable")}
     hidden
 >
     <div class="search-dialog">
@@ -42,6 +43,6 @@ import Icon from "./Icon.astro";
 			the index is loading, or that a query found nothing. An empty search box
 			does not need to be told it is a search box.
 		-->
-        <p id="search-note" class="search-note" hidden></p>
+        <p id="search-note" class="search-note" role="status" hidden></p>
     </div>
 </div>

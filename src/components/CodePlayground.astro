@@ -60,25 +60,32 @@ parseGrammars(config.grammars);
     aria-label={title}
 >
     <div class="playground-toolbar">
-        <strong class="playground-title">{title}</strong>
-        {notebook && (
-            <span class="notebook-execution" aria-label={t("notebook.execution")}>
-                [ ]
-            </span>
-        )}
-        <span class="playground-language">{language}</span>
+        <div class="playground-caption">
+            <strong class="playground-title">{title}</strong>
+            {notebook && (
+                <span class="notebook-execution" aria-label={t("notebook.execution")}>
+                    [ ]
+                </span>
+            )}
+            <span class="playground-language">{language}</span>
+        </div>
         <div class="playground-actions">
             {runtime && (
-                <button class="playground-run" type="button" disabled title="Ctrl/⌘ + Enter">
+                <button
+                    class="btn-solid playground-run"
+                    type="button"
+                    disabled
+                    title="Ctrl/⌘ + Enter"
+                >
                     {t("playground.run")}
                 </button>
             )}
             {runtime && (
-                <button class="playground-stop" type="button" disabled>
+                <button class="btn bloom playground-stop" type="button" disabled>
                     {t("playground.stop")}
                 </button>
             )}
-            <button class="playground-reset" type="button" disabled>
+            <button class="btn bloom playground-reset" type="button" disabled>
                 {t("playground.reset")}
             </button>
         </div>
@@ -110,10 +117,13 @@ parseGrammars(config.grammars);
                     {t("playground.idle")}
                 </span>
             </div>
+            {/* Scrollable output needs a keyboard target for arrow and Page Down keys. */}
+            {/* eslint-disable astro/jsx-a11y/no-noninteractive-tabindex */}
             <div
                 class="playground-output"
                 role="region"
                 aria-label={`${title}: ${t("playground.output")}`}
+                tabindex="0"
                 data-pagefind-ignore
             >
                 {Astro.slots.has("default") && (
@@ -123,11 +133,12 @@ parseGrammars(config.grammars);
                     </div>
                 )}
             </div>
+            {/* eslint-enable astro/jsx-a11y/no-noninteractive-tabindex */}
             <form class="playground-input" hidden>
                 <label class="playground-input-label">
                     <span class="playground-input-prompt">{t("playground.inputLabel")}</span>
                     <input
-                        class="playground-input-value"
+                        class="field-input playground-input-value"
                         type="text"
                         maxlength={MAX_INPUT}
                         autocomplete="off"
@@ -135,8 +146,10 @@ parseGrammars(config.grammars);
                     />
                 </label>
                 <div class="playground-input-actions">
-                    <button type="submit">{t("playground.inputSend")}</button>
-                    <button type="button" class="playground-input-eof">
+                    <button type="submit" class="btn-solid">
+                        {t("playground.inputSend")}
+                    </button>
+                    <button type="button" class="btn bloom playground-input-eof">
                         {t("playground.inputEof")}
                     </button>
                 </div>

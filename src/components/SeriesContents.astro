@@ -1,0 +1,119 @@
+---
+import { t } from "../strings";
+import type { PostRef } from "../utils/content";
+import { seriesPath, type PostSeries } from "../utils/series";
+import { sitePath } from "../utils/url";
+
+interface Props {
+    series: PostSeries<PostRef>;
+    currentId: string;
+}
+
+const { series, currentId } = Astro.props;
+const current = series.parts.find(({ post }) => post.entry.id === currentId);
+---
+
+<nav class="series-contents" aria-label={series.name} data-pagefind-ignore>
+    <div class="series-heading">
+        <a class="series-index-link link-text" href={sitePath("/series/")}>
+            {t("series.title")}
+        </a>
+        <a class="series-name link-text" href={sitePath(seriesPath(series.name))}>
+            {series.name}
+        </a>
+        {current && <span class="series-part">{t("series.part", { order: current.order })}</span>}
+    </div>
+    <details>
+        <summary>{t("series.contents", { count: series.parts.length })}</summary>
+        <ol class="series-parts">
+            {series.parts.map(({ post, order }) => (
+                <li value={order}>
+                    <a
+                        href={post.href}
+                        aria-current={post.entry.id === currentId ? "page" : undefined}
+                    >
+                        <span class="series-part">{t("series.part", { order })}</span>
+                        <span>{post.entry.data.title}</span>
+                    </a>
+                </li>
+            ))}
+        </ol>
+    </details>
+</nav>
+
+<style>
+    .series-contents {
+        margin-block: var(--space-5) var(--space-6);
+        padding-block: var(--space-3);
+        border-block: 1px solid var(--rule);
+        color: var(--ink);
+        font-size: var(--step--1);
+    }
+
+    .series-heading {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: var(--space-2) var(--space-3);
+    }
+
+    .series-index-link,
+    .series-name {
+        display: inline-flex;
+        align-items: center;
+        min-width: 1.5rem;
+        min-height: 1.5rem;
+    }
+
+    .series-index-link,
+    .series-part {
+        color: var(--ink-muted);
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .series-name {
+        color: var(--ink-strong);
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    summary {
+        min-height: 2.75rem;
+        padding-block: var(--space-3);
+        cursor: pointer;
+        color: var(--ink-muted);
+    }
+
+    .series-parts {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .series-parts li + li {
+        border-top: 1px solid var(--rule-faint);
+    }
+
+    .series-parts a {
+        display: grid;
+        grid-template-columns: 4.5rem minmax(0, 1fr);
+        align-items: baseline;
+        gap: var(--space-2);
+        min-height: 2.75rem;
+        padding: var(--space-3) var(--space-2);
+        border-radius: var(--radius-1);
+        overflow-wrap: anywhere;
+    }
+
+    .series-parts a:hover {
+        background: var(--hover-wash);
+        color: var(--ink-strong);
+    }
+
+    .series-parts a[aria-current="page"] {
+        background: var(--marker-wash);
+        color: var(--ink-strong);
+        font-weight: 600;
+    }
+</style>

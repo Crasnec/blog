@@ -4,6 +4,10 @@ published: 2026-10-22
 description: '귀무모형과 검정통계량, 순열검정과 p값의 의미를 다루는 Think Stats 3판 9장 한국어 번역.'
 lang: ko
 tags: [statistics, think-stats, python, translation]
+order: 9
+series:
+  name: Think Stats
+  order: 9
 ---
 
 import CodePlayground from '../../../components/CodePlayground.astro';
@@ -73,7 +77,16 @@ np.int64(119)
 
 <CodePlayground notebook="think-stats-09" title="셀 7" code={notebook.cells[7].code} language="python" timeout={60000}>
 
-![공정한 동전의 절대편차 분포. 작은 편차가 흔하고 15 이상의 큰 편차는 드뭅니다.](/labs/think-stats/figures/chap09-018-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap09-018-0.png"
+        alt="공정한 동전의 절대편차 분포. 작은 편차가 흔하고 15 이상의 큰 편차는 드뭅니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap09-018-0.png)
 
@@ -364,7 +377,16 @@ np.float64(20.0)
 
 <CodePlayground notebook="think-stats-09" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000}>
 
-![주사위 도수의 절대편차 합 귀무분포. 가능한 값이 짝수 간격으로 나타납니다.](/labs/think-stats/figures/chap09-094-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap09-094-0.png"
+        alt="주사위 도수의 절대편차 합 귀무분포. 가능한 값이 짝수 간격으로 나타납니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap09-094-0.png)
 

@@ -4,6 +4,10 @@ published: 2026-10-22
 description: '확률질량함수의 정규화와 요약 통계량, 수업 규모의 역설을 다루는 Think Stats 3판 3장 한국어 번역.'
 lang: ko
 tags: [statistics, think-stats, python, translation]
+order: 3
+series:
+  name: Think Stats
+  order: 3
 ---
 
 import CodePlayground from '../../../components/CodePlayground.astro';
@@ -423,7 +427,16 @@ np.float64(23.692307692307693)
 
 <CodePlayground notebook="think-stats-03" title="셀 37" code={notebook.cells[37].code} language="python" timeout={60000}>
 
-![첫아이와 다른 아이의 임신 기간 PMF. 확률로 정규화하여 표본 수가 다른 집단을 비교합니다.](/labs/think-stats/figures/chap03-086-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap03-086-0.png"
+        alt="첫아이와 다른 아이의 임신 기간 PMF. 확률로 정규화하여 표본 수가 다른 집단을 비교합니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -473,7 +486,16 @@ array([ 0.00392854,  0.00750796, -0.00503126, -0.00911366, -0.06562817,
 
 <CodePlayground notebook="think-stats-03" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000}>
 
-![첫아이 확률에서 다른 아이 확률을 뺀 차이. 39주는 음수, 41주와 42주는 양수입니다.](/labs/think-stats/figures/chap03-094-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap03-094-0.png"
+        alt="첫아이 확률에서 다른 아이 확률을 뺀 차이. 39주는 음수, 41주와 42주는 양수입니다."
+        width={1769}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 

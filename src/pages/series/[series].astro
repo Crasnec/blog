@@ -1,0 +1,17 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getSeries } from "../../utils/content";
+import SeriesView from "../../views/SeriesView.astro";
+
+export const getStaticPaths = (async () => {
+    const series = await getSeries();
+    return series.map((group) => ({
+        params: { series: group.key },
+        props: { series: group },
+    }));
+}) satisfies GetStaticPaths;
+
+const { series } = Astro.props;
+---
+
+<SeriesView series={series} />

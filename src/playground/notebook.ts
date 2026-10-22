@@ -1,10 +1,12 @@
 import { t } from "../strings.ts";
-import type {
-    CellRequest,
-    InputResponse,
-    PythonPackage,
-    RunRequest,
-    RunResponse,
+import {
+    decodeRunResponse,
+    type MessageValue,
+    type CellRequest,
+    type InputResponse,
+    type PythonPackage,
+    type RunRequest,
+    type RunResponse,
 } from "./contracts.ts";
 
 export interface NotebookCell {
@@ -83,8 +85,9 @@ export class PythonNotebook {
                 });
                 const channel = new MessageChannel();
                 this.port = channel.port1;
-                this.port.onmessage = (event: MessageEvent<RunResponse>) => {
-                    this.message(event.data);
+                this.port.onmessage = (event: MessageEvent<MessageValue>) => {
+                    const response = decodeRunResponse(event.data);
+                    if (response) this.message(response);
                 };
                 this.worker.onerror = (event) => {
                     event.preventDefault();

@@ -4,6 +4,10 @@ published: 2026-10-22
 description: '이항·포아송·지수·정규·로그정규분포를 시뮬레이션과 실제 자료로 비교하는 Think Stats 3판 5장 한국어 번역.'
 lang: ko
 tags: [statistics, think-stats, python, translation]
+order: 5
+series:
+  name: Think Stats
+  order: 5
 ---
 
 import CodePlayground from '../../../components/CodePlayground.astro';
@@ -92,7 +96,16 @@ array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
 
 <CodePlayground notebook="think-stats-05" title="셀 8" code={notebook.cells[8].code} language="python" timeout={60000}>
 
-![표적 25개와 명중 확률 0.9로 생성한 명중 횟수의 PMF. 봉우리는 22~23회 근처이고 왼쪽 꼬리가 깁니다.](/labs/think-stats/figures/chap05-020-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap05-020-0.png"
+        alt="표적 25개와 명중 확률 0.9로 생성한 명중 횟수의 PMF. 봉우리는 22~23회 근처이고 왼쪽 꼬리가 깁니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -112,7 +125,16 @@ SciPy의 `comb` 함수는 `n`개 중 `k`개를 고르는 조합의 수를 계산
 
 <CodePlayground notebook="think-stats-05" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000}>
 
-![사격 시뮬레이션과 이항 모형의 명중 횟수 PMF 비교. 작은 무작위 차이를 빼면 두 모양이 비슷합니다.](/labs/think-stats/figures/chap05-026-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap05-026-0.png"
+        alt="사격 시뮬레이션과 이항 모형의 명중 횟수 PMF 비교. 작은 무작위 차이를 빼면 두 모양이 비슷합니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -169,7 +191,16 @@ np.float64(0.9533333333333334)
 
 <CodePlayground notebook="think-stats-05" title="셀 18" code={notebook.cells[18].code} language="python" timeout={60000}>
 
-![올림픽 사격 예선 자료와 실제 명중률로 맞춘 이항분포의 비교. 높은 명중 횟수 쪽에 확률이 모입니다.](/labs/think-stats/figures/chap05-041-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap05-041-0.png"
+        alt="올림픽 사격 예선 자료와 실제 명중률로 맞춘 이항분포의 비교. 높은 명중 횟수 쪽에 확률이 모입니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -233,7 +264,16 @@ np.float64(5.999925498375129)
 
 <CodePlayground notebook="think-stats-05" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000}>
 
-![경기당 평균 6골인 시뮬레이션과 포아송분포의 PMF 비교. 두 분포의 봉우리와 퍼짐이 비슷합니다.](/labs/think-stats/figures/chap05-056-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap05-056-0.png"
+        alt="경기당 평균 6골인 시뮬레이션과 포아송분포의 PMF 비교. 두 분포의 봉우리와 퍼짐이 비슷합니다."
+        width={1771}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -301,7 +341,16 @@ np.float64(6.0182926829268295)
 
 <CodePlayground notebook="think-stats-05" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000}>
 
-![NHL 정규 시즌의 경기별 득점 수와 평균을 맞춘 포아송분포 비교. 대체로 비슷하지만 구간별 차이가 있습니다.](/labs/think-stats/figures/chap05-073-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap05-073-0.png"
+        alt="NHL 정규 시즌의 경기별 득점 수와 평균을 맞춘 포아송분포 비교. 대체로 비슷하지만 구간별 차이가 있습니다."
+        width={1771}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -373,7 +422,16 @@ np.float64(0.0016728276636563566)
 
 <CodePlayground notebook="think-stats-05" title="셀 40" code={notebook.cells[40].code} language="python" timeout={60000}>
 
-![시뮬레이션의 첫 골 시각 CDF와 지수 모형 비교. 두 곡선이 가깝게 겹칩니다.](/labs/think-stats/figures/chap05-089-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap05-089-0.png"
+        alt="시뮬레이션의 첫 골 시각 CDF와 지수 모형 비교. 두 곡선이 가깝게 겹칩니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -414,7 +472,16 @@ np.float64(0.0015121567467720825)
 
 <CodePlayground notebook="think-stats-05" title="셀 46" code={notebook.cells[46].code} language="python" timeout={60000}>
 
-![NHL 자료의 첫 골 시각 CDF와 지수 모형 비교. 초반에는 실제 누적득점 비율이 모형보다 낮습니다.](/labs/think-stats/figures/chap05-100-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap05-100-0.png"
+        alt="NHL 자료의 첫 골 시각 CDF와 지수 모형 비교. 초반에는 실제 누적득점 비율이 모형보다 낮습니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -470,7 +537,16 @@ NumPy `random` 모듈의 `choice` 함수는 값의 시퀀스에서 무작위로 
 
 <CodePlayground notebook="think-stats-05" title="셀 53" code={notebook.cells[53].code} language="python" timeout={60000}>
 
-![하루에 1~3파운드씩 더하는 호박 성장 시뮬레이션과 정규 모형의 CDF 비교.](/labs/think-stats/figures/chap05-115-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap05-115-0.png"
+        alt="하루에 1~3파운드씩 더하는 호박 성장 시뮬레이션과 정규 모형의 CDF 비교."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -512,7 +588,16 @@ NumPy `random` 모듈의 `choice` 함수는 값의 시퀀스에서 무작위로 
 
 <CodePlayground notebook="think-stats-05" title="셀 58" code={notebook.cells[58].code} language="python" timeout={60000}>
 
-![출생 체중 자료와 양 끝을 제외한 자료로 맞춘 정규 모형의 CDF. 가벼운 아기 쪽에서 차이가 있습니다.](/labs/think-stats/figures/chap05-128-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap05-128-0.png"
+        alt="출생 체중 자료와 양 끝을 제외한 자료로 맞춘 정규 모형의 CDF. 가벼운 아기 쪽에서 차이가 있습니다."
+        width={1768}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -554,7 +639,16 @@ NumPy `random` 모듈의 `choice` 함수는 값의 시퀀스에서 무작위로 
 
 <CodePlayground notebook="think-stats-05" title="셀 62" code={notebook.cells[62].code} language="python" timeout={60000}>
 
-![비례 성장으로 생성한 호박 무게의 상용로그 분포와 정규 모형. 두 CDF가 거의 겹칩니다.](/labs/think-stats/figures/chap05-137-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap05-137-0.png"
+        alt="비례 성장으로 생성한 호박 무게의 상용로그 분포와 정규 모형. 두 CDF가 거의 겹칩니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -584,7 +678,16 @@ NumPy `random` 모듈의 `choice` 함수는 값의 시퀀스에서 무작위로 
 
 <CodePlayground notebook="think-stats-05" title="셀 65" code={notebook.cells[65].code} language="python" timeout={60000}>
 
-![성인 체중과 정규 모형의 CDF 비교. 체중의 오른쪽 꼬리 때문에 곡선이 다릅니다.](/labs/think-stats/figures/chap05-145-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap05-145-0.png"
+        alt="성인 체중과 정규 모형의 CDF 비교. 체중의 오른쪽 꼬리 때문에 곡선이 다릅니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -596,7 +699,16 @@ NumPy `random` 모듈의 `choice` 함수는 값의 시퀀스에서 무작위로 
 
 <CodePlayground notebook="think-stats-05" title="셀 67" code={notebook.cells[67].code} language="python" timeout={60000}>
 
-![성인 체중의 상용로그와 정규 모형의 CDF 비교. 체중 자체보다 정규 모형에 더 가깝습니다.](/labs/think-stats/figures/chap05-148-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap05-148-0.png"
+        alt="성인 체중의 상용로그와 정규 모형의 CDF 비교. 체중 자체보다 정규 모형에 더 가깝습니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 

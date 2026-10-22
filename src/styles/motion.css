@@ -1,26 +1,8 @@
 /*
- * Motion.
- *
- * One `fade-in-up` keyframe, replayed by each region of the page on a staggered
- * delay so the page assembles top-down instead of appearing all at once, and
- * one swipe that draws the marker across the nameplate at the end of that
- * sequence. That swipe is the only flourish on the site; everything else moves
- * because a state changed.
- *
- * `--content-delay` drops to 0ms after the first navigation, so the stagger is
- * an arrival flourish rather than a tax on every click.
+ * Reading content is visible on its first paint. Entrance opacity animations
+ * delay readable text and can leave compositor-only updates out of paint timing.
+ * Keep motion for navigation, state changes, and the nameplate accent.
  */
-
-@keyframes fade-in-up {
-	from {
-		opacity: 0;
-		transform: translateY(1.25rem);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
 
 /* The nameplate's highlight, drawn left to right the way a hand would. */
 @keyframes marker-swipe {
@@ -32,64 +14,10 @@
 	}
 }
 
-.onload {
-	opacity: 0;
-	animation: fade-in-up var(--onload-dur) var(--ease-out) forwards;
-}
-
-#navbar-wrapper {
-	animation-delay: 0ms;
-}
-
-#masthead {
-	animation-delay: 40ms;
-}
-
-/* Route changes keep the nameplate visible without replaying its entrance. */
-html[data-navigated] #masthead {
-	opacity: 1;
-	animation: none;
-}
-
+/* In-site navigation keeps the accent in place. */
 html[data-navigated] .masthead-mark::before {
 	animation: none;
 	transform: scaleX(1);
-}
-
-#sidebar {
-	animation-delay: 100ms;
-}
-
-#content {
-	animation-delay: var(--content-delay);
-}
-
-/*
- * Inside an article the same stagger runs over the top-level sections, so a
- * post unfolds in reading order. The gaps widen as they go, which keeps the
- * sequence from feeling metronomic. Blocks past the fifth share the last delay;
- * they are below the fold by then anyway.
- */
-.post-body > * {
-	opacity: 0;
-	animation: fade-in-up var(--onload-dur) var(--ease-out) forwards;
-	animation-delay: calc(var(--content-delay) + 260ms);
-}
-
-.post-body > *:nth-child(1) {
-	animation-delay: calc(var(--content-delay) + 0ms);
-}
-.post-body > *:nth-child(2) {
-	animation-delay: calc(var(--content-delay) + 45ms);
-}
-.post-body > *:nth-child(3) {
-	animation-delay: calc(var(--content-delay) + 95ms);
-}
-.post-body > *:nth-child(4) {
-	animation-delay: calc(var(--content-delay) + 150ms);
-}
-.post-body > *:nth-child(5) {
-	animation-delay: calc(var(--content-delay) + 210ms);
 }
 
 /* — page transitions —————————————————————————— */

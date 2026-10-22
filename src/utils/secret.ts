@@ -209,13 +209,13 @@ function toBase64(bytes: ArrayBuffer): string {
     return btoa(binary);
 }
 
-export const fromBase64 = (value: string): Uint8Array =>
+export const fromBase64 = (value: string): Uint8Array<ArrayBuffer> =>
     Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
 
 /** The key that wraps the private key. Slow on purpose; run once per open. */
 async function wrapKey(
     passphrase: string,
-    salt: Uint8Array,
+    salt: Uint8Array<ArrayBuffer>,
     iterations: number,
 ): Promise<CryptoKey> {
     const material = await crypto.subtle.importKey(
@@ -227,7 +227,7 @@ async function wrapKey(
     );
 
     return crypto.subtle.deriveKey(
-        { name: "PBKDF2", salt: salt as BufferSource, iterations, hash: "SHA-256" },
+        { name: "PBKDF2", salt, iterations, hash: "SHA-256" },
         material,
         { name: "AES-GCM", length: 256 },
         false,
@@ -254,7 +254,7 @@ export async function generateKeys(passphrase: string): Promise<{
 
     const pkcs8 = await crypto.subtle.exportKey("pkcs8", pair.privateKey);
     const sealedKey = await crypto.subtle.encrypt(
-        { name: "AES-GCM", iv: iv as BufferSource },
+        { name: "AES-GCM", iv },
         await wrapKey(passphrase, salt, ITERATIONS),
         pkcs8,
     );
@@ -297,9 +297,9 @@ export async function rewrap(
     let pkcs8: ArrayBuffer;
     try {
         pkcs8 = await crypto.subtle.decrypt(
-            { name: "AES-GCM", iv: fromBase64(priv.iv) as BufferSource },
+            { name: "AES-GCM", iv: fromBase64(priv.iv) },
             await wrapKey(from, fromBase64(priv.salt), priv.it),
-            fromBase64(priv.data) as BufferSource,
+            fromBase64(priv.data),
         );
     } catch {
         return null;
@@ -315,7 +315,7 @@ export async function rewrap(
         iv: toBase64(iv.buffer),
         data: toBase64(
             await crypto.subtle.encrypt(
-                { name: "AES-GCM", iv: iv as BufferSource },
+                { name: "AES-GCM", iv },
                 await wrapKey(to, salt, ITERATIONS),
                 pkcs8,
             ),
@@ -329,7 +329,11 @@ export async function rewrap(
  * The seal's own public key is the HKDF salt, so every seal derives its own key
  * even though the recipient's is fixed for the life of the repository.
  */
-async function shared(mine: CryptoKey, theirs: CryptoKey, epk: Uint8Array): Promise<CryptoKey> {
+async function shared(
+    mine: CryptoKey,
+    theirs: CryptoKey,
+    epk: Uint8Array<ArrayBuffer>,
+): Promise<CryptoKey> {
     const bits = await crypto.subtle.deriveBits({ name: "ECDH", public: theirs }, mine, 256);
 
     const material = await crypto.subtle.importKey("raw", bits, "HKDF", false, ["deriveKey"]);
@@ -338,7 +342,7 @@ async function shared(mine: CryptoKey, theirs: CryptoKey, epk: Uint8Array): Prom
         {
             name: "HKDF",
             hash: "SHA-256",
-            salt: epk as BufferSource,
+            salt: epk,
             info: encoder.encode(INFO),
         },
         material,
@@ -371,7 +375,7 @@ export async function sealTo(
 
     const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
     const data = await crypto.subtle.encrypt(
-        { name: "AES-GCM", iv: iv as BufferSource },
+        { name: "AES-GCM", iv },
         await shared(once.privateKey, recipient, epk),
         encoder.encode(JSON.stringify(source)),
     );
@@ -401,20 +405,20 @@ export async function openWith(
 
     try {
         const pkcs8 = await crypto.subtle.decrypt(
-            { name: "AES-GCM", iv: fromBase64(priv.iv) as BufferSource },
+            { name: "AES-GCM", iv: fromBase64(priv.iv) },
             await wrapKey(passphrase, fromBase64(priv.salt), priv.it),
-            fromBase64(priv.data) as BufferSource,
+            fromBase64(priv.data),
         );
 
         const mine = await crypto.subtle.importKey("pkcs8", pkcs8, CURVE, false, ["deriveBits"]);
 
         const epk = fromBase64(payload.epk);
-        const theirs = await crypto.subtle.importKey("raw", epk as BufferSource, CURVE, false, []);
+        const theirs = await crypto.subtle.importKey("raw", epk, CURVE, false, []);
 
         const plain = await crypto.subtle.decrypt(
-            { name: "AES-GCM", iv: fromBase64(payload.iv) as BufferSource },
+            { name: "AES-GCM", iv: fromBase64(payload.iv) },
             await shared(mine, theirs, epk),
-            fromBase64(payload.data) as BufferSource,
+            fromBase64(payload.data),
         );
 
         return parseSecretSource(parseJson(new TextDecoder().decode(plain)));

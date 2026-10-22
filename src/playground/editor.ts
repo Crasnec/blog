@@ -1,40 +1,15 @@
 import { basicSetup } from "codemirror";
-import { EditorState, StateEffect, StateField } from "@codemirror/state";
-import { EditorView, Decoration, keymap, type DecorationSet } from "@codemirror/view";
+import { EditorState, Prec } from "@codemirror/state";
+import { EditorView, keymap } from "@codemirror/view";
 import { indentWithTab } from "@codemirror/commands";
 import { LOCALE, t } from "../strings.ts";
 import { editorPhrases } from "../locales/editor.ts";
-import {
-    MAX_CODE,
-    type HighlightRequest,
-    type HighlightResponse,
-    type HighlightToken,
-    type PlaygroundConfig,
-} from "./contracts.ts";
+import { MAX_CODE, type HighlightRequest, type PlaygroundConfig } from "./contracts.ts";
 
-import { sharedHighlight } from "./shared-highlight.ts";
+import { releaseHighlight, sharedHighlight } from "./shared-highlight.ts";
+import { highlights, setTokens } from "./highlight-decorations.ts";
 
-const setTokens = StateEffect.define<HighlightToken[]>();
-const highlights = StateField.define<DecorationSet>({
-    create: () => Decoration.none,
-    update(value, transaction) {
-        if (transaction.docChanged) value = Decoration.none;
-        for (const effect of transaction.effects) {
-            if (!effect.is(setTokens)) continue;
-            value = Decoration.set(
-                effect.value.map((token) => {
-                    const style = `color:${token.color};${token.fontStyle & 1 ? "font-style:italic;" : ""}${token.fontStyle & 2 ? "font-weight:bold;" : ""}${token.fontStyle & 4 ? "text-decoration:underline;" : ""}`;
-                    return Decoration.mark({
-                        attributes: { style, "data-textmate-token": "" },
-                    }).range(token.from, token.to);
-                }),
-                true,
-            );
-        }
-        return value;
-    },
-    provide: (field) => EditorView.decorations.from(field),
-});
+let nextDocument = 0;
 
 function required<T extends Element>(element: T | null): T {
     if (!element) throw new Error("Incomplete code editor markup");
@@ -54,14 +29,14 @@ export function mountEditor(
     const note = required(root.querySelector<HTMLElement>(".playground-highlight-status"));
     const original = fallback.value;
     const grammars = config.grammars;
-    let worker: Worker | undefined;
-    let cancelShared: (() => void) | undefined;
+    const document = ++nextDocument;
+    let cancelShared: ((terminate?: boolean) => void) | undefined;
     let version = 0;
+    let appliedVersion: number | undefined;
     let debounce: ReturnType<typeof setTimeout> | undefined;
     let watchdog: ReturnType<typeof setTimeout> | undefined;
     let disposed = false;
     let busy = false;
-    let queued = false;
     let blocked = false;
     const view = new EditorView({
         parent,
@@ -79,16 +54,19 @@ export function mountEditor(
                 EditorState.transactionFilter.of((transaction) =>
                     transaction.newDoc.length > MAX_CODE ? [] : transaction,
                 ),
-                keymap.of([
-                    {
-                        key: "Mod-Enter",
-                        run: () => {
-                            run();
-                            return true;
+                // Override the default Mod-Enter binding that inserts a blank line.
+                Prec.high(
+                    keymap.of([
+                        {
+                            key: "Mod-Enter",
+                            run: () => {
+                                run();
+                                return true;
+                            },
                         },
-                    },
-                    indentWithTab,
-                ]),
+                    ]),
+                ),
+                keymap.of([indentWithTab]),
                 EditorView.updateListener.of((update) => {
                     if (update.docChanged) {
                         changed();
@@ -100,17 +78,16 @@ export function mountEditor(
     });
     fallback.hidden = true;
 
-    function stopHighlight() {
-        worker?.terminate();
-        worker = undefined;
-        cancelShared?.();
+    function stopHighlight(terminate = false) {
+        cancelShared?.(terminate);
         cancelShared = undefined;
         clearTimeout(watchdog);
         busy = false;
     }
     function fail(message: string) {
-        stopHighlight();
+        if (disposed || blocked) return;
         blocked = true;
+        stopHighlight(true);
         note.textContent = `${t("playground.highlightError")} ${message}`;
         note.hidden = false;
         root.dataset.highlight = "error";
@@ -121,79 +98,47 @@ export function mountEditor(
         debounce = setTimeout(highlight, 120);
     }
     function highlight() {
-        if (disposed || blocked) return;
-        if (busy) {
-            queued = true;
-            return;
-        }
-        if (config.notebook) {
-            busy = true;
-            watchdog = setTimeout(() => {
-                fail(t("playground.highlightTimeout"));
-            }, 15_000);
-            const request: HighlightRequest = {
-                id: version,
-                code: view.state.doc.toString(),
-                language: config.language,
-                grammars,
-            };
-            cancelShared = sharedHighlight(request, (response) => {
-                clearTimeout(watchdog);
-                busy = false;
-                if (response.id === version) {
-                    if ("error" in response) {
-                        fail(response.error);
-                        return;
-                    }
-                    view.dispatch({ effects: setTokens.of(response.tokens) });
-                    root.dataset.highlight = "ready";
-                }
-                if (queued) {
-                    queued = false;
-                    highlight();
-                }
-            });
-            return;
-        }
-        if (!worker) {
-            worker = new Worker(new URL("./highlight.worker.ts", import.meta.url), {
-                type: "module",
-            });
-            worker.onmessage = (event: MessageEvent<HighlightResponse>) => {
-                clearTimeout(watchdog);
-                busy = false;
-                const response = event.data;
-                if (response.id === version) {
-                    if ("error" in response) {
-                        fail(response.error);
-                        return;
-                    }
-                    view.dispatch({ effects: setTokens.of(response.tokens) });
-                    note.textContent = "";
-                    note.hidden = true;
-                    root.dataset.highlight = "ready";
-                }
-                if (queued) {
-                    queued = false;
-                    highlight();
-                }
-            };
-            worker.onerror = (event) => {
-                event.preventDefault();
-                fail(event.message);
-            };
-        }
+        if (disposed || blocked || busy) return;
         busy = true;
         watchdog = setTimeout(() => {
             fail(t("playground.highlightTimeout"));
         }, 15_000);
         const request: HighlightRequest = {
             id: version,
+            revision: version,
+            document,
+            ...(appliedVersion !== undefined ? { base: appliedVersion } : {}),
             code: view.state.doc.toString(),
             language: config.language,
             grammars,
         };
-        worker.postMessage(request);
+        cancelShared = sharedHighlight(request, (response) => {
+            clearTimeout(watchdog);
+            busy = false;
+            if (disposed) return;
+            if (response.id === version) {
+                if ("error" in response) {
+                    fail(response.error);
+                    return;
+                }
+                const from = response.from ?? 0;
+                const to = response.to ?? view.state.doc.length;
+                if (to > view.state.doc.length || response.tokens.some((token) => token.to > to)) {
+                    fail("Syntax highlighting range exceeds the source");
+                    return;
+                }
+                view.dispatch({ effects: setTokens.of({ from, to, tokens: response.tokens }) });
+                appliedVersion = response.id;
+                note.textContent = "";
+                note.hidden = true;
+                root.dataset.highlight = "ready";
+            } else {
+                // The pending request covered an older revision. Coalesce further
+                // typing before sending the latest one, with the last applied base.
+                clearTimeout(debounce);
+                debounce = setTimeout(highlight, 120);
+            }
+        });
     }
 
     schedule();
@@ -209,6 +154,7 @@ export function mountEditor(
             disposed = true;
             clearTimeout(debounce);
             stopHighlight();
+            releaseHighlight(document, grammars);
             view.destroy();
         },
     };

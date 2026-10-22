@@ -12,7 +12,7 @@ export function rehypeTableScroll() {
             if (node.tagName !== "table" || !parent || index === undefined) return;
             if (
                 parent.type === "element" &&
-                parent.properties?.className?.includes?.("table-scroll")
+                parent.properties.className?.includes("table-scroll")
             ) {
                 return;
             }

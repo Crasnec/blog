@@ -16,14 +16,14 @@
 	--ink-strong: oklch(0.13 0 0);
 	--ink: oklch(0.2 0 0);
 	--ink-muted: oklch(0.45 0 0);
-	--ink-faint: oklch(0.62 0 0);
+	--ink-faint: oklch(0.515 0 0);
 
 	--rule: oklch(0.86 0 0);
 	--rule-strong: oklch(0.13 0 0);
 	--rule-faint: oklch(0.93 0 0);
 
-	--marker: oklch(0.6 0.21 40);
-	--marker-line: oklch(0.6 0.21 40);
+	--marker: oklch(0.53 0.19 40);
+	--marker-line: oklch(0.53 0.19 40);
 	--marker-wash: oklch(0.96 0.1 105);
 	--marker-wash-strong: oklch(0.92 0.17 105);
 
@@ -55,7 +55,7 @@
 	--hex-ink: #000000;
 	--hex-ink-muted: #5e5e5e;
 	--hex-rule: #000000;
-	--hex-accent: #ec4f0e;
+	--hex-accent: #bf3100;
 	--hex-accent-soft: #fbec4c;
 }
 
@@ -68,8 +68,8 @@
 
 	--ink-strong: oklch(0.99 0 0);
 	--ink: oklch(0.9 0 0);
-	--ink-muted: oklch(0.68 0 0);
-	--ink-faint: oklch(0.5 0 0);
+	--ink-muted: oklch(0.74 0 0);
+	--ink-faint: oklch(0.68 0 0);
 
 	--rule: oklch(0.3 0 0);
 	--rule-strong: oklch(0.99 0 0);
@@ -78,7 +78,7 @@
 	--marker: oklch(0.72 0.18 45);
 	--marker-line: oklch(0.72 0.18 45);
 	--marker-wash: oklch(0.3 0.06 105);
-	--marker-wash-strong: oklch(0.42 0.1 105);
+	--marker-wash-strong: oklch(0.3 0.1 105);
 
 	--warn: oklch(0.82 0.12 85);
 	--warn-line: oklch(0.55 0.1 85);
@@ -94,8 +94,8 @@
 	--hex-bg: #000000;
 	--hex-surface: #000000;
 	--hex-ink: #fcfcfc;
-	--hex-ink-muted: #9b9b9b;
+	--hex-ink-muted: #ababab;
 	--hex-rule: #fcfcfc;
 	--hex-accent: #ff7a3d;
-	--hex-accent-soft: #4f4b05;
+	--hex-accent-soft: #362f00;
 }

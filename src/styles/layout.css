@@ -55,10 +55,19 @@
 	white-space: nowrap;
 }
 
+#navbar-wrapper,
+#sidebar,
 .navbar-mark,
 #masthead-wrapper {
 	-webkit-user-select: none;
 	user-select: none;
+}
+
+#navbar-wrapper a,
+#navbar-wrapper img,
+#sidebar a,
+#sidebar img {
+	-webkit-user-drag: none;
 }
 
 .navbar-links {

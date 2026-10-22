@@ -9,6 +9,13 @@ import {
 } from "./category";
 import { sitePath } from "./url";
 import { HTML_LANG } from "../strings";
+import {
+    comparePostOrder,
+    groupSeries,
+    postNeighbours,
+    seriesNeighbours,
+    type PostSeries,
+} from "./series";
 
 export type Post = CollectionEntry<"posts">;
 
@@ -81,28 +88,29 @@ function toRef(entry: Post): PostRef {
     };
 }
 
-const byNewest = (a: PostRef, b: PostRef) =>
-    b.entry.data.published.valueOf() - a.entry.data.published.valueOf();
-
-/** Every published post, newest first. */
+/** Every visible post, with authored positions before the newest unnumbered posts. */
 export async function getPosts(): Promise<PostRef[]> {
     const entries = await getCollection("posts", isPublished);
-    const posts = entries.map(toRef).sort(byNewest);
+    const posts = entries.map(toRef).sort(comparePostOrder);
     countCategories(posts.map(({ category }) => category));
+    groupSeries(posts);
     return posts;
 }
 
-/**
- * Neighbours in publication order.
- *
- * `prev` is the older post, `next` the newer one — reading order, not array
- * order, which is why the indices look inverted against a newest-first list.
- */
+/** A series owns its reading order; standalone posts use the global list. */
 export async function getNeighbours(ref: PostRef) {
     const posts = await getPosts();
-    const i = posts.findIndex((p) => p.entry.id === ref.entry.id);
-    if (i === -1) return { prev: undefined, next: undefined };
-    return { prev: posts[i + 1], next: posts[i - 1] };
+    const series = groupSeries(posts).find((group) => group.name === ref.entry.data.series?.name);
+    return series ? seriesNeighbours(series, ref.entry.id) : postNeighbours(posts, ref.entry.id);
+}
+
+export async function getSeries(): Promise<PostSeries<PostRef>[]> {
+    return groupSeries(await getPosts());
+}
+
+export async function getPostSeries(ref: PostRef): Promise<PostSeries<PostRef> | undefined> {
+    const name = ref.entry.data.series?.name;
+    return name ? (await getSeries()).find((series) => series.name === name) : undefined;
 }
 
 export interface TagCount {

@@ -50,6 +50,20 @@ text colour. Colours use CSS variables, so changing the site's theme does not
 discard editor contents, selection or undo history. A 15-second highlighting
 deadline terminates a stalled grammar worker; the code remains editable.
 
+Typing maps existing CodeMirror marks through the edit, so colours remain visible
+while a debounced worker request catches up. The worker caches each cell's line
+tokens and TextMate state, retokenizes changed lines until the unchanged suffix
+has the same grammar state, and returns only that range. Multiline strings,
+comments and captured delimiters can legitimately require more subsequent lines.
+If a response became stale while typing, the next response safely includes the
+cached full token set instead of applying a patch to the wrong revision.
+
+Standalone and notebook editors share one worker for each author grammar set.
+Grammar files are transferred once per worker, and document caches stay separate
+and bounded. Leaving the page releases the workers; disposing a cell releases its
+cache. Editors initialize near the viewport, keeping long articles inexpensive to
+open without changing the source text available before JavaScript loads.
+
 Without a notebook ID, every execution starts a fresh Worker and terminates it on completion, Stop,
 timeout or page navigation. JavaScript and transpiled TypeScript execute as
 ECMAScript modules, supporting top-level `await`. Use `console.log`, `info`,
@@ -175,6 +189,9 @@ for hostile code.
 Empty output bodies stay collapsed before, during and after execution in all
 three languages. The status row remains visible and reports "Finished · no output"
 after a silent run. Reset clears results without reopening an empty output box.
+Nonempty output can receive keyboard focus and scroll with arrow or Page Up/Down
+keys. In the editor, Escape followed by Tab moves focus to the next control.
+Ctrl/⌘+Enter runs the focused cell and respects the Run button's disabled state.
 
 References: [Pyodide package loading](https://pyodide.org/en/stable/usage/loading-packages.html),
 [self-hosting specific wheels](https://pyodide.org/en/stable/usage/working-with-bundlers.html#option-2-bundle-specific-packages-locally),
@@ -219,7 +236,8 @@ for the browser suite. Restart without the override to return to real posts.
 
 `npm run check` covers configuration, grammar parsing and TS compilation.
 `npm run test:playground:browser` uses a running `astro dev --background`
-server, or `PLAYGROUND_BASE`, and exercises real runtimes, cancellation,
+server, `PLAYGROUND_BASE`, or a production build selected by `PLAYGROUND_DIST`,
+and exercises real runtimes, cancellation,
 errors, bundled and additional Python packages, npm imports, PNG plots, author-defined grammars and
 navigation. Notebook regression tests additionally cover shared state, last-expression
 display, stale results, environment isolation, source reset, restart, edited
@@ -227,8 +245,9 @@ notebook export, interactive input and stopping Run all after an error. The
 fixture routes are `/posts/build/browser-code/` and
 `/posts/build/python-notebook/`. For a production fixture check, run
 `BLOG_POSTS_DIR=./src/fixtures/posts npm run build`,
-start `astro preview`, then run the same browser tests with `PLAYGROUND_BASE`
-set to the preview URL.
+then `PLAYGROUND_DIST=./dist npm run test:playground:browser`. Playwright serves
+the build through intercepted browser requests without starting a local server.
+External package requests retain their normal network behaviour.
 
 ## Linked Python notebook cells
 

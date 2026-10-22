@@ -30,7 +30,22 @@ import { THEME } from "./theme.config.mjs";
  */
 export const themeDir = new URL(`./styles/themes/${THEME}/`, import.meta.url);
 
-const { codeThemes, DARK_CODE_THEME } = await import(new URL("code.mjs", themeDir).href);
+/**
+ * @typedef {{
+ *     codeThemes: import("rehype-expressive-code").ThemeObjectOrShikiThemeName[],
+ *     DARK_CODE_THEME: string,
+ * }} CodeThemeModule
+ */
+/** @type {[string, () => Promise<CodeThemeModule>][]} */
+const codeThemeEntries = [
+    ["graphite", () => import("./styles/themes/graphite/code.mjs")],
+    ["slate", () => import("./styles/themes/slate/code.mjs")],
+    ["swiss", () => import("./styles/themes/swiss/code.mjs")],
+];
+const codeThemeLoaders = new Map(codeThemeEntries);
+const loadCodeTheme = codeThemeLoaders.get(THEME);
+if (!loadCodeTheme) throw new Error(`No code theme loader registered for "${THEME}".`);
+const { codeThemes, DARK_CODE_THEME } = await loadCodeTheme();
 
 /** Named so a sealed post can record which theme drew its code blocks. */
 export const themeName = THEME;
@@ -39,10 +54,11 @@ export const themeName = THEME;
  * Expressive Code, as the Astro integration takes it and as the bare rehype
  * plugin takes it — the shapes are the same, which is what lets the sealing
  * script produce the code blocks the build would have produced.
+ * @type {import("rehype-expressive-code").RehypeExpressiveCodeOptions}
  */
 export const expressiveCodeOptions = {
     themes: codeThemes,
-    themeCssSelector: (/** @type {(typeof codeThemes)[number]} */ theme) =>
+    themeCssSelector: (theme) =>
         theme.name === DARK_CODE_THEME ? ":root.dark" : ":root:not(.dark)",
     defaultProps: { showLineNumbers: false, wrap: false },
     styleOverrides: {

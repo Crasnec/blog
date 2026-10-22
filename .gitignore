@@ -35,3 +35,6 @@ pnpm-debug.log*
 
 # Verified Python wheels downloaded by the development/build integration
 .cache/python/
+
+# Reproducible local Lighthouse reports
+.cache/lighthouse/

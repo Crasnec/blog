@@ -1,18 +1,13 @@
-import { MAX_INPUT, type InputResponse, type CellRequest, type RunResponse } from "./contracts.ts";
+import { decodeInputResponse, type MessageValue, type RunResponse } from "./contracts.ts";
 
 /** One pending line per execution; replies travel on the private output port. */
 export function inputChannel(port: MessagePort, send: (message: RunResponse) => void) {
     let sequence = 0;
     let pending: { id: number; resolve: (value: string | null) => void } | undefined;
-    port.addEventListener("message", (event: MessageEvent<InputResponse | CellRequest>) => {
-        const response = event.data;
-        if (response.type !== "input") return;
+    port.addEventListener("message", (event: MessageEvent<MessageValue>) => {
+        const response = decodeInputResponse(event.data);
+        if (!response) return;
         if (pending?.id !== response.id) return;
-        if (
-            response.value !== null &&
-            (typeof response.value !== "string" || response.value.length > MAX_INPUT)
-        )
-            return;
         const { resolve } = pending;
         pending = undefined;
         resolve(response.value);

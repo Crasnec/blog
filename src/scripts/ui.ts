@@ -73,7 +73,62 @@ interface PagefindResult {
 
 interface Pagefind {
     options?: (options: { excerptLength: number }) => Promise<void>;
-    search: (q: string) => Promise<{ results: { data: () => Promise<PagefindResult> }[] }>;
+    search: (q: string) => Promise<object | null | undefined>;
+}
+
+interface PagefindReference {
+    data: () => Promise<object | null | undefined>;
+}
+
+function isPagefindReference(value: object): value is PagefindReference {
+    return "data" in value && typeof value.data === "function";
+}
+
+function readPagefindReferences(value: object | null | undefined): PagefindReference[] {
+    if (typeof value !== "object" || value === null || !("results" in value)) {
+        throw new TypeError("Invalid Pagefind search response");
+    }
+    if (!Array.isArray(value.results)) throw new TypeError("Invalid Pagefind result list");
+    return value.results.map((entry: object | null | undefined) => {
+        if (typeof entry !== "object" || entry === null || !isPagefindReference(entry)) {
+            throw new TypeError("Invalid Pagefind result reference");
+        }
+        return entry;
+    });
+}
+
+function readPagefindResult(value: object | null | undefined): PagefindResult {
+    if (
+        typeof value !== "object" ||
+        value === null ||
+        !("url" in value) ||
+        typeof value.url !== "string" ||
+        !value.url.trim()
+    ) {
+        throw new TypeError("Invalid Pagefind result URL");
+    }
+    const url = new URL(value.url, window.location.href);
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+        throw new TypeError("Invalid Pagefind result URL protocol");
+    }
+    const result: PagefindResult = { url: value.url };
+    if ("meta" in value && value.meta !== undefined) {
+        const meta = value.meta;
+        if (typeof meta !== "object" || meta === null) {
+            throw new TypeError("Invalid Pagefind result metadata");
+        }
+        if ("title" in meta && meta.title !== undefined) {
+            if (typeof meta.title !== "string")
+                throw new TypeError("Invalid Pagefind result title");
+            result.meta = { title: meta.title };
+        }
+    }
+    if ("excerpt" in value && value.excerpt !== undefined) {
+        if (typeof value.excerpt !== "string")
+            throw new TypeError("Invalid Pagefind result excerpt");
+        result.excerpt = value.excerpt;
+    }
+    return result;
 }
 
 function isPagefind(value: object): value is Pagefind {
@@ -87,38 +142,49 @@ function isPagefind(value: object): value is Pagefind {
 }
 
 let pagefind: Pagefind | null = null;
-let pagefindFailed = false;
+let pagefindLoading: Promise<Pagefind | null> | null = null;
 
 async function loadPagefind(): Promise<Pagefind | null> {
-    if (pagefind || pagefindFailed) return pagefind;
-    try {
-        const url = `${import.meta.env.BASE_URL}pagefind/pagefind.js`.replace("//", "/");
-        // An ECMAScript module namespace is always an object. Its callable surface
-        // is still checked below before it reaches application code.
-        const loaded = (await import(/* @vite-ignore */ url)) as object;
-        if (!isPagefind(loaded)) throw new TypeError("Invalid Pagefind module");
-        pagefind = loaded;
-        await pagefind.options?.({ excerptLength: 24 });
-        return pagefind;
-    } catch {
-        // The index only exists after `astro build`; in dev this is expected.
-        pagefindFailed = true;
-        return null;
-    }
+    if (pagefind) return pagefind;
+    if (pagefindLoading) return pagefindLoading;
+    pagefindLoading = (async () => {
+        try {
+            const url = `${import.meta.env.BASE_URL}pagefind/pagefind.js`.replace("//", "/");
+            // An ECMAScript module namespace is always an object. Its callable surface
+            // is still checked below before it reaches application code.
+            const loaded = (await import(/* @vite-ignore */ url)) as object;
+            if (!isPagefind(loaded)) throw new TypeError("Invalid Pagefind module");
+            await loaded.options?.({ excerptLength: 24 });
+            pagefind = loaded;
+            return pagefind;
+        } catch {
+            // The index only exists after `astro build`; in dev this is expected.
+            return null;
+        } finally {
+            pagefindLoading = null;
+        }
+    })();
+    return pagefindLoading;
 }
 
 function wireSearch() {
     const panel = document.getElementById("search-panel");
     const openBtn = document.getElementById("search-open");
     const closeBtn = document.getElementById("search-close");
-    const input = document.getElementById("search-input") as HTMLInputElement | null;
+    const input = document.getElementById("search-input");
     const list = document.getElementById("search-results");
     const note = document.getElementById("search-note");
-    if (!panel || !openBtn || !input || !list || !note) return;
+    if (!panel || !openBtn || !(input instanceof HTMLInputElement) || !list || !note) return;
 
     const emptyText = panel.dataset.empty ?? "";
     const loadingText = panel.dataset.loading ?? "";
+    const unavailableText = panel.dataset.unavailable ?? t("search.unavailable");
     let lastFocused: HTMLElement | null = null;
+    let openFrame = 0;
+    let closeTimer = 0;
+    let active = false;
+    let token = 0;
+    const background = new Map<HTMLElement, boolean>();
 
     const hits = () => [...list.querySelectorAll<HTMLAnchorElement>("a")];
 
@@ -139,11 +205,28 @@ function wireSearch() {
         target.replaceChildren(template.content);
     };
 
+    const restoreBackground = () => {
+        for (const [element, inert] of background) element.inert = inert;
+        background.clear();
+    };
+
     const open = () => {
+        window.clearTimeout(closeTimer);
+        if (active) {
+            input.focus();
+            return;
+        }
+        active = true;
         lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        for (const sibling of document.body.children) {
+            if (!(sibling instanceof HTMLElement) || sibling.contains(panel)) continue;
+            background.set(sibling, sibling.inert);
+            sibling.inert = true;
+        }
+        panel.inert = false;
         panel.hidden = false;
         // Force a frame so the transition has a starting state to move from.
-        requestAnimationFrame(() => {
+        openFrame = requestAnimationFrame(() => {
             panel.classList.add("is-open");
             input.focus();
         });
@@ -151,12 +234,32 @@ function wireSearch() {
     };
 
     const close = () => {
+        if (!active) return;
+        active = false;
+        cancelAnimationFrame(openFrame);
+        panel.inert = true;
         panel.classList.remove("is-open");
-        lastFocused?.focus();
-        window.setTimeout(() => {
+        restoreBackground();
+        if (lastFocused?.isConnected) lastFocused.focus();
+        closeTimer = window.setTimeout(() => {
             panel.hidden = true;
         }, 220);
     };
+
+    // The old panel must release the page before Astro swaps in the next one.
+    document.addEventListener(
+        "astro:before-swap",
+        () => {
+            active = false;
+            token++;
+            cancelAnimationFrame(openFrame);
+            window.clearTimeout(closeTimer);
+            panel.inert = true;
+            panel.hidden = true;
+            restoreBackground();
+        },
+        { once: true },
+    );
 
     openBtn.addEventListener("click", open);
     closeBtn?.addEventListener("click", close);
@@ -172,8 +275,27 @@ function wireSearch() {
      * which is what makes the marked row the same one a screen reader announces.
      */
     panel.addEventListener("keydown", (event) => {
+        if (!active || event.isComposing) return;
         if (event.key === "Escape") {
+            event.preventDefault();
+            event.stopPropagation();
             close();
+            return;
+        }
+
+        if (event.key === "Tab") {
+            const controls = [input, closeBtn, ...hits()].filter(
+                (element): element is HTMLElement => element instanceof HTMLElement,
+            );
+            const first = controls[0];
+            const last = controls.at(-1);
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last?.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first?.focus();
+            }
             return;
         }
 
@@ -194,14 +316,13 @@ function wireSearch() {
     });
 
     input.addEventListener("keydown", (event) => {
-        if (event.key !== "Enter") return;
+        if (event.isComposing || event.key !== "Enter") return;
         const first = hits()[0];
         if (!first) return;
         event.preventDefault();
         first.click();
     });
 
-    let token = 0;
     const search = async () => {
         const query = input.value.trim();
         const mine = ++token;
@@ -213,56 +334,56 @@ function wireSearch() {
             return;
         }
 
-        // The index is a few hundred KB and the first query pays for it, so say so
-        // rather than leaving the panel looking like it ignored the keystroke.
-        if (!pagefind && !pagefindFailed) {
-            note.textContent = loadingText;
-            note.hidden = false;
-        }
+        list.replaceChildren();
+        note.textContent = loadingText;
+        note.hidden = false;
 
-        const engine = await loadPagefind();
-        if (mine !== token) return;
+        try {
+            const engine = await loadPagefind();
+            if (mine !== token) return;
+            if (!engine) throw new Error("Search index unavailable");
 
-        // The index only exists after `astro build`, so in dev there is nothing to
-        // search and the panel says so the same way it says a query missed.
-        if (!engine) {
+            const results = readPagefindReferences(await engine.search(query));
+            if (mine !== token) return;
+
+            const top = await Promise.all(
+                results
+                    .slice(0, 8)
+                    .map(async (reference) => readPagefindResult(await reference.data())),
+            );
+            if (mine !== token) return;
+
+            list.replaceChildren(
+                ...top.map((hit) => {
+                    const li = document.createElement("li");
+                    li.className = "search-result";
+
+                    const a = document.createElement("a");
+                    a.href = hit.url;
+
+                    const title = document.createElement("div");
+                    title.className = "search-result-title";
+                    title.textContent = hit.meta?.title ?? hit.url;
+
+                    const excerpt = document.createElement("p");
+                    excerpt.className = "search-result-excerpt";
+                    // Pagefind's excerpt contains <mark> and is built from indexed text.
+                    setExcerpt(excerpt, hit.excerpt ?? "");
+
+                    a.append(title, excerpt);
+                    li.append(a);
+                    return li;
+                }),
+            );
+
+            note.hidden = top.length > 0;
+            note.textContent = top.length ? "" : emptyText;
+        } catch {
+            if (mine !== token) return;
             list.replaceChildren();
-            note.textContent = emptyText;
+            note.textContent = unavailableText;
             note.hidden = false;
-            return;
         }
-
-        const { results } = await engine.search(query);
-        if (mine !== token) return;
-
-        const top = await Promise.all(results.slice(0, 8).map((r) => r.data()));
-        if (mine !== token) return;
-
-        list.replaceChildren(
-            ...top.map((hit) => {
-                const li = document.createElement("li");
-                li.className = "search-result";
-
-                const a = document.createElement("a");
-                a.href = hit.url;
-
-                const title = document.createElement("div");
-                title.className = "search-result-title";
-                title.textContent = hit.meta?.title ?? hit.url;
-
-                const excerpt = document.createElement("p");
-                excerpt.className = "search-result-excerpt";
-                // Pagefind's excerpt contains <mark> and is built from indexed text.
-                setExcerpt(excerpt, hit.excerpt ?? "");
-
-                a.append(title, excerpt);
-                li.append(a);
-                return li;
-            }),
-        );
-
-        note.hidden = top.length > 0;
-        note.textContent = top.length ? "" : emptyText;
     };
 
     input.addEventListener("input", () => {
@@ -278,7 +399,10 @@ function wireSearch() {
                 target?.tagName === "TEXTAREA" ||
                 target?.isContentEditable;
 
-            if ((event.key === "/" || (event.key === "k" && event.metaKey)) && !typing) {
+            const shortcut =
+                (event.key === "/" && !event.metaKey && !event.ctrlKey) ||
+                (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey));
+            if (shortcut && !event.altKey && !event.isComposing && !typing) {
                 event.preventDefault();
                 document.getElementById("search-open")?.click();
             }
@@ -319,6 +443,38 @@ function wireMenu() {
 
 /* — per-page wiring ——————————————————————————— */
 
+function preparePlaygrounds() {
+    const targets = document.querySelectorAll("[data-code-playground], [data-python-notebook]");
+    if (!targets.length) return;
+    let started = false;
+    let disposed = false;
+    const cleanup = () => {
+        disposed = true;
+        observer.disconnect();
+        for (const target of targets) target.removeEventListener("focusin", activate);
+        document.removeEventListener("astro:before-swap", cleanup);
+    };
+    const activate = () => {
+        if (started || disposed) return;
+        started = true;
+        observer.disconnect();
+        void import("./playgrounds").then(({ mountPlaygrounds }) => {
+            if (!disposed) mountPlaygrounds();
+        });
+    };
+    const observer = new IntersectionObserver(
+        (entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) activate();
+        },
+        { rootMargin: "300px" },
+    );
+    for (const target of targets) {
+        observer.observe(target);
+        target.addEventListener("focusin", activate);
+    }
+    document.addEventListener("astro:before-swap", cleanup);
+}
+
 async function init() {
     document.documentElement.classList.remove("no-js");
 
@@ -334,10 +490,7 @@ async function init() {
     wireSearch();
     wireMenu();
     onScroll();
-    if (document.querySelector("[data-code-playground]")) {
-        const { mountPlaygrounds } = await import("./playgrounds");
-        mountPlaygrounds();
-    }
+    preparePlaygrounds();
 
     if (document.querySelector("#contents")) {
         const { mountContents } = await import("./contents");
@@ -367,6 +520,13 @@ async function init() {
     if (!globalsWired) {
         globalsWired = true;
         window.addEventListener("scroll", onScroll, { passive: true });
+        document.addEventListener("dragstart", (event) => {
+            if (
+                event.target instanceof Element &&
+                event.target.closest("#sidebar, #navbar-wrapper")
+            )
+                event.preventDefault();
+        });
 
         document.addEventListener("click", (event) => {
             const { button, menu } = menuParts();

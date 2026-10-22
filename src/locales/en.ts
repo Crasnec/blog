@@ -3,6 +3,7 @@ export const en = {
     "nav.posts": "Posts",
     "nav.archive": "Archive",
     "nav.categories": "Categories",
+    "nav.series": "Series",
     "nav.tags": "Tags",
     "nav.about": "About",
 
@@ -21,6 +22,7 @@ export const en = {
     "search.placeholder": "Search posts",
     "search.empty": "Nothing found.",
     "search.loading": "Loading the index",
+    "search.unavailable": "Search is unavailable right now. Please try again.",
 
     "index.all": "All posts",
     "index.empty": "Nothing published yet.",
@@ -81,6 +83,13 @@ export const en = {
     "categories.title": "Categories",
 
     "tags.title": "Tags",
+
+    "series.title": "Series",
+    "series.part": "Part {order}",
+    "series.contents": "View all {count} parts",
+    "series.prev": "Previous in this series",
+    "series.next": "Next in this series",
+    "series.empty": "No series published yet.",
 
     "toc.title": "Contents",
 

@@ -1,6 +1,8 @@
 import { t } from "../strings";
 import {
     decodeConfig,
+    decodeRunResponse,
+    type MessageValue,
     MAX_INPUT,
     MAX_OUTPUT,
     MAX_PLOTS,
@@ -228,8 +230,9 @@ function mount(root: HTMLElement) {
                     });
             const channel = new MessageChannel();
             port = channel.port1;
-            port.onmessage = (event: MessageEvent<RunResponse>) => {
-                receive(event.data);
+            port.onmessage = (event: MessageEvent<MessageValue>) => {
+                const response = decodeRunResponse(event.data);
+                if (response) receive(response);
             };
             worker.onerror = (event) => {
                 event.preventDefault();
@@ -267,7 +270,7 @@ function mount(root: HTMLElement) {
             root,
             config,
             () => {
-                void run();
+                runButton?.click();
             },
             () => {
                 notebook?.changed(root);
@@ -284,23 +287,24 @@ function mount(root: HTMLElement) {
             liveEditor?.destroy();
         },
     };
-    let observer: IntersectionObserver | undefined;
-    if (notebook) {
-        observer = new IntersectionObserver(
-            (entries) => {
-                if (entries.some((entry) => entry.isIntersecting)) {
-                    activateEditor();
-                    observer?.disconnect();
-                }
-            },
-            { rootMargin: "300px" },
-        );
-        observer.observe(root);
-        fallback?.addEventListener("focus", () => {
-            activateEditor();
-            liveEditor?.focus();
-        });
-    } else activateEditor();
+    const observer = new IntersectionObserver(
+        (entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+                activateEditor();
+                observer.disconnect();
+            }
+        },
+        { rootMargin: "300px" },
+    );
+    observer.observe(root);
+    fallback?.addEventListener("focus", () => {
+        activateEditor();
+        liveEditor?.focus();
+    });
+    if (fallback === document.activeElement) {
+        activateEditor();
+        liveEditor?.focus();
+    }
     const cell: NotebookCell = {
         root,
         code: editor.code,
@@ -327,7 +331,7 @@ function mount(root: HTMLElement) {
     root.dataset.ready = "true";
     return () => {
         disposed = true;
-        observer?.disconnect();
+        observer.disconnect();
         finish("", "disposed");
         clearOutput();
         editor.destroy();

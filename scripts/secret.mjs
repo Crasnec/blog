@@ -28,7 +28,7 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { createInterface } from "node:readline";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { createMarkdownProcessor, parseFrontmatter } from "@astrojs/markdown-remark";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
@@ -52,6 +52,7 @@ import {
     sealTo,
 } from "../src/utils/secret.ts";
 import { parseJson } from "../src/utils/json.ts";
+import { parsePostOrder, parseSeriesMetadata } from "../src/utils/post-order.ts";
 
 const ROOT = new URL("..", import.meta.url);
 const PLAIN_DIR = "secrets";
@@ -96,7 +97,16 @@ async function readKey(which, decode) {
  * quietly copying it into a public file is the one mistake that cannot be
  * taken back.
  */
-const PUBLIC_KEYS = new Set(["title", "published", "updated", "category", "tags", "draft"]);
+const PUBLIC_KEYS = new Set([
+    "title",
+    "published",
+    "updated",
+    "category",
+    "tags",
+    "draft",
+    "order",
+    "series",
+]);
 
 /** Refused by name, with a reason, because each is derived from the body. */
 const LEAKY_KEYS = {
@@ -114,16 +124,23 @@ const LEAKY_KEYS = {
  * them out as full timestamps. Posts are filed by day and the frontmatter is
  * read by people, so they go back the way they were written.
  */
-/** @param {FrontmatterValue} value */
+/** @param {FrontmatterValue | undefined} value */
 const asWritten = (value) => (value instanceof Date ? value.toISOString().slice(0, 10) : value);
 
 /** @param {Record<string, FrontmatterValue>} frontmatter */
-const publicFrontmatter = (frontmatter) =>
-    Object.fromEntries(
-        Object.entries(frontmatter)
-            .filter(([key]) => key !== "sealed")
-            .map(([key, value]) => [key, asWritten(value)]),
-    );
+export function publicFrontmatter(frontmatter) {
+    const order = parsePostOrder(asWritten(frontmatter.order));
+    const series = parseSeriesMetadata(asWritten(frontmatter.series));
+    return {
+        ...Object.fromEntries(
+            Object.entries(frontmatter)
+                .filter(([key]) => key !== "sealed" && key !== "order" && key !== "series")
+                .map(([key, value]) => [key, asWritten(value)]),
+        ),
+        ...(order === undefined ? {} : { order }),
+        ...(series === undefined ? {} : { series }),
+    };
+}
 
 /**
  * @param {string} message
@@ -160,10 +177,12 @@ async function askHidden(question) {
         if (!muted) process.stdout.write(chunk);
     };
 
-    const answer = await new Promise((done) => {
+    /** @type {Promise<string>} */
+    const pending = new Promise((done) => {
         rl.question(question, done);
         muted = true;
     });
+    const answer = await pending;
 
     process.stdout.write("\n");
     rl.close();
@@ -253,6 +272,7 @@ async function doSeal(input) {
     const { rel, out } = counterpart(input, "seal");
     const source = await readFile(resolve(ROOT.pathname, rel), "utf8");
     const { frontmatter, content } = parseFrontmatter(source);
+    const publicMetadata = publicFrontmatter(frontmatter);
 
     for (const [key, why] of Object.entries(LEAKY_KEYS)) {
         if (key in frontmatter) fail(`remove \`${key}\` from ${rel}: ${why}.`);
@@ -281,10 +301,7 @@ async function doSeal(input) {
 
     // lineWidth 0 so YAML never folds the base64 — a wrapped line would join
     // back with a space and the payload would no longer decode.
-    const head = stringify(
-        { ...publicFrontmatter(frontmatter), sealed: payload },
-        { lineWidth: 0 },
-    );
+    const head = stringify({ ...publicMetadata, sealed: payload }, { lineWidth: 0 });
 
     await mkdir(dirname(outPath), { recursive: true });
     await writeFile(
@@ -295,7 +312,7 @@ async function doSeal(input) {
     );
 
     console.log(
-        `\nsealed  ${rel}\n     →  ${out}  (${themeName}, ${payload.data.length} base64 chars)\n`,
+        `\nsealed  ${rel}\n     →  ${out}  (${themeName}, ${String(payload.data.length)} base64 chars)\n`,
     );
 }
 
@@ -304,6 +321,7 @@ async function doOpen(input) {
     const { rel, out } = counterpart(input, "open");
     const source = await readFile(resolve(ROOT.pathname, rel), "utf8");
     const { frontmatter } = parseFrontmatter(source);
+    const publicMetadata = publicFrontmatter(frontmatter);
 
     const sealed = parseSecretPayload(parseJson(JSON.stringify(frontmatter.sealed)));
     if (!sealed) fail(`${rel} is not a valid sealed post.`);
@@ -318,7 +336,7 @@ async function doOpen(input) {
     if (!opened) {
         fail(
             "could not open it. Either the passphrase is wrong, or the payload was " +
-                `sealed by an older scheme (this one is v${sealed.v}).`,
+                `sealed by an older scheme (this one is v${String(sealed.v)}).`,
         );
     }
 
@@ -327,7 +345,7 @@ async function doOpen(input) {
     await mkdir(dirname(outPath), { recursive: true });
     await writeFile(
         outPath,
-        `---\n${stringify(publicFrontmatter(frontmatter), { lineWidth: 0 })}---\n\n${opened.md}`,
+        `---\n${stringify(publicMetadata, { lineWidth: 0 })}---\n\n${opened.md}`,
         "utf8",
     );
 
@@ -409,17 +427,19 @@ async function doRekey() {
     );
 }
 
-const [action, target] = process.argv.slice(2);
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    const [action, target] = process.argv.slice(2);
 
-if (action === "keygen") await doKeygen();
-else if (action === "rekey") await doRekey();
-else if (action === "seal" && target) await doSeal(target);
-else if (action === "open" && target) await doOpen(target);
-else
-    fail(
-        "usage:\n" +
-            "    npm run secret:keygen\n" +
-            "    npm run secret:rekey\n" +
-            `    npm run secret:seal ${PLAIN_DIR}/<slug>.md\n` +
-            `    npm run secret:open ${SEALED_DIR}/<slug>.md`,
-    );
+    if (action === "keygen") await doKeygen();
+    else if (action === "rekey") await doRekey();
+    else if (action === "seal" && target) await doSeal(target);
+    else if (action === "open" && target) await doOpen(target);
+    else
+        fail(
+            "usage:\n" +
+                "    npm run secret:keygen\n" +
+                "    npm run secret:rekey\n" +
+                `    npm run secret:seal ${PLAIN_DIR}/<slug>.md\n` +
+                `    npm run secret:open ${SEALED_DIR}/<slug>.md`,
+        );
+}

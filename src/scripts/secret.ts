@@ -23,14 +23,22 @@ import { parseJson } from "../utils/json";
  */
 export function mountSecret() {
     const shell = document.getElementById("secret");
-    const form = document.getElementById("secret-form") as HTMLFormElement | null;
-    const input = document.getElementById("secret-input") as HTMLInputElement | null;
+    const form = document.getElementById("secret-form");
+    const input = document.getElementById("secret-input");
     const button = form?.querySelector<HTMLButtonElement>("button[type=submit]");
     const status = document.getElementById("secret-status");
     const body = document.getElementById("secret-body");
     const source = document.getElementById("secret-payload");
     const wrapped = document.getElementById("secret-key");
-    if (!shell || !form || !input || !status || !body || !source || !wrapped) {
+    if (
+        !shell ||
+        !(form instanceof HTMLFormElement) ||
+        !(input instanceof HTMLInputElement) ||
+        !status ||
+        !body ||
+        !source ||
+        !wrapped
+    ) {
         return;
     }
 

@@ -4,6 +4,10 @@ published: 2026-10-22
 description: '추세·계절성 분해, 시간 순서를 지킨 예측 평가와 ARIMA를 다루는 Think Stats 3판 12장 한국어 번역.'
 lang: ko
 tags: [statistics, think-stats, python, translation]
+order: 12
+series:
+  name: Think Stats
+  order: 12
 ---
 
 import CodePlayground from '../../../components/CodePlayground.astro';
@@ -96,7 +100,16 @@ DatetimeIndex(['2001-01-31', '2001-02-28', '2001-03-31', '2001-04-30',
 
 <CodePlayground notebook="think-stats-12" title="셀 7" code={notebook.cells[7].code} language="python" timeout={60000}>
 
-![원전 월 발전량. 연도별 추세 위에 반복되는 계절 변동이 있습니다.](/labs/think-stats/figures/chap12-020-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-020-0.png"
+        alt="원전 월 발전량. 연도별 추세 위에 반복되는 계절 변동이 있습니다."
+        width={1768}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-020-0.png)
 
@@ -110,7 +123,16 @@ DatetimeIndex(['2001-01-31', '2001-02-28', '2001-03-31', '2001-04-30',
 
 <CodePlayground notebook="think-stats-12" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000}>
 
-![원전 발전량과 12개월 후행 이동평균. 평균은 원자료보다 매끄럽지만 변화에 늦습니다.](/labs/think-stats/figures/chap12-024-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-024-0.png"
+        alt="원전 발전량과 12개월 후행 이동평균. 평균은 원자료보다 매끄럽지만 변화에 늦습니다."
+        width={1768}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-024-0.png)
 
@@ -120,7 +142,16 @@ DatetimeIndex(['2001-01-31', '2001-02-28', '2001-03-31', '2001-04-30',
 
 <CodePlayground notebook="think-stats-12" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000}>
 
-![원전 발전량에서 이동평균 추세를 뺀 값. 반복되는 계절 변동이 보입니다.](/labs/think-stats/figures/chap12-026-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-026-0.png"
+        alt="원전 발전량에서 이동평균 추세를 뺀 값. 반복되는 계절 변동이 보입니다."
+        width={1769}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-026-0.png)
 
@@ -130,7 +161,16 @@ DatetimeIndex(['2001-01-31', '2001-02-28', '2001-03-31', '2001-04-30',
 
 <CodePlayground notebook="think-stats-12" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000}>
 
-![추세를 뺀 원전 발전량의 월별 평균. 1월과 여름에 상대적으로 높습니다.](/labs/think-stats/figures/chap12-028-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-028-0.png"
+        alt="추세를 뺀 원전 발전량의 월별 평균. 1월과 여름에 상대적으로 높습니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-028-0.png)
 
@@ -140,7 +180,16 @@ DatetimeIndex(['2001-01-31', '2001-02-28', '2001-03-31', '2001-04-30',
 
 <CodePlayground notebook="think-stats-12" title="셀 12" code={notebook.cells[12].code} language="python" timeout={60000}>
 
-![첫 12개월 계절 성분을 반복해 그린 곡선. 매년 모양을 같게 가정합니다.](/labs/think-stats/figures/chap12-030-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-030-0.png"
+        alt="첫 12개월 계절 성분을 반복해 그린 곡선. 매년 모양을 같게 가정합니다."
+        width={1768}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-030-0.png)
 
@@ -154,7 +203,16 @@ DatetimeIndex(['2001-01-31', '2001-02-28', '2001-03-31', '2001-04-30',
 
 <CodePlayground notebook="think-stats-12" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000}>
 
-![추세와 반복 계절 성분을 더한 값과 실제 발전량의 비교.](/labs/think-stats/figures/chap12-034-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-034-0.png"
+        alt="추세와 반복 계절 성분을 더한 값과 실제 발전량의 비교."
+        width={1768}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-034-0.png)
 
@@ -164,7 +222,16 @@ DatetimeIndex(['2001-01-31', '2001-02-28', '2001-03-31', '2001-04-30',
 
 <CodePlayground notebook="think-stats-12" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000}>
 
-![추세·계절 성분을 뺀 원전 잔차. 시간에 따른 의존성이 남을 수 있습니다.](/labs/think-stats/figures/chap12-036-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-036-0.png"
+        alt="추세·계절 성분을 뺀 원전 잔차. 시간에 따른 의존성이 남을 수 있습니다."
+        width={1768}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-036-0.png)
 
@@ -174,7 +241,16 @@ DatetimeIndex(['2001-01-31', '2001-02-28', '2001-03-31', '2001-04-30',
 
 <CodePlayground notebook="think-stats-12" title="셀 16" code={notebook.cells[16].code} language="python" timeout={60000}>
 
-![가법 분해 후 원전 잔차의 KDE. 가운데에 밀집하고 양쪽 꼬리가 남습니다.](/labs/think-stats/figures/chap12-038-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-038-0.png"
+        alt="가법 분해 후 원전 잔차의 KDE. 가운데에 밀집하고 양쪽 꼬리가 남습니다."
+        width={1768}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-038-0.png)
 
@@ -252,13 +328,12 @@ Timestamp('2019-07-31 00:00:00')
 
 <CodePlayground notebook="think-stats-12" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000}>
 
-| 값 |  |  |  |  |  |  |
+| 변수 | coef | std err | t | P>\|t\| | [0.025 | 0.975] |
 | --- | --- | --- | --- | --- | --- | --- |
-|  | coef | std err | t | P>\|t\| | [0.025 | 0.975] |
 | Intercept | 6.482e+04 | 131.524 | 492.869 | 0.000 | 6.46e+04 | 6.51e+04 |
 | months | 10.9886 | 1.044 | 10.530 | 0.000 | 8.931 | 13.046 |
 
-| 값 |  |
+| 지표 | 값 |
 | --- | --- |
 | R-squared: | 0.3477 |
 
@@ -271,7 +346,16 @@ Timestamp('2019-07-31 00:00:00')
 
 <CodePlayground notebook="think-stats-12" title="셀 27" code={notebook.cells[27].code} language="python" timeout={60000}>
 
-![훈련 기간 추세와 그 추세에 맞춘 최소제곱 직선.](/labs/think-stats/figures/chap12-060-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-060-0.png"
+        alt="훈련 기간 추세와 그 추세에 맞춘 최소제곱 직선."
+        width={1768}
+        height={1019}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-060-0.png)
 
@@ -293,7 +377,16 @@ Timestamp('2019-07-31 00:00:00')
 
 <CodePlayground notebook="think-stats-12" title="셀 31" code={notebook.cells[31].code} language="python" timeout={60000}>
 
-![앞선 훈련 기간만 사용한 원전 발전량 예측과 실제 값.](/labs/think-stats/figures/chap12-068-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-068-0.png"
+        alt="앞선 훈련 기간만 사용한 원전 발전량 예측과 실제 값."
+        width={1768}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-068-0.png)
 
@@ -303,7 +396,16 @@ Timestamp('2019-07-31 00:00:00')
 
 <CodePlayground notebook="think-stats-12" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000}>
 
-![끝 60개월을 보류한 원전 과거예측. 예측과 관측의 차이를 평가합니다.](/labs/think-stats/figures/chap12-070-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-070-0.png"
+        alt="끝 60개월을 보류한 원전 과거예측. 예측과 관측의 차이를 평가합니다."
+        width={1770}
+        height={1019}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-070-0.png)
 
@@ -345,7 +447,16 @@ $$y_t=T_t+S_t+e_t$$
 
 <CodePlayground notebook="think-stats-12" title="셀 35" code={notebook.cells[35].code} language="python" timeout={60000}>
 
-![소규모 태양광 발전량. 발전량이 증가하며 계절 진폭도 커집니다.](/labs/think-stats/figures/chap12-077-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-077-0.png"
+        alt="소규모 태양광 발전량. 발전량이 증가하며 계절 진폭도 커집니다."
+        width={1770}
+        height={1019}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-077-0.png)
 
@@ -395,14 +506,13 @@ Patsy 수식의 `I(months**2)`는 제곱항을 추가하므로 별도 열을 만
 
 <CodePlayground notebook="think-stats-12" title="셀 42" code={notebook.cells[42].code} language="python" timeout={60000}>
 
-| 값 |  |  |  |  |  |  |
+| 변수 | coef | std err | t | P>\|t\| | [0.025 | 0.975] |
 | --- | --- | --- | --- | --- | --- | --- |
-|  | coef | std err | t | P>\|t\| | [0.025 | 0.975] |
 | Intercept | 766.1962 | 13.494 | 56.782 | 0.000 | 739.106 | 793.286 |
 | months | 22.2153 | 0.938 | 23.673 | 0.000 | 20.331 | 24.099 |
 | `I(months ** 2)` | 0.1762 | 0.014 | 12.480 | 0.000 | 0.148 | 0.205 |
 
-| 값 |  |
+| 지표 | 값 |
 | --- | --- |
 | R-squared: | 0.9983 |
 
@@ -415,7 +525,16 @@ Patsy 수식의 `I(months**2)`는 제곱항을 추가하므로 별도 열을 만
 
 <CodePlayground notebook="think-stats-12" title="셀 44" code={notebook.cells[44].code} language="python" timeout={60000}>
 
-![태양광 발전량 추세에 맞춘 시간의 이차 모형. 앞선 훈련 구간만 사용합니다.](/labs/think-stats/figures/chap12-095-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-095-0.png"
+        alt="태양광 발전량 추세에 맞춘 시간의 이차 모형. 앞선 훈련 구간만 사용합니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-095-0.png)
 
@@ -433,7 +552,16 @@ Patsy 수식의 `I(months**2)`는 제곱항을 추가하므로 별도 열을 만
 
 <CodePlayground notebook="think-stats-12" title="셀 47" code={notebook.cells[47].code} language="python" timeout={60000}>
 
-![이차 추세와 월별 계절 배율로 만든 태양광 예측.](/labs/think-stats/figures/chap12-101-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-101-0.png"
+        alt="이차 추세와 월별 계절 배율로 만든 태양광 예측."
+        width={1770}
+        height={1019}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-101-0.png)
 
@@ -443,7 +571,16 @@ Patsy 수식의 `I(months**2)`는 제곱항을 추가하므로 별도 열을 만
 
 <CodePlayground notebook="think-stats-12" title="셀 48" code={notebook.cells[48].code} language="python" timeout={60000}>
 
-![마지막 60개월 태양광 관측과, 앞선 자료만으로 만든 예측의 비교.](/labs/think-stats/figures/chap12-103-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-103-0.png"
+        alt="마지막 60개월 태양광 관측과, 앞선 자료만으로 만든 예측의 비교."
+        width={1770}
+        height={1019}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-103-0.png)
 
@@ -461,7 +598,16 @@ Patsy 수식의 `I(months**2)`는 제곱항을 추가하므로 별도 열을 만
 
 <CodePlayground notebook="think-stats-12" title="셀 49" code={notebook.cells[49].code} language="python" timeout={60000}>
 
-![원전 발전량을 12개월 차분한 시계열. 계절 반복을 줄입니다.](/labs/think-stats/figures/chap12-106-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-106-0.png"
+        alt="원전 발전량을 12개월 차분한 시계열. 계절 반복을 줄입니다."
+        width={1769}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-106-0.png)
 
@@ -491,15 +637,14 @@ Patsy 수식의 `I(months**2)`는 제곱항을 추가하므로 별도 열을 만
 
 <CodePlayground notebook="think-stats-12" title="셀 53" code={notebook.cells[53].code} language="python" timeout={60000}>
 
-| 값 |  |  |  |  |  |  |
+| 변수 | coef | std err | t | P>\|t\| | [0.025 | 0.975] |
 | --- | --- | --- | --- | --- | --- | --- |
-|  | coef | std err | t | P>\|t\| | [0.025 | 0.975] |
 | Intercept | 24.2674 | 114.674 | 0.212 | 0.833 | -201.528 | 250.063 |
 | lag1 | 0.5847 | 0.061 | 9.528 | 0.000 | 0.464 | 0.706 |
 | lag2 | -0.0908 | 0.071 | -1.277 | 0.203 | -0.231 | 0.049 |
 | lag3 | 0.1026 | 0.062 | 1.666 | 0.097 | -0.019 | 0.224 |
 
-| 값 |  |
+| 지표 | 값 |
 | --- | --- |
 | R-squared: | 0.3239 |
 
@@ -508,7 +653,16 @@ Patsy 수식의 `I(months**2)`는 제곱항을 추가하므로 별도 열을 만
 
 <CodePlayground notebook="think-stats-12" title="셀 54" code={notebook.cells[54].code} language="python" timeout={60000}>
 
-![12개월 차분 원전 시계열과 자기회귀 모형의 예측값. 직전 세 달을 사용합니다.](/labs/think-stats/figures/chap12-116-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-116-0.png"
+        alt="12개월 차분 원전 시계열과 자기회귀 모형의 예측값. 직전 세 달을 사용합니다."
+        width={1769}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-116-0.png)
 
@@ -538,14 +692,13 @@ np.float64(0.3190252265690783)
 
 <CodePlayground notebook="think-stats-12" title="셀 57" code={notebook.cells[57].code} language="python" timeout={60000}>
 
-| 값 |  |  |  |  |  |  |
+| 변수 | coef | std err | t | P>\|t\| | [0.025 | 0.975] |
 | --- | --- | --- | --- | --- | --- | --- |
-|  | coef | std err | t | P>\|t\| | [0.025 | 0.975] |
 | Intercept | -14.0016 | 114.697 | -0.122 | 0.903 | -239.863 | 211.860 |
 | lag1 | 0.0014 | 0.062 | 0.023 | 0.982 | -0.120 | 0.123 |
 | lag6 | -0.1592 | 0.063 | -2.547 | 0.011 | -0.282 | -0.036 |
 
-| 값 |  |
+| 지표 | 값 |
 | --- | --- |
 | R-squared: | 0.0247 |
 
@@ -602,7 +755,16 @@ np.int64(21)
 
 <CodePlayground notebook="think-stats-12" title="셀 66" code={notebook.cells[66].code} language="python" timeout={60000}>
 
-![자기회귀·이동평균 성분을 사용한 원전 발전량 과거예측.](/labs/think-stats/figures/chap12-142-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-142-0.png"
+        alt="자기회귀·이동평균 성분을 사용한 원전 발전량 과거예측."
+        width={1768}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-142-0.png)
 
@@ -641,9 +803,8 @@ statsmodels의 `tsa`는 time series analysis의 줄임말입니다. `ARIMA`로 �
 
 <CodePlayground notebook="think-stats-12" title="셀 70" code={notebook.cells[70].code} language="python" timeout={60000}>
 
-| 값 |  |  |  |  |  |  |
+| 변수 | coef | std err | z | P>\|z\| | [0.025 | 0.975] |
 | --- | --- | --- | --- | --- | --- | --- |
-|  | coef | std err | z | P>\|z\| | [0.025 | 0.975] |
 | ar.L1 | 0.0458 | 0.379 | 0.121 | 0.904 | -0.697 | 0.788 |
 | ar.L2 | -0.0035 | 0.116 | -0.030 | 0.976 | -0.230 | 0.223 |
 | ar.L3 | 0.0375 | 0.049 | 0.769 | 0.442 | -0.058 | 0.133 |
@@ -660,7 +821,16 @@ statsmodels의 `tsa`는 time series analysis의 줄임말입니다. `ARIMA`로 �
 
 <CodePlayground notebook="think-stats-12" title="셀 72" code={notebook.cells[72].code} language="python" timeout={60000}>
 
-![원래 발전량 척도에서 원전 관측값과 ARIMA 적합값을 비교합니다.](/labs/think-stats/figures/chap12-155-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-155-0.png"
+        alt="원래 발전량 척도에서 원전 관측값과 ARIMA 적합값을 비교합니다."
+        width={1768}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-155-0.png)
 
@@ -702,7 +872,16 @@ np.float64(0.8262717330822065)
 
 <CodePlayground notebook="think-stats-12" title="셀 77" code={notebook.cells[77].code} language="python" timeout={60000}>
 
-![ARIMA의 향후 원전 예측과 구간. 미래 관측값의 모형 기반 예측구간입니다.](/labs/think-stats/figures/chap12-167-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap12-167-0.png"
+        alt="ARIMA의 향후 원전 예측과 구간. 미래 관측값의 모형 기반 예측구간입니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap12-167-0.png)
 

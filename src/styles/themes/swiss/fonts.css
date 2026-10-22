@@ -3,6 +3,7 @@
  *
  * Space Grotesk for Latin display and text, Space Mono for code, and IBM
  * Plex Sans KR for Hangul — its geometric skeleton keeps up with Grotesk.
+ * Weight imports use unicode-range chunks and preserve coverage for typed text.
  */
 
 @import "@fontsource/space-grotesk/latin-400.css";
@@ -10,10 +11,10 @@
 @import "@fontsource/space-grotesk/latin-600.css";
 @import "@fontsource/space-grotesk/latin-700.css";
 
-@import "@fontsource/ibm-plex-sans-kr/korean-400.css";
-@import "@fontsource/ibm-plex-sans-kr/korean-500.css";
-@import "@fontsource/ibm-plex-sans-kr/korean-600.css";
-@import "@fontsource/ibm-plex-sans-kr/korean-700.css";
+@import "@fontsource/ibm-plex-sans-kr/400.css";
+@import "@fontsource/ibm-plex-sans-kr/500.css";
+@import "@fontsource/ibm-plex-sans-kr/600.css";
+@import "@fontsource/ibm-plex-sans-kr/700.css";
 
 @import "@fontsource/space-mono/latin-400.css";
 @import "@fontsource/space-mono/latin-700.css";

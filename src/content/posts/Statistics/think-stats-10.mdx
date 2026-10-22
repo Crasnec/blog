@@ -4,6 +4,10 @@ published: 2026-10-22
 description: '최소제곱 회귀선, 잔차와 결정계수, 기울기의 불확실성을 다루는 Think Stats 3판 10장 한국어 번역.'
 lang: ko
 tags: [statistics, think-stats, python, translation]
+order: 10
+series:
+  name: Think Stats
+  order: 10
 ---
 
 import CodePlayground from '../../../components/CodePlayground.astro';
@@ -65,7 +69,16 @@ Allen B. Downey의 《Think Stats》 3판, 10장 「Least Squares」의 한국�
 
 <CodePlayground notebook="think-stats-10" title="셀 4" code={notebook.cells[4].code} language="python" timeout={60000}>
 
-![아델리펭귄 날개 길이와 체중의 산점도. 길이가 길수록 체중이 증가하는 경향입니다.](/labs/think-stats/figures/chap10-016-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap10-016-0.png"
+        alt="아델리펭귄 날개 길이와 체중의 산점도. 길이가 길수록 체중이 증가하는 경향입니다."
+        width={1769}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap10-016-0.png)
 
@@ -117,7 +130,16 @@ LinregressResult(slope=np.float64(32.83168975115009), intercept=np.float64(-2535
 
 <CodePlayground notebook="think-stats-10" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000}>
 
-![날개 길이와 체중 위에 그린 최소제곱 회귀선. 관측점은 선 주변에 넓게 흩어져 있습니다.](/labs/think-stats/figures/chap10-028-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap10-028-0.png"
+        alt="날개 길이와 체중 위에 그린 최소제곱 회귀선. 관측점은 선 주변에 넓게 흩어져 있습니다."
+        width={1769}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap10-028-0.png)
 
@@ -392,7 +414,16 @@ np.float64(5.076138407990821)
 
 <CodePlayground notebook="think-stats-10" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000}>
 
-![재표집할 때마다 달라지는 회귀선들. 자료의 양 끝에서 더 퍼집니다.](/labs/think-stats/figures/chap10-093-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap10-093-0.png"
+        alt="재표집할 때마다 달라지는 회귀선들. 자료의 양 끝에서 더 퍼집니다."
+        width={1769}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap10-093-0.png)
 
@@ -410,7 +441,16 @@ np.float64(5.076138407990821)
 
 <CodePlayground notebook="think-stats-10" title="셀 44" code={notebook.cells[44].code} language="python" timeout={60000}>
 
-![평균 회귀선의 점별 90% 부트스트랩 띠. 개별 관측값은 띠 밖에도 많습니다.](/labs/think-stats/figures/chap10-099-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap10-099-0.png"
+        alt="평균 회귀선의 점별 90% 부트스트랩 띠. 개별 관측값은 띠 밖에도 많습니다."
+        width={1769}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap10-099-0.png)
 
@@ -462,7 +502,16 @@ BRFSS 원자료를 불러오는 코드는 내려받는 노트북에 있습니다
 
 <CodePlayground notebook="think-stats-10" title="셀 51" code={notebook.cells[51].code} language="python" timeout={60000}>
 
-![키로 체중을 예측한 직선. 체중이 큰 쪽에 관측점이 길게 퍼집니다.](/labs/think-stats/figures/chap10-117-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap10-117-0.png"
+        alt="키로 체중을 예측한 직선. 체중이 큰 쪽에 관측점이 길게 퍼집니다."
+        width={1769}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap10-117-0.png)
 
@@ -494,7 +543,16 @@ BRFSS 원자료를 불러오는 코드는 내려받는 노트북에 있습니다
 
 <CodePlayground notebook="think-stats-10" title="셀 56" code={notebook.cells[56].code} language="python" timeout={60000}>
 
-![키와 로그 체중의 회귀선. 체중 자체보다 잔차 모양이 대칭에 가깝습니다.](/labs/think-stats/figures/chap10-126-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap10-126-0.png"
+        alt="키와 로그 체중의 회귀선. 체중 자체보다 잔차 모양이 대칭에 가깝습니다."
+        width={1769}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap10-126-0.png)
 
@@ -532,7 +590,16 @@ BRFSS 원자료를 불러오는 코드는 내려받는 노트북에 있습니다
 
 <CodePlayground notebook="think-stats-10" title="셀 61" code={notebook.cells[61].code} language="python" timeout={60000}>
 
-![지수화한 로그 회귀선과 원래 체중 축의 관측값. 역변환 선은 원래 척도의 조건부 평균과 다를 수 있습니다.](/labs/think-stats/figures/chap10-135-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap10-135-0.png"
+        alt="지수화한 로그 회귀선과 원래 체중 축의 관측값. 역변환 선은 원래 척도의 조건부 평균과 다를 수 있습니다."
+        width={1769}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap10-135-0.png)
 

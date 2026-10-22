@@ -51,7 +51,9 @@ const strip = (text: string) => text.replace(/\s*#\s*$/, "");
             <ol class="contents-inline-list">
                 {items.map((item) => (
                     <li data-depth={item.level}>
-                        <a href={`#${item.slug}`}>{strip(item.text)}</a>
+                        <a href={`#${item.slug}`} data-slug={item.slug}>
+                            {strip(item.text)}
+                        </a>
                     </li>
                 ))}
             </ol>

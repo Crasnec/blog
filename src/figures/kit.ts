@@ -159,13 +159,14 @@ export const stagger = (i: number, n: number, start: number, span: number): numb
  */
 export function phases<K extends string>(steps: Record<K, number>): Record<K | "end", number> {
     let at = 0;
-    const out: Partial<Record<K | "end", number>> = {};
-    for (const key of Object.keys(steps) as K[]) {
+    const out: Record<K | "end", number> = { ...steps, end: 0 };
+    for (const key in steps) {
+        if (!Object.hasOwn(steps, key)) continue;
         out[key] = at;
         at += steps[key];
     }
     out.end = at;
-    return out as Record<K | "end", number>;
+    return out;
 }
 
 /** A number that counts from `from` to `to` while `t` goes 0 → 1. */

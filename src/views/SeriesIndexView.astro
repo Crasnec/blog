@@ -1,0 +1,32 @@
+---
+import Sidebar from "../components/Sidebar.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { t } from "../strings";
+import { getSeries } from "../utils/content";
+import { countLabel } from "../utils/format";
+import { seriesPath } from "../utils/series";
+import { sitePath } from "../utils/url";
+
+const series = await getSeries();
+---
+
+<BaseLayout title={t("series.title")}>
+    <Sidebar slot="sidebar" />
+    <div class="page-intro">
+        <h1>{t("series.title")}</h1>
+    </div>
+    {series.length === 0 ? (
+        <p class="empty-note">{t("series.empty")}</p>
+    ) : (
+        <ul class="category-list">
+            {series.map(({ name, parts }) => (
+                <li class="category-item">
+                    <a class="category-link" href={sitePath(seriesPath(name))}>
+                        <span class="category-name">{name}</span>
+                        <span class="category-tally">{countLabel(parts.length)}</span>
+                    </a>
+                </li>
+            ))}
+        </ul>
+    )}
+</BaseLayout>

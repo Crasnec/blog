@@ -503,6 +503,14 @@ a.tag:hover {
 	color: var(--marker);
 }
 
+.contents-inline-list a[aria-current="location"] {
+    color: var(--ink-strong);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--marker);
+    text-underline-offset: 0.2em;
+}
+
 .contents-inline-list li[data-depth="3"] a {
 	padding-left: 1.25rem;
 	font-size: 0.85rem;
@@ -689,7 +697,6 @@ a.tag:hover {
 /* Not a link at all now, so there is nothing to switch pointer events off. */
 .pagination .is-disabled {
 	color: var(--ink-faint);
-	opacity: 0.5;
 }
 
 /* — archive ———————————————————————————————————— */
@@ -780,6 +787,8 @@ a.tag:hover {
 	inset: 0;
 	z-index: var(--z-panel);
 	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	grid-template-rows: minmax(0, 1fr);
 	place-items: start center;
 	padding: clamp(1rem, 8vh, 6rem) var(--page-pad) var(--space-6);
 	background: var(--scrim);
@@ -796,9 +805,12 @@ a.tag:hover {
 
 .search-dialog {
 	width: min(38rem, 100%);
+	min-width: 0;
+	min-height: 0;
 	max-height: 100%;
 	display: flex;
 	flex-direction: column;
+	overflow: hidden;
 	background: var(--paper-raised);
 	border: 1px solid var(--rule-strong);
 	border-radius: var(--radius-3);
@@ -817,6 +829,7 @@ a.tag:hover {
 
 .search-field {
 	display: flex;
+	flex-shrink: 0;
 	align-items: center;
 	gap: var(--space-3);
 	padding: var(--space-4) var(--space-5);
@@ -861,7 +874,9 @@ a.tag:hover {
 }
 
 .search-results {
+	min-height: 0;
 	overflow-y: auto;
+	overscroll-behavior: contain;
 	padding: var(--space-2) 0;
 	list-style: none;
 	margin: 0;
@@ -873,6 +888,7 @@ a.tag:hover {
 
 .search-result a {
 	display: block;
+	overflow-wrap: anywhere;
 	padding: var(--space-3) var(--space-5);
 	border-left: 2px solid transparent;
 	transition:
@@ -914,6 +930,8 @@ a.tag:hover {
 }
 
 .search-note {
+	flex-shrink: 0;
+	overflow-wrap: anywhere;
 	padding: var(--space-4) var(--space-5);
 	font-family: var(--font-mono);
 	font-size: var(--step--1);

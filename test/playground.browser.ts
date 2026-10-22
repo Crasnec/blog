@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { before, after, test } from "node:test";
 import { chromium, type Browser, type Locator, type Page, type Request } from "playwright";
 import { isJsonObject, parseJson } from "../src/utils/json.ts";
+import { serveStaticSite } from "./helpers/static-site.ts";
 
 let browser: Browser;
 let page: Page;
@@ -14,27 +15,31 @@ const playground = (language: string) =>
     page.locator(`[data-code-playground][data-config*='"language":"${language}"']`).first();
 
 before(async () => {
-    if (process.env.PLAYGROUND_BASE) base = process.env.PLAYGROUND_BASE;
+    const staticDist = process.env.PLAYGROUND_DIST;
+    if (staticDist) base = "https://playground.test";
+    else if (process.env.PLAYGROUND_BASE) base = process.env.PLAYGROUND_BASE;
     else {
         const lock = parseJson(
             await readFile(new URL("../.astro/dev.json", import.meta.url), "utf8"),
         );
         if (!isJsonObject(lock) || typeof lock.url !== "string")
-            throw new Error("Start astro dev --background or set PLAYGROUND_BASE");
+            throw new Error("Set PLAYGROUND_DIST, PLAYGROUND_BASE or start astro dev --background");
         base = lock.url;
     }
     browser = await chromium.launch();
-    page = await browser.newPage({
+    const context = await browser.newContext({
         viewport: { width: 1100, height: 1000 },
         reducedMotion: "reduce",
     });
+    if (staticDist) base = await serveStaticSite(context, staticDist, base);
+    page = await context.newPage();
     page.setDefaultTimeout(20_000);
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto(new URL(demo, base).href);
     await page
-        .locator('[data-code-playground][data-ready="true"]')
+        .locator("[data-code-playground]")
         .nth(demoEditors - 1)
-        .waitFor();
+        .waitFor({ state: "attached" });
 });
 after(async () => {
     await browser.close();
@@ -42,6 +47,7 @@ after(async () => {
 });
 
 async function edit(root: Locator, code: string) {
+    await root.locator(".playground-editor").scrollIntoViewIfNeeded();
     const editor = root.locator(".cm-content");
     await editor.fill(code);
     try {
@@ -82,14 +88,92 @@ async function execute(
     return result;
 }
 
-void test("editors highlight their initial source without executing it", async () => {
-    await page.waitForFunction(
-        (expected) => document.querySelectorAll('[data-highlight="ready"]').length === expected,
-        demoEditors,
-    );
+void test("first focus on the fallback transfers into the editor after its lazy module loads", async () => {
+    const context = await browser.newContext({
+        viewport: { width: 390, height: 400 },
+        reducedMotion: "reduce",
+    });
+    if (process.env.PLAYGROUND_DIST) {
+        await serveStaticSite(context, process.env.PLAYGROUND_DIST, base);
+    }
+    let releaseImport = () => {
+        /* Assigned synchronously by the gate's executor. */
+    };
+    const gate = new Promise<void>((resolve) => {
+        releaseImport = resolve;
+    });
+    const modulePath =
+        /\/(?:_astro\/playgrounds\.[^/?]+\.js|src\/scripts\/playgrounds(?:\.ts)?)(?:\?|$)/u;
+    await context.route(modulePath, async (route) => {
+        await gate;
+        await route.fallback();
+    });
+    const focusedPage = await context.newPage();
+    focusedPage.setDefaultTimeout(20_000);
+    focusedPage.on("pageerror", (error) => errors.push(error.message));
+    try {
+        const request = focusedPage.waitForRequest(modulePath);
+        await focusedPage.goto(new URL(demo, base).href, { waitUntil: "domcontentloaded" });
+        const root = focusedPage.locator("[data-code-playground]").last();
+        const fallback = root.locator(".playground-fallback");
+        assert.equal(await root.locator(".cm-editor").count(), 0);
+        await fallback.evaluate((element) => {
+            if (!(element instanceof HTMLTextAreaElement)) throw new Error("Missing fallback");
+            element.focus({ preventScroll: true });
+        });
+        await request;
+        assert.equal(
+            await fallback.evaluate((element) => element === document.activeElement),
+            true,
+        );
+        releaseImport();
+        const editor = root.locator(".cm-content");
+        await editor.waitFor();
+        assert.equal(await editor.evaluate((element) => element === document.activeElement), true);
+        assert.equal(await fallback.isVisible(), false);
+    } finally {
+        releaseImport();
+        await context.close();
+    }
+});
+
+void test("editors initialize near the viewport and share grammar workers without executing", async () => {
+    const editors = page.locator("[data-code-playground]");
+    assert.equal(await editors.last().locator(".cm-editor").count(), 0);
+    for (const root of await editors.all()) {
+        await root.locator(".playground-editor").scrollIntoViewIfNeeded();
+        await root.locator("xpath=self::*[@data-highlight='ready']").waitFor();
+    }
     assert.equal(await page.locator(".cm-editor").count(), demoEditors);
     assert.equal(await page.locator("[data-run-state]").count(), 0);
     assert.ok((await playground("signal").locator("[data-textmate-token]").count()) > 0);
+    assert.equal(
+        page.workers().length,
+        2,
+        "builtins share one worker; the custom grammar uses another",
+    );
+});
+
+void test("typing keeps existing colours and patches only the affected line", async () => {
+    const root = playground("javascript");
+    await edit(root, 'const word = "keep";\nconst value = 1;');
+    const stable = root
+        .locator('[data-textmate-token][style*="token-string"]')
+        .filter({ hasText: "keep" });
+    await stable.waitFor();
+    const original = await stable.elementHandle();
+    assert.ok(original);
+    const editor = root.locator(".cm-content");
+    await editor.press("ControlOrMeta+End");
+    await editor.press("ArrowLeft");
+    await editor.press("0");
+    assert.equal(await original.evaluate((element) => element.isConnected), true);
+    await root
+        .locator('[data-textmate-token][style*="token-constant"]')
+        .filter({ hasText: /^10$/u })
+        .waitFor();
+    assert.equal(await original.evaluate((element) => element.isConnected), true);
+    await original.dispose();
 });
 
 void test("JavaScript runs async modules, captures mixed values and renders output as text", async () => {
@@ -467,8 +551,9 @@ void test("navigation disposes active Workers and mounts editors again without d
     await closed;
     assert.equal(page.workers().length, 0);
     await page.goBack();
-    await page.locator('[data-code-playground][data-ready="true"]').nth(4).waitFor();
-    assert.equal(await page.locator(".cm-editor").count(), demoEditors);
+    await playground("javascript").locator(".playground-editor").scrollIntoViewIfNeeded();
+    await playground("javascript").locator(".cm-editor").waitFor();
+    assert.equal(await playground("javascript").locator(".cm-editor").count(), 1);
     assert.match(
         await execute(playground("javascript"), 'console.log("after navigation")'),
         /after navigation/,
@@ -522,7 +607,6 @@ async function assertNoOutputLayout(root: Locator, run: () => Promise<string>) {
 
 void test("silent standalone executions keep their height and completion status", async () => {
     await page.goto(new URL(demo, base).href);
-    await page.locator('[data-code-playground][data-ready="true"]').nth(4).waitFor();
     for (const [language, code] of [
         ["javascript", "await new Promise(resolve => setTimeout(resolve, 150));"],
         [
@@ -540,9 +624,35 @@ void test("silent standalone executions keep their height and completion status"
     }
 });
 
+void test("output can be reached and scrolled with the keyboard", async () => {
+    const root = playground("javascript");
+    await execute(root, 'console.log(Array.from({length: 100}, (_, i) => i).join("\\n"));');
+    const output = root.locator(".playground-output");
+    await root.locator(".cm-content").focus();
+    await page.keyboard.press("Escape");
+    await page.keyboard.press("Tab");
+    assert.equal(await output.evaluate((element) => document.activeElement === element), true);
+    assert.equal(
+        await output.evaluate((element) => getComputedStyle(element).outlineStyle),
+        "solid",
+    );
+    await output.evaluate((element) => {
+        element.scrollTop = 0;
+    });
+    await output.press("PageDown");
+    await page.waitForFunction((element) => element.scrollTop > 0, await output.elementHandle());
+    await root.locator(".playground-reset").click();
+    assert.equal(await output.isVisible(), false, "Empty output must not add a keyboard stop");
+});
+
 const notebookDemo = "/posts/build/python-notebook/";
 async function notebookCells() {
     await page.goto(new URL(notebookDemo, base).href);
+    await page
+        .locator("[data-code-playground]")
+        .first()
+        .locator(".playground-editor")
+        .scrollIntoViewIfNeeded();
     await page.locator('[data-code-playground][data-ready="true"]').first().waitFor();
     return page.locator('[data-notebook="notebook-example"]');
 }
@@ -552,6 +662,8 @@ async function notebookEdit(cell: Locator, code: string) {
     await edit(cell, code);
 }
 async function notebookRun(cell: Locator, expected = "done") {
+    await cell.locator(".playground-editor").scrollIntoViewIfNeeded();
+    await cell.locator(".cm-content").waitFor();
     await cell.locator(".playground-run").click();
     await cell
         .locator(
@@ -562,6 +674,41 @@ async function notebookRun(cell: Locator, expected = "done") {
     assert.equal(await cell.getAttribute("data-run-state"), expected, output);
     return output;
 }
+
+void test("notebook shortcuts preserve other results while a cell waits for input", async () => {
+    const cells = await notebookCells();
+    const first = cells.nth(0),
+        second = cells.nth(1);
+    await notebookEdit(second, 'print("Keep this result")');
+    await notebookRun(second);
+    const output = await second.locator(".playground-output").innerText();
+    const count = await second.locator(".notebook-execution").innerText();
+    const source = await second.locator(".cm-content").innerText();
+    await notebookEdit(first, 'print(await read_input("Value: "))');
+    await first.locator(".playground-run").click();
+    await first.locator("xpath=self::*[@data-run-state='input']").waitFor({ timeout: 185_000 });
+    assert.equal(await second.locator(".playground-run").isDisabled(), true);
+    await second.locator(".cm-content").press("ControlOrMeta+Enter");
+    assert.equal(await second.locator(".cm-content").innerText(), source);
+    assert.equal(await second.locator(".playground-output").innerText(), output);
+    assert.equal(await second.locator(".notebook-execution").innerText(), count);
+    assert.equal(await second.getAttribute("data-run-state"), "done");
+    assert.equal(await first.getAttribute("data-run-state"), "input");
+    await submitLine(first, "continued");
+    await first.locator("xpath=self::*[@data-run-state='done']").waitFor();
+    assert.match(await first.locator(".playground-output").innerText(), /continued/u);
+    await second.locator(".cm-content").press("ControlOrMeta+Enter");
+    await page.waitForFunction(
+        ({ previous }) => {
+            const cell = document.querySelectorAll('[data-notebook="notebook-example"]')[1];
+            return cell?.querySelector(".notebook-execution")?.textContent !== previous;
+        },
+        { previous: count },
+    );
+    await second.locator("xpath=self::*[@data-run-state='done']").waitFor();
+    assert.equal(await second.locator(".playground-output").innerText(), output);
+    assert.equal(await second.locator(".cm-content").innerText(), source);
+});
 
 void test("silent notebook cells keep their height on first execution and rerun", async () => {
     const cells = await notebookCells();

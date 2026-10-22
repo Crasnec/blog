@@ -392,8 +392,8 @@ function probabilityPlot(style: "qq" | "pp") {
                     { x: 1, y: 1 },
                 ];
             }
-            const domain =
-                style === "pp" ? ([0, 1] as Domain) : extent(data.flatMap((d) => [d.x, d.y]));
+            const domain: Domain =
+                style === "pp" ? [0, 1] : extent(data.flatMap((d) => [d.x, d.y]));
             return {
                 ...common(p, style === "qq" ? "Q–Q plot" : "P–P plot"),
                 data,

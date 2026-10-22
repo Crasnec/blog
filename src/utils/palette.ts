@@ -58,9 +58,8 @@ if (source === undefined) {
  * `--hex-ink-muted`.
  */
 function read(block: string, where: string): Mirror {
-    const out: Partial<Mirror> = {};
-
-    for (const [key, token] of Object.entries(TOKENS)) {
+    function readToken(key: keyof Mirror): string {
+        const token = TOKENS[key];
         const found = new RegExp(`${token}\\s*:\\s*(#[0-9a-fA-F]{3,8})`).exec(block);
 
         if (!found?.[1]) {
@@ -71,10 +70,18 @@ function read(block: string, where: string): Mirror {
             );
         }
 
-        out[key as keyof Mirror] = found[1];
+        return found[1];
     }
 
-    return out as Mirror;
+    return {
+        bg: readToken("bg"),
+        surface: readToken("surface"),
+        ink: readToken("ink"),
+        inkMuted: readToken("inkMuted"),
+        rule: readToken("rule"),
+        accent: readToken("accent"),
+        accentSoft: readToken("accentSoft"),
+    };
 }
 
 const cut = source.indexOf(":root.dark");

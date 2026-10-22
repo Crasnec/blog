@@ -4,6 +4,10 @@ published: 2026-10-22
 description: '다중회귀의 계수와 통제변수, 비선형 관계와 로지스틱 회귀를 다루는 Think Stats 3판 11장 한국어 번역.'
 lang: ko
 tags: [statistics, think-stats, python, translation]
+order: 11
+series:
+  name: Think Stats
+  order: 11
 ---
 
 import CodePlayground from '../../../components/CodePlayground.astro';
@@ -370,7 +374,16 @@ R-squared: 0.004738
 
 <CodePlayground notebook="think-stats-11" title="셀 29" code={notebook.cells[29].code} language="python" timeout={60000}>
 
-![산모 나이와 출생 체중의 산점도. 나이가 증가할 때 체중이 약간 증가하는 경향입니다.](/labs/think-stats/figures/chap11-073-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap11-073-0.png"
+        alt="산모 나이와 출생 체중의 산점도. 나이가 증가할 때 체중이 약간 증가하는 경향입니다."
+        width={442}
+        height={254}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap11-073-0.png)
 
@@ -555,7 +568,16 @@ R-squared: 0.00718
 
 <CodePlayground notebook="think-stats-11" title="셀 45" code={notebook.cells[45].code} language="python" timeout={60000}>
 
-![출생 체중과 산모 나이에 적합한 이차 곡선. 직선보다 완만한 굽음을 허용합니다.](/labs/think-stats/figures/chap11-104-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap11-104-0.png"
+        alt="출생 체중과 산모 나이에 적합한 이차 곡선. 직선보다 완만한 굽음을 허용합니다."
+        width={442}
+        height={254}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 [그림 크게 보기](/labs/think-stats/figures/chap11-104-0.png)
 

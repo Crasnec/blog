@@ -4,6 +4,10 @@ published: 2026-10-22
 description: 'NSFG 자료의 도수분포표, 이상치, 첫아이의 임신 기간과 효과 크기를 다루는 Think Stats 3판 2장 한국어 번역.'
 lang: ko
 tags: [statistics, think-stats, python, translation]
+order: 2
+series:
+  name: Think Stats
+  order: 2
 ---
 
 import CodePlayground from '../../../components/CodePlayground.astro';
@@ -160,7 +164,16 @@ array([1, 2, 1, 1])
 
 <CodePlayground notebook="think-stats-02" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000}>
 
-![출생 체중의 파운드 부분별 도수. 7파운드가 가장 흔하고 양쪽으로 도수가 줄어듭니다.](/labs/think-stats/figures/chap02-038-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap02-038-0.png"
+        alt="출생 체중의 파운드 부분별 도수. 7파운드가 가장 흔하고 양쪽으로 도수가 줄어듭니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -190,7 +203,16 @@ np.float64(7.0)
 
 <CodePlayground notebook="think-stats-02" title="셀 17" code={notebook.cells[17].code} language="python" timeout={60000}>
 
-![출생 체중의 온스 부분별 도수. 0온스의 도수가 크고 1온스와 15온스는 작습니다.](/labs/think-stats/figures/chap02-044-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap02-044-0.png"
+        alt="출생 체중의 온스 부분별 도수. 0온스의 도수가 크고 1온스와 15온스는 작습니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -204,7 +226,16 @@ NSFG에서 나이는 연과 월 단위로 기록되므로, 앞서 본 분포들�
 
 <CodePlayground notebook="think-stats-02" title="셀 19" code={notebook.cells[19].code} language="python" timeout={60000}>
 
-![임신 종료 시 어머니 나이의 분포. 오른쪽 꼬리가 더 긴 비대칭 모양입니다.](/labs/think-stats/figures/chap02-048-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap02-048-0.png"
+        alt="임신 종료 시 어머니 나이의 분포. 오른쪽 꼬리가 더 긴 비대칭 모양입니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -214,7 +245,16 @@ NSFG에서 나이는 연과 월 단위로 기록되므로, 앞서 본 분포들�
 
 <CodePlayground notebook="think-stats-02" title="셀 20" code={notebook.cells[20].code} language="python" timeout={60000}>
 
-![임신 기간의 도수분포표. 39주의 막대가 가장 높고 왼쪽 꼬리가 더 깁니다.](/labs/think-stats/figures/chap02-050-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap02-050-0.png"
+        alt="임신 기간의 도수분포표. 39주의 막대가 가장 높고 왼쪽 꼬리가 더 깁니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -304,7 +344,16 @@ Name: prglngth, dtype: int64
 
 <CodePlayground notebook="think-stats-02" title="셀 28" code={notebook.cells[28].code} language="python" timeout={60000}>
 
-![첫아이와 다른 아이의 임신 기간별 도수. 표본 수가 다르므로 막대 높이를 곧바로 비교할 수 없습니다.](/labs/think-stats/figures/chap02-068-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap02-068-0.png"
+        alt="첫아이와 다른 아이의 임신 기간별 도수. 표본 수가 다르므로 막대 높이를 곧바로 비교할 수 없습니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 

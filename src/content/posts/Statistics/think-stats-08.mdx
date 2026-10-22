@@ -4,6 +4,10 @@ published: 2026-10-22
 description: '추정량의 편향과 강건성, 표집분포·표준오차·신뢰구간을 다루는 Think Stats 3판 8장 한국어 번역.'
 lang: ko
 tags: [statistics, think-stats, python, translation]
+order: 8
+series:
+  name: Think Stats
+  order: 8
 ---
 
 import CodePlayground from '../../../components/CodePlayground.astro';
@@ -88,7 +92,16 @@ array([4.44719887, 3.41859205, 3.45704099, 3.20643443, 4.09808751,
 
 <CodePlayground notebook="think-stats-08" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000}>
 
-![표본 크기에 따른 표본평균과 표본중앙값. 정규 모형에서 두 추정량 모두 실제 모평균 3.7에 가까워집니다.](/labs/think-stats/figures/chap08-022-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap08-022-0.png"
+        alt="표본 크기에 따른 표본평균과 표본중앙값. 정규 모형에서 두 추정량 모두 실제 모평균 3.7에 가까워집니다."
+        width={442}
+        height={254}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 

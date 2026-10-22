@@ -51,7 +51,7 @@ export function remarkBlocks() {
             const admonition = ADMONITIONS[key];
 
             const attrs = node.attributes ?? {};
-            const children = node.children ?? [];
+            const children = node.children;
 
             // remark-directive parks `[label]` in a first child flagged as the label.
             /** @type {import("mdast").PhrasingContent[] | null} */

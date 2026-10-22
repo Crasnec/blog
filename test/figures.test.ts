@@ -1,12 +1,22 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
+import { phases } from "../src/figures/kit.ts";
 import gantt, { schedule } from "../src/figures/kinds/gantt.ts";
 import { simulate } from "../src/figures/kinds/memory.ts";
 import sort from "../src/figures/kinds/sort.ts";
 import stateMachine from "../src/figures/kinds/state-machine.ts";
 import tree from "../src/figures/kinds/tree.ts";
 import type { JsonObject } from "../src/utils/json.ts";
+
+void test("phase timing uses own durations and preserves the supplied workload", () => {
+    const durations = { appear: 1, pause: 0, finish: 2 };
+    Object.setPrototypeOf(durations, { inherited: 100 });
+
+    assert.deepEqual(phases(durations), { appear: 0, pause: 1, finish: 1, end: 3 });
+    assert.deepEqual(durations, { appear: 1, pause: 0, finish: 2 });
+    assert.deepEqual(phases({}), { end: 0 });
+});
 
 void test("next-fit resumes inside a hole coalesced across its cursor", () => {
     const steps = simulate("next-fit", 16, [

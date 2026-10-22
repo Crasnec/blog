@@ -1,0 +1,32 @@
+---
+import PostEntry from "../components/PostEntry.astro";
+import Sidebar from "../components/Sidebar.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { t } from "../strings";
+import type { PostRef } from "../utils/content";
+import { countLabel } from "../utils/format";
+import type { PostSeries } from "../utils/series";
+import { sitePath } from "../utils/url";
+
+interface Props {
+    series: PostSeries<PostRef>;
+}
+
+const { series } = Astro.props;
+---
+
+<BaseLayout title={series.name}>
+    <Sidebar slot="sidebar" />
+    <div class="page-intro">
+        <a class="link-text mono" href={sitePath("/series/")}>
+            {t("series.title")}
+        </a>
+        <h1>{series.name}</h1>
+        <p class="post-meta-note">{countLabel(series.parts.length)}</p>
+    </div>
+    <ol class="entry-list">
+        {series.parts.map(({ post }) => (
+            <PostEntry post={post} />
+        ))}
+    </ol>
+</BaseLayout>

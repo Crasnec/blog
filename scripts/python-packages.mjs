@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import libraries from "../src/playground/python-libraries.json" with { type: "json" };
 import wheels from "../src/playground/python-wheels.json" with { type: "json" };
+import { isJsonObject, parseJson } from "../src/utils/json.ts";
 
 /**
  * @typedef {{
@@ -18,17 +19,61 @@ import wheels from "../src/playground/python-wheels.json" with { type: "json" };
  *     package_type: string,
  * }} PythonPackage
  */
-/** @typedef {{info: object, packages: Record<string, PythonPackage>}} PythonLock */
+/**
+ * @typedef {{
+ *     info: import("../src/utils/json.ts").JsonObject,
+ *     packages: Record<string, PythonPackage>,
+ * }} PythonLock
+ */
+
+/**
+ * @param {import("../src/utils/json.ts").JsonValue} value
+ * @returns {value is PythonPackage}
+ */
+function isPythonPackage(value) {
+    return (
+        isJsonObject(value) &&
+        typeof value.name === "string" &&
+        typeof value.version === "string" &&
+        typeof value.file_name === "string" &&
+        typeof value.sha256 === "string" &&
+        typeof value.install_dir === "string" &&
+        typeof value.package_type === "string" &&
+        Array.isArray(value.depends) &&
+        value.depends.every((entry) => typeof entry === "string") &&
+        Array.isArray(value.imports) &&
+        value.imports.every((entry) => typeof entry === "string")
+    );
+}
+
+/**
+ * Validate every catalog entry, including packages loaded later in the browser.
+ * @param {import("../src/utils/json.ts").JsonValue} value
+ * @returns {PythonLock}
+ */
+export function decodePythonLock(value) {
+    if (!isJsonObject(value) || !isJsonObject(value.info) || !isJsonObject(value.packages)) {
+        throw new Error("Invalid Pyodide package catalog");
+    }
+    const packages = Object.entries(value.packages).map(([name, entry]) => {
+        if (!isPythonPackage(entry)) throw new Error(`Invalid Pyodide package entry: ${name}`);
+        return /** @type {const} */ ([name, entry]);
+    });
+    return { ...value, info: value.info, packages: Object.fromEntries(packages) };
+}
 
 export const supportedPackages = Object.keys(libraries);
 const runtimeRoot = dirname(fileURLToPath(import.meta.resolve("pyodide")));
 
 /** Bundle common packages locally and expose the complete versioned catalog. */
 export function pythonDistribution() {
-    /** @type {{version: string}} */
-    const metadata = JSON.parse(readFileSync(join(runtimeRoot, "package.json"), "utf8"));
-    /** @type {PythonLock} */
-    const source = JSON.parse(readFileSync(join(runtimeRoot, "pyodide-lock.json"), "utf8"));
+    const metadata = parseJson(readFileSync(join(runtimeRoot, "package.json"), "utf8"));
+    if (!isJsonObject(metadata) || typeof metadata.version !== "string") {
+        throw new Error("Invalid Pyodide runtime version");
+    }
+    const source = decodePythonLock(
+        parseJson(readFileSync(join(runtimeRoot, "pyodide-lock.json"), "utf8")),
+    );
     /** @type {Record<string, PythonPackage>} */
     const catalog = { ...source.packages };
     for (const { url, ...entry } of wheels) {

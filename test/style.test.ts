@@ -8,6 +8,16 @@ import tseslint from "typescript-eslint";
 const engine = new ESLint();
 const linter = new Linter();
 
+void test("JavaScript modules reject unchecked JSON assignments and member access", async () => {
+    const results = await engine.lintText(
+        'const record = JSON.parse("{}");\nconsole.log(record.value);\n',
+        { filePath: "scripts/python-packages.mjs" },
+    );
+    const rules = results.flatMap((result) => result.messages.map((message) => message.ruleId));
+    assert.ok(rules.includes("@typescript-eslint/no-unsafe-assignment"));
+    assert.ok(rules.includes("@typescript-eslint/no-unsafe-member-access"));
+});
+
 async function styleConfig(file: string): Promise<Linter.Config> {
     const effective = (await engine.calculateConfigForFile(file)) as Linter.Config | undefined;
     assert.ok(effective?.rules);

@@ -4,6 +4,10 @@ published: 2026-10-22
 description: '산점도, 십분위 그림, 피어슨 상관과 순위상관, 상관과 인과를 다루는 Think Stats 3판 7장 한국어 번역.'
 lang: ko
 tags: [statistics, think-stats, python, translation]
+order: 7
+series:
+  name: Think Stats
+  order: 7
 ---
 
 import CodePlayground from '../../../components/CodePlayground.astro';
@@ -100,7 +104,16 @@ Allen B. Downey의 《Think Stats》 3판, 7장 「Relationships between variabl
 
 <CodePlayground notebook="think-stats-07" title="셀 8" code={notebook.cells[8].code} language="python" timeout={60000}>
 
-![SAT 언어와 수학 점수의 기본 산점도. 점이 많이 겹쳐 가운데의 밀도가 충분히 드러나지 않습니다.](/labs/think-stats/figures/chap07-021-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap07-021-0.png"
+        alt="SAT 언어와 수학 점수의 기본 산점도. 점이 많이 겹쳐 가운데의 밀도가 충분히 드러나지 않습니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -112,7 +125,16 @@ Allen B. Downey의 《Think Stats》 3판, 7장 「Relationships between variabl
 
 <CodePlayground notebook="think-stats-07" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000}>
 
-![표식 크기를 줄인 SAT 점수 산점도. 10점 단위 반올림으로 생긴 행과 열이 보입니다.](/labs/think-stats/figures/chap07-023-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap07-023-0.png"
+        alt="표식 크기를 줄인 SAT 점수 산점도. 10점 단위 반올림으로 생긴 행과 열이 보입니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -128,7 +150,16 @@ Allen B. Downey의 《Think Stats》 3판, 7장 「Relationships between variabl
 
 <CodePlayground notebook="think-stats-07" title="셀 12" code={notebook.cells[12].code} language="python" timeout={60000}>
 
-![표준편차 3의 지터를 준 SAT 점수 산점도. 반올림 때문에 생긴 줄무늬가 흐려집니다.](/labs/think-stats/figures/chap07-028-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap07-028-0.png"
+        alt="표준편차 3의 지터를 준 SAT 점수 산점도. 반올림 때문에 생긴 줄무늬가 흐려집니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -138,7 +169,16 @@ Allen B. Downey의 《Think Stats》 3판, 7장 「Relationships between variabl
 
 <CodePlayground notebook="think-stats-07" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000}>
 
-![작은 표식, 지터, 투명도를 함께 사용한 SAT 점수 산점도. 점이 많은 구간이 더 짙습니다.](/labs/think-stats/figures/chap07-030-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap07-030-0.png"
+        alt="작은 표식, 지터, 투명도를 함께 사용한 SAT 점수 산점도. 점이 많은 구간이 더 짙습니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -201,7 +241,16 @@ Name: count, dtype: int64
 
 <CodePlayground notebook="think-stats-07" title="셀 18" code={notebook.cells[18].code} language="python" timeout={60000}>
 
-![언어 점수의 십분위 집단별 수학 점수. 선은 중앙값, 음영은 10~90백분위수입니다.](/labs/think-stats/figures/chap07-041-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap07-041-0.png"
+        alt="언어 점수의 십분위 집단별 수학 점수. 선은 중앙값, 음영은 10~90백분위수입니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -209,7 +258,16 @@ Name: count, dtype: int64
 
 <CodePlayground notebook="think-stats-07" title="셀 19" code={notebook.cells[19].code} language="python" timeout={60000}>
 
-![각 집단의 언어 점수 중앙값을 x축에 놓은 십분위 그림. 수학 점수 중앙값도 대체로 선형으로 증가합니다.](/labs/think-stats/figures/chap07-043-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap07-043-0.png"
+        alt="각 집단의 언어 점수 중앙값을 x축에 놓은 십분위 그림. 수학 점수 중앙값도 대체로 선형으로 증가합니다."
+        width={441}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -241,7 +299,16 @@ Name: piat_math, dtype: float64
 
 <CodePlayground notebook="think-stats-07" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000}>
 
-![NLSY 참가자의 PIAT 수학 점수 누적분포함수.](/labs/think-stats/figures/chap07-048-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap07-048-0.png"
+        alt="NLSY 참가자의 PIAT 수학 점수 누적분포함수."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -299,7 +366,16 @@ SAT 수학 점수도 표준화하겠습니다.
 
 <CodePlayground notebook="think-stats-07" title="셀 28" code={notebook.cells[28].code} language="python" timeout={60000}>
 
-![처음 100명의 PIAT 수학과 SAT 수학 표준점수. 두 시퀀스가 평균 위아래에서 비슷하게 움직입니다.](/labs/think-stats/figures/chap07-063-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap07-063-0.png"
+        alt="처음 100명의 PIAT 수학과 SAT 수학 표준점수. 두 시퀀스가 평균 위아래에서 비슷하게 움직입니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -448,7 +524,16 @@ Name: income, dtype: float64
 
 <CodePlayground notebook="think-stats-07" title="셀 39" code={notebook.cells[39].code} language="python" timeout={60000}>
 
-![세전 가족 총소득의 CDF. 약 60만 달러 부근의 계단은 상한 처리의 영향을 보여 줍니다.](/labs/think-stats/figures/chap07-086-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap07-086-0.png"
+        alt="세전 가족 총소득의 CDF. 약 60만 달러 부근의 계단은 상한 처리의 영향을 보여 줍니다."
+        width={440}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -458,7 +543,16 @@ Name: income, dtype: float64
 
 <CodePlayground notebook="think-stats-07" title="셀 40" code={notebook.cells[40].code} language="python" timeout={60000}>
 
-![청소년기의 PIAT 수학 점수와 성인기 가족 소득의 산점도. 양의 관계와 큰 소득 차이가 함께 보입니다.](/labs/think-stats/figures/chap07-088-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap07-088-0.png"
+        alt="청소년기의 PIAT 수학 점수와 성인기 가족 소득의 산점도. 양의 관계와 큰 소득 차이가 함께 보입니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -494,7 +588,16 @@ np.float64(0.30338587288641233)
 
 <CodePlayground notebook="think-stats-07" title="셀 44" code={notebook.cells[44].code} language="python" timeout={60000}>
 
-![PIAT 수학 점수 순위와 소득 순위의 산점도. 원래 값보다 극단적인 값의 영향이 작습니다.](/labs/think-stats/figures/chap07-096-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap07-096-0.png"
+        alt="PIAT 수학 점수 순위와 소득 순위의 산점도. 원래 값보다 극단적인 값의 영향이 작습니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -586,7 +689,16 @@ square는 y=x², absolute는 y=|x|, linear는 y=x입니다. 앞의 두 관계는
 
 <CodePlayground notebook="think-stats-07" title="셀 48" code={notebook.cells[48].code} language="python" timeout={60000} runAll={false}>
 
-![SAT 언어 점수별 수학 점수의 십분위 그림. 제공된 함수로 앞 절의 결과를 다시 그립니다.](/labs/think-stats/figures/chap07-110-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap07-110-0.png"
+        alt="SAT 언어 점수별 수학 점수의 십분위 그림. 제공된 함수로 앞 절의 결과를 다시 그립니다."
+        width={441}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -622,7 +734,16 @@ GPA의 분포는 다음과 같습니다.
 
 <CodePlayground notebook="think-stats-07" title="셀 50" code={notebook.cells[50].code} language="python" timeout={60000} runAll={false}>
 
-![고등학교 평균학점 GPA의 누적분포함수. 연습문제에 제공된 자료 확인 그림입니다.](/labs/think-stats/figures/chap07-119-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap07-119-0.png"
+        alt="고등학교 평균학점 GPA의 누적분포함수. 연습문제에 제공된 자료 확인 그림입니다."
+        width={442}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -657,7 +778,16 @@ Name: count, dtype: int64
 
 <CodePlayground notebook="think-stats-07" title="셀 53" code={notebook.cells[53].code} language="python" timeout={60000} runAll={false}>
 
-![응답자의 최종 학력 분포. 학위 종류별 확률을 막대로 표시합니다.](/labs/think-stats/figures/chap07-129-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap07-129-0.png"
+        alt="응답자의 최종 학력 분포. 학위 종류별 확률을 막대로 표시합니다."
+        width={435}
+        height={255}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 

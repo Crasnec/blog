@@ -78,6 +78,7 @@ export const navLinks = [
     { key: "nav.posts", href: "/" },
     { key: "nav.archive", href: "/archive" },
     { key: "nav.categories", href: "/categories" },
+    { key: "nav.series", href: "/series" },
     { key: "nav.tags", href: "/tags" },
     { key: "nav.about", href: "/about" },
 ] as const;

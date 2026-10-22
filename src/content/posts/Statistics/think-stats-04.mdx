@@ -4,6 +4,10 @@ published: 2026-10-22
 description: '백분위수와 누적분포함수, 이상치에 강건한 통계량과 난수 생성을 다루는 Think Stats 3판 4장 한국어 번역.'
 lang: ko
 tags: [statistics, think-stats, python, translation]
+order: 4
+series:
+  name: Think Stats
+  order: 4
 ---
 
 import CodePlayground from '../../../components/CodePlayground.astro';
@@ -238,7 +242,16 @@ array(0.8)
 
 <CodePlayground notebook="think-stats-04" title="셀 23" code={notebook.cells[23].code} language="python" timeout={60000}>
 
-![달리기 속도의 누적분포함수. 저자의 속도를 나타내는 세로선에서 누적비율은 약 0.94입니다.](/labs/think-stats/figures/chap04-054-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap04-054-0.png"
+        alt="달리기 속도의 누적분포함수. 저자의 속도를 나타내는 세로선에서 누적비율은 약 0.94입니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -312,7 +325,16 @@ np.float64(7.325855614973262)
 
 <CodePlayground notebook="think-stats-04" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000}>
 
-![첫아이와 다른 아이의 출생 체중 PMF. 봉우리와 골이 많아 전체 차이를 비교하기 어렵습니다.](/labs/think-stats/figures/chap04-071-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap04-071-0.png"
+        alt="첫아이와 다른 아이의 출생 체중 PMF. 봉우리와 골이 많아 전체 차이를 비교하기 어렵습니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -328,7 +350,16 @@ np.float64(7.325855614973262)
 
 <CodePlayground notebook="think-stats-04" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000}>
 
-![출생 체중의 CDF 비교. 첫아이의 곡선이 대체로 왼쪽에 있어 체중이 조금 더 가볍습니다.](/labs/think-stats/figures/chap04-075-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap04-075-0.png"
+        alt="출생 체중의 CDF 비교. 첫아이의 곡선이 대체로 왼쪽에 있어 체중이 조금 더 가볍습니다."
+        width={1768}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -532,7 +563,16 @@ np.float64(-38.74658112171128)
 
 <CodePlayground notebook="think-stats-04" title="셀 56" code={notebook.cells[56].code} language="python" timeout={60000}>
 
-![원래 달리기 속도 자료와 역 CDF로 생성한 무작위 표본의 CDF 비교. 두 곡선이 비슷한 모양입니다.](/labs/think-stats/figures/chap04-123-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap04-123-0.png"
+        alt="원래 달리기 속도 자료와 역 CDF로 생성한 무작위 표본의 CDF 비교. 두 곡선이 비슷한 모양입니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
@@ -546,7 +586,16 @@ np.float64(-38.74658112171128)
 
 <CodePlayground notebook="think-stats-04" title="셀 58" code={notebook.cells[58].code} language="python" timeout={60000}>
 
-![생성한 표본의 백분위 순위 CDF. 0에서 1로 증가하는 직선에 가깝습니다.](/labs/think-stats/figures/chap04-127-0.png)
+<p>
+    <img
+        src="/labs/think-stats/figures/chap04-127-0.png"
+        alt="생성한 표본의 백분위 순위 CDF. 0에서 1로 증가하는 직선에 가깝습니다."
+        width={1770}
+        height={1020}
+        loading="lazy"
+        decoding="async"
+    />
+</p>
 
 </CodePlayground>
 
