@@ -3,6 +3,8 @@ import { longDate, machineDate, readingTimeLabel, shortDate } from "../utils/for
 import { t } from "../strings";
 import { render } from "astro:content";
 import CategoryList from "../components/CategoryList.astro";
+import CategoryBreadcrumbs from "../components/CategoryBreadcrumbs.astro";
+import { categoryLabel } from "../utils/category";
 import Colophon from "../components/Colophon.astro";
 import Comments from "../components/Comments.astro";
 import Contents from "../components/Contents.astro";
@@ -81,7 +83,7 @@ const revisedLabel = revised ? t("post.updated", { date: revised }) : undefined;
 	publishedTime={entry.data.published}
 	modifiedTime={entry.data.updated}
 	card={cardPath(post)}
-	section={post.category.name}
+	section={categoryLabel(post.category)}
 >
 	<aside id="sidebar" class="onload" slot="sidebar" aria-label={t("post.info")}>
 		<Profile />
@@ -98,6 +100,7 @@ const revisedLabel = revised ? t("post.updated", { date: revised }) : undefined;
 	-->
 	<article lang={entry.data.lang} data-pagefind-body={sealed ? undefined : true}>
 		<header class="post-header onload">
+			<CategoryBreadcrumbs category={post.category} />
 			<!-- The only place on the page that states when this was written. -->
 			<div class="post-header-meta" data-pagefind-ignore>
 				<time

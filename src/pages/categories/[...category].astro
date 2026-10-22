@@ -2,20 +2,21 @@
 import type { GetStaticPaths } from "astro";
 import { getCategories, getPostsByCategory } from "../../utils/content";
 import CategoryView from "../../views/CategoryView.astro";
+import { flattenCategories } from "../../utils/category";
 
 /** Routes are derived from nonempty category folders. */
 export const getStaticPaths = (async () => {
 	const categories = await getCategories();
 
 	return Promise.all(
-		categories.map(async ({ key, name }) => ({
-			params: { category: key },
-			props: { key, name, posts: await getPostsByCategory(key) },
+		flattenCategories(categories).map(async (category) => ({
+			params: { category: category.key },
+			props: { category, posts: await getPostsByCategory(category.key) },
 		})),
 	);
 }) satisfies GetStaticPaths;
 
-const { key, name, posts } = Astro.props;
+const { category, posts } = Astro.props;
 ---
 
-<CategoryView categoryKey={key} name={name} posts={posts} />
+<CategoryView category={category} posts={posts} />

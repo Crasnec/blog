@@ -29,7 +29,8 @@
     "secret:rekey": "node scripts/secret.mjs rekey",
     "secret:seal": "node scripts/secret.mjs seal",
     "secret:open": "node scripts/secret.mjs open",
-    "test:locale:browser": "node --test test/locale.browser.ts"
+    "test:locale:browser": "node --test test/locale.browser.ts",
+    "test:categories:browser": "node --test test/categories.browser.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",

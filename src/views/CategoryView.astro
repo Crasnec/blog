@@ -1,28 +1,36 @@
 ---
 import PostEntry from "../components/PostEntry.astro";
 import Sidebar from "../components/Sidebar.astro";
+import CategoryBreadcrumbs from "../components/CategoryBreadcrumbs.astro";
+import CategoryTree from "../components/CategoryTree.astro";
+import { t } from "../strings";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import type { PostRef } from "../utils/content";
+import { categoryLabel, type CategoryCount } from "../utils/category";
 
 interface Props {
-	categoryKey: string;
-	/** First folder below the post collection, exactly as authored. */
-	name: string;
+	category: CategoryCount;
 	posts: PostRef[];
 }
 
-const { categoryKey, name, posts } = Astro.props;
+const { category, posts } = Astro.props;
 ---
 
 <BaseLayout
-	title={name}
+	title={categoryLabel(category)}
 >
-	<Sidebar slot="sidebar" currentCategory={categoryKey} />
+	<Sidebar slot="sidebar" currentCategory={category.key} />
 
 	<!-- Nothing else on the page says which one you are looking at. -->
 	<div class="page-intro">
-		<h1>{name}</h1>
+		{category.trail.length > 1 && <CategoryBreadcrumbs category={category} current />}
+		<h1>{category.name}</h1>
 	</div>
+	{category.children.length > 0 && (
+		<nav class="category-children" aria-label={t("categories.title")}>
+			<CategoryTree categories={category.children} variant="index" />
+		</nav>
+	)}
 
 	<ul class="entry-list">
 		{posts.map((post) => <PostEntry post={post} />)}

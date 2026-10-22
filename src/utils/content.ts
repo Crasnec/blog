@@ -1,6 +1,6 @@
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import { POSTS_DIRECTORY } from "../post-source";
-import { categoryFromFile, countCategories, type Category, type CategoryCount } from "./category";
+import { categoryContains, categoryFromFile, countCategories, type Category, type CategoryCount } from "./category";
 import { sitePath } from "./url";
 import { HTML_LANG } from "../strings";
 
@@ -130,7 +130,7 @@ export async function getPostsByTag(tag: string) {
 	return posts.filter(({ entry }) => entry.data.tags.includes(tag));
 }
 
-/** Nonempty category folders, sorted by their authored names without translation. */
+/** Category tree, with descendant counts and untranslated names at every level. */
 export async function getCategories(): Promise<CategoryCount[]> {
 	const posts = await getPosts();
 	return countCategories(posts.map(({ category }) => category));
@@ -138,7 +138,7 @@ export async function getCategories(): Promise<CategoryCount[]> {
 
 export async function getPostsByCategory(key: string) {
 	const posts = await getPosts();
-	return posts.filter(({ category }) => category.key === key);
+	return posts.filter(({ category }) => categoryContains(key, category.key));
 }
 
 export interface YearGroup {

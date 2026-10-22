@@ -186,16 +186,26 @@ draft: false
 ---
 ```
 
-The first folder below `src/content/posts/` is the category. Its name is shown
-exactly as written and never translated. For example,
-`Statistics/nested/intro.mdx` belongs to **Statistics**; `nested` remains part of
-the post URL. Adding or moving a folder requires no configuration or frontmatter
-category field. Category URLs use the same lowercase folder slugs as Astro
-post URLs: spaces become hyphens, punctuation is removed and Unicode is
-preserved. Different
-folder names that produce the same slug cannot be separate categories.
-Renaming a folder can change its category and post URLs. Empty folders do not
-appear in the category list. Tags are free-form. Drafts are visible during
+Every directory below `src/content/posts/` is a category level. Folder names
+are displayed exactly as authored and are never translated. For example:
+
+```text
+src/content/posts/Statistics/Probability/Continuous/normal.mdx
+```
+
+This post belongs to **Statistics / Probability / Continuous**. Its category
+page is `/categories/statistics/probability/continuous/`; its post URL remains
+`/posts/statistics/probability/continuous/normal/`. The parent **Statistics**
+page includes posts in all its subcategories. Counts include descendants, even
+when no posts are filed directly in a parent folder. The index and sidebar show
+the tree; breadcrumbs link back through its ancestors.
+
+No registration or frontmatter category field is needed. URL segments use the
+same slugging as Astro post URLs: lowercase, spaces replaced with hyphens and
+punctuation removed, with Unicode preserved. Equal leaf names under different
+parents are separate categories. Names producing the same URL under the same
+parent fail validation. Renaming or moving folders can change URLs. Empty
+folders do not appear in the tree. Tags are free-form. Drafts are visible during
 development and excluded from production builds.
 
 ## Markdown features
@@ -342,3 +352,19 @@ src/views/          Shared page views
 
 Generated or private directories such as `dist/`, `.astro/`, `.comments/`,
 `node_modules/`, `secrets/`, and `.env` are ignored by Git.
+
+## Category hierarchy regression checks
+
+The eight articles in `src/fixtures/categories/` exercise parent counts, deep
+paths, equal leaf names under different parents, Unicode names and long mobile
+labels. They are outside the published collection. To serve them explicitly,
+stop the normal server and run:
+
+```bash
+BLOG_POSTS_DIR=./src/fixtures/categories npm run astro -- dev --background
+npm run test:categories:browser
+```
+
+`CATEGORIES_BASE` can instead point the browser suite at a fixture build.
+Screenshots are written to `.figures-shots-category-hierarchy/`. Restart the
+server without `BLOG_POSTS_DIR` to return to real articles.

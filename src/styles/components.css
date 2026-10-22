@@ -188,7 +188,9 @@ a.tag:hover {
 	font-size: var(--step--2);
 	letter-spacing: var(--tracking-label);
 	color: var(--ink);
-	white-space: nowrap;
+	white-space: normal;
+	overflow-wrap: anywhere;
+	min-width: 0;
 }
 
 /* The category index: rows, like the archive, because there are few of them. */
@@ -219,14 +221,84 @@ a.tag:hover {
 }
 
 .category-name {
+	min-width: 0;
+	overflow-wrap: anywhere;
 	font-size: var(--step-1);
 	color: var(--ink-strong);
 }
 
 .category-tally {
+	flex-shrink: 0;
+	white-space: nowrap;
 	font-family: var(--font-mono);
 	font-size: var(--step--2);
 	font-variant-numeric: tabular-nums;
+	color: var(--ink-faint);
+}
+
+.category-tree .category-tree {
+	margin-inline-start: 0.6rem;
+	padding-inline-start: 0.7rem;
+	border-inline-start: 1px solid var(--rule);
+	border-top: 0;
+}
+
+.category-tree .category-tree > .category-item:last-child {
+	border-bottom: 0;
+}
+
+.category-widget-name {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.category-widget-tree .count {
+	flex-shrink: 0;
+}
+
+.widget-link.is-ancestor {
+	color: var(--ink-strong);
+	font-weight: 600;
+}
+
+.category-children {
+	margin-bottom: var(--space-6);
+}
+
+.category-breadcrumbs {
+	margin-bottom: var(--space-3);
+	font-size: var(--step--1);
+	color: var(--ink-muted);
+}
+
+.category-breadcrumbs ol {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 0.5rem;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.category-breadcrumbs li {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.5rem;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.category-breadcrumbs :is(a, [aria-current]) {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.category-breadcrumbs a:hover {
+	color: var(--ink-strong);
+	text-decoration: underline;
+}
+
+.category-separator {
 	color: var(--ink-faint);
 }
 

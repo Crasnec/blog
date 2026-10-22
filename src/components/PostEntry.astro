@@ -3,6 +3,7 @@ import { machineDate, readingTimeLabel, stampDate } from "../utils/format";
 import { t } from "../strings";
 import type { PostRef } from "../utils/content";
 import { postMeta } from "../utils/content";
+import { categoryLabel } from "../utils/category";
 import Icon from "./Icon.astro";
 
 interface Props {
@@ -58,7 +59,7 @@ const summary = locked ? "" : (entry.data.description ?? excerpt ?? "");
 					anchor, and an anchor inside an anchor is not a thing.
 				*/}
 				<span class="category-mark">
-					{post.category.name}
+					{categoryLabel(post.category)}
 				</span>
 
 				{
