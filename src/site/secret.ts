@@ -4,8 +4,8 @@ import {
     parseSecretPayload,
     type PrivateKeyFile,
     type SecretPayload,
-} from "../utils/secret";
-import { parseJson } from "../utils/json";
+} from "#src/utils/secret.ts";
+import { parseJson } from "#src/utils/json.ts";
 
 /**
  * Unlocking a locked post.
@@ -97,7 +97,7 @@ export function mountSecret() {
          * plain markup or CSS and needs nothing.
          */
         if (body.querySelector(".diagram[data-mermaid]")) {
-            const { renderDiagrams } = await import("./diagrams");
+            const { renderDiagrams } = await import("#src/site/diagrams.ts");
             await renderDiagrams();
         }
 

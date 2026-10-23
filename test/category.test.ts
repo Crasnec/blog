@@ -8,8 +8,8 @@ import {
     categoryPath,
     countCategories,
     flattenCategories,
-} from "../src/posts/category.ts";
-import { dictionaries } from "../src/locales/index.ts";
+} from "#src/posts/category.ts";
+import { dictionaries } from "#src/locales/index.ts";
 
 const root = "src/content/posts";
 const from = (path: string) => categoryFromFile(`${root}/${path}`, root);

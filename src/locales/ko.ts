@@ -1,4 +1,4 @@
-import type { Messages } from "./en.ts";
+import type { Messages } from "#src/locales/en.ts";
 
 export const ko = {
     // Keep the site's established English navigation and taxonomy names.
@@ -46,7 +46,6 @@ export const ko = {
     "notebook.download": "편집한 노트북 저장",
     "notebook.stale":
         "앞 셀이 변경되었거나 실행 환경이 초기화되었습니다. 이 결과는 다시 실행해 확인하세요.",
-    "notebook.reference": "책의 실행 예 · 아직 실행하지 않은 결과입니다.",
     "notebook.resetNotice": "실행 환경을 초기화했습니다. 변수는 지워졌고 편집한 코드는 유지됩니다.",
     "notebook.busy": "다른 셀이 실행 중입니다.",
     "notebook.stopping": "실행을 중지하고 환경을 초기화했습니다.",

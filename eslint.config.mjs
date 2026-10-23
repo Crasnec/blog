@@ -68,6 +68,15 @@ export const sourceStyleRules = {
 const scriptFiles = ["**/*.{js,cjs,mjs,ts,cts,mts,tsx}"];
 /** @type {import("eslint").Linter.RulesRecord} */
 const projectTypeRules = {
+    "no-restricted-imports": [
+        "error",
+        {
+            patterns: [{
+                group: ["./**", "../**"],
+                message: "Use #src/... or #root/... for project module imports.",
+            }],
+        },
+    ],
     "@typescript-eslint/consistent-type-imports": [
         "error",
         { fixStyle: "inline-type-imports", prefer: "type-imports" },
@@ -76,6 +85,10 @@ const projectTypeRules = {
     "@typescript-eslint/switch-exhaustiveness-check": "error",
     "no-restricted-syntax": [
         "error",
+        {
+            selector: "ImportExpression[source.value=/^\\./]",
+            message: "Use #src/... or #root/... for dynamic project imports.",
+        },
         {
             selector: "TSUnknownKeyword",
             message:

@@ -9,8 +9,8 @@ import {
     scale,
     type Frame,
     type Rect,
-} from "../kit.ts";
-import { decodeBar, type BarModel } from "../charts/model.ts";
+} from "#src/figures/kit.ts";
+import { decodeBar, type BarModel } from "#src/figures/charts/model.ts";
 import {
     chartHeight,
     chartRect,
@@ -20,7 +20,7 @@ import {
     shape,
     valueText,
     yAxis,
-} from "../charts/draw.ts";
+} from "#src/figures/charts/draw.ts";
 
 const TIMES = { start: 0.15, grow: 1.3, end: 1.8 };
 

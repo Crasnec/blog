@@ -1,11 +1,11 @@
 ---
-import Sidebar from "../components/Sidebar.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
-import { t } from "../strings";
-import { getSeries } from "../posts/queries";
-import { countLabel } from "../utils/format";
-import { seriesPath } from "../posts/series";
-import { sitePath } from "../utils/url";
+import Sidebar from "#src/components/Sidebar.astro";
+import BaseLayout from "#src/layouts/BaseLayout.astro";
+import { t } from "#src/strings.ts";
+import { getSeries } from "#src/posts/queries.ts";
+import { countLabel } from "#src/utils/format.ts";
+import { seriesPath } from "#src/posts/series.ts";
+import { sitePath } from "#src/utils/url.ts";
 
 const series = await getSeries();
 ---

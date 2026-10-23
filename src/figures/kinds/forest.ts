@@ -3,4 +3,4 @@
  * reference?, xLabel?, title?.
  * Full contract and numerical conventions: ../statistics/README.md.
  */
-export { forest as default } from "../statistics/estimates.ts";
+export { forest as default } from "#src/figures/statistics/estimates.ts";

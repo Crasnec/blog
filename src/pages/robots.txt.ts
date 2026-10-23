@@ -4,8 +4,8 @@
  * down — and to go stale in.
  */
 import type { APIRoute } from "astro";
-import { siteConfig } from "../config";
-import { sitePath } from "../utils/url";
+import { siteConfig } from "#src/config.ts";
+import { sitePath } from "#src/utils/url.ts";
 
 export const GET: APIRoute = ({ site }) => {
     const base = site ?? new URL(siteConfig.url);

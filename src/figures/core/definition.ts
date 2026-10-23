@@ -1,4 +1,4 @@
-import type { JsonValue } from "../../utils/json.ts";
+import type { JsonValue } from "#src/utils/json.ts";
 
 /** Colours and faces, read from the active theme's tokens on every redraw. */
 export interface Palette {

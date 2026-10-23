@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { after, before, test } from "node:test";
 import { chromium, type Browser, type Page } from "playwright";
-import { siteConfig } from "../src/config.ts";
-import { languageTags, translate } from "../src/locales/index.ts";
-import { isJsonObject, parseJson } from "../src/utils/json.ts";
+import { siteConfig } from "#src/config.ts";
+import { languageTags, translate } from "#src/locales/index.ts";
+import { isJsonObject, parseJson } from "#src/utils/json.ts";
 
 const locale = process.env.EXPECTED_LOCALE ?? siteConfig.locale;
 assert.ok(locale === "en" || locale === "ko", "EXPECTED_LOCALE must be en or ko");

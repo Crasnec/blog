@@ -14,10 +14,10 @@ import {
     rehypePlugins,
     remarkPlugins,
     themeDir,
-} from "./src/markdown.config.mjs";
-import { siteConfig } from "./src/config.ts";
-import pyodideAssets from "./scripts/pyodide-assets.mjs";
-import fontFaceGroups from "./scripts/font-face-groups.ts";
+} from "#src/markdown.config.mjs";
+import { siteConfig } from "#src/config.ts";
+import pyodideAssets from "#root/scripts/pyodide-assets.mjs";
+import fontFaceGroups from "#root/scripts/font-face-groups.ts";
 
 export default defineConfig({
     site: siteConfig.url,

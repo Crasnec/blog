@@ -5,7 +5,7 @@ description: Follow byte selections and replacements while offsets, hexadecimal 
 tags: [figures, binary, hex-editor]
 ---
 
-import { GreetingBytes, HeaderBytes } from "./_figures/HexEditorExamples.tsx";
+import { GreetingBytes, HeaderBytes } from "#src/fixtures/posts/build/_figures/HexEditorExamples.tsx";
 
 A hex editor shows the same bytes in two columns. Hexadecimal gives every byte a two-digit value from `00` to `FF`; the ASCII column gives printable bytes a familiar character. The offset on the left is the address of the first byte in that row.
 
@@ -30,7 +30,7 @@ At offset `00000004`, changing `01` to `03` sets the second lowest bit. The insp
 Import `HexEditor` from the existing typed figure components. The animation needs no React hydration or separate browser engine.
 
 ```tsx
-import { HexEditor } from "../../../../components/figures";
+import { HexEditor } from "#src/components/figures/index.tsx";
 
 <HexEditor
   props={{

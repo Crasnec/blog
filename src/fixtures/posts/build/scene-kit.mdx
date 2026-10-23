@@ -5,7 +5,7 @@ description: A coordinate-free figure kit with a visual catalog, automatic layou
 tags: [mdx, figures, authoring]
 ---
 
-import { RequestScene, FocusScene, CycleScene, StackScene, HierarchyScene, ShapeScene, SymbolCatalog } from "./_figures/SceneExamples.tsx";
+import { RequestScene, FocusScene, CycleScene, StackScene, HierarchyScene, ShapeScene, SymbolCatalog } from "#src/fixtures/posts/build/_figures/SceneExamples.tsx";
 
 Choose the things in the picture, their arrangement and what happens next. `Scene` handles the drawing, spacing, connections and animation. A post needs no canvas code, coordinates or hand-written timing.
 
@@ -16,7 +16,7 @@ Choose the things in the picture, their arrangement and what happens next. `Scen
 This is the complete author input, inside a TSX file beside the post:
 
 ```tsx
-import { Scene, defineScene } from "../../../../components/figures";
+import { Scene, defineScene } from "#src/components/figures/index.tsx";
 
 const request = defineScene({
     layout: "flow",

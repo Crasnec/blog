@@ -1,5 +1,5 @@
 import { slug } from "github-slugger";
-import type { SeriesMetadata } from "./post-order.ts";
+import type { SeriesMetadata } from "#src/posts/post-order.ts";
 
 export interface SeriesSource {
     entry: {

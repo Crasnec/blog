@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import hexEditor from "../src/figures/kinds/hex-editor.ts";
-import { asciiByte, hexByte, traceHexEditor } from "../src/figures/models/hex-editor.ts";
+import hexEditor from "#src/figures/kinds/hex-editor.ts";
+import { asciiByte, hexByte, traceHexEditor } from "#src/figures/models/hex-editor.ts";
 
 void test("byte replacements keep the buffer length and immutable history, including repeated writes", () => {
     const bytes = [0x48, 0x00, 0xff];

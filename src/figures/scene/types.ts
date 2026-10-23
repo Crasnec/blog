@@ -1,7 +1,7 @@
 /* Closed aliases keep author inputs JSON-serializable. */
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
-import type { SymbolName } from "./symbols.ts";
-import type { Tone, Rect, Point } from "../kit.ts";
+import type { SymbolName } from "#src/figures/scene/symbols.ts";
+import type { Tone, Rect, Point } from "#src/figures/kit.ts";
 
 export type SceneItem<Id extends string = string> = {
     id: Id;

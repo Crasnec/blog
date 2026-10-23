@@ -1,7 +1,7 @@
-import type { Frame } from "./definition.ts";
-import type { Rect, LabelSpot } from "./geometry.ts";
-import { box, dot, withAlpha } from "./paint.ts";
-import { clamp } from "./time.ts";
+import type { Frame } from "#src/figures/core/definition.ts";
+import type { Rect, LabelSpot } from "#src/figures/core/geometry.ts";
+import { box, dot, withAlpha } from "#src/figures/core/paint.ts";
+import { clamp } from "#src/figures/core/time.ts";
 
 export interface TextStyle {
     size?: number;

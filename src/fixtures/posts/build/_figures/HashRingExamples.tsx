@@ -1,6 +1,6 @@
 /** Post-specific data and captions; all drawing uses reusable typed components. */
-import { HashRing, type DiagramProps } from "../../../../components/figures";
-import type { FigureInputs } from "../../../../figures/inputs";
+import { HashRing, type DiagramProps } from "#src/components/figures/index.tsx";
+import type { FigureInputs } from "#src/figures/inputs.ts";
 
 const sharedServers: FigureInputs["hash-ring"]["servers"] = ["A", "B", "C"];
 

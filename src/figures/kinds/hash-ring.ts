@@ -47,10 +47,10 @@ import {
     withAlpha,
     type Frame,
     type Rect,
-} from "../kit.ts";
+} from "#src/figures/kit.ts";
 
-import type { JsonValue } from "../../utils/json.ts";
-import { planHashing as plan, type Plan, type Key } from "../models/hash-ring.ts";
+import type { JsonValue } from "#src/utils/json.ts";
+import { planHashing as plan, type Plan, type Key } from "#src/figures/models/hash-ring.ts";
 
 /* — 1. pacing ——————————————————————————————————————————————————————— */
 

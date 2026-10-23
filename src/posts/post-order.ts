@@ -1,4 +1,4 @@
-import { isJsonObject, type JsonValue } from "../utils/json.ts";
+import { isJsonObject, type JsonValue } from "#src/utils/json.ts";
 
 export interface SeriesMetadata {
     name: string;

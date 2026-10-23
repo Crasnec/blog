@@ -1,8 +1,8 @@
 /**
  * Dates and counts, as they are printed.
  */
-import { LOCALE } from "../strings.ts";
-import { languageTags, translate, type Locale } from "../locales/index.ts";
+import { LOCALE } from "#src/strings.ts";
+import { languageTags, translate, type Locale } from "#src/locales/index.ts";
 
 /**
  * A count with its counter — "3 posts", and "1 post" rather than "1 posts".

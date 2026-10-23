@@ -1,4 +1,4 @@
-import type { Locale } from "./index.ts";
+import type { Locale } from "#src/locales/index.ts";
 
 /** CodeMirror's built-in phrases use its own English strings as keys. */
 export const editorPhrases = {

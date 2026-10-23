@@ -3,4 +3,4 @@
  * approximation LoA.
  * Full contract and numerical conventions: ../statistics/README.md.
  */
-export { blandAltman as default } from "../statistics/relationships.ts";
+export { blandAltman as default } from "#src/figures/statistics/relationships.ts";

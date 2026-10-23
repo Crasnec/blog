@@ -1,6 +1,6 @@
 /** Diagnostics for an intercept + one-predictor OLS model fitted to the points. */
-import { defineFigure, dot, obj, progress, withAlpha } from "../kit.ts";
-import { linearFit } from "./math.ts";
+import { defineFigure, dot, obj, progress, withAlpha } from "#src/figures/kit.ts";
+import { linearFit } from "#src/figures/statistics/math.ts";
 import {
     axes,
     clipped,
@@ -12,7 +12,7 @@ import {
     readPoints,
     reference,
     TIMES,
-} from "./shared.ts";
+} from "#src/figures/statistics/shared.ts";
 
 function diagnostic(style: "residual" | "scale-location" | "influence", title: string) {
     return defineFigure({

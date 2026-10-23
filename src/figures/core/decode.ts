@@ -1,5 +1,5 @@
-import { type JsonValue, isJsonObject } from "../../utils/json.ts";
-import { type Tone, TONES } from "./palette.ts";
+import { type JsonValue, isJsonObject } from "#src/utils/json.ts";
+import { type Tone, TONES } from "#src/figures/core/palette.ts";
 
 /*
  * Small, strict readers for a figure's `decode`. Each takes the value and the

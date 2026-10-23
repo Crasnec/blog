@@ -1,7 +1,7 @@
 /** Post-specific data and captions; all drawing uses reusable typed components. */
-import { Heatmap, type DiagramProps } from "../../../../components/figures";
-import type { FigureInputs } from "../../../../figures/inputs";
-import { dailyPeak } from "../../../../figures/presets/daily-peak";
+import { Heatmap, type DiagramProps } from "#src/components/figures/index.tsx";
+import type { FigureInputs } from "#src/figures/inputs.ts";
+import { dailyPeak } from "#src/figures/presets/daily-peak.ts";
 
 const rowLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 

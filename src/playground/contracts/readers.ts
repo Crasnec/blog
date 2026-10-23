@@ -1,4 +1,4 @@
-import type { MessageValue, PythonPackage } from "./types.ts";
+import type { MessageValue, PythonPackage } from "#src/playground/contracts/types.ts";
 
 export const isRecord = (value: MessageValue): value is Record<string, MessageValue> =>
     typeof value === "object" && value !== null && !Array.isArray(value);

@@ -1,7 +1,7 @@
 /** Backward-compatible story data; the queue kind contains no checkout rules. */
-import { arrivals, clamp, lognormal, maybe, num, obj, random } from "../kit.ts";
-import type { QueueInput } from "../kinds/queue.ts";
-import type { JsonValue } from "../../utils/json.ts";
+import { arrivals, clamp, lognormal, maybe, num, obj, random } from "#src/figures/kit.ts";
+import type { QueueInput } from "#src/figures/kinds/queue.ts";
+import type { JsonValue } from "#src/utils/json.ts";
 
 export interface CheckoutOptions {
     registers?: number;

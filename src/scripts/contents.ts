@@ -1,2 +1,2 @@
 /** Compatibility entry; browser behavior lives in site/. */
-export { mountContents } from "../site/contents";
+export { mountContents } from "#src/site/contents.ts";

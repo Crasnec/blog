@@ -1,4 +1,4 @@
-import { t } from "../strings.ts";
+import { t } from "#src/strings.ts";
 import {
     MAX_CODE,
     decodeRunRequest,
@@ -7,13 +7,13 @@ import {
     type CellRequest,
     type RunRequest,
     type RunResponse,
-} from "./contracts.ts";
-import { parseJson } from "../utils/json.ts";
-import { inputChannel, installPythonInput } from "./input.ts";
-import { formatValue, outputChannel } from "./output.ts";
-import { installPlotCapture, installWarningCapture, pngFromBase64 } from "./python-plots.ts";
-import { installNotebookDisplay } from "./python-display.ts";
-import { initializePythonRuntime } from "./python-runtime.ts";
+} from "#src/playground/contracts.ts";
+import { parseJson } from "#src/utils/json.ts";
+import { inputChannel, installPythonInput } from "#src/playground/input.ts";
+import { formatValue, outputChannel } from "#src/playground/output.ts";
+import { installPlotCapture, installWarningCapture, pngFromBase64 } from "#src/playground/python-plots.ts";
+import { installNotebookDisplay } from "#src/playground/python-display.ts";
+import { initializePythonRuntime } from "#src/playground/python-runtime.ts";
 
 self.addEventListener(
     "message",

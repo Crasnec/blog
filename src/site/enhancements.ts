@@ -20,7 +20,7 @@ function preparePlaygrounds() {
         }
         started = true;
         observer.disconnect();
-        void import("../playground/mount").then(({ mountPlaygrounds }) => {
+        void import("#src/playground/mount.ts").then(({ mountPlaygrounds }) => {
             if (!disposed) {
                 mountPlaygrounds();
             }
@@ -52,28 +52,28 @@ export async function mountEnhancements() {
     const current = ++generation;
     preparePlaygrounds();
     if (document.querySelector("#contents")) {
-        const { mountContents } = await import("./contents");
+        const { mountContents } = await import("#src/site/contents.ts");
         if (current !== generation) {
             return;
         }
         mountContents();
     }
     if (document.querySelector("#secret-form")) {
-        const { mountSecret } = await import("./secret");
+        const { mountSecret } = await import("#src/site/secret.ts");
         if (current !== generation) {
             return;
         }
         mountSecret();
     }
     if (document.querySelector("#comments")) {
-        const { mountComments } = await import("./comments");
+        const { mountComments } = await import("#src/site/comments.ts");
         if (current !== generation) {
             return;
         }
         mountComments();
     }
     if (document.querySelector(".diagram[data-mermaid]")) {
-        const { renderDiagrams } = await import("./diagrams");
+        const { renderDiagrams } = await import("#src/site/diagrams.ts");
         if (current !== generation) {
             return;
         }
@@ -83,7 +83,7 @@ export async function mountEnhancements() {
         return;
     }
     if (document.querySelector(".figure[data-figure]")) {
-        const { mountFigures } = await import("../figures/runtime");
+        const { mountFigures } = await import("#src/figures/runtime.ts");
         if (current !== generation) {
             return;
         }

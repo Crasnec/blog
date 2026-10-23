@@ -1,10 +1,10 @@
 ---
-import { machineDate, stampDate } from "../utils/format";
-import { HTML_LANG, t } from "../strings";
-import { commentsConfig } from "../config";
-import { renderCommentBody } from "../utils/comment-markdown";
-import { getComments } from "../posts/comments";
-import { sitePath } from "../utils/url";
+import { machineDate, stampDate } from "#src/utils/format.ts";
+import { HTML_LANG, t } from "#src/strings.ts";
+import { commentsConfig } from "#src/config.ts";
+import { renderCommentBody } from "#src/utils/comment-markdown.ts";
+import { getComments } from "#src/posts/comments.ts";
+import { sitePath } from "#src/utils/url.ts";
 
 interface Props {
     postKey: string;

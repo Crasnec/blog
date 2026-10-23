@@ -35,8 +35,8 @@ import {
     type Frame,
     type Point,
     type Rect,
-} from "../kit.ts";
-import { simulateQueue, type QueuePolicy, type Visit } from "../models/queue.ts";
+} from "#src/figures/kit.ts";
+import { simulateQueue, type QueuePolicy, type Visit } from "#src/figures/models/queue.ts";
 
 const TIMES = {
     appear: 0.6,

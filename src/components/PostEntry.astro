@@ -1,10 +1,10 @@
 ---
-import { machineDate, readingTimeLabel, stampDate } from "../utils/format";
-import { t } from "../strings";
-import type { PostRef } from "../posts/queries";
-import { postMeta } from "../posts/queries";
-import { categoryLabel } from "../posts/category";
-import Icon from "./Icon.astro";
+import { machineDate, readingTimeLabel, stampDate } from "#src/utils/format.ts";
+import { t } from "#src/strings.ts";
+import type { PostRef } from "#src/posts/queries.ts";
+import { postMeta } from "#src/posts/queries.ts";
+import { categoryLabel } from "#src/posts/category.ts";
+import Icon from "#src/components/Icon.astro";
 
 interface Props {
     post: PostRef;

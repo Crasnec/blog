@@ -21,7 +21,7 @@ import {
     str,
     text,
     withAlpha,
-} from "../kit.ts";
+} from "#src/figures/kit.ts";
 import {
     asciiByte,
     hexByte,
@@ -29,8 +29,8 @@ import {
     type HexEditorAction,
     type HexEditorSnapshot,
     type HexEditorStep,
-} from "../models/hex-editor.ts";
-import type { JsonObject } from "../../utils/json.ts";
+} from "#src/figures/models/hex-editor.ts";
+import type { JsonObject } from "#src/utils/json.ts";
 
 const TIMES = { appear: 0.5, start: 0.8, maxStep: 1.25, commit: 0.55, tail: 1.3 } as const;
 const DURATION = 10;

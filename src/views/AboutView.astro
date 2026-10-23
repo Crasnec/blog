@@ -1,9 +1,9 @@
 ---
-import { t } from "../strings";
+import { t } from "#src/strings.ts";
 import { getEntry, render } from "astro:content";
-import Sidebar from "../components/Sidebar.astro";
-import { profileConfig } from "../config";
-import BaseLayout from "../layouts/BaseLayout.astro";
+import Sidebar from "#src/components/Sidebar.astro";
+import { profileConfig } from "#src/config.ts";
+import BaseLayout from "#src/layouts/BaseLayout.astro";
 
 const entry = await getEntry("pages", "about");
 const rendered = entry ? await render(entry) : null;

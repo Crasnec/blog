@@ -1,4 +1,4 @@
-import { MAX_OUTPUT, MAX_PLOTS, MAX_PNG, MAX_PLOT_TOTAL, type RunResponse } from "./contracts.ts";
+import { MAX_OUTPUT, MAX_PLOTS, MAX_PNG, MAX_PLOT_TOTAL, type RunResponse } from "#src/playground/contracts.ts";
 
 type ConsoleValue = object | string | number | boolean | bigint | symbol | null | undefined;
 

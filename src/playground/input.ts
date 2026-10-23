@@ -1,4 +1,4 @@
-import { decodeInputResponse, type MessageValue, type RunResponse } from "./contracts.ts";
+import { decodeInputResponse, type MessageValue, type RunResponse } from "#src/playground/contracts.ts";
 
 /** One pending line per execution; replies travel on the private output port. */
 export function inputChannel(port: MessagePort, send: (message: RunResponse) => void) {

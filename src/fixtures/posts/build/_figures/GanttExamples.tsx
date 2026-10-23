@@ -1,6 +1,6 @@
 /** Post-specific data and captions; all drawing uses reusable typed components. */
-import { Gantt, type DiagramProps } from "../../../../components/figures";
-import type { FigureInputs } from "../../../../figures/inputs";
+import { Gantt, type DiagramProps } from "#src/components/figures/index.tsx";
+import type { FigureInputs } from "#src/figures/inputs.ts";
 
 const sharedJobs: FigureInputs["gantt"]["jobs"] = [
     {

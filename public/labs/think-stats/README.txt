@@ -300,8 +300,7 @@ the road-race result page, the preserved Olympic table, Brisbane birth times,
 temperature records and the historic mortality table. Original attribution
 and data-use terms in the translated chapters continue to apply.
 
-Notebook code export includes attribution and the MIT notice. Source and
-reference outputs are not silently labelled as executed. Book reference
-outputs stay readable before execution; each actual run replaces its own
-reference output, including original PNGs. Safe textual display of IPython
-HTML avoids injecting styles, scripts, arbitrary HTML or widget code.
+Notebook code export includes attribution and the MIT notice. Article cells
+start with empty output and show results only after execution. Standalone
+reference figures remain part of the surrounding prose. Safe textual display
+of IPython HTML avoids injecting styles, scripts, arbitrary HTML or widget code.

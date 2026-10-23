@@ -21,6 +21,27 @@ another version of sorting, execution, or drawing.
 | `src/utils/` | Small cross-feature helpers and old-path compatibility exports | Depends on helper |
 | `src/styles/` | Shared tokens, component styles, prose, motion and themes | CSS |
 
+## Module paths
+
+Use package import aliases with explicit file extensions:
+
+```ts
+import { t } from "#src/strings.ts";
+import Figure from "#src/components/Figure.astro";
+import { serveStaticSite } from "#root/test/helpers/static-site.ts";
+```
+
+`#src/` resolves from `src/`; `#root/` resolves from the repository root.
+Both are declared once in `package.json` and work in Astro, TypeScript and
+Node's test runner without an extra loader. Keep npm and `astro:` imports
+unchanged. ESLint rejects relative static imports, re-exports and dynamic
+imports. Use the same aliases in MDX and documentation examples.
+
+Resource paths are different: `new URL(..., import.meta.url)` for workers,
+`import.meta.glob()` patterns, CSS imports, URLs and Markdown links retain
+paths relative to the file that owns them. Vite uses those resource paths
+for dependency discovery and asset rewriting.
+
 ## Import direction
 
 Pages, views and components consume domain modules. Domain modules do not import

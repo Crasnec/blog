@@ -44,7 +44,7 @@ import {
     withAlpha,
     type Frame,
     type Rect,
-} from "../kit.ts";
+} from "#src/figures/kit.ts";
 
 import {
     simulate,
@@ -53,10 +53,10 @@ import {
     type Request,
     type Step,
     type Hole,
-} from "../models/memory.ts";
-export { simulate } from "../models/memory.ts";
+} from "#src/figures/models/memory.ts";
+export { simulate } from "#src/figures/models/memory.ts";
 
-import { generateRequests } from "../generators.ts";
+import { generateRequests } from "#src/figures/generators.ts";
 
 /* — 1. pacing ——————————————————————————————————————————————————————— */
 

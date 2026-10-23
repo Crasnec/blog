@@ -43,12 +43,12 @@ import {
     trimNumber,
     withAlpha,
     type Rect,
-} from "../kit.ts";
+} from "#src/figures/kit.ts";
 
-import { EPS, schedule, type Policy, type Job, type Schedule } from "../models/gantt.ts";
-export { schedule } from "../models/gantt.ts";
+import { EPS, schedule, type Policy, type Job, type Schedule } from "#src/figures/models/gantt.ts";
+export { schedule } from "#src/figures/models/gantt.ts";
 
-import { generateJobs } from "../generators.ts";
+import { generateJobs } from "#src/figures/generators.ts";
 
 /* — 1. pacing ——————————————————————————————————————————————————————— */
 

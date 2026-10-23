@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { decodePythonLock } from "../scripts/python-packages.mjs";
-import type { JsonObject } from "../src/utils/json.ts";
+import { decodePythonLock } from "#root/scripts/python-packages.mjs";
+import type { JsonObject } from "#src/utils/json.ts";
 
 const entry = {
     name: "example",

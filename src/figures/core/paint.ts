@@ -1,6 +1,6 @@
-import { type Point, bendPoint, alongCurve, type Rect } from "./geometry.ts";
-import { clamp, lerp, ease } from "./time.ts";
-import type { Palette } from "./definition.ts";
+import { type Point, bendPoint, alongCurve, type Rect } from "#src/figures/core/geometry.ts";
+import { clamp, lerp, ease } from "#src/figures/core/time.ts";
+import type { Palette } from "#src/figures/core/definition.ts";
 
 export function line(
     ctx: CanvasRenderingContext2D,

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { mkdir, readFile } from "node:fs/promises";
 import { after, before, test } from "node:test";
 import { chromium, type Browser, type Page } from "playwright";
-import { isJsonObject, parseJson } from "../src/utils/json.ts";
+import { isJsonObject, parseJson } from "#src/utils/json.ts";
 
 let browser: Browser;
 let page: Page;

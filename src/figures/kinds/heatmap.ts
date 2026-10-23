@@ -48,8 +48,8 @@ import {
     withAlpha,
     type Frame,
     type Rect,
-} from "../kit.ts";
-import { dailyPeak } from "../presets/daily-peak.ts";
+} from "#src/figures/kit.ts";
+import { dailyPeak } from "#src/figures/presets/daily-peak.ts";
 
 /* — 1. pacing ——————————————————————————————————————————————————————— */
 

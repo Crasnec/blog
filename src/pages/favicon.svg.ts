@@ -6,7 +6,7 @@
  * the theme's colours and would quietly keep the old ones after a theme swap.
  */
 import type { APIRoute } from "astro";
-import { markSvg } from "../utils/mark";
+import { markSvg } from "#src/utils/mark.ts";
 
 export const GET: APIRoute = () =>
     new Response(markSvg(), {

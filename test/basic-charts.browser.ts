@@ -3,7 +3,7 @@ import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { after, before, test } from "node:test";
 import { chromium, type Browser, type Page } from "playwright";
-import { serveStaticSite } from "./helpers/static-site.ts";
+import { serveStaticSite } from "#root/test/helpers/static-site.ts";
 
 let browser: Browser;
 let page: Page;

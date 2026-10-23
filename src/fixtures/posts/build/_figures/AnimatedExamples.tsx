@@ -1,7 +1,7 @@
 /** Post-specific data and captions; all drawing uses reusable typed components. */
-import { Line, Distribution, Flow, Queue, type DiagramProps } from "../../../../components/figures";
-import type { FigureInputs } from "../../../../figures/inputs";
-import { lognormalSamples } from "../../../../figures/generators";
+import { Line, Distribution, Flow, Queue, type DiagramProps } from "#src/components/figures/index.tsx";
+import type { FigureInputs } from "#src/figures/inputs.ts";
+import { lognormalSamples } from "#src/figures/generators.ts";
 
 const deploymentLatencyData = {
     unit: "p99 latency (ms)",

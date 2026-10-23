@@ -3,4 +3,4 @@
  * standardized residual.
  * Full contract and numerical conventions: ../statistics/README.md.
  */
-export { scaleLocation as default } from "../statistics/diagnostics.ts";
+export { scaleLocation as default } from "#src/figures/statistics/diagnostics.ts";

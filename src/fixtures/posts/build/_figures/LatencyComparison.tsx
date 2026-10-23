@@ -1,6 +1,6 @@
 /** One data set, two reusable statistical views. No figure kind is added. */
-import { ECDF, Boxplot } from "../../../../components/figures";
-import { lognormal, random } from "../../../../figures/kit";
+import { ECDF, Boxplot } from "#src/components/figures/index.tsx";
+import { lognormal, random } from "#src/figures/kit.ts";
 
 // Keep a closed serializable shape assignable to JsonObject.
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions

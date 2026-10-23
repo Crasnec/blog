@@ -6,7 +6,7 @@
  * the codebase hard-codes these values.
  */
 
-import type { Locale } from "./locales/index.ts";
+import type { Locale } from "#src/locales/index.ts";
 
 export const siteConfig = {
     /** Interface language. Does not translate posts or change their URLs. */

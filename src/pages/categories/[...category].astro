@@ -1,8 +1,8 @@
 ---
 import type { GetStaticPaths } from "astro";
-import { getCategories, getPostsByCategory } from "../../posts/queries";
-import CategoryView from "../../views/CategoryView.astro";
-import { flattenCategories } from "../../posts/category";
+import { getCategories, getPostsByCategory } from "#src/posts/queries.ts";
+import CategoryView from "#src/views/CategoryView.astro";
+import { flattenCategories } from "#src/posts/category.ts";
 
 export const getStaticPaths = (async () => {
     const categories = await getCategories();

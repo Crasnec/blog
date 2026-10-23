@@ -10,20 +10,20 @@ series:
   order: 10
 ---
 
-import CodePlayground from '../../../components/CodePlayground.astro';
-import PythonNotebook from '../../../components/PythonNotebook.astro';
-import notebook from './_notebooks/chap10.json';
-import Figure from '../../../components/Figure.astro';
-import plots from './_figures/chapters-09-14.json';
-import codeBrowser from '../../../../public/labs/think-stats/chap10-browser.py?raw';
-import codeMse from '../../../../public/labs/think-stats/chap10-mse.py?raw';
-import codeBootstrap from '../../../../public/labs/think-stats/chap10-bootstrap.py?raw';
+import CodePlayground from '#src/components/CodePlayground.astro';
+import PythonNotebook from '#src/components/PythonNotebook.astro';
+import notebook from '#src/content/posts/Statistics/_notebooks/chap10.json';
+import Figure from '#src/components/Figure.astro';
+import plots from '#src/content/posts/Statistics/_figures/chapters-09-14.json';
+import codeBrowser from '#root/public/labs/think-stats/chap10-browser.py?raw';
+import codeMse from '#root/public/labs/think-stats/chap10-mse.py?raw';
+import codeBootstrap from '#root/public/labs/think-stats/chap10-bootstrap.py?raw';
 
 Allen B. Downey의 《Think Stats》 3판, 10장 「Least Squares」의 한국어 번역입니다. [원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/nb/chap10.ipynb)을 바탕으로 옮겼습니다.
 
 <a href="/labs/think-stats/chap10-ko.ipynb" download="think-stats-10-ko.ipynb">한국어 노트북 내려받기</a> · [원문 웹판](https://allendowney.github.io/ThinkStats/chap10.html)
 
-준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 셀을 실행하면 참고용 출력이 실제 결과로 바뀝니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
+준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 실행 결과는 셀을 실행한 뒤 표시됩니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
 
 이 장과 다음 장에서는 자료에 모형을 맞추는 방법을 다룹니다. 여기서 **모형**은 직선처럼 변수들의 관계를 나타내는 수학적 표현과, 정규분포처럼 무작위 변동을 나타내는 설명으로 이루어집니다.
 
@@ -43,23 +43,11 @@ Allen B. Downey의 《Think Stats》 3판, 10장 「Least Squares」의 한국�
 
 <CodePlayground notebook="think-stats-10" title="준비: 라이브러리와 자료" code={notebook.cells[0].code} language="python" timeout={60000} pythonPackages={["numpy", "pandas", "scipy", "matplotlib", "empiricaldist", "statadict", "statsmodels", "ipython"]} />
 
-<CodePlayground notebook="think-stats-10" title="셀 1" code={notebook.cells[1].code} language="python" timeout={60000}>
-
-```text
-(342, 17)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 1" code={notebook.cells[1].code} language="python" timeout={60000} />
 
 체중이 알려진 아델리펭귄은 151마리입니다. `query`로 해당 행을 고릅니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 2" code={notebook.cells[2].code} language="python" timeout={60000}>
-
-```text
-151
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 2" code={notebook.cells[2].code} language="python" timeout={60000} />
 
 아델리펭귄의 날개 길이를 알 때 체중을 얼마나 잘 예측할 수 있을지 알아보겠습니다. 필요한 두 열을 선택합니다.
 
@@ -67,56 +55,23 @@ Allen B. Downey의 《Think Stats》 3판, 10장 「Least Squares」의 한국�
 
 날개 길이와 체중의 관계를 산점도로 그립니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 4" code={notebook.cells[4].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap10-016-0.png"
-        alt="아델리펭귄 날개 길이와 체중의 산점도. 길이가 길수록 체중이 증가하는 경향입니다."
-        width={1769}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-[그림 크게 보기](/labs/think-stats/figures/chap10-016-0.png)
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 4" code={notebook.cells[4].code} language="python" timeout={60000} />
 
 관련이 있어 보입니다. 상관계수로 관계의 강도를 수치화할 수 있습니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 5" code={notebook.cells[5].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.4682016942179394)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 5" code={notebook.cells[5].code} language="python" timeout={60000} />
 
 상관은 약 0.47입니다. 날개가 긴 펭귄이 대체로 무겁습니다. 따라서 날개 길이를 알면 체중을 더 잘 추측할 수 있겠지만, 상관계수만으로 구체적인 예측값을 구할 수는 없습니다. **가장 잘 맞는 직선**을 골라야 합니다.
 
 ‘잘 맞는다’는 기준은 여러 가지입니다. 여기서는 평균제곱오차(MSE)를 최소화하는 **선형 최소제곱** 직선을 사용하겠습니다. SciPy의 `linregress`가 이 계산을 합니다. 이름은 선형회귀(linear regression)의 줄임말이며, 인수는 x값과 y값 순서입니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 6" code={notebook.cells[6].code} language="python" timeout={60000}>
-
-```text
-LinregressResult(slope=np.float64(32.83168975115009), intercept=np.float64(-2535.8368022002514), rvalue=np.float64(0.46820169421793933), pvalue=np.float64(1.3432645947790051e-09), stderr=np.float64(5.076138407990821), intercept_stderr=np.float64(964.7984274994059))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 6" code={notebook.cells[6].code} language="python" timeout={60000} />
 
 결과인 `LinregressResult`에는 기울기와 절편을 비롯한 정보가 들어 있습니다. 기울기는 약 32.8g/mm입니다. 날개가 1mm 길어질 때 체중의 예측 평균이 약 32.8g 높아진다는 뜻입니다.
 
 절편은 약 −2535g입니다. 음의 체중이라 이상해 보일 수 있지만, 이 값은 날개 길이 0mm에서 직선을 연장한 결과입니다. 실제 자료의 평균 날개 길이에서 예측값을 구하면 뜻을 더 쉽게 읽을 수 있습니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 7" code={notebook.cells[7].code} language="python" timeout={60000}>
-
-```text
-(np.float64(189.95364238410596), np.float64(3700.662251655629))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 7" code={notebook.cells[7].code} language="python" timeout={60000} />
 
 평균에 해당하는 약 190mm 길이에서는 예측 체중이 약 3700g입니다. 다음 함수는 회귀 결과와 x값들을 받아 직선 위의 y값들을 계산합니다.
 
@@ -128,22 +83,7 @@ LinregressResult(slope=np.float64(32.83168975115009), intercept=np.float64(-2535
 
 회귀선을 산점도 위에 함께 그립니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap10-028-0.png"
-        alt="날개 길이와 체중 위에 그린 최소제곱 회귀선. 관측점은 선 주변에 넓게 흩어져 있습니다."
-        width={1769}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-[그림 크게 보기](/labs/think-stats/figures/chap10-028-0.png)
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000} />
 
 직선은 자료의 가운데를 지나며 전반적인 경향을 따릅니다. 하지만 많은 관측점이 직선에서 멀리 있습니다. 예측이 얼마나 정확한지 보려면 관측값에서 같은 x의 예측값까지 세로 방향의 차이를 계산하면 됩니다. 이 차이를 **잔차**라고 부릅니다.
 
@@ -155,33 +95,15 @@ LinregressResult(slope=np.float64(32.83168975115009), intercept=np.float64(-2535
 
 자료의 첫 번째 펭귄을 예로 보겠습니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000}>
-
-```text
-(np.float64(181.0), np.float64(3406.699042757914))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000} />
 
 이 펭귄의 날개 길이는 181mm이고 예측 체중은 약 3407g입니다. 실제 체중과 비교하겠습니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000}>
-
-```text
-(np.float64(3750.0), np.float64(343.30095724208604))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000} />
 
 실제 체중은 3750g이므로 잔차는 약 343g입니다. 잔차를 제곱해 평균 내면 **평균제곱오차**(MSE)가 됩니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000}>
-
-```text
-np.float64(163098.85902884745)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000} />
 
 이 숫자만으로는 예측의 질을 판단하기 어렵습니다. 결정계수를 구하면 더 해석하기 쉽습니다.
 
@@ -201,23 +123,11 @@ np.float64(163098.85902884745)
 
 이 예측의 MSE는 평균에서의 편차를 제곱한 평균입니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 17" code={notebook.cells[17].code} language="python" timeout={60000}>
-
-```text
-np.float64(208890.28989956583)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 17" code={notebook.cells[17].code} language="python" timeout={60000} />
 
 바로 분산의 정의와 같습니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 18" code={notebook.cells[18].code} language="python" timeout={60000}>
-
-```text
-np.float64(208890.28989956583)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 18" code={notebook.cells[18].code} language="python" timeout={60000} />
 
 체중의 분산은 평균만 예측했을 때의 MSE입니다. 여기서는 절편을 포함해 직선을 맞췄으므로 잔차의 평균이 0이고, 잔차의 분산도 회귀선을 사용했을 때의 MSE와 같습니다. 두 값의 비를 1에서 빼면 날개 길이 정보가 MSE를 얼마나 줄였는지 알 수 있습니다.
 
@@ -227,43 +137,19 @@ np.float64(208890.28989956583)
 
 이 예의 $R^2$는 약 0.22입니다. 평균만 예측할 때에 비해 회귀선의 훈련 자료 MSE가 약 22% 작다는 뜻입니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 20" code={notebook.cells[20].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.21921282646854912)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 20" code={notebook.cells[20].code} language="python" timeout={60000} />
 
 절편을 포함한 단순 선형 최소제곱에서는 상관계수와 결정계수 사이에 $R^2=r^2$의 관계가 있습니다. $R^2$의 제곱근을 계산해 보겠습니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.4682016942179397)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000} />
 
 앞서 구한 양의 상관계수와 비교합니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 22" code={notebook.cells[22].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.4682016942179394)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 22" code={notebook.cells[22].code} language="python" timeout={60000} />
 
 부동소수점 근사에 따른 작은 차이를 제외하면 같습니다. `linregress`도 이 값을 결과의 속성으로 제공합니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 23" code={notebook.cells[23].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.46820169421793933)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 23" code={notebook.cells[23].code} language="python" timeout={60000} />
 
 두 통계량은 관련되어 있지만 읽는 방식이 다릅니다. 상관계수는 선형 관계의 방향과 강도를 −1~1 사이의 값으로 나타냅니다. $R^2$는 평균만 예측할 때에 비해 MSE가 얼마나 줄었는지를 나타냅니다. 이 예에서는 상관계수를 제곱하므로 방향 정보는 사라집니다.
 
@@ -277,14 +163,7 @@ np.float64(0.46820169421793933)
 
 수정한 기울기와 절편을 담을 객체로 `types` 모듈의 `SimpleNamespace`를 사용합니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000}>
-
-```text
-namespace(intercept=np.float64(-2533.193389187175),
-          slope=np.float64(32.15393529728294))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000} />
 
 이 객체를 `compute_residuals`에 전달해 잔차와 MSE를 구합니다.
 
@@ -292,13 +171,7 @@ namespace(intercept=np.float64(-2533.193389187175),
 
 최소제곱 결과와 비교하면, 무작위로 옮긴 직선의 MSE가 더 큽니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 27" code={notebook.cells[27].code} language="python" timeout={60000}>
-
-```text
-(np.float64(163098.85902884745), np.float64(179019.20812685465), np.True_)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 27" code={notebook.cells[27].code} language="python" timeout={60000} />
 
 하지만 MSE를 최소화하는 것만이 ‘최선’의 기준은 아닙니다. 잔차 절댓값의 합이나 관측점에서 직선까지 거리의 합을 최소화할 수도 있습니다. 과대예측과 과소예측의 비용이 다르다면, 각 잔차에 비용을 매겨 전체 비용을 줄이는 편이 맞을 수 있습니다.
 
@@ -308,23 +181,11 @@ namespace(intercept=np.float64(-2533.193389187175),
 
 날개 길이와 체중으로 이 함수를 시험하겠습니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 29" code={notebook.cells[29].code} language="python" timeout={60000}>
-
-```text
-(np.float64(-2535.8368022002524), np.float64(32.831689751150094))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 29" code={notebook.cells[29].code} language="python" timeout={60000} />
 
 `linregress`와 같은 절편·기울기를 얻는지 확인할 수 있습니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000}>
-
-```text
-True
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000} />
 
 계산 비용 때문에 방법을 골라야 했던 때와 달리, 지금은 문제에 맞는 오차 기준을 선택할 여지가 큽니다. 잔차의 제곱을 최소화하는 것이 현재 문제에 적절한지도 생각해야 합니다.
 
@@ -362,33 +223,15 @@ True
 
 백분위수로 90% 신뢰구간을 구할 수 있습니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 36" code={notebook.cells[36].code} language="python" timeout={60000}>
-
-```text
-32.83168975115009 [25.39604591 40.21054526]
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 36" code={notebook.cells[36].code} language="python" timeout={60000} />
 
 원문의 결과는 기울기 약 33g/mm, 90% 신뢰구간 약 [25, 40]g/mm로 보고할 수 있습니다. 추정량의 표준오차는 이 재표집 분포의 표준편차입니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 37" code={notebook.cells[37].code} language="python" timeout={60000}>
-
-```text
-np.float64(4.570238986584832)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 37" code={notebook.cells[37].code} language="python" timeout={60000} />
 
 `linregress` 결과에도 분포에 대한 가정을 바탕으로 계산한 표준오차 근삿값이 들어 있습니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 38" code={notebook.cells[38].code} language="python" timeout={60000}>
-
-```text
-np.float64(5.076138407990821)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 38" code={notebook.cells[38].code} language="python" timeout={60000} />
 
 이 예에서 재표집으로 얻은 표준오차가 조금 작지만, 실질적으로 큰 차이는 아닙니다.
 
@@ -412,22 +255,7 @@ np.float64(5.076138407990821)
 
 관측 자료 위에 여러 회귀선을 겹쳐 그립니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap10-093-0.png"
-        alt="재표집할 때마다 달라지는 회귀선들. 자료의 양 끝에서 더 퍼집니다."
-        width={1769}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-[그림 크게 보기](/labs/think-stats/figures/chap10-093-0.png)
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000} />
 
 자료의 가운데에서는 선들이 모이고 양 끝에서는 더 퍼집니다. 각 x에서 예측 평균의 90% 신뢰구간을 그리는 방법도 있습니다. 회귀선별 예측 배열들을 모으겠습니다.
 
@@ -439,22 +267,7 @@ np.float64(5.076138407990821)
 
 `fill_between`으로 5~95백분위수 사이를 채우고, 가운데 값과 원자료도 함께 그립니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 44" code={notebook.cells[44].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap10-099-0.png"
-        alt="평균 회귀선의 점별 90% 부트스트랩 띠. 개별 관측값은 띠 밖에도 많습니다."
-        width={1769}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-[그림 크게 보기](/labs/think-stats/figures/chap10-099-0.png)
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 44" code={notebook.cells[44].code} language="python" timeout={60000} />
 
 표집 변동 때문에 회귀선이 얼마나 달라질 수 있는지 보여줄 때 제가 선호하는 방법입니다.
 
@@ -478,13 +291,7 @@ BRFSS 원자료를 불러오는 코드는 내려받는 노트북에 있습니다
 
 `linregress`로 최소제곱 기울기와 절편을 구합니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 47" code={notebook.cells[47].code} language="python" timeout={60000}>
-
-```text
-(np.float64(-82.65926054409877), np.float64(0.957074585033226))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 47" code={notebook.cells[47].code} language="python" timeout={60000} />
 
 기울기는 약 0.96kg/cm입니다. 키가 1cm 높은 사람은 평균 체중이 거의 1kg 높은 경향을 나타냅니다. 여러 키에 대한 예측값을 계산합니다.
 
@@ -500,22 +307,7 @@ BRFSS 원자료를 불러오는 코드는 내려받는 노트북에 있습니다
 
 지터를 준 자료와 회귀선을 함께 그립니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 51" code={notebook.cells[51].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap10-117-0.png"
-        alt="키로 체중을 예측한 직선. 체중이 큰 쪽에 관측점이 길게 퍼집니다."
-        width={1769}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-[그림 크게 보기](/labs/think-stats/figures/chap10-117-0.png)
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 51" code={notebook.cells[51].code} language="python" timeout={60000} />
 
 회귀선이 점들이 가장 밀집한 부분을 지나지 않습니다. 성인 체중은 정규분포보다 오른쪽으로 치우친 로그정규분포에 가깝고, 큰 체중들이 직선을 위로 끌어당기기 때문입니다. 잔차 분포도 살펴보겠습니다.
 
@@ -527,13 +319,7 @@ BRFSS 원자료를 불러오는 코드는 내려받는 노트북에 있습니다
 
 잔차 분포는 오른쪽으로 치우쳐 있습니다. 그것만으로 곧바로 잘못된 모형이라는 뜻은 아니지만, 현재 직선이 관계의 모양을 충분히 담지 못했을 수 있습니다. 체중이 로그정규분포에 가깝다면 로그 체중은 정규분포에 가까우므로, 이번에는 키로 로그 체중을 설명하는 직선을 맞추겠습니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 54" code={notebook.cells[54].code} language="python" timeout={60000}>
-
-```text
-(np.float64(0.9930804163932876), np.float64(0.005281454169417777))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 54" code={notebook.cells[54].code} language="python" timeout={60000} />
 
 변환한 변수의 기울기와 절편은 해석하기 어려워집니다. 우선 그 직선의 예측값을 계산합니다.
 
@@ -541,22 +327,7 @@ BRFSS 원자료를 불러오는 코드는 내려받는 노트북에 있습니다
 
 변환한 자료의 산점도와 함께 그립니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 56" code={notebook.cells[56].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap10-126-0.png"
-        alt="키와 로그 체중의 회귀선. 체중 자체보다 잔차 모양이 대칭에 가깝습니다."
-        width={1769}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-[그림 크게 보기](/labs/think-stats/figures/chap10-126-0.png)
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 56" code={notebook.cells[56].code} language="python" timeout={60000} />
 
 이번 회귀선은 점들의 가운데를 지나며 위아래 퍼짐도 더 대칭적으로 보입니다.
 
@@ -568,42 +339,15 @@ BRFSS 원자료를 불러오는 코드는 내려받는 노트북에 있습니다
 
 산점도와 잔차 모양은 키와 로그 체중의 관계가 직선으로 더 잘 표현된다는 것을 보여 줍니다. 로그 변환 후 상관도 조금 더 큽니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 59" code={notebook.cells[59].code} language="python" timeout={60000}>
-
-```text
-(np.float64(0.5087364789734582), np.float64(0.5317282605983435))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 59" code={notebook.cells[59].code} language="python" timeout={60000} />
 
 따라서 이 단순회귀의 $R^2$도 조금 더 큽니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 60" code={notebook.cells[60].code} language="python" timeout={60000}>
-
-```text
-(np.float64(0.2588128050383119), np.float64(0.28273494311893993))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 60" code={notebook.cells[60].code} language="python" timeout={60000} />
 
 로그 체중을 사용하면 이 자료의 관계가 직선으로 조금 더 잘 표현됩니다. 다만 변수 변환은 계수의 해석을 어렵게 하므로, 결과를 제시할 때 역변환이 도움이 됩니다. 상용로그의 역변환은 10의 거듭제곱입니다. 원래 단위로 돌아온 곡선을 원자료와 함께 그리겠습니다.
 
-<CodePlayground notebook="think-stats-10" title="셀 61" code={notebook.cells[61].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap10-135-0.png"
-        alt="지수화한 로그 회귀선과 원래 체중 축의 관측값. 역변환 선은 원래 척도의 조건부 평균과 다를 수 있습니다."
-        width={1769}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-[그림 크게 보기](/labs/think-stats/figures/chap10-135-0.png)
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-10" title="셀 61" code={notebook.cells[61].code} language="python" timeout={60000} />
 
 로그 체중에 대해 직선이었던 모형은 원래 체중 단위에서는 곡선이 됩니다.
 

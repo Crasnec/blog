@@ -1,5 +1,5 @@
-import { arr, defineFigure, obj, progress, str, withAlpha } from "../kit.ts";
-import { bounded, common, fittedText, fmt, header, TIMES } from "./shared.ts";
+import { arr, defineFigure, obj, progress, str, withAlpha } from "#src/figures/kit.ts";
+import { bounded, common, fittedText, fmt, header, TIMES } from "#src/figures/statistics/shared.ts";
 
 export const mosaic = defineFigure({
     duration: TIMES.duration,

@@ -1,7 +1,7 @@
 ---
-import { t } from "../strings";
-import { getCategories } from "../posts/queries";
-import CategoryTree from "./CategoryTree.astro";
+import { t } from "#src/strings.ts";
+import { getCategories } from "#src/posts/queries.ts";
+import CategoryTree from "#src/components/CategoryTree.astro";
 
 interface Props {
     currentCategory?: string | undefined;

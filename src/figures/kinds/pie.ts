@@ -1,7 +1,7 @@
 /** Part-to-whole comparisons; zero-valued slices retain their legend entry. */
-import { defineFigure, ease, fittedText, formatNumber, progress } from "../kit.ts";
-import { decodePie, type PieModel } from "../charts/model.ts";
-import { header, shape, swatch } from "../charts/draw.ts";
+import { defineFigure, ease, fittedText, formatNumber, progress } from "#src/figures/kit.ts";
+import { decodePie, type PieModel } from "#src/figures/charts/model.ts";
+import { header, shape, swatch } from "#src/figures/charts/draw.ts";
 
 const TIMES = { start: 0.15, reveal: 1.3, end: 1.8 };
 

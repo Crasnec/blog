@@ -3,4 +3,4 @@
  * packing.
  * Full contract and numerical conventions: ../statistics/README.md.
  */
-export { beeswarm as default } from "../statistics/distributions.ts";
+export { beeswarm as default } from "#src/figures/statistics/distributions.ts";

@@ -1,7 +1,7 @@
-import { en, type UIKey } from "./en.ts";
-import { ko } from "./ko.ts";
+import { en, type UIKey } from "#src/locales/en.ts";
+import { ko } from "#src/locales/ko.ts";
 
-export type { Messages, UIKey } from "./en.ts";
+export type { Messages, UIKey } from "#src/locales/en.ts";
 
 export const dictionaries = { en, ko } as const;
 export type Locale = keyof typeof dictionaries;

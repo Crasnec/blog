@@ -1,4 +1,4 @@
-import type { SceneModel } from "./types.ts";
+import type { SceneModel } from "#src/figures/scene/types.ts";
 
 export const SCENE_DURATION = 8;
 

@@ -3,4 +3,4 @@
  * trapezoidal PR AUC.
  * Full contract and numerical conventions: ../statistics/README.md.
  */
-export { precisionRecall as default } from "../statistics/classification.ts";
+export { precisionRecall as default } from "#src/figures/statistics/classification.ts";

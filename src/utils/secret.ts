@@ -39,7 +39,7 @@
  * push, which is where that is answered.
  */
 
-import { isJsonObject, parseJson, type JsonValue } from "./json.ts";
+import { isJsonObject, parseJson, type JsonValue } from "#src/utils/json.ts";
 
 /** OWASP's floor for PBKDF2-SHA256. Costs the reader about a second, once. */
 const ITERATIONS = 600_000;

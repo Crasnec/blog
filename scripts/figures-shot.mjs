@@ -37,7 +37,7 @@ import { mkdir, readFile, rm } from "node:fs/promises";
 import { createServer } from "node:net";
 import { setTimeout as sleep } from "node:timers/promises";
 import { chromium } from "playwright";
-import { isJsonObject, parseJson } from "../src/utils/json.ts";
+import { isJsonObject, parseJson } from "#src/utils/json.ts";
 
 const path = process.argv[2] ?? "/";
 const out = process.env.FIGURES_OUT ?? ".figures-shots";

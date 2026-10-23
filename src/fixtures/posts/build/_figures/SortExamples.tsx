@@ -1,7 +1,7 @@
 /** Post-specific data and captions; all drawing uses reusable typed components. */
-import { Sort, type DiagramProps } from "../../../../components/figures";
-import type { FigureInputs } from "../../../../figures/inputs";
-import { numberSamples } from "../../../../figures/generators";
+import { Sort, type DiagramProps } from "#src/components/figures/index.tsx";
+import type { FigureInputs } from "#src/figures/inputs.ts";
+import { numberSamples } from "#src/figures/generators.ts";
 
 const sortValues = numberSamples(16, {
     seed: 3,

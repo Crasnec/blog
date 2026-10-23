@@ -1,14 +1,14 @@
-import type { JsonObject, JsonValue } from "../../utils/json.ts";
-import { str, obj, tone, arr } from "../kit.ts";
-import { characters } from "./text.ts";
+import type { JsonObject, JsonValue } from "#src/utils/json.ts";
+import { str, obj, tone, arr } from "#src/figures/kit.ts";
+import { characters } from "#src/figures/scene/text.ts";
 import type {
     Item,
     SceneModel,
     Connection,
     SceneStep,
     SceneInput,
-} from "./types.ts";
-import { isSymbolName, symbolNames } from "./symbols.ts";
+} from "#src/figures/scene/types.ts";
+import { isSymbolName, symbolNames } from "#src/figures/scene/symbols.ts";
 
 function fields(p: JsonObject, names: string[], path: string): void {
     for (const key of Object.keys(p)) {

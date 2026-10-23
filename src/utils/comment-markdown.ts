@@ -7,7 +7,7 @@ import { unified } from "unified";
 import { visit } from "unist-util-visit";
 import type { Root as HastRoot } from "hast";
 import type { Paragraph, Root as MdastRoot, Strong, Text } from "mdast";
-import { siteConfig } from "../config.ts";
+import { siteConfig } from "#src/config.ts";
 
 /**
  * Compiles one comment body from Markdown to HTML.

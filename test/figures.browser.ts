@@ -3,9 +3,9 @@ import { readFile } from "node:fs/promises";
 import { after, before, test } from "node:test";
 import { chromium, type Browser, type Page } from "playwright";
 
-import { isJsonObject, parseJson } from "../src/utils/json.ts";
-import { statisticsExamples } from "../src/fixtures/posts/build/_figures/statistics-data.ts";
-import { serveStaticSite } from "./helpers/static-site.ts";
+import { isJsonObject, parseJson } from "#src/utils/json.ts";
+import { statisticsExamples } from "#src/fixtures/posts/build/_figures/statistics-data.ts";
+import { serveStaticSite } from "#root/test/helpers/static-site.ts";
 
 let browser: Browser | undefined;
 let page: Page;

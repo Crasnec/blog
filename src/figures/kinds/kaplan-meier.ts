@@ -3,4 +3,4 @@
  * right-censored.
  * Full contract and numerical conventions: ../statistics/README.md.
  */
-export { kaplanMeierFigure as default } from "../statistics/survival.ts";
+export { kaplanMeierFigure as default } from "#src/figures/statistics/survival.ts";

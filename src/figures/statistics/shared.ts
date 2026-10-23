@@ -19,8 +19,8 @@ import {
     type Frame,
     type Point,
     type Rect,
-} from "../kit.ts";
-import type { JsonObject, JsonValue } from "../../utils/json.ts";
+} from "#src/figures/kit.ts";
+import type { JsonObject, JsonValue } from "#src/utils/json.ts";
 
 export const TIMES = {
     start: 0.5,
@@ -119,9 +119,9 @@ export function extent(values: readonly number[], padding = 0.08): Domain {
     ];
 }
 
-export { formatNumber as fmt } from "../kit.ts";
+export { formatNumber as fmt } from "#src/figures/kit.ts";
 
-export { fittedText } from "../kit.ts";
+export { fittedText } from "#src/figures/kit.ts";
 
 export function header(frame: Frame, title: string, summary: string): void {
     fittedText(frame, title, 0, 14, frame.width, frame.palette.inkStrong);

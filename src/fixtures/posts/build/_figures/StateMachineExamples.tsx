@@ -1,6 +1,6 @@
 /** Post-specific data and captions; all drawing uses reusable typed components. */
-import { StateMachine, type DiagramProps } from "../../../../components/figures";
-import type { FigureInputs } from "../../../../figures/inputs";
+import { StateMachine, type DiagramProps } from "#src/components/figures/index.tsx";
+import type { FigureInputs } from "#src/figures/inputs.ts";
 
 const circuitBreakerData = {
     states: [

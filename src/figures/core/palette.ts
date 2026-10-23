@@ -1,4 +1,4 @@
-import type { Palette } from "./definition.ts";
+import type { Palette } from "#src/figures/core/definition.ts";
 
 /**
  * Colour for "how bad is this value": ink below `warnAt`, `warn` from there,

@@ -4,7 +4,7 @@ import {
     symbolNames,
     symbolGroups,
     symbols,
-} from "../../../../components/figures";
+} from "#src/components/figures/index.tsx";
 
 const request = defineScene({
     title: "A request, end to end",

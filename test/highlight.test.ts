@@ -6,10 +6,10 @@ import { createOnigurumaEngine } from "shiki/engine/oniguruma";
 import javascript from "shiki/langs/javascript.mjs";
 import typescript from "shiki/langs/typescript.mjs";
 import python from "shiki/langs/python.mjs";
-import { IncrementalHighlighter } from "../src/playground/incremental-highlight.ts";
-import { highlights, setTokens } from "../src/playground/highlight-decorations.ts";
-import { parseGrammars } from "../src/playground/grammar.ts";
-import type { HighlightToken } from "../src/playground/contracts.ts";
+import { IncrementalHighlighter } from "#src/playground/incremental-highlight.ts";
+import { highlights, setTokens } from "#src/playground/highlight-decorations.ts";
+import { parseGrammars } from "#src/playground/grammar.ts";
+import type { HighlightToken } from "#src/playground/contracts.ts";
 
 const theme = "test-editor";
 const engine = await createHighlighterCore({

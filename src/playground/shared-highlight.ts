@@ -4,7 +4,7 @@ import {
     type HighlightRequest,
     type HighlightResponse,
     type GrammarSource,
-} from "./contracts.ts";
+} from "#src/playground/contracts.ts";
 
 // Share one tokenizer per author grammar set across standalone and notebook cells.
 // A document ID keeps incremental grammar state separate for every editor.

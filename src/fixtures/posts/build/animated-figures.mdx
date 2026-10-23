@@ -5,10 +5,10 @@ description: Reusable data-driven figures and post-specific TSX compositions imp
 tags: [mdx, figures]
 ---
 
-import { DeploymentLatency, LatencyDistribution, ServiceFlow, WorkerQueues } from "./_figures/AnimatedExamples.tsx";
-import CheckoutComparison from "./_figures/CheckoutComparison.tsx";
-import LatencyComparison from "./_figures/LatencyComparison.tsx";
-import NormalCoverage from "./_figures/NormalCoverage.tsx";
+import { DeploymentLatency, LatencyDistribution, ServiceFlow, WorkerQueues } from "#src/fixtures/posts/build/_figures/AnimatedExamples.tsx";
+import CheckoutComparison from "#src/fixtures/posts/build/_figures/CheckoutComparison.tsx";
+import LatencyComparison from "#src/fixtures/posts/build/_figures/LatencyComparison.tsx";
+import NormalCoverage from "#src/fixtures/posts/build/_figures/NormalCoverage.tsx";
 
 Place a `<Figure>` in a post to animate it when it enters the viewport. It follows the site's theme, offers replay after finishing, and holds its final frame for readers who prefer reduced motion.
 
@@ -41,7 +41,7 @@ Arrival times, service durations, server count and queue policies are inputs to 
 <CheckoutComparison registers={3} customers={12} />
 
 ```mdx
-import CheckoutComparison from "./_figures/CheckoutComparison.tsx";
+import CheckoutComparison from "#src/fixtures/posts/build/_figures/CheckoutComparison.tsx";
 
 <CheckoutComparison registers={3} customers={12} />
 ```

@@ -9,7 +9,7 @@
  */
 
 import type { Mermaid, MermaidConfig } from "mermaid";
-import { t } from "../strings";
+import { t } from "#src/strings.ts";
 
 let api: Mermaid | null = null;
 let counter = 0;

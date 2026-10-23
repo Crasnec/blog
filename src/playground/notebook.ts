@@ -1,4 +1,4 @@
-import { t } from "../strings.ts";
+import { t } from "#src/strings.ts";
 import {
     decodeRunResponse,
     type MessageValue,
@@ -7,7 +7,7 @@ import {
     type PythonPackage,
     type RunRequest,
     type RunResponse,
-} from "./contracts.ts";
+} from "#src/playground/contracts.ts";
 
 export interface NotebookCell {
     root: HTMLElement;

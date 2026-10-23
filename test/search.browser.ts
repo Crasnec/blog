@@ -18,7 +18,7 @@ before(async () => {
             "enhancements",
             "search/dialog",
             "search/engine",
-        ].map((name) => [`/site/${name}`, `site/${name}.ts`]),
+        ].map((name) => [`/site/${name}.ts`, `site/${name}.ts`]),
     ];
     for (const [url, file] of modules) {
         if (!url || !file) {
@@ -39,7 +39,9 @@ after(async () => {
 });
 
 const markup = `<!doctype html>
-<html><body>
+<html><head>
+    <script type="importmap">{"imports":{"#src/":"/"}}</script>
+</head><body>
     <header><button id="search-open">Search</button></header>
     <main><a id="background-link" href="#background">Background link</a></main>
     <aside id="already-inert" inert><button>Unavailable control</button></aside>
@@ -95,8 +97,8 @@ async function mount(context: TestContext, engine = pagefindScript): Promise<Pag
         const path = new URL(route.request().url()).pathname;
         const scripts: Record<string, string> = {
             ...compiled,
-            "/consts": "export const NAVBAR_HEIGHT = 64;",
-            "/strings": "export const t = key => key;",
+            "/consts.ts": "export const NAVBAR_HEIGHT = 64;",
+            "/strings.ts": "export const t = key => key;",
             "/pagefind/pagefind.js": engine,
         };
         const script = scripts[path];
@@ -342,8 +344,8 @@ void test("site controls bind to each new document without duplicating shortcuts
 void test("navigation cancels a reading feature whose module is still loading", async (context) => {
     const page = await mount(context);
     const { promise: gate, resolve: release } = Promise.withResolvers<undefined>();
-    const started = page.waitForRequest("**/site/contents");
-    await page.route("**/site/contents", async (route) => {
+    const started = page.waitForRequest("**/site/contents.ts");
+    await page.route("**/site/contents.ts", async (route) => {
         await gate;
         await route.fulfill({
             contentType: "text/javascript",

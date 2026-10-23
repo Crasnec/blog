@@ -1,12 +1,12 @@
 ---
-import PostEntry from "../components/PostEntry.astro";
-import Sidebar from "../components/Sidebar.astro";
-import CategoryBreadcrumbs from "../components/CategoryBreadcrumbs.astro";
-import CategoryTree from "../components/CategoryTree.astro";
-import { t } from "../strings";
-import BaseLayout from "../layouts/BaseLayout.astro";
-import type { PostRef } from "../posts/queries";
-import { categoryLabel, type CategoryCount } from "../posts/category";
+import PostEntry from "#src/components/PostEntry.astro";
+import Sidebar from "#src/components/Sidebar.astro";
+import CategoryBreadcrumbs from "#src/components/CategoryBreadcrumbs.astro";
+import CategoryTree from "#src/components/CategoryTree.astro";
+import { t } from "#src/strings.ts";
+import BaseLayout from "#src/layouts/BaseLayout.astro";
+import type { PostRef } from "#src/posts/queries.ts";
+import { categoryLabel, type CategoryCount } from "#src/posts/category.ts";
 
 interface Props {
     category: CategoryCount;

@@ -3,4 +3,4 @@
  * observations.
  * Full contract and numerical conventions: ../statistics/README.md.
  */
-export { raincloud as default } from "../statistics/distributions.ts";
+export { raincloud as default } from "#src/figures/statistics/distributions.ts";

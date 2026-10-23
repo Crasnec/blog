@@ -42,11 +42,11 @@ import {
     text,
     withAlpha,
     type Point,
-} from "../kit.ts";
-import type { JsonValue } from "../../utils/json.ts";
+} from "#src/figures/kit.ts";
+import type { JsonValue } from "#src/utils/json.ts";
 
-import { shuffledValues } from "../generators.ts";
-import { traceTree as trace, type Operation, type Trace, type Placed } from "../models/tree.ts";
+import { shuffledValues } from "#src/figures/generators.ts";
+import { traceTree as trace, type Operation, type Trace, type Placed } from "#src/figures/models/tree.ts";
 
 /* — 1. pacing ——————————————————————————————————————————————————————— */
 

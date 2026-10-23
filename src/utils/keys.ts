@@ -17,8 +17,8 @@ import {
     parsePublicKeyFile,
     type PrivateKeyFile,
     type PublicKeyFile,
-} from "./secret";
-import { parseJson, type JsonValue } from "./json";
+} from "#src/utils/secret.ts";
+import { parseJson, type JsonValue } from "#src/utils/json.ts";
 
 /*
  * From the working directory, not from this module: by the time it runs it has

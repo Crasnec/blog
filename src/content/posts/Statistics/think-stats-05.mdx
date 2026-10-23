@@ -10,20 +10,20 @@ series:
   order: 5
 ---
 
-import CodePlayground from '../../../components/CodePlayground.astro';
-import PythonNotebook from '../../../components/PythonNotebook.astro';
-import notebook from './_notebooks/chap05.json';
-import Figure from '../../../components/Figure.astro';
-import plots from './_figures/plots.json';
-import poissonCode from '../../../../public/labs/think-stats/chap05-poisson.py?raw';
-import exponentialCode from '../../../../public/labs/think-stats/chap05-exponential.py?raw';
-import chapterCode from '../../../../public/labs/think-stats/chap05-browser.py?raw';
+import CodePlayground from '#src/components/CodePlayground.astro';
+import PythonNotebook from '#src/components/PythonNotebook.astro';
+import notebook from '#src/content/posts/Statistics/_notebooks/chap05.json';
+import Figure from '#src/components/Figure.astro';
+import plots from '#src/content/posts/Statistics/_figures/plots.json';
+import poissonCode from '#root/public/labs/think-stats/chap05-poisson.py?raw';
+import exponentialCode from '#root/public/labs/think-stats/chap05-exponential.py?raw';
+import chapterCode from '#root/public/labs/think-stats/chap05-browser.py?raw';
 
 Allen B. Downey의 《Think Stats》 3판, 5장 「Modeling Distributions」의 한국어 번역입니다. [원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/nb/chap05.ipynb)을 바탕으로 옮겼습니다.
 
 <a href="/labs/think-stats/chap05-ko.ipynb" download="think-stats-05-ko.ipynb">한국어 노트북 내려받기</a> · [원문 웹판](https://allendowney.github.io/ThinkStats/chap05.html)
 
-준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 셀을 실행하면 참고용 출력이 실제 결과로 바뀝니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
+준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 실행 결과는 셀을 실행한 뒤 표시됩니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
 
 
 지금까지는 관측 자료로 만든 경험분포를 사용했습니다. 이런 분포 가운데 일부는 간단한 수학 함수로 나타내는 이론분포로 근사할 수 있습니다. 이 장에서는 이런 이론분포 몇 가지와, 그 분포로 설명할 수 있는 자료를 소개합니다.
@@ -55,25 +55,11 @@ Allen B. Downey의 《Think Stats》 3판, 5장 「Modeling Distributions」의 
 
 <CodePlayground notebook="think-stats-05" title="셀 2" code={notebook.cells[2].code} language="python" timeout={60000} />
 
-<CodePlayground notebook="think-stats-05" title="셀 3" code={notebook.cells[3].code} language="python" timeout={60000}>
-
-```text
-array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-       1, 1, 1])
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 3" code={notebook.cells[3].code} language="python" timeout={60000} />
 
 더 긴 시퀀스를 생성하고 결과의 `Pmf`를 구하면, 1과 0의 비율이 대략 예상대로인지 확인할 수 있습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 4" code={notebook.cells[4].code} language="python" timeout={60000}>
-
-| 값 | probs |
-| --- | --- |
-| 0 | 0.101 |
-| 1 | 0.899 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 4" code={notebook.cells[4].code} language="python" timeout={60000} />
 이제 `flip`으로 스키트 사격 한 라운드를 시뮬레이션하고 명중 횟수를 반환할 수 있습니다.
 
 <CodePlayground notebook="think-stats-05" title="셀 5" code={notebook.cells[5].code} language="python" timeout={60000} />
@@ -84,30 +70,11 @@ array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
 
 평균 점수는 `n`과 `p`의 곱인 `22.5`에 가깝습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 7" code={notebook.cells[7].code} language="python" timeout={60000}>
-
-```text
-(np.float64(22.522), 22.5)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 7" code={notebook.cells[7].code} language="python" timeout={60000} />
 
 결과의 분포는 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 8" code={notebook.cells[8].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap05-020-0.png"
-        alt="표적 25개와 명중 확률 0.9로 생성한 명중 횟수의 PMF. 봉우리는 22~23회 근처이고 왼쪽 꼬리가 깁니다."
-        width={1770}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 8" code={notebook.cells[8].code} language="python" timeout={60000} />
 
 봉우리는 평균 근처에 있고, 분포는 왼쪽으로 치우쳐 있습니다.
 
@@ -123,20 +90,7 @@ SciPy의 `comb` 함수는 `n`개 중 `k`개를 고르는 조합의 수를 계산
 
 시뮬레이션 결과와 비교하면 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap05-026-0.png"
-        alt="사격 시뮬레이션과 이항 모형의 명중 횟수 PMF 비교. 작은 무작위 차이를 빼면 두 모양이 비슷합니다."
-        width={1770}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000} />
 
 두 분포는 비슷하고, 시뮬레이션의 우연한 변동 때문에 작은 차이가 있습니다. 시뮬레이션과 모형이 같은 가정, 특히 매 시도의 성공 확률이 같다는 가정에 바탕을 두므로 놀라운 일은 아닙니다. 모형을 더 엄격히 확인하려면 실제 자료와 비교해야 합니다.
 
@@ -146,17 +100,7 @@ SciPy의 `comb` 함수는 `n`개 중 `k`개를 고르는 조합의 수를 계산
 
 <CodePlayground notebook="think-stats-05" title="셀 12" code={notebook.cells[12].code} language="python" timeout={60000} />
 
-<CodePlayground notebook="think-stats-05" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000}>
-
-| 값 | Rank | Athlete | Country | 1 | 2 | 3 | 4 | 5 | Total[3] | Shoot-off | Notes |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 0 | 1 | Éric Delaunay | France | 25 | 25 | 25 | 24 | 25 | 124 | +6 | Q, OR |
-| 1 | 2 | Tammaro Cassandro | Italy | 24 | 25 | 25 | 25 | 25 | 124 | +5 | Q, OR |
-| 2 | 3 | Eetu Kallioinen | Finland | 25 | 25 | 24 | 25 | 24 | 123 | NaN | Q |
-| 3 | 4 | Vincent Hancock | United States | 25 | 25 | 25 | 25 | 22 | 122 | +8 | Q |
-| 4 | 5 | Abdullah Al-Rashidi | Kuwait | 25 | 25 | 24 | 25 | 23 | 122 | +7 | Q |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000} />
 표에는 선수 한 명당 한 행이 있고, 다섯 라운드 각각에 해당하는 열이 있습니다. 결과가 든 열들을 선택하고 NumPy의 `flatten`으로 하나의 배열에 모으겠습니다.
 
 <CodePlayground notebook="think-stats-05" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000} />
@@ -165,23 +109,11 @@ SciPy의 `comb` 함수는 `n`개 중 `k`개를 고르는 조합의 수를 계산
 
 > 번역자 주: 원문 문장에서는 시도 횟수와 명중 횟수가 뒤바뀌어 있습니다. 아래 코드의 출력에 맞춰 바로잡았습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000}>
-
-```text
-(25, 3750, np.int64(3575))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000} />
 
 따라서 전체 성공률은 95.3%입니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 16" code={notebook.cells[16].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.9533333333333334)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 16" code={notebook.cells[16].code} language="python" timeout={60000} />
 
 이제 `n=25`와 방금 구한 `p`를 사용해 이항분포를 나타내는 `Pmf`를 계산하겠습니다.
 
@@ -189,20 +121,7 @@ np.float64(0.9533333333333334)
 
 실제 결과의 `Pmf`와 비교할 수 있습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 18" code={notebook.cells[18].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap05-041-0.png"
-        alt="올림픽 사격 예선 자료와 실제 명중률로 맞춘 이항분포의 비교. 높은 명중 횟수 쪽에 확률이 모입니다."
-        width={1770}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 18" code={notebook.cells[18].code} language="python" timeout={60000} />
 
 모든 선수의 실력이 똑같고 변하지 않는다는 비현실적인 가정에도 불구하고, 이항 모형은 자료의 분포에 잘 맞습니다.
 
@@ -216,13 +135,7 @@ np.float64(0.9533333333333334)
 
 60분, 즉 3,600초짜리 경기를 시뮬레이션하는 것부터 시작합니다. 두 팀을 합쳐 한 경기에서 평균 6골을 넣는다고 하겠습니다. 매초 득점 확률 `p`가 같고, 각 초의 득점 여부는 서로 독립이라고 가정합니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 19" code={notebook.cells[19].code} language="python" timeout={60000}>
-
-```text
-0.0016666666666666668
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 19" code={notebook.cells[19].code} language="python" timeout={60000} />
 
 다음 함수는 `n`초를 시뮬레이션하고 총득점 수를 반환합니다.
 
@@ -230,13 +143,7 @@ np.float64(0.9533333333333334)
 
 많은 경기를 시뮬레이션하면 경기당 평균 득점 수가 6에 가까운지 확인할 수 있습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000}>
-
-```text
-np.float64(6.021978021978022)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000} />
 
 이 결과를 이항분포로 설명할 수도 있지만, `n`이 크고 `p`가 작으면 **포아송분포**(Poisson distribution)로도 잘 설명됩니다. 포아송분포는 보통 그리스 문자 λ, “람다”로 나타내는 값 하나로 정해집니다. 코드에서는 `lam`을 사용합니다. `lambda`는 Python 예약어여서 변수 이름으로 쓸 수 없기 때문입니다. `lam`은 득점률을 나타내며, 이 예에서는 경기당 6골입니다.
 
@@ -252,30 +159,11 @@ SciPy의 `factorial` 함수는 `1`부터 `k`까지의 정수를 모두 곱합니
 
 분포의 평균이 6에 가까운지 확인할 수 있습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 24" code={notebook.cells[24].code} language="python" timeout={60000}>
-
-```text
-np.float64(5.999925498375129)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 24" code={notebook.cells[24].code} language="python" timeout={60000} />
 
 다음 그림은 시뮬레이션 결과와 평균이 같은 포아송분포를 비교합니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap05-056-0.png"
-        alt="경기당 평균 6골인 시뮬레이션과 포아송분포의 PMF 비교. 두 분포의 봉우리와 퍼짐이 비슷합니다."
-        width={1771}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000} />
 
 우연한 변동으로 생긴 작은 차이를 빼면 두 분포는 비슷합니다. 시뮬레이션과 포아송 모형 모두 경기의 매초 득점 확률이 같다고 가정하므로 놀라운 일은 아닙니다. 더 엄격히 확인하려면 실제 자료에 얼마나 잘 맞는지 보아야 합니다.
 
@@ -285,39 +173,15 @@ np.float64(5.999925498375129)
 
 브라우저에서는 모든 경기의 키와 득점 시각을 보존한 JSON을 읽습니다. 내려받는 원문 노트북은 HDF를 사용합니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 26" code={notebook.cells[26].code} language="python" timeout={60000}>
-
-```text
-(1312, '/202310100PIT')
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 26" code={notebook.cells[26].code} language="python" timeout={60000} />
 
 정규 시즌에는 1,312경기가 있었습니다. 각 키에는 경기 날짜와 홈 팀의 세 글자 약어가 들어 있습니다. 브라우저의 `read_game`으로 키를 조회하면 득점 시각 목록을 얻을 수 있습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 27" code={notebook.cells[27].code} language="python" timeout={60000}>
-
-```text
-0     424
-1    1916
-2    2137
-3    3005
-4    3329
-5    3513
-dtype: int64
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 27" code={notebook.cells[27].code} language="python" timeout={60000} />
 
 파일에서 처음 조회한 경기에서는 여섯 골이 나왔습니다. 첫 골은 시작 424초 뒤, 마지막 골은 3,513초 뒤로, 종료까지 87초를 남긴 때였습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 28" code={notebook.cells[28].code} language="python" timeout={60000}>
-
-```text
-np.int64(87)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 28" code={notebook.cells[28].code} language="python" timeout={60000} />
 
 다음 반복문은 모든 경기 결과를 읽고, 경기마다 득점 수를 세어 목록에 저장합니다.
 
@@ -325,13 +189,7 @@ np.int64(87)
 
 경기당 평균 득점 수는 6을 조금 넘습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000}>
-
-```text
-np.float64(6.0182926829268295)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000} />
 
 `poisson_pmf`로 자료와 평균이 같은 포아송분포의 `Pmf`를 만들 수 있습니다.
 
@@ -339,20 +197,7 @@ np.float64(6.0182926829268295)
 
 자료의 PMF와 비교하면 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap05-073-0.png"
-        alt="NHL 정규 시즌의 경기별 득점 수와 평균을 맞춘 포아송분포 비교. 대체로 비슷하지만 구간별 차이가 있습니다."
-        width={1771}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000} />
 
 포아송분포는 자료에 잘 맞습니다. 아이스하키의 득점 과정을 설명하는 좋은 모형일 수 있다는 뜻입니다.
 
@@ -368,13 +213,7 @@ np.float64(6.0182926829268295)
 
 이를 보이려고 다시 두 팀이 평균 6골을 넣는다고 가정하고, 매초 득점할 확률을 구하겠습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 33" code={notebook.cells[33].code} language="python" timeout={60000}>
-
-```text
-0.0016666666666666668
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 33" code={notebook.cells[33].code} language="python" timeout={60000} />
 
 다음 함수는 `n`초를 시뮬레이션하고 `argmax`로 첫 골의 시각을 찾습니다.
 
@@ -386,13 +225,7 @@ np.float64(6.0182926829268295)
 
 <CodePlayground notebook="think-stats-05" title="셀 35" code={notebook.cells[35].code} language="python" timeout={60000} />
 
-<CodePlayground notebook="think-stats-05" title="셀 36" code={notebook.cells[36].code} language="python" timeout={60000}>
-
-```text
-np.float64(597.7902097902098)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 36" code={notebook.cells[36].code} language="python" timeout={60000} />
 
 첫 골까지의 평균 시간은 600초, 즉 10분에 가깝습니다. 60분짜리 경기에서 평균 6골을 기대한다면 평균 10분마다 한 골을 기대할 수 있으니 자연스러운 결과입니다.
 
@@ -406,13 +239,7 @@ np.float64(597.7902097902098)
 
 `lam`은 단위 시간당 평균 사건 수입니다. 여기서는 초당 득점 수입니다. 시뮬레이션 결과의 평균으로 `lam`을 구할 수 있습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 38" code={notebook.cells[38].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.0016728276636563566)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 38" code={notebook.cells[38].code} language="python" timeout={60000} />
 
 여러 시간 값으로 함수를 호출하면 첫 골 시각의 분포를 근사할 수 있습니다. NumPy의 `linspace`는 등간격 배열을 만듭니다. 여기서는 0과 3,600을 모두 포함해 201개 값을 만듭니다.
 
@@ -420,20 +247,7 @@ np.float64(0.0016728276636563566)
 
 다음 그림은 시뮬레이션 결과와 방금 계산한 지수분포를 비교합니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 40" code={notebook.cells[40].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap05-089-0.png"
-        alt="시뮬레이션의 첫 골 시각 CDF와 지수 모형 비교. 두 곡선이 가깝게 겹칩니다."
-        width={1770}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 40" code={notebook.cells[40].code} language="python" timeout={60000} />
 
 지수 모형은 시뮬레이션 결과에 아주 잘 맞습니다. 하지만 실제 자료에 얼마나 잘 맞는지가 더 엄격한 확인입니다.
 
@@ -445,13 +259,7 @@ np.float64(0.0016728276636563566)
 
 득점률을 추정할 때는 `nan`을 제외하고 시간의 평균을 구하는 `nanmean`을 사용할 수 있습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 43" code={notebook.cells[43].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.0015121567467720825)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 43" code={notebook.cells[43].code} language="python" timeout={60000} />
 
 이제 자료에서 추정한 득점률로 지수분포의 CDF를 계산할 수 있습니다.
 
@@ -459,31 +267,10 @@ np.float64(0.0015121567467720825)
 
 자료의 CDF를 계산할 때는 `dropna=False`를 전달해 `nan` 값들을 끝에 포함하겠습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 45" code={notebook.cells[45].code} language="python" timeout={60000}>
-
-| 값 | probs |
-| --- | --- |
-| 3286.0 | 0.996951 |
-| 3581.0 | 0.997713 |
-| NaN | 1.000000 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 45" code={notebook.cells[45].code} language="python" timeout={60000} />
 다음 그림은 지수분포와 자료의 분포를 비교합니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 46" code={notebook.cells[46].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap05-100-0.png"
-        alt="NHL 자료의 첫 골 시각 CDF와 지수 모형 비교. 초반에는 실제 누적득점 비율이 모형보다 낮습니다."
-        width={1770}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 46" code={notebook.cells[46].code} language="python" timeout={60000} />
 
 일부 구간에서는 자료가 모형에서 벗어납니다. 처음 1,000초 동안의 득점이 모형의 예측보다 적어 보입니다. 그래도 모형은 자료에 잘 맞습니다.
 
@@ -509,13 +296,7 @@ NumPy `random` 모듈의 `choice` 함수는 값의 시퀀스에서 무작위로 
 
 서로 독립인 날씨 조건에서 호박 1,001개가 자란다고 하겠습니다. 100일의 성장 과정을 시뮬레이션하면 호박 1,001개의 무게를 얻습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 48" code={notebook.cells[48].code} language="python" timeout={60000}>
-
-```text
-(np.float64(199.37062937062936), np.float64(8.388630840376777))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 48" code={notebook.cells[48].code} language="python" timeout={60000} />
 
 평균은 200파운드에 가깝고 표준편차는 약 8파운드입니다. 무게의 분포가 정규분포에 가까운지 다음 함수로 확인하겠습니다. 표본을 받아 그 표본과 평균·표준편차가 같은 정규분포의 `Cdf`를 만듭니다. 평균보다 4표준편차 낮은 값부터 4표준편차 높은 값까지 계산합니다.
 
@@ -535,20 +316,7 @@ NumPy `random` 모듈의 `choice` 함수는 값의 시퀀스에서 무작위로 
 
 결과는 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 53" code={notebook.cells[53].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap05-115-0.png"
-        alt="하루에 1~3파운드씩 더하는 호박 성장 시뮬레이션과 정규 모형의 CDF 비교."
-        width={1770}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 53" code={notebook.cells[53].code} language="python" timeout={60000} />
 
 정규 모형은 호박 무게의 분포에 잘 맞습니다. 서로 독립이고 분산이 유한한 무작위 요인들을 더하면, 일정한 조건 아래 그 합을 정규분포로 근사할 수 있습니다. [14장](/posts/statistics/think-stats-14)에서 다시 다룰 중심극한정리의 결과입니다.
 
@@ -560,23 +328,11 @@ NumPy `random` 모듈의 `choice` 함수는 값의 시퀀스에서 무작위로 
 
 출생 체중의 평균은 약 7.27파운드이고 표준편차는 1.4파운드입니다. 하지만 앞에서 보았듯, 자료에는 오류로 보이는 이상치가 있습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 55" code={notebook.cells[55].code} language="python" timeout={60000}>
-
-```text
-(np.float64(7.265628457623368), np.float64(1.40821553384062))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 55" code={notebook.cells[55].code} language="python" timeout={60000} />
 
 이상치가 평균과 표준편차의 추정에 미치는 영향을 줄이려고 SciPy의 `trimboth`로 양 끝의 값을 제외하겠습니다. `0.01`은 양쪽에서 각각 1%씩 제외한다는 뜻입니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 56" code={notebook.cells[56].code} language="python" timeout={60000}>
-
-```text
-(np.float64(7.280883100022579), np.float64(1.2430657948614345))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 56" code={notebook.cells[56].code} language="python" timeout={60000} />
 
 양 끝을 제외한 자료의 평균은 조금 높아지고 표준편차는 상당히 낮아집니다. 이 자료로 정규 모형을 만들겠습니다.
 
@@ -586,20 +342,7 @@ NumPy `random` 모듈의 `choice` 함수는 값의 시퀀스에서 무작위로 
 
 자료의 `Cdf`와 비교합니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 58" code={notebook.cells[58].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap05-128-0.png"
-        alt="출생 체중 자료와 양 끝을 제외한 자료로 맞춘 정규 모형의 CDF. 가벼운 아기 쪽에서 차이가 있습니다."
-        width={1768}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 58" code={notebook.cells[58].code} language="python" timeout={60000} />
 
 5파운드 미만을 빼면 정규 모형은 자료에 잘 맞습니다. 그 구간에서는 자료의 분포가 모형보다 왼쪽에 있습니다. 가장 가벼운 아기들이 정규분포에서 예상한 것보다 더 가볍다는 뜻입니다. 현실은 대개 간단한 수학 모형보다 복잡합니다.
 
@@ -615,42 +358,17 @@ NumPy `random` 모듈의 `choice` 함수는 값의 시퀀스에서 무작위로 
 
 이 함수를 1,001번 호출해 호박 1,001개의 무게를 저장하겠습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 60" code={notebook.cells[60].code} language="python" timeout={60000}>
-
-```text
-(np.float64(130.80183363824722), np.float64(20.956047434921466))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 60" code={notebook.cells[60].code} language="python" timeout={60000} />
 
 평균 무게는 약 131파운드이고 표준편차는 약 21파운드입니다. 앞 모형보다 평균은 작지만 무게의 변동은 큽니다.
 
 이 무게의 분포는 **로그정규분포**(lognormal distribution)로 근사할 수 있습니다. 로그정규분포는 값에 로그를 취하면 정규분포가 되는 분포입니다. 이 모형에서는 날마다의 성장 배율에 로그를 취해 더한 값이 정규분포에 가까워집니다. 확인하려고 로그값의 평균과 표준편차를 구하겠습니다. 로그의 밑은 무엇이든 쓸 수 있지만, 결과를 해석하기 쉽도록 밑이 10인 로그를 사용하겠습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 61" code={notebook.cells[61].code} language="python" timeout={60000}>
-
-```text
-(np.float64(2.1111299372609933), np.float64(0.06898607064749827))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 61" code={notebook.cells[61].code} language="python" timeout={60000} />
 
 이제 로그값의 분포와 평균·표준편차가 같은 정규분포를 비교하겠습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 62" code={notebook.cells[62].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap05-137-0.png"
-        alt="비례 성장으로 생성한 호박 무게의 상용로그 분포와 정규 모형. 두 CDF가 거의 겹칩니다."
-        width={1770}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 62" code={notebook.cells[62].code} language="python" timeout={60000} />
 
 예상대로 모형은 시뮬레이션 결과에 아주 잘 맞습니다.
 
@@ -666,30 +384,11 @@ NumPy `random` 모듈의 `choice` 함수는 값의 시퀀스에서 무작위로 
 
 성인의 킬로그램 단위 체중은 `wtkg2` 열에 기록되어 있습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 64" code={notebook.cells[64].code} language="python" timeout={60000}>
-
-```text
-(np.float64(78.9924529968581), np.float64(19.546132387397257))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 64" code={notebook.cells[64].code} language="python" timeout={60000} />
 
 평균은 약 79kg입니다. 로그를 구하기 전에 체중이 정규분포를 따르는지 먼저 보겠습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 65" code={notebook.cells[65].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap05-145-0.png"
-        alt="성인 체중과 정규 모형의 CDF 비교. 체중의 오른쪽 꼬리 때문에 곡선이 다릅니다."
-        width={1770}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 65" code={notebook.cells[65].code} language="python" timeout={60000} />
 
 목적에 따라서는 정규분포가 이 자료를 충분히 잘 설명할 수 있습니다. 하지만 더 나은 모형이 있는지 보겠습니다.
 
@@ -697,20 +396,7 @@ NumPy `random` 모듈의 `choice` 함수는 값의 시퀀스에서 무작위로 
 
 <CodePlayground notebook="think-stats-05" title="셀 66" code={notebook.cells[66].code} language="python" timeout={60000} />
 
-<CodePlayground notebook="think-stats-05" title="셀 67" code={notebook.cells[67].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap05-148-0.png"
-        alt="성인 체중의 상용로그와 정규 모형의 CDF 비교. 체중 자체보다 정규 모형에 더 가깝습니다."
-        width={1770}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 67" code={notebook.cells[67].code} language="python" timeout={60000} />
 
 정규 모형은 체중 자체보다 로그값에 더 잘 맞습니다. 이는 비례 성장 모형과 부합하는 결과이지만, 분포의 모양만으로 실제 성장 과정을 확정할 수는 없습니다.
 
@@ -766,19 +452,13 @@ NSFG 응답자 파일의 `numfmhh` 열에는 각 응답자의 가구에 사는 �
 
 사람의 키 분포는 정규분포와 로그정규분포 중 어디에 더 가까울까요? 알아보기 위해 다음과 같이 BRFSS에서 키를 선택할 수 있습니다.
 
-<CodePlayground notebook="think-stats-05" title="셀 72" code={notebook.cells[72].code} language="python" timeout={60000} runAll={false}>
-
-```text
-(np.float64(168.82518961012298), np.float64(10.35264015645592))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-05" title="셀 72" code={notebook.cells[72].code} language="python" timeout={60000} runAll={false} />
 
 이 값들의 CDF를 구하고, 평균과 표준편차가 같은 정규분포와 비교하세요. 이어서 키에 로그를 취하고, 로그값의 분포를 정규분포와 비교하세요. 눈으로 비교했을 때 어느 모형이 자료에 더 잘 맞나요?
 
 ## 번역과 실행에 관하여
 
-참고용 출력과 고정 그림은 [같은 판의 실행된 원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap05.ipynb)에서 가져왔습니다. 시드가 고정된 난수 예제는 같은 실행 순서에서 재현됩니다. 시드가 없는 예제의 그림은 실행마다 달라질 수 있습니다. 연습문제의 해답은 넣지 않았습니다. 원문 설명과 코드가 어긋나는 곳에는 번역자 주를 붙였습니다.
+고정 그림은 [같은 판의 실행된 원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap05.ipynb)에서 가져왔습니다. 시드가 고정된 난수 예제는 같은 실행 순서에서 재현됩니다. 시드가 없는 예제의 그림은 실행마다 달라질 수 있습니다. 연습문제의 해답은 넣지 않았습니다. 원문 설명과 코드가 어긋나는 곳에는 번역자 주를 붙였습니다.
 
 [Think Stats: Exploratory Data Analysis in Python, 3rd Edition](https://allendowney.github.io/ThinkStats/index.html)
 

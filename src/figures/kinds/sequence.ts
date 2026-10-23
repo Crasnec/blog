@@ -46,8 +46,8 @@ import {
     withAlpha,
     type Point,
     type Tone,
-} from "../kit.ts";
-import type { JsonValue } from "../../utils/json.ts";
+} from "#src/figures/kit.ts";
+import type { JsonValue } from "#src/utils/json.ts";
 
 /* — 1. pacing ——————————————————————————————————————————————————————— */
 

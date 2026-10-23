@@ -4,11 +4,11 @@
  * No client directive is needed: src/figures/runtime.ts owns the animation.
  */
 import type { CSSProperties } from "react";
-import { t } from "../strings";
-import type { DefinedFigure } from "../figures/kit";
-import { prepareFigure, type FigureProps } from "../figures/element";
+import { t } from "#src/strings.ts";
+import type { DefinedFigure } from "#src/figures/kit.ts";
+import { prepareFigure, type FigureProps } from "#src/figures/element.ts";
 
-export type { FigureProps } from "../figures/element";
+export type { FigureProps } from "#src/figures/element.ts";
 
 // This catalog is used only while rendering HTML. The browser runtime keeps
 // its lazy imports, so each page downloads only the kinds it actually uses.

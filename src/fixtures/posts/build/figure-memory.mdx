@@ -5,7 +5,7 @@ description: Process the same requests with first-fit and best-fit to see how fr
 tags: [figures, memory, allocator]
 ---
 
-import { FirstFitAllocation, BestFitAllocation } from "./_figures/MemoryExamples.tsx";
+import { FirstFitAllocation, BestFitAllocation } from "#src/fixtures/posts/build/_figures/MemoryExamples.tsx";
 
 An allocator chooses a free region for each allocation and returns released blocks to the free list. That choice can produce very different layouts after several allocations and releases.
 

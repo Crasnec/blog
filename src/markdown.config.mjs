@@ -17,12 +17,12 @@ import remarkDirective from "remark-directive";
 import remarkMath from "remark-math";
 import remarkSectionize from "remark-sectionize";
 
-import { rehypeTableScroll } from "./plugins/rehype-table-scroll.mjs";
-import { remarkBlocks } from "./plugins/remark-blocks.mjs";
-import { remarkExcerpt } from "./plugins/remark-excerpt.mjs";
-import { remarkMermaid } from "./plugins/remark-mermaid.mjs";
-import { remarkReadingTime } from "./plugins/remark-reading-time.mjs";
-import { THEME } from "./theme.config.mjs";
+import { rehypeTableScroll } from "#src/plugins/rehype-table-scroll.mjs";
+import { remarkBlocks } from "#src/plugins/remark-blocks.mjs";
+import { remarkExcerpt } from "#src/plugins/remark-excerpt.mjs";
+import { remarkMermaid } from "#src/plugins/remark-mermaid.mjs";
+import { remarkReadingTime } from "#src/plugins/remark-reading-time.mjs";
+import { THEME } from "#src/theme.config.mjs";
 
 /**
  * The active theme's folder. `astro.config.mjs` aliases `@theme` at it so the
@@ -38,9 +38,9 @@ export const themeDir = new URL(`./styles/themes/${THEME}/`, import.meta.url);
  */
 /** @type {[string, () => Promise<CodeThemeModule>][]} */
 const codeThemeEntries = [
-    ["graphite", () => import("./styles/themes/graphite/code.mjs")],
-    ["slate", () => import("./styles/themes/slate/code.mjs")],
-    ["swiss", () => import("./styles/themes/swiss/code.mjs")],
+    ["graphite", () => import("#src/styles/themes/graphite/code.mjs")],
+    ["slate", () => import("#src/styles/themes/slate/code.mjs")],
+    ["swiss", () => import("#src/styles/themes/swiss/code.mjs")],
 ];
 const codeThemeLoaders = new Map(codeThemeEntries);
 const loadCodeTheme = codeThemeLoaders.get(THEME);

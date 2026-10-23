@@ -11,7 +11,7 @@ export {
     type BoundFigure,
     type DefinedFigure,
     defineFigure,
-} from "./core/definition.ts";
+} from "#src/figures/core/definition.ts";
 export {
     clamp,
     lerp,
@@ -23,7 +23,7 @@ export {
     stagger,
     phases,
     countUp,
-} from "./core/time.ts";
+} from "#src/figures/core/time.ts";
 export {
     random,
     normal,
@@ -40,7 +40,7 @@ export {
     niceMax,
     compact,
     formatNumber,
-} from "./core/data.ts";
+} from "#src/figures/core/data.ts";
 export {
     type Rect,
     canvasRect,
@@ -60,8 +60,8 @@ export {
     distanceToSegment,
     type LabelSpot,
     labelSpot,
-} from "./core/geometry.ts";
-export { type TextStyle, text, fittedText, label, chip, slantedLabel, badge } from "./core/text.ts";
+} from "#src/figures/core/geometry.ts";
+export { type TextStyle, text, fittedText, label, chip, slantedLabel, badge } from "#src/figures/core/text.ts";
 export {
     line,
     dot,
@@ -78,6 +78,6 @@ export {
     bar,
     cells,
     withAlpha,
-} from "./core/paint.ts";
-export { heat, type Tone, TONES, toneColor } from "./core/palette.ts";
-export { PropError, obj, arr, num, str, nums, tone, maybe } from "./core/decode.ts";
+} from "#src/figures/core/paint.ts";
+export { heat, type Tone, TONES, toneColor } from "#src/figures/core/palette.ts";
+export { PropError, obj, arr, num, str, nums, tone, maybe } from "#src/figures/core/decode.ts";

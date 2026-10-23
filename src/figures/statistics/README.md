@@ -5,7 +5,7 @@ is `/posts/build/statistical-figures/`. Its reproducible
 inputs live in `src/content/posts/build/_figures/statistics-data.ts`; change the data, not the drawing, to reuse a kind.
 
 ```mdx
-import Figure from "../../../components/Figure.astro";
+import Figure from "#src/components/Figure.astro";
 
 <Figure
   kind="boxplot"

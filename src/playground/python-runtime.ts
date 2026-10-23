@@ -1,5 +1,5 @@
 import type { loadPyodide, PyodideAPI } from "pyodide";
-import type { MessageValue } from "./contracts.ts";
+import type { MessageValue } from "#src/playground/contracts.ts";
 
 type RuntimeFunction = (...args: MessageValue[]) => MessageValue;
 type PackageOptions = Parameters<PyodideAPI["loadPackagesFromImports"]>[1];

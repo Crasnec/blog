@@ -1,5 +1,5 @@
 /** Interface language is chosen once per build by siteConfig.locale. */
-import { siteConfig } from "./config.ts";
+import { siteConfig } from "#src/config.ts";
 import {
     dictionaries,
     languageTags,
@@ -7,9 +7,9 @@ import {
     type Locale,
     type UIKey,
     type TranslationValues,
-} from "./locales/index.ts";
+} from "#src/locales/index.ts";
 
-export type { UIKey } from "./locales/index.ts";
+export type { UIKey } from "#src/locales/index.ts";
 
 export const LOCALE: Locale = siteConfig.locale;
 export const ui = dictionaries[LOCALE];

@@ -6,7 +6,7 @@ import { dirname, join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { checkSpacing, indentationTabLines } from "../scripts/check-spacing.mjs";
+import { checkSpacing, indentationTabLines } from "#root/scripts/check-spacing.mjs";
 
 const run = promisify(execFile);
 

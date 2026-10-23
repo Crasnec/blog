@@ -1,5 +1,5 @@
 /** Reusable example list; its content stays with the post, outside the kinds. */
-import Figure, { type FigureProps } from "./Figure";
+import Figure, { type FigureProps } from "#src/components/Figure.tsx";
 
 export default function FigureExamples({
     examples,

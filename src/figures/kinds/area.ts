@@ -1,6 +1,6 @@
 /** Linear interpolation on a numeric x-axis; stacked areas require nonnegative data. */
-import { defineFigure, ease, fittedText, formatNumber, progress, scale } from "../kit.ts";
-import { decodeArea, type AreaModel } from "../charts/model.ts";
+import { defineFigure, ease, fittedText, formatNumber, progress, scale } from "#src/figures/kit.ts";
+import { decodeArea, type AreaModel } from "#src/figures/charts/model.ts";
 import {
     chartHeight,
     chartRect,
@@ -9,7 +9,7 @@ import {
     legendHeight,
     shape,
     yAxis,
-} from "../charts/draw.ts";
+} from "#src/figures/charts/draw.ts";
 
 const TIMES = { start: 0.15, reveal: 1.5, end: 2 };
 

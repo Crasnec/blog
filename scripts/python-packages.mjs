@@ -3,9 +3,9 @@ import { readFileSync } from "node:fs";
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import libraries from "../src/playground/python-libraries.json" with { type: "json" };
-import wheels from "../src/playground/python-wheels.json" with { type: "json" };
-import { isJsonObject, parseJson } from "../src/utils/json.ts";
+import libraries from "#src/playground/python-libraries.json" with { type: "json" };
+import wheels from "#src/playground/python-wheels.json" with { type: "json" };
+import { isJsonObject, parseJson } from "#src/utils/json.ts";
 
 /**
  * @typedef {{
@@ -21,13 +21,13 @@ import { isJsonObject, parseJson } from "../src/utils/json.ts";
  */
 /**
  * @typedef {{
- *     info: import("../src/utils/json.ts").JsonObject,
+ *     info: import("#src/utils/json.ts").JsonObject,
  *     packages: Record<string, PythonPackage>,
  * }} PythonLock
  */
 
 /**
- * @param {import("../src/utils/json.ts").JsonValue} value
+ * @param {import("#src/utils/json.ts").JsonValue} value
  * @returns {value is PythonPackage}
  */
 function isPythonPackage(value) {
@@ -48,7 +48,7 @@ function isPythonPackage(value) {
 
 /**
  * Validate every catalog entry, including packages loaded later in the browser.
- * @param {import("../src/utils/json.ts").JsonValue} value
+ * @param {import("#src/utils/json.ts").JsonValue} value
  * @returns {PythonLock}
  */
 export function decodePythonLock(value) {

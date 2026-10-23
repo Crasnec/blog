@@ -224,8 +224,7 @@
     outline-offset: -2px;
 }
 
-.code-playground .playground-output:has(.playground-plot),
-.code-playground .playground-output:has(.playground-reference img) {
+.code-playground .playground-output:has(.playground-plot) {
     max-height: 48rem;
 }
 
@@ -321,27 +320,12 @@
     color: var(--ink-muted);
 }
 
-.code-playground .playground-reference {
-    white-space: normal;
-    font-family: var(--font-sans);
-}
-
-.code-playground .notebook-reference-label {
-    margin-top: 0;
-    font-size: var(--step--1);
-    color: var(--ink-muted);
-}
-
 .code-playground[data-notebook] .cm-scroller {
     min-height: 0;
 }
 
 .code-playground[data-notebook] .playground-fallback {
     min-height: 3rem;
-}
-
-.code-playground .playground-reference .expressive-code {
-    margin-block: var(--space-2);
 }
 
 .code-playground[data-notebook] .playground-output-line {

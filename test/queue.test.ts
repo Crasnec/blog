@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import queue from "../src/figures/kinds/queue.ts";
-import checkout from "../src/figures/kinds/checkout.ts";
-import { simulateQueue } from "../src/figures/models/queue.ts";
-import { prepareFigure } from "../src/figures/element.ts";
+import queue from "#src/figures/kinds/queue.ts";
+import checkout from "#src/figures/kinds/checkout.ts";
+import { simulateQueue } from "#src/figures/models/queue.ts";
+import { prepareFigure } from "#src/figures/element.ts";
 
 void test("dedicated queues and pooled FCFS replay the same workload without losing service", () => {
     const arrivals = [0, 0, 0, 1, 1, 2];

@@ -1,11 +1,11 @@
 /** Reproducible example inputs, shared by the gallery and regression tests. */
-import { mean, normal, random } from "../../../../figures/kit.ts";
-import { variance } from "../../../../figures/statistics/math.ts";
+import { mean, normal, random } from "#src/figures/kit.ts";
+import { variance } from "#src/figures/statistics/math.ts";
 import type {
     FigureInputs,
     FigureKindName,
     ScoredObservation,
-} from "../../../../figures/inputs.ts";
+} from "#src/figures/inputs.ts";
 
 export type StatisticsCategory =
     "distribution" | "relationship" | "estimate" | "diagnostic" | "prediction";

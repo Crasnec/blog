@@ -1,9 +1,9 @@
 /** Page orchestration only; each feature owns its listeners and cleanup. */
-import { mountTheme } from "./theme";
-import { mountScroll } from "./scroll";
-import { mountNavigation } from "./navigation";
-import { mountSearch } from "./search/dialog";
-import { mountEnhancements } from "./enhancements";
+import { mountTheme } from "#src/site/theme.ts";
+import { mountScroll } from "#src/site/scroll.ts";
+import { mountNavigation } from "#src/site/navigation.ts";
+import { mountSearch } from "#src/site/search/dialog.ts";
+import { mountEnhancements } from "#src/site/enhancements.ts";
 
 let wired = false;
 

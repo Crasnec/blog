@@ -5,8 +5,8 @@ published: 2026-10-22
 tags: [python, notebook, playground]
 ---
 
-import PythonNotebook from '../../../components/PythonNotebook.astro';
-import CodePlayground from '../../../components/CodePlayground.astro';
+import PythonNotebook from '#src/components/PythonNotebook.astro';
+import CodePlayground from '#src/components/CodePlayground.astro';
 
 Cells with the same author-specified `notebook` ID share one Python environment. Run the first cell, then the second. Edit the list or run the second cell again: the existing list changes, and the last expression is displayed automatically.
 
@@ -45,8 +45,8 @@ Notebook IDs keep environments separate. This cell cannot access the list above.
 ## Authoring
 
 ```mdx
-import PythonNotebook from '../../../components/PythonNotebook.astro';
-import CodePlayground from '../../../components/CodePlayground.astro';
+import PythonNotebook from '#src/components/PythonNotebook.astro';
+import CodePlayground from '#src/components/CodePlayground.astro';
 
 <PythonNotebook id="my-example" />
 <CodePlayground notebook="my-example" language="python" title="Data"

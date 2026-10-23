@@ -1,4 +1,4 @@
-import { Area, Bar, Pie } from "../../../../components/figures";
+import { Area, Bar, Pie } from "#src/components/figures/index.tsx";
 
 const categories = ["Read", "Write", "Sync"];
 const application = { label: "Application", values: [30, 18, 12] };

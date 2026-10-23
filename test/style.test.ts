@@ -4,7 +4,7 @@ import { ESLint, Linter } from "eslint";
 import stylistic from "@stylistic/eslint-plugin";
 import astroParser from "astro-eslint-parser";
 import tseslint from "typescript-eslint";
-import { sourceStyleRules } from "../eslint.config.mjs";
+import { sourceStyleRules } from "#root/eslint.config.mjs";
 
 const engine = new ESLint();
 const linter = new Linter();

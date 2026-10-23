@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { decodeScene, defineScene, layoutScene, sceneState } from "../src/figures/scene/model.ts";
-import { symbolGroups, symbolNames } from "../src/figures/scene/symbols.ts";
+import { decodeScene, defineScene, layoutScene, sceneState } from "#src/figures/scene/model.ts";
+import { symbolGroups, symbolNames } from "#src/figures/scene/symbols.ts";
 
 const flow = defineScene({
     items: [

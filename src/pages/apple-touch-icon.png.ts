@@ -3,7 +3,7 @@
  * name, so it is generated from the same mark at the size Apple asks for.
  */
 import type { APIRoute } from "astro";
-import { markPng } from "../utils/mark";
+import { markPng } from "#src/utils/mark.ts";
 
 export const GET: APIRoute = async () =>
     new Response(new Uint8Array(await markPng(180)), {

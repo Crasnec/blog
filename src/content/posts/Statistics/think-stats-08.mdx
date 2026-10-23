@@ -10,20 +10,20 @@ series:
   order: 8
 ---
 
-import CodePlayground from '../../../components/CodePlayground.astro';
-import PythonNotebook from '../../../components/PythonNotebook.astro';
-import notebook from './_notebooks/chap08.json';
-import Figure from '../../../components/Figure.astro';
-import plots from './_figures/plots.json';
-import varianceCode from '../../../../public/labs/think-stats/chap08-variance.py?raw';
-import coverageCode from '../../../../public/labs/think-stats/chap08-coverage.py?raw';
-import chapterCode from '../../../../public/labs/think-stats/chap08-browser.py?raw';
+import CodePlayground from '#src/components/CodePlayground.astro';
+import PythonNotebook from '#src/components/PythonNotebook.astro';
+import notebook from '#src/content/posts/Statistics/_notebooks/chap08.json';
+import Figure from '#src/components/Figure.astro';
+import plots from '#src/content/posts/Statistics/_figures/plots.json';
+import varianceCode from '#root/public/labs/think-stats/chap08-variance.py?raw';
+import coverageCode from '#root/public/labs/think-stats/chap08-coverage.py?raw';
+import chapterCode from '#root/public/labs/think-stats/chap08-browser.py?raw';
 
 Allen B. Downey의 《Think Stats》 3판, 8장 「Estimation」의 한국어 번역입니다. [원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/nb/chap08.ipynb)을 바탕으로 옮겼습니다.
 
 <a href="/labs/think-stats/chap08-ko.ipynb" download="think-stats-08-ko.ipynb">한국어 노트북 내려받기</a> · [원문 웹판](https://allendowney.github.io/ThinkStats/chap08.html)
 
-준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 셀을 실행하면 참고용 출력이 실제 결과로 바뀝니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
+준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 실행 결과는 셀을 실행한 뒤 표시됩니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
 
 
 인구가 1만 명인 마을에 살면서 다가오는 선거의 승자를 예측하려 한다고 하겠습니다. 이론적으로는 모든 주민에게 누구에게 투표할지 물어보고, 모두가 정직하게 답한다면 믿을 만한 예측을 할 수 있습니다.
@@ -51,24 +51,11 @@ Allen B. Downey의 《Think Stats》 3판, 8장 「Estimation」의 한국어 �
 
 <CodePlayground notebook="think-stats-08" title="셀 2" code={notebook.cells[2].code} language="python" timeout={60000} />
 
-<CodePlayground notebook="think-stats-08" title="셀 3" code={notebook.cells[3].code} language="python" timeout={60000}>
-
-```text
-array([4.44719887, 3.41859205, 3.45704099, 3.20643443, 4.09808751,
-       2.6412922 , 4.50261341, 3.34984483, 3.84675798, 3.58528963])
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 3" code={notebook.cells[3].code} language="python" timeout={60000} />
 
 표본의 평균과 중앙값은 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 4" code={notebook.cells[4].code} language="python" timeout={60000}>
-
-```text
-(np.float64(3.6553151902291945), np.float64(3.521165310619601))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 4" code={notebook.cells[4].code} language="python" timeout={60000} />
 
 두 값의 차이가 어느 쪽이 더 나은 추정인지 궁금해질 만큼 큽니다. 알아보기 위해, 주어진 크기 `n`의 가상 표본을 만드는 다음 함수를 사용하겠습니다.
 
@@ -90,20 +77,7 @@ array([4.44719887, 3.41859205, 3.45704099, 3.20643443, 4.09808751,
 
 다음 그림은 표본 크기를 늘릴 때 이 추정량들이 어떻게 변하는지 보여 줍니다. 수평선은 실제 모평균입니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap08-022-0.png"
-        alt="표본 크기에 따른 표본평균과 표본중앙값. 정규 모형에서 두 추정량 모두 실제 모평균 3.7에 가까워집니다."
-        width={442}
-        height={254}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000} />
 
 표본 크기가 커질수록 두 추정량 모두 실제 값 주변에서의 변동이 줄어드는 경향을 보입니다. 좋은 추정량의 성질 중 하나인 **일치성**(consistency)을 보여 주는 실험입니다. 일치성만으로는 둘 중 어느 추정량이 더 나은지 고를 수 없습니다.
 
@@ -111,25 +85,13 @@ array([4.44719887, 3.41859205, 3.45704099, 3.20643443, 4.09808751,
 
 다음 반복문은 펭귄 10마리짜리 표본을 10,001번 만들고 각 표본의 평균을 구합니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000}>
-
-```text
-np.float64(3.7003450849286907)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000} />
 
 표본평균들의 평균은 표본을 생성할 때 사용한 실제 평균인 3.7kg에 가깝습니다.
 
 다음 반복문은 같은 실험에서 각 표본의 중앙값을 구합니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000}>
-
-```text
-np.float64(3.701214089907223)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000} />
 
 가상 표본중앙값들의 평균도 실제 모평균에 아주 가깝습니다.
 
@@ -141,23 +103,11 @@ np.float64(3.701214089907223)
 
 MSE는 실제 값을 알아야 구할 수 있습니다. 실무에서는 대개 실제 값을 모릅니다. 안다면 추정할 필요도 없을 것입니다. 하지만 이 실험에서는 실제 모평균이 3.7kg임을 아니까 표본평균의 MSE를 구할 수 있습니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.020871984891289382)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000} />
 
 크기 10의 표본에서 표본평균으로 모평균을 추정하면 평균제곱오차는 약 0.021kg²입니다. 다음은 표본중앙값의 MSE입니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.029022273128644173)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000} />
 
 표본중앙값으로 모평균을 추정하면 평균제곱오차는 약 0.029kg²입니다. 이 예에서는 표본평균이 더 좋습니다. 일반적으로 자료가 정규분포에서 나왔다면, 표본평균은 MSE를 최소화한다는 의미에서 모평균의 가장 좋은 불편추정량입니다.
 
@@ -169,23 +119,11 @@ MSE가 작다는 것은 좋은 성질이지만, 항상 오차를 요약하는 �
 
 표본평균의 MAE는 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 16" code={notebook.cells[16].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.1154043374950527)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 16" code={notebook.cells[16].code} language="python" timeout={60000} />
 
 표본중앙값의 MAE도 구합니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 17" code={notebook.cells[17].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.13654429774596036)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 17" code={notebook.cells[17].code} language="python" timeout={60000} />
 
 평균적으로 표본평균은 약 0.115kg, 표본중앙값은 약 0.137kg 어긋날 것으로 예상합니다. 적어도 이 예에서는 표본평균이 더 나은 선택인 듯합니다.
 
@@ -211,35 +149,17 @@ np.float64(0.13654429774596036)
 
 앞 실험을 반복해 크기 10의 표본을 많이 만들고 각 표본의 평균을 구한 뒤, 표본평균들의 평균을 구하겠습니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000}>
-
-```text
-np.float64(3.786352945690677)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000} />
 
 측정 오류 때문에 표본평균은 평균적으로 3.7kg보다 높아집니다.
 
 이번에는 표본중앙값으로 같은 실험을 하겠습니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 22" code={notebook.cells[22].code} language="python" timeout={60000}>
-
-```text
-np.float64(3.7121869836715353)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 22" code={notebook.cells[22].code} language="python" timeout={60000} />
 
 표본중앙값들의 평균도 3.7kg보다 높지만, 어긋난 정도는 훨씬 작습니다. MSE를 비교하면 표본중앙값이 상당히 더 정확합니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 23" code={notebook.cells[23].code} language="python" timeout={60000}>
-
-```text
-(np.float64(0.06853430354724438), np.float64(0.031164467796883765))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 23" code={notebook.cells[23].code} language="python" timeout={60000} />
 
 측정값이 정규분포에서 나온다면, 표본평균은 모평균의 불편추정량 가운데 MSE를 최소화합니다. 하지만 이 상황은 그 가정을 어기므로 더 이상 그렇지 않습니다. 표본중앙값은 이상치에 덜 민감해 편향과 MSE가 더 작습니다. 이상치나 비슷한 가정 위반을 잘 견디는 추정량을 **강건한**(robust) 추정량이라고 합니다.
 
@@ -253,23 +173,11 @@ np.float64(3.7121869836715353)
 
 확인하려고 크기 10의 표본을 많이 만들고 각 표본의 편향된 분산을 구한 다음, 그 분산들의 평균을 구하겠습니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.19049277659404473)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000} />
 
 결과는 약 0.19입니다. 실제 모분산이 약 0.21임을 알고 있으므로, 이 방식의 표본분산은 평균적으로 너무 낮습니다. 편향이 있음을 확인할 수 있습니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 26" code={notebook.cells[26].code} language="python" timeout={60000}>
-
-```text
-0.2116
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 26" code={notebook.cells[26].code} language="python" timeout={60000} />
 
 다음 함수는 편차 제곱의 합을 `n-1`로 나누는 불편추정량을 구합니다.
 
@@ -277,33 +185,15 @@ np.float64(0.19049277659404473)
 
 표본을 많이 만들고 각각의 불편분산을 구해 확인할 수 있습니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 28" code={notebook.cells[28].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.21159109492300626)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 28" code={notebook.cells[28].code} language="python" timeout={60000} />
 
 불편 표본분산의 평균은 실제 값에 아주 가깝습니다. 불편추정량이라면 기대하는 결과입니다.
 
 표본 크기가 10이면 두 추정량의 차이는 약 10%여서 무시하기 어려울 수 있습니다. 크기가 100이면 1%뿐이므로 실무에서 중요하지 않을 만큼 작을 수 있습니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 29" code={notebook.cells[29].code} language="python" timeout={60000}>
+<CodePlayground notebook="think-stats-08" title="셀 29" code={notebook.cells[29].code} language="python" timeout={60000} />
 
-```text
-0.09999999999999998
-```
-
-</CodePlayground>
-
-<CodePlayground notebook="think-stats-08" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000}>
-
-```text
-0.010000000000000009
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000} />
 
 **직접 실행: 분산의 분모 n과 n−1 비교하기**
 
@@ -325,27 +215,11 @@ np.float64(0.21159109492300626)
 
 pandas로 자료를 읽을 수 있습니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 31" code={notebook.cells[31].code} language="python" timeout={60000}>
-
-```text
-(342, 17)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 31" code={notebook.cells[31].code} language="python" timeout={60000} />
 
 자료에는 세 종의 펭귄이 있습니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000}>
-
-```text
-Species
-Adelie Penguin (Pygoscelis adeliae)          151
-Gentoo penguin (Pygoscelis papua)            123
-Chinstrap penguin (Pygoscelis antarctica)     68
-Name: count, dtype: int64
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000} />
 
 첫 예제에서는 턱끈펭귄(Chinstrap)만 선택하겠습니다.
 
@@ -363,13 +237,7 @@ Name: count, dtype: int64
 
 표본평균은 약 3.7kg입니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 36" code={notebook.cells[36].code} language="python" timeout={60000}>
-
-```text
-np.float64(3.733088235294118)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 36" code={notebook.cells[36].code} language="python" timeout={60000} />
 
 모평균을 추정해 달라는 요청을 받으면 3.7kg은 합리적인 답입니다. 하지만 이 추정은 얼마나 정밀할까요?
 
@@ -405,13 +273,7 @@ np.float64(3.733088235294118)
 
 표집분포의 너비를 수치로 나타내는 한 방법은 그 분포의 표준편차를 구하는 것입니다. 이 값을 **표준오차**(standard error)라고 합니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 40" code={notebook.cells[40].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.04626531069684985)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 40" code={notebook.cells[40].code} language="python" timeout={60000} />
 
 여기서 표준오차는 약 0.045kg입니다. 많은 표본을 모았을 때 표본평균들이 퍼져 있는 정도가 약 0.045kg이라는 뜻입니다. 이 값은 표본평균들의 표준편차입니다.
 
@@ -422,23 +284,11 @@ np.float64(0.04626531069684985)
 
 이 자료에서 턱끈펭귄의 체중 표준편차는 약 0.38kg입니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.3814986213564681)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000} />
 
 평균 체중의 표준오차는 약 0.046kg입니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 42" code={notebook.cells[42].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.04626531069684985)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 42" code={notebook.cells[42].code} language="python" timeout={60000} />
 
 표준편차는 펭귄들 사이의 체중 차이를 알려줍니다. 표준오차는 추정이 얼마나 정밀한지 알려줍니다. 서로 다른 질문에 답하는 값입니다.
 
@@ -446,13 +296,7 @@ np.float64(0.04626531069684985)
 
 <CodePlayground notebook="think-stats-08" title="셀 43" code={notebook.cells[43].code} language="python" timeout={60000} />
 
-<CodePlayground notebook="think-stats-08" title="셀 44" code={notebook.cells[44].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.046263503290595163)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 44" code={notebook.cells[44].code} language="python" timeout={60000} />
 
 재표집으로 구한 값과 가깝습니다.
 
@@ -460,13 +304,7 @@ np.float64(0.046263503290595163)
 
 표집분포를 요약하는 다른 방법은 **신뢰구간**(confidence interval)을 구하는 것입니다. 예를 들어 여기서는 근사한 표집분포의 가운데 90%가 들어가는 구간을 5백분위수와 95백분위수로 구합니다. 다음은 턱끈펭귄의 평균 체중에 대한 90% 신뢰구간입니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 45" code={notebook.cells[45].code} language="python" timeout={60000}>
-
-```text
-array([3.6576334 , 3.80737506])
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 45" code={notebook.cells[45].code} language="python" timeout={60000} />
 
 신뢰구간을 보면 “모집단 모수의 참값이 90% 신뢰구간에 들어갈 확률은 90%”라고 해석하고 싶어집니다. 이 예에서는 턱끈펭귄의 모평균이 3.66~3.81kg에 있을 확률이 90%라고 말하는 것입니다.
 
@@ -539,21 +377,7 @@ array([3.6576334 , 3.80737506])
 
 <CodePlayground notebook="think-stats-08" title="셀 46" code={notebook.cells[46].code} language="python" timeout={60000} runAll={false} />
 
-<CodePlayground notebook="think-stats-08" title="셀 47" code={notebook.cells[47].code} language="python" timeout={60000} runAll={false}>
-
-```text
-count    154407.000000
-mean        178.066221
-std           7.723563
-min          61.000000
-25%         173.000000
-50%         178.000000
-75%         183.000000
-max         236.000000
-Name: htm3, dtype: float64
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 47" code={notebook.cells[47].code} language="python" timeout={60000} runAll={false} />
 
 ### 연습문제 8.3
 
@@ -571,13 +395,7 @@ Name: htm3, dtype: float64
 
 평균이 주어진 지수분포의 실제 중앙값은 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 50" code={notebook.cells[50].code} language="python" timeout={60000} runAll={false}>
-
-```text
-np.float64(6.931471805599453)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 50" code={notebook.cells[50].code} language="python" timeout={60000} runAll={false} />
 
 이번에는 크기 10의 표본을 많이 만들어, 표본평균이 모평균의 불편추정량인지 확인하세요.
 
@@ -595,14 +413,7 @@ np.float64(6.931471805599453)
 
 `make_sample`로 평균 3.7, 표준편차 0.46인 정규분포에서 크기 10의 표본을 많이 만드세요. 두 추정량 중 표준편차의 불편추정량이 있는지 확인하세요.
 
-<CodePlayground notebook="think-stats-08" title="셀 53" code={notebook.cells[53].code} language="python" timeout={60000} runAll={false}>
-
-```text
-array([4.5279695 , 3.75698359, 4.09347143, 3.56308034, 3.17123233,
-       4.40734952, 3.70858308, 4.15706704, 4.06716703, 3.7203591 ])
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 53" code={notebook.cells[53].code} language="python" timeout={60000} runAll={false} />
 
 ### 연습문제 8.5
 
@@ -626,23 +437,11 @@ array([4.5279695 , 3.75698359, 4.09347143, 3.56308034, 3.17123233,
 
 <CodePlayground notebook="think-stats-08" title="셀 57" code={notebook.cells[57].code} language="python" timeout={60000} runAll={false} />
 
-<CodePlayground notebook="think-stats-08" title="셀 58" code={notebook.cells[58].code} language="python" timeout={60000} runAll={false}>
-
-```text
-array([74, 71, 95, 10, 17])
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 58" code={notebook.cells[58].code} language="python" timeout={60000} runAll={false} />
 
 이 표본에서 구한 추정값은 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-08" title="셀 59" code={notebook.cells[59].code} language="python" timeout={60000} runAll={false}>
-
-```text
-np.float64(113.0)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-08" title="셀 59" code={notebook.cells[59].code} language="python" timeout={60000} runAll={false} />
 
 이 추정량에 편향이 있는지 확인하세요.
 
@@ -680,7 +479,7 @@ np.float64(113.0)
 
 ## 번역과 실행에 관하여
 
-참고용 출력과 고정 그림은 [같은 판의 실행된 원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap08.ipynb)에서 가져왔습니다. 시드가 고정된 난수 예제는 같은 실행 순서에서 재현됩니다. 시드가 없는 예제의 그림은 실행마다 달라질 수 있습니다. 연습문제의 해답은 넣지 않았습니다. 원문 설명과 코드가 어긋나는 곳에는 번역자 주를 붙였습니다.
+고정 그림은 [같은 판의 실행된 원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap08.ipynb)에서 가져왔습니다. 시드가 고정된 난수 예제는 같은 실행 순서에서 재현됩니다. 시드가 없는 예제의 그림은 실행마다 달라질 수 있습니다. 연습문제의 해답은 넣지 않았습니다. 원문 설명과 코드가 어긋나는 곳에는 번역자 주를 붙였습니다.
 
 [Think Stats: Exploratory Data Analysis in Python, 3rd Edition](https://allendowney.github.io/ThinkStats/index.html)
 

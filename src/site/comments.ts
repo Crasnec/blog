@@ -12,7 +12,7 @@
  * failed rather than fired blindly into the dark.
  */
 
-import { HTML_LANG } from "../strings";
+import { HTML_LANG } from "#src/strings.ts";
 
 const AUTHOR_STORAGE_KEY = "comments.author";
 

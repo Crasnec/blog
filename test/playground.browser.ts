@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { before, after, test } from "node:test";
 import { chromium, type Browser, type Locator, type Page, type Request } from "playwright";
-import { isJsonObject, parseJson } from "../src/utils/json.ts";
-import { serveStaticSite } from "./helpers/static-site.ts";
+import { isJsonObject, parseJson } from "#src/utils/json.ts";
+import { serveStaticSite } from "#root/test/helpers/static-site.ts";
 
 let browser: Browser;
 let page: Page;

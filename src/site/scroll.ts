@@ -1,4 +1,4 @@
-import { NAVBAR_HEIGHT } from "../consts";
+import { NAVBAR_HEIGHT } from "#src/consts.ts";
 
 let navbar: HTMLElement | null = null;
 let backToTop: HTMLElement | null = null;

@@ -9,8 +9,8 @@ import {
     type Frame,
     type Rect,
     type Tone,
-} from "../kit.ts";
-import type { Domain, Options } from "./model.ts";
+} from "#src/figures/kit.ts";
+import type { Domain, Options } from "#src/figures/charts/model.ts";
 
 export interface Key {
     label: string;

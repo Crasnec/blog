@@ -1,12 +1,12 @@
 ---
-import PostEntry from "../components/PostEntry.astro";
-import Sidebar from "../components/Sidebar.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
-import { t } from "../strings";
-import type { PostRef } from "../posts/queries";
-import { countLabel } from "../utils/format";
-import type { PostSeries } from "../posts/series";
-import { sitePath } from "../utils/url";
+import PostEntry from "#src/components/PostEntry.astro";
+import Sidebar from "#src/components/Sidebar.astro";
+import BaseLayout from "#src/layouts/BaseLayout.astro";
+import { t } from "#src/strings.ts";
+import type { PostRef } from "#src/posts/queries.ts";
+import { countLabel } from "#src/utils/format.ts";
+import type { PostSeries } from "#src/posts/series.ts";
+import { sitePath } from "#src/utils/url.ts";
 
 interface Props {
     series: PostSeries<PostRef>;

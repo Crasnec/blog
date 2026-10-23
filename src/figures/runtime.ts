@@ -13,8 +13,8 @@
  * `npm run figures:shot` can capture stills; a reader never sees it.
  */
 
-import type { BoundFigure, DefinedFigure, Frame, Palette } from "./kit";
-import { parseJson } from "../utils/json";
+import type { BoundFigure, DefinedFigure, Frame, Palette } from "#src/figures/kit.ts";
+import { parseJson } from "#src/utils/json.ts";
 
 const kinds = import.meta.glob<{ default: DefinedFigure }>("./kinds/*.ts");
 

@@ -1,7 +1,7 @@
 ---
 import type { GetStaticPaths } from "astro";
-import { getSeries } from "../../posts/queries";
-import SeriesView from "../../views/SeriesView.astro";
+import { getSeries } from "#src/posts/queries.ts";
+import SeriesView from "#src/views/SeriesView.astro";
 
 export const getStaticPaths = (async () => {
     const series = await getSeries();

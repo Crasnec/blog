@@ -40,15 +40,15 @@ import {
     text,
     withAlpha,
     type Point,
-} from "../kit.ts";
-import type { JsonValue } from "../../utils/json.ts";
+} from "#src/figures/kit.ts";
+import type { JsonValue } from "#src/utils/json.ts";
 
 import {
     searchGrid as search,
     type Algorithm,
     type Maze,
     type Search,
-} from "../models/grid-search.ts";
+} from "#src/figures/models/grid-search.ts";
 
 /* — 1. pacing ——————————————————————————————————————————————————————— */
 

@@ -2,17 +2,17 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createCssVariablesTheme, createHighlighterCore } from "shiki/core";
 import { createOnigurumaEngine } from "shiki/engine/oniguruma";
-import { decodeConfig, runtimeFor } from "../src/playground/contracts.ts";
-import { resolveModuleSpecifier, rewriteModuleImports } from "../src/playground/module-imports.ts";
-import { parseGrammars } from "../src/playground/grammar.ts";
-import { formatValue, outputChannel } from "../src/playground/output.ts";
-import { transpileTypeScript } from "../src/playground/transpile.ts";
-import { pngFromBase64 } from "../src/playground/python-plots.ts";
+import { decodeConfig, runtimeFor } from "#src/playground/contracts.ts";
+import { resolveModuleSpecifier, rewriteModuleImports } from "#src/playground/module-imports.ts";
+import { parseGrammars } from "#src/playground/grammar.ts";
+import { formatValue, outputChannel } from "#src/playground/output.ts";
+import { transpileTypeScript } from "#src/playground/transpile.ts";
+import { pngFromBase64 } from "#src/playground/python-plots.ts";
 import {
     pythonDistribution,
     supportedPackages,
     verifyPackage,
-} from "../scripts/python-packages.mjs";
+} from "#root/scripts/python-packages.mjs";
 
 const grammar = {
     scopeName: "source.example",
@@ -328,7 +328,7 @@ void test("console formatting and limits handle mixed values without interpretin
 });
 
 void test("input channel matches replies without replaying or accepting stale input", async () => {
-    const { inputChannel } = await import("../src/playground/input.ts");
+    const { inputChannel } = await import("#src/playground/input.ts");
     const channel = new MessageChannel();
     const requests: { id: number; prompt: string }[] = [];
     const ask = inputChannel(channel.port1, (message) => {

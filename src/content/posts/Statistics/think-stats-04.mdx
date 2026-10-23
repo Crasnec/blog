@@ -10,20 +10,20 @@ series:
   order: 4
 ---
 
-import CodePlayground from '../../../components/CodePlayground.astro';
-import PythonNotebook from '../../../components/PythonNotebook.astro';
-import notebook from './_notebooks/chap04.json';
-import Figure from '../../../components/Figure.astro';
-import plots from './_figures/plots.json';
-import cdfCode from '../../../../public/labs/think-stats/chap04-cdf.py?raw';
-import inverseCode from '../../../../public/labs/think-stats/chap04-inverse.py?raw';
-import chapterCode from '../../../../public/labs/think-stats/chap04-browser.py?raw';
+import CodePlayground from '#src/components/CodePlayground.astro';
+import PythonNotebook from '#src/components/PythonNotebook.astro';
+import notebook from '#src/content/posts/Statistics/_notebooks/chap04.json';
+import Figure from '#src/components/Figure.astro';
+import plots from '#src/content/posts/Statistics/_figures/plots.json';
+import cdfCode from '#root/public/labs/think-stats/chap04-cdf.py?raw';
+import inverseCode from '#root/public/labs/think-stats/chap04-inverse.py?raw';
+import chapterCode from '#root/public/labs/think-stats/chap04-browser.py?raw';
 
 Allen B. Downey의 《Think Stats》 3판, 4장 「Cumulative Distribution Functions」의 한국어 번역입니다. [원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/nb/chap04.ipynb)을 바탕으로 옮겼습니다.
 
 <a href="/labs/think-stats/chap04-ko.ipynb" download="think-stats-04-ko.ipynb">한국어 노트북 내려받기</a> · [원문 웹판](https://allendowney.github.io/ThinkStats/chap04.html)
 
-준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 셀을 실행하면 참고용 출력이 실제 결과로 바뀝니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
+준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 실행 결과는 셀을 실행한 뒤 표시됩니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
 
 
 도수분포표와 PMF만으로는 분포의 차이가 잘 보이지 않을 때가 있습니다. 이 장에서는 누적분포함수(CDF)로 분포를 비교하고 백분위수를 구하겠습니다.
@@ -45,53 +45,25 @@ Allen B. Downey의 《Think Stats》 3판, 4장 「Cumulative Distribution Funct
 
 <CodePlayground notebook="think-stats-04" title="준비: 라이브러리와 자료" code={notebook.cells[0].code} language="python" timeout={60000} pythonPackages={["numpy", "pandas", "scipy", "matplotlib", "empiricaldist", "statadict", "statsmodels", "ipython"]} />
 
-<CodePlayground notebook="think-stats-04" title="셀 1" code={notebook.cells[1].code} language="python" timeout={60000}>
-
-| 값 | Place | Div/Tot | Division | Guntime | Nettime | Min/Mile | MPH |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 0 | 1 | 1/362 | M2039 | 30:43 | 30:42 | 4:57 | 12.121212 |
-| 1 | 2 | 2/362 | M2039 | 31:36 | 31:36 | 5:06 | 11.764706 |
-| 2 | 3 | 3/362 | M2039 | 31:42 | 31:42 | 5:07 | 11.726384 |
-| 3 | 4 | 4/362 | M2039 | 32:28 | 32:27 | 5:14 | 11.464968 |
-| 4 | 5 | 5/362 | M2039 | 32:52 | 32:52 | 5:18 | 11.320755 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 1" code={notebook.cells[1].code} language="python" timeout={60000} />
 `results`에는 완주자 1,633명 각각에 해당하는 행이 있습니다. 기록을 비교할 때 사용할 열은 `MPH`입니다. 각 주자의 평균 속도가 시간당 마일(mph) 단위로 들어 있습니다. 이 열을 선택하고 `values`로 속도들을 NumPy 배열로 꺼내겠습니다.
 
 <CodePlayground notebook="think-stats-04" title="셀 2" code={notebook.cells[2].code} language="python" timeout={60000} />
 
 제 완주 기록은 42분 44초였으므로 다음과 같이 제 행을 찾을 수 있습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 3" code={notebook.cells[3].code} language="python" timeout={60000}>
-
-| 값 | Place | Div/Tot | Division | Guntime | Nettime | Min/Mile | MPH |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 96 | 97 | 26/256 | M4049 | 42:48 | 42:44 | 6:53 | 8.716707 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 3" code={notebook.cells[3].code} language="python" timeout={60000} />
 제 행의 인덱스는 96이므로, 속도를 다음과 같이 꺼낼 수 있습니다.
 
 <CodePlayground notebook="think-stats-04" title="셀 4" code={notebook.cells[4].code} language="python" timeout={60000} />
 
 `sum`으로 저와 같거나 느린 속도로 달린 주자의 수를 셀 수 있습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 5" code={notebook.cells[5].code} language="python" timeout={60000}>
-
-```text
-np.int64(1537)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 5" code={notebook.cells[5].code} language="python" timeout={60000} />
 
 `mean`을 사용하면 그 비율을 구할 수 있고, 100을 곱하면 백분율이 됩니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 6" code={notebook.cells[6].code} language="python" timeout={60000}>
-
-```text
-np.float64(94.12124923453766)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 6" code={notebook.cells[6].code} language="python" timeout={60000} />
 
 결과는 전체 참가자 중 제 백분위 순위인 약 94%입니다.
 
@@ -105,13 +77,7 @@ np.float64(94.12124923453766)
 
 이제 `percentile_rank`로 제 부문 안에서의 백분위 순위를 구할 수 있습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000}>
-
-```text
-np.float64(90.234375)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000} />
 
 반대로 백분위 순위에서 값을 찾을 수도 있습니다. 백분위 순위가 주어졌을 때, 다음 함수는 시퀀스에서 그에 대응하는 값을 찾습니다.
 
@@ -121,35 +87,17 @@ np.float64(90.234375)
 
 `n`은 시퀀스의 원소 수이고, `i`는 해당 백분위 순위에 있는 원소의 인덱스입니다. 백분위 순위로 조회했을 때 나오는 값을 **백분위수**(percentile)라고 합니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000}>
-
-```text
-np.float64(8.591885441527447)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000} />
 
 제 부문에서 90백분위수는 시속 약 8.6마일이었습니다.
 
 그 대회에서 달린 뒤 몇 년이 지나, 이제 저는 `M5059` 부문에 속합니다. 새 부문에서 같은 백분위 순위를 얻으려면 얼마나 빨리 달려야 할까요? `M4049` 부문에서의 백분위 순위인 약 90.2%를 `M5059` 부문의 속도로 바꾸면 답을 구할 수 있습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 12" code={notebook.cells[12].code} language="python" timeout={60000}>
-
-```text
-np.float64(8.017817371937639)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 12" code={notebook.cells[12].code} language="python" timeout={60000} />
 
 `M5059` 부문에서 저와 백분위 순위가 같은 사람은 시속 8마일을 조금 넘는 속도로 달렸습니다. `query`로 그 사람을 찾을 수 있습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000}>
-
-| 값 | Place | Div/Tot | Division | Guntime | Nettime | Min/Mile | MPH |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 222 | 223 | 18/171 | M5059 | 46:30 | 46:25 | 7:29 | 8.017817 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000} />
 이 사람은 46분 25초에 완주했고, 같은 부문 참가자 171명 중 18위였습니다.
 
 백분위 순위와 백분위수를 살펴보았으니, 이제 누적분포함수로 넘어가겠습니다.
@@ -162,71 +110,29 @@ np.float64(8.017817371937639)
 
 CDF를 구하는 한 가지 방법은 PMF에서 출발하는 것입니다. 다음 `Pmf`는 `t`에 들어 있는 값들의 분포를 나타냅니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000}>
-
-| 값 | probs |
-| --- | --- |
-| 1 | 0.2 |
-| 2 | 0.4 |
-| 3 | 0.2 |
-| 5 | 0.2 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000} />
 앞 장에서 보았듯이 대괄호 연산자로 `Pmf`에서 값을 조회할 수 있습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 16" code={notebook.cells[16].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.4)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 16" code={notebook.cells[16].code} language="python" timeout={60000} />
 
 결과는 주어진 값과 같은 값들이 차지하는 비율입니다. 이 예에서는 다섯 값 중 두 개가 `2`이므로 결과는 0.4입니다. 시퀀스에서 무작위로 고른 값이 `2`일 확률이라고 생각해도 됩니다.
 
 `Pmf`의 `make_cdf` 메서드는 확률의 누적합을 계산합니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 17" code={notebook.cells[17].code} language="python" timeout={60000}>
-
-| 값 | probs |
-| --- | --- |
-| 1 | 0.2 |
-| 2 | 0.6 |
-| 3 | 0.8 |
-| 5 | 1.0 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 17" code={notebook.cells[17].code} language="python" timeout={60000} />
 결과는 pandas `Series`의 한 종류인 `Cdf` 객체입니다. 대괄호 연산자로 값을 조회할 수 있습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 18" code={notebook.cells[18].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.6000000000000001)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 18" code={notebook.cells[18].code} language="python" timeout={60000} />
 
 결과는 주어진 값 이하인 값들이 차지하는 비율입니다. 이 예에서는 다섯 값 중 세 개가 `2` 이하이므로 결과는 0.6입니다. 시퀀스에서 무작위로 고른 값이 `2` 이하일 확률이라고 생각해도 됩니다.
 
 괄호로 `Cdf` 객체를 함수처럼 호출할 수도 있습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 19" code={notebook.cells[19].code} language="python" timeout={60000}>
-
-```text
-array(0.8)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 19" code={notebook.cells[19].code} language="python" timeout={60000} />
 
 누적분포함수는 시퀀스에 실제로 나타난 값뿐 아니라 모든 수에 대해 정의됩니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 20" code={notebook.cells[20].code} language="python" timeout={60000}>
-
-```text
-array(0.8)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 20" code={notebook.cells[20].code} language="python" timeout={60000} />
 
 `step` 메서드는 `Cdf`를 계단 함수로 그립니다.
 
@@ -240,30 +146,11 @@ array(0.8)
 
 그림으로 나타내면 다음과 같습니다. 세로선은 제 속도에 그었습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 23" code={notebook.cells[23].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap04-054-0.png"
-        alt="달리기 속도의 누적분포함수. 저자의 속도를 나타내는 세로선에서 누적비율은 약 0.94입니다."
-        width={1770}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 23" code={notebook.cells[23].code} language="python" timeout={60000} />
 
 제 속도를 조회하면 저와 같거나 느린 주자의 비율이 나옵니다. 100을 곱하면 제 백분위 순위가 됩니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 24" code={notebook.cells[24].code} language="python" timeout={60000}>
-
-```text
-np.float64(94.12124923453766)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 24" code={notebook.cells[24].code} language="python" timeout={60000} />
 
 이렇게 보면 `Cdf`는 값을 받아 백분위 순위와 비슷한 것을 계산합니다. 다만 0~100의 백분율 대신 0~1의 비율을 반환합니다.
 
@@ -271,13 +158,7 @@ np.float64(94.12124923453766)
 
 예를 들어 전체 주자의 50%와 같거나 더 빠르게 달렸다는 사람의 속도는 다음과 같이 찾을 수 있습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000}>
-
-```text
-array(6.70391061)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000} />
 
 비율이 주어졌을 때 역 CDF로 찾은 값을 **분위수**(quantile)라고 합니다. 그래서 역 CDF를 분위수 함수라고도 합니다.
 
@@ -299,21 +180,9 @@ CDF는 특히 분포를 비교할 때 유용합니다. 예로 첫아이와 다�
 
 `firsts`와 `others`에서 파운드 단위의 총 출생 체중을 선택합니다. `dropna`로 `nan`인 값을 제외합니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 27" code={notebook.cells[27].code} language="python" timeout={60000}>
+<CodePlayground notebook="think-stats-04" title="셀 27" code={notebook.cells[27].code} language="python" timeout={60000} />
 
-```text
-np.float64(7.201094430437772)
-```
-
-</CodePlayground>
-
-<CodePlayground notebook="think-stats-04" title="셀 28" code={notebook.cells[28].code} language="python" timeout={60000}>
-
-```text
-np.float64(7.325855614973262)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 28" code={notebook.cells[28].code} language="python" timeout={60000} />
 
 첫아이의 체중이 평균적으로 조금 가벼워 보입니다. 하지만 이런 차이가 생기는 방식은 여러 가지입니다. 유난히 가벼운 첫아이가 소수 있거나, 유난히 무거운 다른 아이가 소수 있을 수 있습니다. 이런 경우에는 분포의 모양이 달라질 것입니다. 또는 모양은 같고 위치만 다를 수도 있습니다.
 
@@ -323,20 +192,7 @@ np.float64(7.325855614973262)
 
 하지만 다음 그림에서 보듯 그리 잘 되지는 않습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap04-071-0.png"
-        alt="첫아이와 다른 아이의 출생 체중 PMF. 봉우리와 골이 많아 전체 차이를 비교하기 어렵습니다."
-        width={1770}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000} />
 
 분포를 최대한 분명하게 보이려고 막대 너비와 투명도를 조절했지만, 두 분포를 비교하기 어렵습니다. 봉우리와 골이 많고 차이처럼 보이는 부분도 있지만, 무엇이 의미 있는 특징인지 판단하기 어렵습니다. 전체적인 패턴도 잘 보이지 않습니다. 예를 들어 어느 분포의 평균이 더 높은지 눈으로는 분명하지 않습니다.
 
@@ -348,20 +204,7 @@ np.float64(7.325855614973262)
 
 결과는 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap04-075-0.png"
-        alt="출생 체중의 CDF 비교. 첫아이의 곡선이 대체로 왼쪽에 있어 체중이 조금 더 가볍습니다."
-        width={1768}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000} />
 
 이 그림에서는 분포의 모양과 두 분포 사이의 차이가 훨씬 분명합니다. 첫아이의 곡선은 나머지 아이의 곡선보다 일관되게 왼쪽에 있습니다. 분포 전반에서 첫아이가 조금 더 가볍고, 중간보다 높은 쪽에서 차이가 더 크다는 뜻입니다.
 
@@ -383,30 +226,10 @@ np.float64(7.325855614973262)
 
 `birthwgt_oz`로 `Hist` 객체를 만들면 결측을 뜻하는 특수한 값 97, 98, 99가 들어 있음을 확인할 수 있습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 35" code={notebook.cells[35].code} language="python" timeout={60000}>
-
-| birthwgt_oz | freqs |
-| --- | --- |
-| 14.0 | 475 |
-| 15.0 | 378 |
-| 97.0 | 1 |
-| 98.0 | 1 |
-| 99.0 | 46 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 35" code={notebook.cells[35].code} language="python" timeout={60000} />
 `birthwgt_lb`에도 같은 특수 값이 있습니다. 분명 오류인 51도 들어 있습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 36" code={notebook.cells[36].code} language="python" timeout={60000}>
-
-| birthwgt_lb | freqs |
-| --- | --- |
-| 15.0 | 1 |
-| 51.0 | 1 |
-| 97.0 | 1 |
-| 98.0 | 1 |
-| 99.0 | 57 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 36" code={notebook.cells[36].code} language="python" timeout={60000} />
 두 상황을 생각해 보겠습니다. 첫 번째는 결측이나 잘못된 값을 `nan`으로 바꿔 정제하고, 총체중을 파운드 단위로 계산하는 상황입니다. `birthwgt_oz_clean`을 16으로 나누면 파운드의 소수 부분으로 바뀝니다.
 
 <CodePlayground notebook="think-stats-04" title="셀 37" code={notebook.cells[37].code} language="python" timeout={60000} />
@@ -417,71 +240,29 @@ np.float64(7.325855614973262)
 
 정제하지 않은 자료에만 들어 있는 잘못된 값은 49개로, 자료의 약 0.5%입니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 39" code={notebook.cells[39].code} language="python" timeout={60000}>
-
-```text
-(np.int64(49), np.float64(0.5421553441026776))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 39" code={notebook.cells[39].code} language="python" timeout={60000} />
 
 이제 두 상황에서 자료의 평균을 구해 보겠습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 40" code={notebook.cells[40].code} language="python" timeout={60000}>
-
-```text
-(np.float64(7.319680587652691), np.float64(7.265628457623368))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 40" code={notebook.cells[40].code} language="python" timeout={60000} />
 
 잘못된 값이 평균에 미치는 영향은 그리 크지 않습니다. 정제한 자료의 평균을 올바른 값으로 보면, 정제하지 않은 자료의 평균은 1% 미만으로 어긋납니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.74394294099376)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000} />
 
 이 정도 오류는 알아차리지 못할 수도 있습니다. 하지만 표준편차에서는 어떤 일이 생기는지 보겠습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 42" code={notebook.cells[42].code} language="python" timeout={60000}>
+<CodePlayground notebook="think-stats-04" title="셀 42" code={notebook.cells[42].code} language="python" timeout={60000} />
 
-```text
-(np.float64(2.096001779161835), np.float64(1.4082934455690173))
-```
-
-</CodePlayground>
-
-<CodePlayground notebook="think-stats-04" title="셀 43" code={notebook.cells[43].code} language="python" timeout={60000}>
-
-```text
-np.float64(48.83274403900607)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 43" code={notebook.cells[43].code} language="python" timeout={60000} />
 
 정제하지 않은 자료의 표준편차는 거의 50%나 어긋나므로 더 눈에 띕니다. 마지막으로 두 자료의 왜도를 보겠습니다.
 
 <CodePlayground notebook="think-stats-04" title="셀 44" code={notebook.cells[44].code} language="python" timeout={60000} />
 
-<CodePlayground notebook="think-stats-04" title="셀 45" code={notebook.cells[45].code} language="python" timeout={60000}>
+<CodePlayground notebook="think-stats-04" title="셀 45" code={notebook.cells[45].code} language="python" timeout={60000} />
 
-```text
-(np.float64(22.251846195422484), np.float64(-0.5895062687577697))
-```
-
-</CodePlayground>
-
-<CodePlayground notebook="think-stats-04" title="셀 46" code={notebook.cells[46].code} language="python" timeout={60000}>
-
-```text
-np.float64(-38.74658112171128)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 46" code={notebook.cells[46].code} language="python" timeout={60000} />
 
 정제하지 않은 자료의 왜도는 절댓값이 크게 달라지고 부호도 반대로 바뀝니다. 이상치가 섞이면 왜도가 큰 양수가 되어 분포가 오른쪽으로 강하게 치우칩니다. 올바른 자료의 왜도는 작은 음수로, 왼쪽으로 조금 치우쳐 있습니다.
 
@@ -503,13 +284,7 @@ np.float64(-38.74658112171128)
 
 두 자료의 중앙값을 구해 보겠습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 49" code={notebook.cells[49].code} language="python" timeout={60000}>
-
-```text
-(array(7.375), array(7.375))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 49" code={notebook.cells[49].code} language="python" timeout={60000} />
 
 결과가 같습니다. 이 예에서는 이상치가 중앙값에 전혀 영향을 주지 않았습니다. 일반적으로 이상치는 평균보다 중앙값에 적은 영향을 줍니다.
 
@@ -519,13 +294,7 @@ np.float64(-38.74658112171128)
 
 두 자료의 사분위범위는 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 51" code={notebook.cells[51].code} language="python" timeout={60000}>
-
-```text
-(np.float64(1.625), np.float64(1.625))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 51" code={notebook.cells[51].code} language="python" timeout={60000} />
 
 일반적으로 이상치는 표준편차보다 IQR에 적은 영향을 줍니다. 이 예에서는 영향이 전혀 없습니다.
 
@@ -539,13 +308,7 @@ np.float64(-38.74658112171128)
 
 두 자료의 사분위 왜도는 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 53" code={notebook.cells[53].code} language="python" timeout={60000}>
-
-```text
-(np.float64(-0.07692307692307693), np.float64(-0.07692307692307693))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 53" code={notebook.cells[53].code} language="python" timeout={60000} />
 
 이 예에서 소수의 이상치는 사분위 왜도에도 영향을 주지 않았습니다. 백분위수에 바탕을 둔 통계량이 이상치와 자료 오류에 덜 민감하다는 것을 보여 줍니다.
 
@@ -561,20 +324,7 @@ np.float64(-38.74658112171128)
 
 잘 되었는지 확인하려면 표본과 원래 자료의 CDF를 비교하면 됩니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 56" code={notebook.cells[56].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap04-123-0.png"
-        alt="원래 달리기 속도 자료와 역 CDF로 생성한 무작위 표본의 CDF 비교. 두 곡선이 비슷한 모양입니다."
-        width={1770}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 56" code={notebook.cells[56].code} language="python" timeout={60000} />
 
 표본이 원래 자료의 분포를 따라갑니다. 알고리즘의 작동 방식을 이해하려면 다음 질문을 생각해 보세요. 달리기 속도 모집단에서 무작위 표본을 뽑고, 표본 속도들의 백분위 순위를 구했다고 하겠습니다. 이 백분위 순위들로 CDF를 만들면 어떤 모양일까요?
 
@@ -584,20 +334,7 @@ np.float64(-38.74658112171128)
 
 이 백분위 순위의 CDF를 그립니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 58" code={notebook.cells[58].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap04-127-0.png"
-        alt="생성한 표본의 백분위 순위 CDF. 0에서 1로 증가하는 직선에 가깝습니다."
-        width={1770}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 58" code={notebook.cells[58].code} language="python" timeout={60000} />
 
 백분위 순위의 CDF는 0에서 1로 올라가는 직선에 가깝습니다. 어느 분포든 백분위 순위가 50%보다 낮은 값의 비율은 0.5이고, 90%보다 낮은 값의 비율은 0.9라고 생각하면 자연스럽습니다.
 
@@ -636,13 +373,7 @@ NSFG의 생아 출산 전체 자료로 출생 체중의 분포를 구하고, 본
 
 NSFG 자료의 생아 출산에서 `babysex` 열은 아기의 성별이 남성인지 여성인지 나타냅니다. `query`로 남아와 여아에 해당하는 행을 선택할 수 있습니다.
 
-<CodePlayground notebook="think-stats-04" title="셀 61" code={notebook.cells[61].code} language="python" timeout={60000} runAll={false}>
-
-```text
-(4641, 4500)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-04" title="셀 61" code={notebook.cells[61].code} language="python" timeout={60000} runAll={false} />
 
 남아와 여아의 출생 체중 분포를 나타내는 `Cdf` 객체를 만들고 두 CDF를 그리세요. 분포의 모양과 위치에는 어떤 차이가 있나요?
 
@@ -672,7 +403,7 @@ NSFG 임신 자료에서 `agepreg` 열을 선택하고, 각 임신의 나이 분
 
 ## 번역과 실행에 관하여
 
-참고용 출력과 고정 그림은 [같은 판의 실행된 원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap04.ipynb)에서 가져왔습니다. 난수를 사용하는 그림은 실행할 때마다 달라집니다. 연습문제의 해답은 넣지 않았습니다. 원문 설명과 코드가 어긋나는 곳에는 번역자 주를 붙였습니다.
+고정 그림은 [같은 판의 실행된 원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap04.ipynb)에서 가져왔습니다. 난수를 사용하는 그림은 실행할 때마다 달라집니다. 연습문제의 해답은 넣지 않았습니다. 원문 설명과 코드가 어긋나는 곳에는 번역자 주를 붙였습니다.
 
 [Think Stats: Exploratory Data Analysis in Python, 3rd Edition](https://allendowney.github.io/ThinkStats/index.html)
 

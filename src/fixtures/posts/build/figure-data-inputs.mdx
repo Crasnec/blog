@@ -5,7 +5,7 @@ description: Reuse typed TSX figures with signed values, zeros, constant matrice
 tags: [figures, mdx, components]
 ---
 
-import { SignedLine, SignedDistribution, SignedSort, ConstantSort, ConstantHeatmap, NamedKeys, UnreachableMaze } from "./_figures/DataInputExamples.tsx";
+import { SignedLine, SignedDistribution, SignedSort, ConstantSort, ConstantHeatmap, NamedKeys, UnreachableMaze } from "#src/fixtures/posts/build/_figures/DataInputExamples.tsx";
 
 Import reusable figures from `src/components/figures` and supply their data through `props`. Post-specific TSX components provide samples and captions. These examples use the same computational models and renderers as the original demonstrations.
 
@@ -42,7 +42,7 @@ Search can finish without finding a route. Once every reachable cell has been ex
 To reuse a figure, replace its data at the TSX boundary. For example, a signed line needs no special renderer:
 
 ```tsx
-import { Line } from "../../../../components/figures";
+import { Line } from "#src/components/figures/index.tsx";
 
 export default function Deviations() {
   return <Line props={{

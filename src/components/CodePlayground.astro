@@ -1,5 +1,5 @@
 ---
-import { t } from "../strings";
+import { t } from "#src/strings.ts";
 import {
     decodeConfig,
     MAX_CODE,
@@ -8,9 +8,9 @@ import {
     type GrammarSource,
     type Runtime,
     type PythonPackage,
-} from "../playground/contracts";
-import { parseGrammars } from "../playground/grammar";
-import "../playground/style.css";
+} from "#src/playground/contracts.ts";
+import { parseGrammars } from "#src/playground/grammar.ts";
+import "#src/playground/style.css";
 
 interface Props {
     code: string;
@@ -127,14 +127,7 @@ parseGrammars(config.grammars);
                 aria-label={`${title}: ${t("playground.output")}`}
                 tabindex="0"
                 data-pagefind-ignore
-            >
-                {Astro.slots.has("default") && (
-                    <div class="playground-reference">
-                        <p class="notebook-reference-label">{t("notebook.reference")}</p>
-                        <slot />
-                    </div>
-                )}
-            </div>
+            />
             {/* eslint-enable astro/jsx-a11y/no-noninteractive-tabindex */}
             <form class="playground-input" hidden>
                 <label class="playground-input-label">

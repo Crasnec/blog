@@ -38,10 +38,10 @@ import {
     str,
     text,
     withAlpha,
-} from "../kit.ts";
+} from "#src/figures/kit.ts";
 
-import { numberSamples } from "../generators.ts";
-import { traceSort as trace, type Algorithm, type Op } from "../models/sort.ts";
+import { numberSamples } from "#src/figures/generators.ts";
+import { traceSort as trace, type Algorithm, type Op } from "#src/figures/models/sort.ts";
 
 /* — 1. pacing ——————————————————————————————————————————————————————— */
 

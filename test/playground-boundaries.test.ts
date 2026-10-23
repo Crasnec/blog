@@ -11,11 +11,11 @@ import {
     MAX_CODE,
     MAX_INPUT,
     MAX_PNG,
-} from "../src/playground/contracts.ts";
-import { parseGrammars } from "../src/playground/grammar.ts";
-import { inputChannel } from "../src/playground/input.ts";
-import { initializePythonRuntime } from "../src/playground/python-runtime.ts";
-import type { JsonValue } from "../src/utils/json.ts";
+} from "#src/playground/contracts.ts";
+import { parseGrammars } from "#src/playground/grammar.ts";
+import { inputChannel } from "#src/playground/input.ts";
+import { initializePythonRuntime } from "#src/playground/python-runtime.ts";
+import type { JsonValue } from "#src/utils/json.ts";
 
 void test("execution messages decode only complete, bounded transport values", () => {
     for (const value of [

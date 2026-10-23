@@ -3,8 +3,8 @@ import { createOnigurumaEngine } from "shiki/engine/oniguruma";
 import javascript from "shiki/langs/javascript.mjs";
 import typescript from "shiki/langs/typescript.mjs";
 import python from "shiki/langs/python.mjs";
-import { parseGrammars } from "./grammar.ts";
-import { IncrementalHighlighter } from "./incremental-highlight.ts";
+import { parseGrammars } from "#src/playground/grammar.ts";
+import { IncrementalHighlighter } from "#src/playground/incremental-highlight.ts";
 import {
     runtimeFor,
     decodeHighlightRequest,
@@ -12,7 +12,7 @@ import {
     type MessageValue,
     type HighlightRequest,
     type HighlightResponse,
-} from "./contracts.ts";
+} from "#src/playground/contracts.ts";
 
 const highlighter = createHighlighterCore({
     engine: createOnigurumaEngine(import("shiki/wasm")),

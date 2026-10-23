@@ -1,8 +1,8 @@
 ---
-import { t } from "../strings";
-import { navLinks, siteConfig } from "../config";
-import { sitePath } from "../utils/url";
-import Icon from "./Icon.astro";
+import { t } from "#src/strings.ts";
+import { navLinks, siteConfig } from "#src/config.ts";
+import { sitePath } from "#src/utils/url.ts";
+import Icon from "#src/components/Icon.astro";
 
 const normalizePath = (path: string) => path.replace(/\/+$/, "") || "/";
 const here = normalizePath(Astro.url.pathname);

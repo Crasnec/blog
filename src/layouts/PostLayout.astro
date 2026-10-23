@@ -1,22 +1,22 @@
 ---
-import { longDate, machineDate, readingTimeLabel, shortDate } from "../utils/format";
-import { t } from "../strings";
+import { longDate, machineDate, readingTimeLabel, shortDate } from "#src/utils/format.ts";
+import { t } from "#src/strings.ts";
 import { render } from "astro:content";
-import CategoryList from "../components/CategoryList.astro";
-import CategoryBreadcrumbs from "../components/CategoryBreadcrumbs.astro";
-import { categoryLabel } from "../posts/category";
-import Colophon from "../components/Colophon.astro";
-import Comments from "../components/Comments.astro";
-import Contents from "../components/Contents.astro";
-import Icon from "../components/Icon.astro";
-import Profile from "../components/Profile.astro";
-import SecretLock from "../components/SecretLock.astro";
-import SeriesContents from "../components/SeriesContents.astro";
-import type { PostRef } from "../posts/queries";
-import { getNeighbours, getPostSeries, parsePostMeta } from "../posts/queries";
-import { cardPath } from "../utils/og";
-import { THEME } from "../theme.config.mjs";
-import BaseLayout from "./BaseLayout.astro";
+import CategoryList from "#src/components/CategoryList.astro";
+import CategoryBreadcrumbs from "#src/components/CategoryBreadcrumbs.astro";
+import { categoryLabel } from "#src/posts/category.ts";
+import Colophon from "#src/components/Colophon.astro";
+import Comments from "#src/components/Comments.astro";
+import Contents from "#src/components/Contents.astro";
+import Icon from "#src/components/Icon.astro";
+import Profile from "#src/components/Profile.astro";
+import SecretLock from "#src/components/SecretLock.astro";
+import SeriesContents from "#src/components/SeriesContents.astro";
+import type { PostRef } from "#src/posts/queries.ts";
+import { getNeighbours, getPostSeries, parsePostMeta } from "#src/posts/queries.ts";
+import { cardPath } from "#src/utils/og.ts";
+import { THEME } from "#src/theme.config.mjs";
+import BaseLayout from "#src/layouts/BaseLayout.astro";
 
 interface Props {
     post: PostRef;

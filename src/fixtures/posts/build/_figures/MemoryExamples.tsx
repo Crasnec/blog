@@ -1,6 +1,6 @@
 /** Post-specific data and captions; all drawing uses reusable typed components. */
-import { Memory, type DiagramProps } from "../../../../components/figures";
-import type { FigureInputs } from "../../../../figures/inputs";
+import { Memory, type DiagramProps } from "#src/components/figures/index.tsx";
+import type { FigureInputs } from "#src/figures/inputs.ts";
 
 const sharedRequests: FigureInputs["memory"]["requests"] = [
     {

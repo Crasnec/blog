@@ -1,6 +1,6 @@
 /** Shared server-side props and validation for Astro and TSX figures. */
-import type { DefinedFigure, FigureTable } from "./kit.ts";
-import type { JsonObject } from "../utils/json.ts";
+import type { DefinedFigure, FigureTable } from "#src/figures/kit.ts";
+import type { JsonObject } from "#src/utils/json.ts";
 
 export interface FigureProps {
     kind: string;

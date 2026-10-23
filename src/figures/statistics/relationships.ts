@@ -10,8 +10,8 @@ import {
     progress,
     str,
     withAlpha,
-} from "../kit.ts";
-import { densityContours, hexBins, histogram, linearFit, variance } from "./math.ts";
+} from "#src/figures/kit.ts";
+import { densityContours, hexBins, histogram, linearFit, variance } from "#src/figures/statistics/math.ts";
 import {
     axes,
     bool,
@@ -29,7 +29,7 @@ import {
     sample,
     TIMES,
     type Domain,
-} from "./shared.ts";
+} from "#src/figures/statistics/shared.ts";
 
 export const scatter = defineFigure({
     duration: TIMES.duration,

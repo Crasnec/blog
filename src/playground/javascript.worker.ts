@@ -1,6 +1,6 @@
-import { decodeRunRequest, type MessageValue, type RunRequest } from "./contracts.ts";
-import { inputChannel } from "./input.ts";
-import { formatValue, outputChannel } from "./output.ts";
+import { decodeRunRequest, type MessageValue, type RunRequest } from "#src/playground/contracts.ts";
+import { inputChannel } from "#src/playground/input.ts";
+import { formatValue, outputChannel } from "#src/playground/output.ts";
 
 self.addEventListener(
     "message",
@@ -50,11 +50,11 @@ async function run(request: RunRequest) {
     try {
         let code =
             request.runtime === "typescript"
-                ? (await import("./transpile.ts")).transpileTypeScript(request.code)
+                ? (await import("#src/playground/transpile.ts")).transpileTypeScript(request.code)
                 : request.code;
         if (/\b(?:import|export)\b/u.test(code))
         {
-            code = (await import("./module-imports.ts")).rewriteModuleImports(code);
+            code = (await import("#src/playground/module-imports.ts")).rewriteModuleImports(code);
         }
         send({ type: "ready" });
         url = URL.createObjectURL(new Blob([code], { type: "text/javascript" }));

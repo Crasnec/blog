@@ -3,4 +3,4 @@
  * D.
  * Full contract and numerical conventions: ../statistics/README.md.
  */
-export { influence as default } from "../statistics/diagnostics.ts";
+export { influence as default } from "#src/figures/statistics/diagnostics.ts";

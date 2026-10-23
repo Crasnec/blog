@@ -10,7 +10,7 @@ Use this fixture server for `figures:shot` and the browser regression suite.
 For figures in real articles, use the ordinary server without the override.
 
 ```mdx
-import Figure from "../../../components/Figure.astro";
+import Figure from "#src/components/Figure.astro";
 
 <Figure
     kind="line"
@@ -19,8 +19,7 @@ import Figure from "../../../components/Figure.astro";
 />
 ```
 
-The import path climbs one `../` per directory between the post and `src/`.
-`src/fixtures/posts/build/x.mdx` needs three.
+Use `#src/` imports from any post directory; the path is always relative to `src/`.
 
 `src/fixtures/posts/build/animated-figures.mdx` introduces `line`,
 `distribution`, `flow`, `queue` and post-specific TSX compositions. Read it at `/posts/build/animated-figures/`.
@@ -32,7 +31,7 @@ accepts `props` with that kind's input type, plus `caption`, `label` and
 `height`. Inputs and their names live in `src/figures/inputs.ts`. For example:
 
 ```tsx
-import { Sort, Heatmap, Boxplot } from "../../../../components/figures";
+import { Sort, Heatmap, Boxplot } from "#src/components/figures/index.tsx";
 
 <Sort props={{ algorithm: "merge", values: [-3, 2, 0, -1] }} />
 <Heatmap props={{ rows: ["A"], cols: ["x", "y"], values: [[4, 4]] }} />
@@ -105,7 +104,7 @@ service names or narrative. Keep those in a TSX component beside the post.
 For example, from `src/fixtures/posts/build/_figures/WorkerQueues.tsx`:
 
 ```tsx
-import Figure from "../../../../components/Figure";
+import Figure from "#src/components/Figure.tsx";
 
 export default function WorkerQueues() {
   return <Figure kind="queue" props={{
@@ -121,7 +120,7 @@ export default function WorkerQueues() {
 Import it in the neighbouring MDX:
 
 ```mdx
-import WorkerQueues from "./_figures/WorkerQueues.tsx";
+import WorkerQueues from "#src/fixtures/posts/build/_figures/WorkerQueues.tsx";
 
 <WorkerQueues />
 ```
@@ -348,7 +347,7 @@ caption or move the surrounding article. Looping figures have no replay slot.
 The bare minimum of a kind looks like this:
 
 ```ts
-import { defineFigure, ease, num, obj, progress, text, dot } from "../kit";
+import { defineFigure, ease, num, obj, progress, text, dot } from "#src/figures/kit.ts";
 
 interface Props {
     workers: number;

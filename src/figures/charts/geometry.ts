@@ -1,5 +1,5 @@
-import type { Series, Segment, Domain } from "./types.ts";
-import { tickStep } from "../kit.ts";
+import type { Series, Segment, Domain } from "#src/figures/charts/types.ts";
+import { tickStep } from "#src/figures/kit.ts";
 
 /** Negative and positive stacks each start at zero. Percent stacks have no negatives. */
 export function segments(series: Series[], stacked: boolean, percent: boolean): Segment[][] {

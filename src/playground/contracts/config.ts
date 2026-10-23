@@ -1,6 +1,6 @@
-import type { Runtime, PlaygroundConfig } from "./types.ts";
-import { parseJson, isJsonObject } from "../../utils/json.ts";
-import { MAX_GRAMMAR } from "./limits.ts";
+import type { Runtime, PlaygroundConfig } from "#src/playground/contracts/types.ts";
+import { parseJson, isJsonObject } from "#src/utils/json.ts";
+import { MAX_GRAMMAR } from "#src/playground/contracts/limits.ts";
 
 export function runtimeFor(language: string): Runtime | false {
     switch (language.toLowerCase()) {

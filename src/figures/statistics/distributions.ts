@@ -13,7 +13,7 @@ import {
     withAlpha,
     type Frame,
     type Point,
-} from "../kit.ts";
+} from "#src/figures/kit.ts";
 import {
     bandwidth,
     boxSummary,
@@ -23,7 +23,7 @@ import {
     normalQuantile,
     quantile,
     variance,
-} from "./math.ts";
+} from "#src/figures/statistics/math.ts";
 import {
     axes,
     bounded,
@@ -44,7 +44,7 @@ import {
     type Domain,
     type Group,
     type Plot,
-} from "./shared.ts";
+} from "#src/figures/statistics/shared.ts";
 
 interface DistributionProps {
     title: string;

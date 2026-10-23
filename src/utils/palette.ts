@@ -14,7 +14,7 @@
  * theme that is missing a mirror token fails the build instead of rendering a
  * card in whatever colour happened to be left over.
  */
-import { THEME } from "../theme.config.mjs";
+import { THEME } from "#src/theme.config.mjs";
 
 export interface Mirror {
     /** Raised paper — the ground a card is drawn on. */

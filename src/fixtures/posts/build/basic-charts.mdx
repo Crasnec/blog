@@ -5,7 +5,7 @@ description: Bars, pies, donuts and areas using the shared Figure runtime, with 
 tags: [mdx, figures]
 ---
 
-import { VerticalBars, HorizontalBars, GroupedBars, StackedBars, PercentBars, PartToWhole, Areas } from "./_figures/BasicCharts.tsx";
+import { VerticalBars, HorizontalBars, GroupedBars, StackedBars, PercentBars, PartToWhole, Areas } from "#src/fixtures/posts/build/_figures/BasicCharts.tsx";
 
 Use `Bar` for category comparisons, `Pie` for parts of a positive total, and `Area` for changes along a numeric axis. They use the existing theme, replay button and reduced-motion setting. Expand **Data and labels** below any graph to read its complete labels and original values, including without JavaScript.
 
@@ -20,7 +20,7 @@ Bars always include zero. Horizontal bars leave more room for category names; ne
 <HorizontalBars />
 
 ```tsx
-import { Bar } from "../../../../components/figures";
+import { Bar } from "#src/components/figures/index.tsx";
 
 <Bar
     props={{
@@ -57,7 +57,7 @@ A pie is useful for a small number of parts with a meaningful total. Use bars wh
 <PartToWhole />
 
 ```tsx
-import { Pie } from "../../../../components/figures";
+import { Pie } from "#src/components/figures/index.tsx";
 
 <Pie
     props={{
@@ -83,7 +83,7 @@ Area charts use actual numeric `x` coordinates. Lines connect samples by linear 
 <Areas />
 
 ```tsx
-import { Area } from "../../../../components/figures";
+import { Area } from "#src/components/figures/index.tsx";
 
 <Area
     props={{

@@ -1,7 +1,7 @@
 import { readFile, mkdir, copyFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { pythonDistribution, preparePythonPackages } from "./python-packages.mjs";
+import { pythonDistribution, preparePythonPackages } from "#root/scripts/python-packages.mjs";
 
 // Serve the pinned runtime, bundled wheels, and full catalog with CDN URLs.
 const files = new Map([

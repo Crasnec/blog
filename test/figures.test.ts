@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { phases } from "../src/figures/kit.ts";
-import gantt, { schedule } from "../src/figures/kinds/gantt.ts";
-import { simulate } from "../src/figures/kinds/memory.ts";
-import sort from "../src/figures/kinds/sort.ts";
-import stateMachine from "../src/figures/kinds/state-machine.ts";
-import tree from "../src/figures/kinds/tree.ts";
-import type { JsonObject } from "../src/utils/json.ts";
+import { phases } from "#src/figures/kit.ts";
+import gantt, { schedule } from "#src/figures/kinds/gantt.ts";
+import { simulate } from "#src/figures/kinds/memory.ts";
+import sort from "#src/figures/kinds/sort.ts";
+import stateMachine from "#src/figures/kinds/state-machine.ts";
+import tree from "#src/figures/kinds/tree.ts";
+import type { JsonObject } from "#src/utils/json.ts";
 
 void test("phase timing uses own durations and preserves the supplied workload", () => {
     const durations = { appear: 1, pause: 0, finish: 2 };

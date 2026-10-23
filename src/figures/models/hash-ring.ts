@@ -1,5 +1,5 @@
 /** Reusable deterministic model, independent of canvas rendering and post data. */
-import { hash32 } from "../kit.ts";
+import { hash32 } from "#src/figures/kit.ts";
 
 /** Where a string lands on the ring, as a turn from 0 to 1. */
 export const turnOf = (s: string) => hash32(s) / 2 ** 32;

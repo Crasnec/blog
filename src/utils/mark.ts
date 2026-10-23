@@ -12,7 +12,7 @@
  * a light one that vanishes on a dark toolbar.
  */
 import sharp from "sharp";
-import { dark } from "./palette";
+import { dark } from "#src/utils/palette.ts";
 
 function svg(size?: number): string {
     const box = size === undefined ? "" : ` width="${String(size)}" height="${String(size)}"`;

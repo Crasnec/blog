@@ -1,4 +1,4 @@
-import { MAX_PNG } from "./contracts.ts";
+import { MAX_PNG } from "#src/playground/contracts.ts";
 
 /** Keep raster bytes out of HTML; plots travel on the private worker channel. */
 export function pngFromBase64(encoded: string): ArrayBuffer {

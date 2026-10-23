@@ -8,12 +8,12 @@
  * card leaves off is what the page leaves off — the reading time, which
  * describes a body nobody is meant to have yet.
  */
-import { longDate, readingTimeLabel } from "../../utils/format";
-import { t } from "../../strings";
+import { longDate, readingTimeLabel } from "#src/utils/format.ts";
+import { t } from "#src/strings.ts";
 import type { APIRoute, GetStaticPaths } from "astro";
-import { siteConfig } from "../../config";
-import { type PostRef, getPosts, postMeta } from "../../posts/queries";
-import { renderCard } from "../../utils/og";
+import { siteConfig } from "#src/config.ts";
+import { type PostRef, getPosts, postMeta } from "#src/posts/queries.ts";
+import { renderCard } from "#src/utils/og.ts";
 
 interface Props {
     post?: PostRef;

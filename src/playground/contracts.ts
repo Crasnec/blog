@@ -12,7 +12,7 @@ export {
     type InputResponse,
     type RunResponse,
     type MessageValue,
-} from "./contracts/types.ts";
+} from "#src/playground/contracts/types.ts";
 export {
     MAX_CODE,
     MAX_GRAMMAR,
@@ -21,16 +21,16 @@ export {
     MAX_PLOTS,
     MAX_PNG,
     MAX_PLOT_TOTAL,
-} from "./contracts/limits.ts";
-export { runtimeFor, decodeConfig } from "./contracts/config.ts";
+} from "#src/playground/contracts/limits.ts";
+export { runtimeFor, decodeConfig } from "#src/playground/contracts/config.ts";
 export {
     decodeInputResponse,
     decodeCellRequest,
     decodeRunRequest,
     decodeRunResponse,
-} from "./contracts/run.ts";
+} from "#src/playground/contracts/run.ts";
 export {
     decodeHighlightRequest,
     decodeHighlightRelease,
     decodeHighlightResponse,
-} from "./contracts/highlight.ts";
+} from "#src/playground/contracts/highlight.ts";

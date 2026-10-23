@@ -1,6 +1,6 @@
-import type { Item, SceneModel, Layout, PlacedItem, Route } from "./types.ts";
-import { characters } from "./text.ts";
-import type { Point } from "../kit.ts";
+import type { Item, SceneModel, Layout, PlacedItem, Route } from "#src/figures/scene/types.ts";
+import { characters } from "#src/figures/scene/text.ts";
+import type { Point } from "#src/figures/kit.ts";
 
 function cardHeight(width: number, items: Item[]): number {
     const capacity = Math.max(1, Math.floor((width - 28) / 16));

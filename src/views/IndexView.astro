@@ -1,11 +1,11 @@
 ---
-import { t } from "../strings";
+import { t } from "#src/strings.ts";
 import type { Page } from "astro";
-import Pagination from "../components/Pagination.astro";
-import PostEntry from "../components/PostEntry.astro";
-import Sidebar from "../components/Sidebar.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
-import type { PostRef } from "../posts/queries";
+import Pagination from "#src/components/Pagination.astro";
+import PostEntry from "#src/components/PostEntry.astro";
+import Sidebar from "#src/components/Sidebar.astro";
+import BaseLayout from "#src/layouts/BaseLayout.astro";
+import type { PostRef } from "#src/posts/queries.ts";
 
 interface Props {
     page: Page<PostRef>;

@@ -1,10 +1,10 @@
 ---
-import { countLabel, machineDate, shortStampDate, yearLabel } from "../utils/format";
-import { t } from "../strings";
-import Icon from "../components/Icon.astro";
-import Sidebar from "../components/Sidebar.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
-import { groupByYear } from "../posts/queries";
+import { countLabel, machineDate, shortStampDate, yearLabel } from "#src/utils/format.ts";
+import { t } from "#src/strings.ts";
+import Icon from "#src/components/Icon.astro";
+import Sidebar from "#src/components/Sidebar.astro";
+import BaseLayout from "#src/layouts/BaseLayout.astro";
+import { groupByYear } from "#src/posts/queries.ts";
 
 const years = await groupByYear();
 ---

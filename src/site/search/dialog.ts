@@ -1,5 +1,5 @@
-import { t } from "../../strings";
-import { loadPagefind, readPagefindReferences, readPagefindResult } from "./engine";
+import { t } from "#src/strings.ts";
+import { loadPagefind, readPagefindReferences, readPagefindResult } from "#src/site/search/engine.ts";
 
 let shortcutWired = false;
 

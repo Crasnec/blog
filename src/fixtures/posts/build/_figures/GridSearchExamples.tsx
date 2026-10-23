@@ -1,6 +1,6 @@
 /** Post-specific data and captions; all drawing uses reusable typed components. */
-import { GridSearch, type DiagramProps } from "../../../../components/figures";
-import type { FigureInputs } from "../../../../figures/inputs";
+import { GridSearch, type DiagramProps } from "#src/components/figures/index.tsx";
+import type { FigureInputs } from "#src/figures/inputs.ts";
 
 const sharedMaze: FigureInputs["grid-search"]["maze"] = [
     "#..........#.#......#",

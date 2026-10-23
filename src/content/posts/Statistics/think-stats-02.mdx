@@ -10,20 +10,20 @@ series:
   order: 2
 ---
 
-import CodePlayground from '../../../components/CodePlayground.astro';
-import PythonNotebook from '../../../components/PythonNotebook.astro';
-import notebook from './_notebooks/chap02.json';
-import Figure from '../../../components/Figure.astro';
-import plots from './_figures/plots.json';
-import frequencyCode from '../../../../public/labs/think-stats/chap02-frequency.py?raw';
-import spreadCode from '../../../../public/labs/think-stats/chap02-spread.py?raw';
-import chapterCode from '../../../../public/labs/think-stats/chap02-browser.py?raw';
+import CodePlayground from '#src/components/CodePlayground.astro';
+import PythonNotebook from '#src/components/PythonNotebook.astro';
+import notebook from '#src/content/posts/Statistics/_notebooks/chap02.json';
+import Figure from '#src/components/Figure.astro';
+import plots from '#src/content/posts/Statistics/_figures/plots.json';
+import frequencyCode from '#root/public/labs/think-stats/chap02-frequency.py?raw';
+import spreadCode from '#root/public/labs/think-stats/chap02-spread.py?raw';
+import chapterCode from '#root/public/labs/think-stats/chap02-browser.py?raw';
 
 Allen B. Downey의 《Think Stats》 3판, 2장 「Distributions」의 한국어 번역입니다. [원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/nb/chap02.ipynb)을 바탕으로 옮겼습니다.
 
 <a href="/labs/think-stats/chap02-ko.ipynb" download="think-stats-02-ko.ipynb">한국어 노트북 내려받기</a> · [원문 웹판](https://allendowney.github.io/ThinkStats/chap02.html)
 
-준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 셀을 실행하면 참고용 출력이 실제 결과로 바뀝니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
+준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 실행 결과는 셀을 실행한 뒤 표시됩니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
 
 
 이 장에서는 통계학의 가장 기본적인 생각 중 하나인 분포를 소개합니다. 데이터에 어떤 값들이 있고 각 값이 몇 번 나타나는지 정리한 도수분포표부터 시작해, 미국 가족성장조사(NSFG) 자료를 살펴보겠습니다. 이상치라고 부르는 극단적인 값이나 잘못된 값을 찾아보고, 어떻게 다룰지도 생각해 보겠습니다.
@@ -47,16 +47,7 @@ Allen B. Downey의 《Think Stats》 3판, 2장 「Distributions」의 한국어
 
 `FreqTab`의 `from_seq` 메서드는 시퀀스를 받아 `FreqTab` 객체를 만듭니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 3" code={notebook.cells[3].code} language="python" timeout={60000}>
-
-| 값 | freqs |
-| --- | --- |
-| 1.0 | 1 |
-| 2.0 | 2 |
-| 3.0 | 1 |
-| 5.0 | 1 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 3" code={notebook.cells[3].code} language="python" timeout={60000} />
 `FreqTab`은 값과 도수를 담은 pandas `Series`의 한 종류입니다. 이 예에서 `1.0`의 도수는 1, `2.0`의 도수는 2입니다.
 
 `bar` 메서드를 사용하면 도수분포표를 막대그래프로 그릴 수 있습니다.
@@ -69,66 +60,27 @@ Allen B. Downey의 《Think Stats》 3판, 2장 「Distributions」의 한국어
 
 `FreqTab`은 pandas `Series`이므로 대괄호 연산자로 어떤 값의 도수를 조회할 수 있습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 5" code={notebook.cells[5].code} language="python" timeout={60000}>
-
-```text
-np.int64(2)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 5" code={notebook.cells[5].code} language="python" timeout={60000} />
 
 pandas `Series`와 달리, `FreqTab` 객체를 함수처럼 호출해 값을 조회할 수도 있습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 6" code={notebook.cells[6].code} language="python" timeout={60000}>
-
-```text
-np.int64(2)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 6" code={notebook.cells[6].code} language="python" timeout={60000} />
 
 `FreqTab`에 없는 값을 함수 호출 방식으로 조회하면 `0`을 반환합니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 7" code={notebook.cells[7].code} language="python" timeout={60000}>
-
-```text
-0
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 7" code={notebook.cells[7].code} language="python" timeout={60000} />
 
 `FreqTab`의 `qs` 속성은 값들을 배열로 반환합니다. `qs`는 quantities의 줄임말이지만, 엄밀히 말해 모든 값이 수량인 것은 아닙니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 8" code={notebook.cells[8].code} language="python" timeout={60000}>
-
-```text
-array([1., 2., 3., 5.])
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 8" code={notebook.cells[8].code} language="python" timeout={60000} />
 
 `fs` 속성은 도수들을 배열로 반환합니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000}>
-
-```text
-array([1, 2, 1, 1])
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000} />
 
 `items` 메서드로 값과 도수의 쌍을 하나씩 순회할 수 있습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000}>
-
-```text
-1.0 1
-2.0 2
-3.0 1
-5.0 1
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000} />
 
 다른 `FreqTab` 메서드들도 앞으로 살펴보겠습니다.
 
@@ -162,59 +114,21 @@ array([1, 2, 1, 1])
 
 분포를 그리면 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap02-038-0.png"
-        alt="출생 체중의 파운드 부분별 도수. 7파운드가 가장 흔하고 양쪽으로 도수가 줄어듭니다."
-        width={442}
-        height={255}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000} />
 
 이런 분포를 보면 먼저 모양이 눈에 들어옵니다. 흔히 말하는 종 모양 곡선과 비슷합니다. 이런 모양을 나타내는 대표적인 모형이 정규분포, 또는 가우스분포입니다. 또 눈여겨볼 것은 가장 자주 나타나는 값인 **최빈값**(mode)입니다. `idxmax` 메서드는 도수가 가장 큰 값에 대응하는 인덱스를 찾아주므로, 최빈값을 구하는 데 쓸 수 있습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000}>
-
-```text
-np.float64(7.0)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000} />
 
 `FreqTab`의 `mode` 메서드도 같은 일을 합니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 16" code={notebook.cells[16].code} language="python" timeout={60000}>
-
-```text
-np.float64(7.0)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 16" code={notebook.cells[16].code} language="python" timeout={60000} />
 
 이 분포의 최빈값은 7파운드입니다.
 
 다른 예로, 출생 체중의 온스 부분인 `birthwgt_oz`의 도수분포표를 보겠습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 17" code={notebook.cells[17].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap02-044-0.png"
-        alt="출생 체중의 온스 부분별 도수. 0온스의 도수가 크고 1온스와 15온스는 작습니다."
-        width={442}
-        height={255}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 17" code={notebook.cells[17].code} language="python" timeout={60000} />
 
 파운드와 온스는 사람이 정한 단위이므로, 온스 부분의 값들은 대략 비슷한 확률로 나타날 것으로 예상할 수 있습니다. 즉 **균등분포**(uniform distribution)를 기대할 수 있습니다. 하지만 `0`은 다른 값보다 자주 나타나고, `1`과 `15`는 덜 나타납니다. 출생 체중이 정수 파운드에 가까우면 응답자가 반올림해 답하는 듯합니다.
 
@@ -224,39 +138,13 @@ np.float64(7.0)
 
 NSFG에서 나이는 연과 월 단위로 기록되므로, 앞서 본 분포들보다 서로 다른 값이 많습니다. 막대들이 너무 많이 겹치지 않도록 `bar` 메서드에 키워드 인수 `width=0.1`을 전달해 너비를 조절하겠습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 19" code={notebook.cells[19].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap02-048-0.png"
-        alt="임신 종료 시 어머니 나이의 분포. 오른쪽 꼬리가 더 긴 비대칭 모양입니다."
-        width={442}
-        height={255}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 19" code={notebook.cells[19].code} language="python" timeout={60000} />
 
 대체로 종 모양이지만 오른쪽으로 **치우쳐**(skewed) 있습니다. 꼬리가 왼쪽보다 오른쪽으로 더 길게 뻗어 있다는 뜻입니다.
 
 마지막으로 주 단위 임신 기간인 `prglngth`의 도수분포표를 보겠습니다. `xlim` 인수로 x축 범위를 20주에서 50주로 정합니다. 이 범위 밖의 값은 많지 않고, 아마 오류일 것입니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 20" code={notebook.cells[20].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap02-050-0.png"
-        alt="임신 기간의 도수분포표. 39주의 막대가 가장 높고 왼쪽 꼬리가 더 깁니다."
-        width={442}
-        height={255}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 20" code={notebook.cells[20].code} language="python" timeout={60000} />
 
 가장 흔한 값은 단연 39주입니다. 왼쪽 꼬리가 오른쪽보다 깁니다. 일찍 태어나는 아기는 흔하지만 임신이 43주를 넘기는 경우는 드물고, 그 정도가 되면 의사가 개입하는 일이 많기 때문입니다.
 
@@ -274,24 +162,7 @@ NSFG에서 나이는 연과 월 단위로 기록되므로, 앞서 본 분포들�
 
 `prglngth`의 도수분포표에서 가장 작은 값 10개는 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 22" code={notebook.cells[22].code} language="python" timeout={60000}>
-
-```text
-prglngth
-0     1
-4     1
-9     1
-13    1
-17    2
-18    1
-19    1
-20    1
-21    2
-22    7
-Name: prglngth, dtype: int64
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 22" code={notebook.cells[22].code} language="python" timeout={60000} />
 
 생아 출산에 해당하는 행만 골랐으므로, 임신 기간이 10주 미만인 값은 분명 오류입니다. 가장 그럴듯한 설명은 임신 결과가 잘못 부호화되었다는 것입니다. 30주보다 긴 값은 대체로 타당해 보입니다. 10~30주 사이는 확신하기 어렵습니다. 일부는 오류겠지만, 일부는 조산을 정확히 기록한 값일 것입니다.
 
@@ -301,24 +172,7 @@ Name: prglngth, dtype: int64
 
 자료에서 가장 긴 임신 기간은 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 24" code={notebook.cells[24].code} language="python" timeout={60000}>
-
-```text
-prglngth
-40    1116
-41     587
-42     328
-43     148
-44      46
-45      10
-46       1
-47       1
-48       7
-50       2
-Name: prglngth, dtype: int64
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 24" code={notebook.cells[24].code} language="python" timeout={60000} />
 
 여기에도 오류로 보이는 값이 있습니다. 원문에서는 대부분의 의사가 임신 41주를 넘기면 유도분만을 권한다고 설명하며, 따라서 50주라는 기록은 맞을 가능성이 낮다고 봅니다. 하지만 분명한 오류와, 드물게 일어난 일을 정확히 기록한 값 사이에 선을 긋기는 어렵습니다.
 
@@ -342,50 +196,19 @@ Name: prglngth, dtype: int64
 
 결과는 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 28" code={notebook.cells[28].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap02-068-0.png"
-        alt="첫아이와 다른 아이의 임신 기간별 도수. 표본 수가 다르므로 막대 높이를 곧바로 비교할 수 없습니다."
-        width={442}
-        height={255}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 28" code={notebook.cells[28].code} language="python" timeout={60000} />
 
 분포의 모양이나 이상치에서 뚜렷한 차이는 보이지 않습니다. 첫아이가 아닌 경우 39주에 태어나는 수가 더 많아 보입니다. 하지만 자료에 첫아이가 아닌 아이가 더 많이 들어 있으므로, 단순한 건수를 곧바로 비교해서는 안 됩니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 29" code={notebook.cells[29].code} language="python" timeout={60000}>
-
-```text
-(np.int64(4413), np.int64(4735))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 29" code={notebook.cells[29].code} language="python" timeout={60000} />
 
 분포의 평균을 비교하면 첫아이가 평균적으로 조금 더 늦게 태어나는 듯합니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000}>
-
-```text
-(np.float64(38.60095173351461), np.float64(38.52291446673706))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000} />
 
 하지만 차이는 0.078주에 불과합니다. 약 13시간입니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 31" code={notebook.cells[31].code} language="python" timeout={60000}>
-
-```text
-(np.float64(0.07803726677754952), np.float64(13.11026081862832))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 31" code={notebook.cells[31].code} language="python" timeout={60000} />
 
 겉으로 드러난 이 차이에는 몇 가지 설명이 가능합니다.
 
@@ -410,25 +233,13 @@ Name: prglngth, dtype: int64
 
 상대적인 차이를 보고할 수도 있습니다. 예를 들어 첫아이의 임신 기간이 나머지보다 평균 0.2% 길다고 말할 수 있습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.20237586646738304)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000} />
 
 또 다른 방법은 **표준화한**(standardized) 효과 크기를 보고하는 것입니다. 단위나 집단이 달라도 차이의 크기를 비교할 수 있도록 만든 통계량입니다.
 
 표준화한다는 것은 차이를 표준편차의 몇 배인지로 표현한다는 뜻입니다. 그래서 다음과 같이 계산하고 싶을 수 있습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 33" code={notebook.cells[33].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.028877623375210403)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 33" code={notebook.cells[33].code} language="python" timeout={60000} />
 
 하지만 여기서는 두 집단을 합쳐 표준편차를 계산했습니다. 두 집단의 평균이 다르면, 합친 자료의 표준편차에는 집단 사이의 차이도 반영됩니다. 이를 분모로 쓰면 효과 크기가 작아 보일 수 있습니다.
 
@@ -446,23 +257,11 @@ np.float64(0.028877623375210403)
 
 마지막으로 제곱근을 취하면 통합 표준편차가 됩니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 37" code={notebook.cells[37].code} language="python" timeout={60000}>
-
-```text
-np.float64(2.7022108144953862)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 37" code={notebook.cells[37].code} language="python" timeout={60000} />
 
 통합 표준편차는 각 집단의 표준편차 사이에 있습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 38" code={notebook.cells[38].code} language="python" timeout={60000}>
-
-```text
-(np.float64(2.7919014146687204), np.float64(2.6158523504392375))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 38" code={notebook.cells[38].code} language="python" timeout={60000} />
 
 통합 표준편차를 이용한 표준화 효과 크기를 **코언의 효과 크기**(Cohen's effect size)라고 합니다. 다음 함수로 계산할 수 있습니다.
 
@@ -470,13 +269,7 @@ np.float64(2.7022108144953862)
 
 평균 임신 기간 차이의 효과 크기는 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 40" code={notebook.cells[40].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.028879044654449834)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 40" code={notebook.cells[40].code} language="python" timeout={60000} />
 
 이 예에서 차이는 표준편차의 0.029배로 작습니다. 비교하자면 남녀의 키 차이는 표준편차의 약 1.7배입니다.
 
@@ -512,13 +305,7 @@ np.float64(0.028879044654449834)
 
 `nsfg.py` 모듈에는 여성 응답자 파일을 읽고 일부 변수를 정제한 다음 `DataFrame`을 반환하는 함수가 있습니다.
 
-<CodePlayground notebook="think-stats-02" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000} runAll={false}>
-
-```text
-(7643, 3092)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-02" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000} runAll={false} />
 
 이 `DataFrame`에는 열이 3,092개 있지만, 여기서는 일부만 사용하겠습니다.
 
@@ -546,7 +333,7 @@ np.float64(0.028879044654449834)
 
 ## 번역과 실행에 관하여
 
-참고용 출력과 고정 그림은 [같은 판의 실행된 원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap02.ipynb)에서 가져왔습니다. 난수를 사용하는 그림은 실행할 때마다 달라집니다. 연습문제의 해답은 넣지 않았습니다. 원문 설명과 코드가 어긋나는 곳에는 번역자 주를 붙였습니다.
+고정 그림은 [같은 판의 실행된 원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap02.ipynb)에서 가져왔습니다. 난수를 사용하는 그림은 실행할 때마다 달라집니다. 연습문제의 해답은 넣지 않았습니다. 원문 설명과 코드가 어긋나는 곳에는 번역자 주를 붙였습니다.
 
 [Think Stats: Exploratory Data Analysis in Python, 3rd Edition](https://allendowney.github.io/ThinkStats/index.html)
 

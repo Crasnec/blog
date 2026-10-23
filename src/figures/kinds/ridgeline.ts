@@ -3,4 +3,4 @@
  * normalized.
  * Full contract and numerical conventions: ../statistics/README.md.
  */
-export { ridgeline as default } from "../statistics/distributions.ts";
+export { ridgeline as default } from "#src/figures/statistics/distributions.ts";

@@ -1,10 +1,10 @@
 /** The gallery chooses examples; the plotting library only receives data. */
-import FigureExamples from "../../../../components/FigureExamples";
+import FigureExamples from "#src/components/FigureExamples.tsx";
 import {
     statisticsExamples,
     type StatisticsCategory,
     type StatisticsExample,
-} from "./statistics-data";
+} from "#src/fixtures/posts/build/_figures/statistics-data.ts";
 export default function StatisticsExamples({
     category,
     kind,

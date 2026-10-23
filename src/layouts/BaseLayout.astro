@@ -1,12 +1,11 @@
 ---
-import { HTML_LANG, t } from "../strings";
+import { HTML_LANG, t } from "#src/strings.ts";
 import { ClientRouter } from "astro:transitions";
-import BackToTop from "../components/BackToTop.astro";
-import BaseHead from "../components/BaseHead.astro";
-import Masthead from "../components/Masthead.astro";
-import Navbar from "../components/Navbar.astro";
-import Search from "../components/Search.astro";
-import { pageTurn } from "../utils/transitions";
+import BackToTop from "#src/components/BackToTop.astro";
+import BaseHead from "#src/components/BaseHead.astro";
+import Masthead from "#src/components/Masthead.astro";
+import Navbar from "#src/components/Navbar.astro";
+import Search from "#src/components/Search.astro";
 
 interface Props {
     title?: string | undefined;
@@ -49,7 +48,8 @@ const { title, description, article, publishedTime, modifiedTime, card, section 
             <div id="main-grid" class="shell">
                 <slot name="sidebar" />
 
-                <main id="content" class="onload" tabindex="-1" transition:animate={pageTurn}>
+                <!-- Use the viewport fade; a separate article snapshot morphs its full size. -->
+                <main id="content" class="onload" tabindex="-1">
                     <slot />
                 </main>
             </div>
@@ -59,7 +59,7 @@ const { title, description, article, publishedTime, modifiedTime, card, section 
         <Search />
 
         <script>
-            import "../scripts/ui";
+            import "#src/scripts/ui.ts";
         </script>
     </body>
 </html>

@@ -1,13 +1,13 @@
-import type { JsonObject, JsonValue } from "../../utils/json.ts";
-import { str, num, arr, obj, tone } from "../kit.ts";
+import type { JsonObject, JsonValue } from "#src/utils/json.ts";
+import { str, num, arr, obj, tone } from "#src/figures/kit.ts";
 import type {
     Options,
     Series,
     BarModel,
     AreaModel,
     PieModel,
-} from "./types.ts";
-import { segments, dataDomain } from "./geometry.ts";
+} from "#src/figures/charts/types.ts";
+import { segments, dataDomain } from "#src/figures/charts/geometry.ts";
 
 const commonKeys = ["title", "unit", "showLegend", "showValues"];
 

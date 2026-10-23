@@ -1,6 +1,10 @@
 {
     "name": "blog",
     "type": "module",
+    "imports": {
+        "#src/*": "./src/*",
+        "#root/*": "./*"
+    },
     "version": "0.0.1",
     "engines": {
         "node": ">=22.23.4"

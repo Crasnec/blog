@@ -1,7 +1,7 @@
 import textmate from "vscode-textmate";
 import type { LanguageRegistration } from "shiki/core";
-import { MAX_GRAMMAR, type GrammarSource } from "./contracts.ts";
-import { isJsonObject, parseJson, type JsonObject, type JsonValue } from "../utils/json.ts";
+import { MAX_GRAMMAR, type GrammarSource } from "#src/playground/contracts.ts";
+import { isJsonObject, parseJson, type JsonObject, type JsonValue } from "#src/utils/json.ts";
 
 type GrammarRule = LanguageRegistration["patterns"][number];
 const ruleStrings = ["include", "name", "contentName", "match", "begin", "end", "while"] as const;

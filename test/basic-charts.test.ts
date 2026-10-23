@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { decodeArea, decodeBar, decodePie } from "../src/figures/charts/model.ts";
-import bar from "../src/figures/kinds/bar.ts";
-import pie from "../src/figures/kinds/pie.ts";
-import area from "../src/figures/kinds/area.ts";
-import { prepareFigure } from "../src/figures/element.ts";
+import { decodeArea, decodeBar, decodePie } from "#src/figures/charts/model.ts";
+import bar from "#src/figures/kinds/bar.ts";
+import pie from "#src/figures/kinds/pie.ts";
+import area from "#src/figures/kinds/area.ts";
+import { prepareFigure } from "#src/figures/element.ts";
 
 const series = [
     { label: "A", values: [30, -4, 0] },

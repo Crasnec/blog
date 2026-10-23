@@ -20,30 +20,6 @@ html[data-navigated] .masthead-mark::before {
     transform: scaleX(1);
 }
 
-/* — page transitions —————————————————————————— */
-
-@keyframes page-leave {
-    from {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateY(0.6rem);
-    }
-}
-
-@keyframes page-enter {
-    from {
-        opacity: 0;
-        transform: translateY(1rem);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 /* — navbar behaviour ——————————————————————————— */
 
 #navbar-wrapper {

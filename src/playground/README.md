@@ -5,7 +5,7 @@ initial source on the server; CodeMirror and syntax highlighting load only on
 pages containing a playground. Execution starts only when the reader runs it.
 
 ```mdx
-import CodePlayground from "../../../components/CodePlayground.astro";
+import CodePlayground from "#src/components/CodePlayground.astro";
 
 <CodePlayground language="python" title="Mean" code={`from statistics import mean
 print(mean([2, 4, 6]))`} />
@@ -260,8 +260,8 @@ have separate environments. The fixture guide is
 `/posts/build/python-notebook/`.
 
 ```mdx
-import PythonNotebook from '../../../components/PythonNotebook.astro';
-import CodePlayground from '../../../components/CodePlayground.astro';
+import PythonNotebook from '#src/components/PythonNotebook.astro';
+import CodePlayground from '#src/components/CodePlayground.astro';
 
 <PythonNotebook id="lesson" />
 <CodePlayground notebook="lesson" language="python" title="Data"
@@ -290,8 +290,8 @@ Execution counts reflect actual execution order, rather than document order.
 Reset code only restores a cell's original source and clears its output; it
 preserves shared variables. Source reset is disabled while a notebook is running.
 
-Default component children can supply a book/reference output. It is labelled
-as unexecuted, available without JavaScript, and replaced when that cell runs.
+Cell output starts empty and is populated only by running code. Default
+component children are not rendered as saved or reference results.
 Reference Figure components outside cells remain independent of computed cell
 plots; explain that distinction in the surrounding prose.
 

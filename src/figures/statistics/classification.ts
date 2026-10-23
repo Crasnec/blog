@@ -1,7 +1,7 @@
 /** Threshold curves use whole tied-score groups; calibration uses probabilities. */
-import { arr, defineFigure, dot, mean, obj, progress, withAlpha, type Point } from "../kit.ts";
-import { binaryCurves, calibrationBins } from "./math.ts";
-import { axes, bounded, clipped, common, curve, fmt, header, reference, TIMES } from "./shared.ts";
+import { arr, defineFigure, dot, mean, obj, progress, withAlpha, type Point } from "#src/figures/kit.ts";
+import { binaryCurves, calibrationBins } from "#src/figures/statistics/math.ts";
+import { axes, bounded, clipped, common, curve, fmt, header, reference, TIMES } from "#src/figures/statistics/shared.ts";
 
 function classification(style: "roc" | "precision-recall" | "calibration") {
     return defineFigure({

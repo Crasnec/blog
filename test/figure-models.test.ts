@@ -6,13 +6,13 @@ import {
     traceTree,
     planHashing,
     runMachine,
-} from "../src/figures/models/index.ts";
-import line from "../src/figures/kinds/line.ts";
-import distribution from "../src/figures/kinds/distribution.ts";
-import sort from "../src/figures/kinds/sort.ts";
-import heatmap from "../src/figures/kinds/heatmap.ts";
-import hashRing from "../src/figures/kinds/hash-ring.ts";
-import { numberSamples, lognormalSamples } from "../src/figures/generators.ts";
+} from "#src/figures/models/index.ts";
+import line from "#src/figures/kinds/line.ts";
+import distribution from "#src/figures/kinds/distribution.ts";
+import sort from "#src/figures/kinds/sort.ts";
+import heatmap from "#src/figures/kinds/heatmap.ts";
+import hashRing from "#src/figures/kinds/hash-ring.ts";
+import { numberSamples, lognormalSamples } from "#src/figures/generators.ts";
 
 void test("all sorting models order signed values and ties without mutating the workload", () => {
     for (const algorithm of ["bubble", "insertion", "quick", "merge"] as const) {

@@ -1,5 +1,5 @@
-import type { Frame } from "./definition.ts";
-import { lerp, clamp } from "./time.ts";
+import type { Frame } from "#src/figures/core/definition.ts";
+import { lerp, clamp } from "#src/figures/core/time.ts";
 
 export interface Rect {
     x: number;

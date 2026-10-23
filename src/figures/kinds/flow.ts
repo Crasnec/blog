@@ -44,7 +44,7 @@ import {
     toneColor,
     type Point,
     type Tone,
-} from "../kit.ts";
+} from "#src/figures/kit.ts";
 
 interface Node {
     id: string;

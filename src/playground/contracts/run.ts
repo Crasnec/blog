@@ -4,9 +4,9 @@ import type {
     CellRequest,
     RunRequest,
     RunResponse,
-} from "./types.ts";
-import { isRecord, isId, decodePackages } from "./readers.ts";
-import { MAX_INPUT, MAX_CODE, MAX_OUTPUT, MAX_PNG } from "./limits.ts";
+} from "#src/playground/contracts/types.ts";
+import { isRecord, isId, decodePackages } from "#src/playground/contracts/readers.ts";
+import { MAX_INPUT, MAX_CODE, MAX_OUTPUT, MAX_PNG } from "#src/playground/contracts/limits.ts";
 
 export function decodeInputResponse(value: MessageValue): InputResponse | undefined {
     if (

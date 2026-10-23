@@ -1,6 +1,6 @@
-import { arr, defineFigure, line, obj, progress, str, withAlpha, type Point } from "../kit.ts";
-import { kaplanMeier } from "./math.ts";
-import { axes, bool, bounded, clipped, common, curve, header, legend, TIMES } from "./shared.ts";
+import { arr, defineFigure, line, obj, progress, str, withAlpha, type Point } from "#src/figures/kit.ts";
+import { kaplanMeier } from "#src/figures/statistics/math.ts";
+import { axes, bool, bounded, clipped, common, curve, header, legend, TIMES } from "#src/figures/statistics/shared.ts";
 
 export const kaplanMeierFigure = defineFigure({
     duration: TIMES.duration,

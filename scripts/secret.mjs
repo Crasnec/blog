@@ -41,7 +41,7 @@ import {
     rehypePlugins,
     remarkPlugins,
     themeName,
-} from "../src/markdown.config.mjs";
+} from "#src/markdown.config.mjs";
 import {
     generateKeys,
     openWith,
@@ -50,9 +50,9 @@ import {
     parseSecretPayload,
     rewrap,
     sealTo,
-} from "../src/utils/secret.ts";
-import { parseJson } from "../src/utils/json.ts";
-import { parsePostOrder, parseSeriesMetadata } from "../src/posts/post-order.ts";
+} from "#src/utils/secret.ts";
+import { parseJson } from "#src/utils/json.ts";
+import { parsePostOrder, parseSeriesMetadata } from "#src/posts/post-order.ts";
 
 const ROOT = new URL("..", import.meta.url);
 const PLAIN_DIR = "secrets";
@@ -68,12 +68,12 @@ const KEY_DIR = "keys";
 const PUBLIC_KEY = `${KEY_DIR}/public.json`;
 const PRIVATE_KEY = `${KEY_DIR}/private.json`;
 
-/** @typedef {import("../src/utils/json.ts").JsonValue | Date} FrontmatterValue */
+/** @typedef {import("#src/utils/json.ts").JsonValue | Date} FrontmatterValue */
 
 /**
  * @template T
  * @param {string} which
- * @param {(value: import("../src/utils/json.ts").JsonValue) => T | null} decode
+ * @param {(value: import("#src/utils/json.ts").JsonValue) => T | null} decode
  * @returns {Promise<T>}
  */
 async function readKey(which, decode) {

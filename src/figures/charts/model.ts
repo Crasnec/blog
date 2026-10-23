@@ -8,6 +8,6 @@ export {
     type AreaModel,
     type Slice,
     type PieModel,
-} from "./types.ts";
-export { segments, numericDomain } from "./geometry.ts";
-export { decodeBar, decodeArea, decodePie } from "./decode.ts";
+} from "#src/figures/charts/types.ts";
+export { segments, numericDomain } from "#src/figures/charts/geometry.ts";
+export { decodeBar, decodeArea, decodePie } from "#src/figures/charts/decode.ts";

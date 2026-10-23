@@ -44,7 +44,6 @@ export const en = {
     "notebook.download": "Save edited notebook",
     "notebook.stale":
         "An earlier cell changed or Python restarted. Run this cell again to check its result.",
-    "notebook.reference": "Book example · This output has not been executed.",
     "notebook.resetNotice": "Python restarted. Variables were cleared; edited code was kept.",
     "notebook.busy": "Another cell is running.",
     "notebook.stopping": "Execution stopped and Python restarted.",

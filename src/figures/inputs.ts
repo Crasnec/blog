@@ -3,9 +3,9 @@
  */
 // Closed aliases retain JSON assignability without open index signatures.
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
-import type { Tone } from "./kit.ts";
-import type { QueueInput } from "./kinds/queue.ts";
-import type { SceneInput } from "./scene/model.ts";
+import type { Tone } from "#src/figures/kit.ts";
+import type { QueueInput } from "#src/figures/kinds/queue.ts";
+import type { SceneInput } from "#src/figures/scene/model.ts";
 
 export type SampleGroup = { label: string; values: number[] };
 export type ChartSeries = { label: string; values: number[]; tone?: Tone };

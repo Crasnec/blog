@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import type { DefinedFigure } from "../src/figures/kit.ts";
-import { statisticsExamples } from "../src/fixtures/posts/build/_figures/statistics-data.ts";
+import type { DefinedFigure } from "#src/figures/kit.ts";
+import { statisticsExamples } from "#src/fixtures/posts/build/_figures/statistics-data.ts";
 import {
     autocorrelation,
     binaryCurves,
@@ -19,14 +19,14 @@ import {
     partialAutocorrelation,
     quantile,
     variance,
-} from "../src/figures/statistics/math.ts";
-import { boxplot, kde, qq } from "../src/figures/statistics/distributions.ts";
-import { acf } from "../src/figures/statistics/series.ts";
-import { influence } from "../src/figures/statistics/diagnostics.ts";
-import { calibration, roc } from "../src/figures/statistics/classification.ts";
-import { interval, funnel } from "../src/figures/statistics/estimates.ts";
-import { mosaic } from "../src/figures/statistics/categorical.ts";
-import { kaplanMeierFigure } from "../src/figures/statistics/survival.ts";
+} from "#src/figures/statistics/math.ts";
+import { boxplot, kde, qq } from "#src/figures/statistics/distributions.ts";
+import { acf } from "#src/figures/statistics/series.ts";
+import { influence } from "#src/figures/statistics/diagnostics.ts";
+import { calibration, roc } from "#src/figures/statistics/classification.ts";
+import { interval, funnel } from "#src/figures/statistics/estimates.ts";
+import { mosaic } from "#src/figures/statistics/categorical.ts";
+import { kaplanMeierFigure } from "#src/figures/statistics/survival.ts";
 
 const close = (actual: number, expected: number, tolerance = 1e-10) => {
     assert.ok(Math.abs(actual - expected) <= tolerance, `${String(actual)} != ${String(expected)}`);

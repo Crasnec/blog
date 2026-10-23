@@ -20,10 +20,10 @@ import { createRequire } from "node:module";
 import satori from "satori";
 import type { SatoriOptions } from "satori";
 import sharp from "sharp";
-import { siteConfig } from "../config";
-import { light } from "./palette";
-import type { PostRef } from "./content";
-import { sitePath } from "./url";
+import { siteConfig } from "#src/config.ts";
+import { light } from "#src/utils/palette.ts";
+import type { PostRef } from "#src/utils/content.ts";
+import { sitePath } from "#src/utils/url.ts";
 
 export const CARD = { width: 1200, height: 630 } as const;
 

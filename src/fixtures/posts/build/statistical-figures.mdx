@@ -5,7 +5,7 @@ description: Choose and interpret thirty statistical graphs, from distributions 
 tags: [figures, statistics, visualization]
 ---
 
-import StatisticsExamples from "./_figures/StatisticsExamples.tsx";
+import StatisticsExamples from "#src/fixtures/posts/build/_figures/StatisticsExamples.tsx";
 
 A mean cannot show whether a sample has two peaks. A regression line cannot show whether one observation controls the fit. A good ranking score cannot tell you whether a predicted probability of 0.8 is credible. Each question needs a different view of the observations.
 
@@ -167,7 +167,7 @@ Within each score bin, compare the mean predicted probability with the observed 
 A post-specific TSX component supplies observations and captions to typed plotting components, then MDX imports that composition. The drawings compute their geometry from those inputs; the animation does not change the estimates.
 
 ```tsx
-import { Boxplot, ECDF } from "../../../../components/figures";
+import { Boxplot, ECDF } from "#src/components/figures/index.tsx";
 
 const groups = [
   { label: "Before", values: [3, 4, 4, 6, 12] },

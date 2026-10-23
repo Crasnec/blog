@@ -1,21 +1,21 @@
 import { type CollectionEntry, getCollection, render } from "astro:content";
-import { POSTS_DIRECTORY } from "../post-source";
+import { POSTS_DIRECTORY } from "#src/post-source.ts";
 import {
     categoryContains,
     categoryFromFile,
     countCategories,
     type Category,
     type CategoryCount,
-} from "./category";
-import { sitePath } from "../utils/url";
-import { HTML_LANG } from "../strings";
+} from "#src/posts/category.ts";
+import { sitePath } from "#src/utils/url.ts";
+import { HTML_LANG } from "#src/strings.ts";
 import {
     comparePostOrder,
     groupSeries,
     postNeighbours,
     seriesNeighbours,
     type PostSeries,
-} from "./series";
+} from "#src/posts/series.ts";
 
 export type Post = CollectionEntry<"posts">;
 

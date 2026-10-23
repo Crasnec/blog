@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { renderCommentBody } from "../src/utils/comment-markdown.ts";
+import { renderCommentBody } from "#src/utils/comment-markdown.ts";
 
 void test("comment Markdown keeps a deliberately small, safe HTML subset", () => {
     const html = renderCommentBody(`

@@ -1,2 +1,2 @@
 /** Compatibility entry; post-domain rules live in posts/. */
-export * from "../posts/post-order.ts";
+export * from "#src/posts/post-order.ts";

@@ -1,5 +1,5 @@
-import { defineFigure, dot, line, obj, progress, withAlpha } from "../kit.ts";
-import { autocorrelation, partialAutocorrelation } from "./math.ts";
+import { defineFigure, dot, line, obj, progress, withAlpha } from "#src/figures/kit.ts";
+import { autocorrelation, partialAutocorrelation } from "#src/figures/statistics/math.ts";
 import {
     axes,
     bounded,
@@ -12,7 +12,7 @@ import {
     reference,
     sample,
     TIMES,
-} from "./shared.ts";
+} from "#src/figures/statistics/shared.ts";
 
 function correlogram(partial: boolean) {
     return defineFigure({

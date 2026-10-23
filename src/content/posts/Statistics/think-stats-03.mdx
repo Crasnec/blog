@@ -10,20 +10,20 @@ series:
   order: 3
 ---
 
-import CodePlayground from '../../../components/CodePlayground.astro';
-import PythonNotebook from '../../../components/PythonNotebook.astro';
-import notebook from './_notebooks/chap03.json';
-import Figure from '../../../components/Figure.astro';
-import plots from './_figures/plots.json';
-import pmfCode from '../../../../public/labs/think-stats/chap03-pmf.py?raw';
-import normalizeCode from '../../../../public/labs/think-stats/chap03-normalize.py?raw';
-import chapterCode from '../../../../public/labs/think-stats/chap03-browser.py?raw';
+import CodePlayground from '#src/components/CodePlayground.astro';
+import PythonNotebook from '#src/components/PythonNotebook.astro';
+import notebook from '#src/content/posts/Statistics/_notebooks/chap03.json';
+import Figure from '#src/components/Figure.astro';
+import plots from '#src/content/posts/Statistics/_figures/plots.json';
+import pmfCode from '#root/public/labs/think-stats/chap03-pmf.py?raw';
+import normalizeCode from '#root/public/labs/think-stats/chap03-normalize.py?raw';
+import chapterCode from '#root/public/labs/think-stats/chap03-browser.py?raw';
 
 Allen B. Downey의 《Think Stats》 3판, 3장 「Probability Mass Functions」의 한국어 번역입니다. [원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/nb/chap03.ipynb)을 바탕으로 옮겼습니다.
 
 <a href="/labs/think-stats/chap03-ko.ipynb" download="think-stats-03-ko.ipynb">한국어 노트북 내려받기</a> · [원문 웹판](https://allendowney.github.io/ThinkStats/chap03.html)
 
-준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 셀을 실행하면 참고용 출력이 실제 결과로 바뀝니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
+준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 실행 결과는 셀을 실행한 뒤 표시됩니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
 
 
 앞 장에서는 값들과 그 도수, 즉 각 값이 나타나는 횟수를 담은 `FreqTab` 객체로 분포를 표현했습니다. 이 장에서는 분포를 설명하는 또 다른 방법인 확률질량함수(PMF)를 소개하겠습니다.
@@ -39,158 +39,62 @@ PMF를 표현할 때는 값들과 그 확률을 담은 `Pmf` 객체를 사용합
 
 <CodePlayground notebook="think-stats-03" title="준비: 라이브러리와 자료" code={notebook.cells[0].code} language="python" timeout={60000} pythonPackages={["numpy", "pandas", "scipy", "matplotlib", "empiricaldist", "statadict", "statsmodels", "ipython"]} />
 
-<CodePlayground notebook="think-stats-03" title="셀 1" code={notebook.cells[1].code} language="python" timeout={60000}>
-
-| 값 | freqs |
-| --- | --- |
-| 1 | 1 |
-| 2 | 2 |
-| 3 | 1 |
-| 5 | 1 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 1" code={notebook.cells[1].code} language="python" timeout={60000} />
 도수의 합은 원래 시퀀스의 길이와 같습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 2" code={notebook.cells[2].code} language="python" timeout={60000}>
-
-```text
-np.int64(5)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 2" code={notebook.cells[2].code} language="python" timeout={60000} />
 
 각 도수를 전체 개수 `n`으로 나누면 상대도수가 됩니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 3" code={notebook.cells[3].code} language="python" timeout={60000}>
-
-| 값 | probs |
-| --- | --- |
-| 1 | 0.2 |
-| 2 | 0.4 |
-| 3 | 0.2 |
-| 5 | 0.2 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 3" code={notebook.cells[3].code} language="python" timeout={60000} />
 이 결과는 시퀀스에서 1이 20%, 2가 40%를 차지한다는 뜻입니다.
 
 이 비율을 확률로 생각할 수도 있습니다. 원래 시퀀스에서 값 하나를 무작위로 고를 때, 1을 고를 확률은 0.2이고 2를 고를 확률은 0.4입니다.
 
 모든 도수를 `n`으로 나누었으므로 확률의 합은 1입니다. 이처럼 가중치의 합을 1로 맞추는 과정을 **정규화**(normalization)라고 합니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 4" code={notebook.cells[4].code} language="python" timeout={60000}>
-
-```text
-np.float64(1.0)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 4" code={notebook.cells[4].code} language="python" timeout={60000} />
 
 정규화한 `FreqTab` 객체는 **확률질량함수**(probability mass function, PMF)를 나타냅니다. 이산적인 값에 대응하는 확률을 “확률질량”이라고도 부르기 때문에 붙은 이름입니다.
 
 `empiricaldist` 라이브러리는 확률질량함수를 나타내는 `Pmf` 객체를 제공합니다. 따라서 `FreqTab`을 만든 뒤 정규화하는 대신, 바로 `Pmf`를 만들 수 있습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 5" code={notebook.cells[5].code} language="python" timeout={60000}>
-
-| 값 | probs |
-| --- | --- |
-| 1 | 0.2 |
-| 2 | 0.4 |
-| 3 | 0.2 |
-| 5 | 0.2 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 5" code={notebook.cells[5].code} language="python" timeout={60000} />
 `Pmf`는 전체 확률의 합이 1이 되도록 정규화되어 있습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 6" code={notebook.cells[6].code} language="python" timeout={60000}>
-
-```text
-np.float64(1.0)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 6" code={notebook.cells[6].code} language="python" timeout={60000} />
 
 `Pmf`와 `FreqTab`은 여러 면에서 비슷합니다. 어떤 값의 확률을 조회할 때는 대괄호 연산자를 쓸 수 있습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 7" code={notebook.cells[7].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.4)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 7" code={notebook.cells[7].code} language="python" timeout={60000} />
 
 괄호로 `Pmf`를 함수처럼 호출해도 됩니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 8" code={notebook.cells[8].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.4)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 8" code={notebook.cells[8].code} language="python" timeout={60000} />
 
 어떤 값에 확률을 지정할 때는 대괄호 연산자를 써야 합니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.2)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000} />
 
 기존 `Pmf`에서 어떤 값에 대응하는 확률을 늘릴 수 있습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.5)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000} />
 
 확률에 어떤 수를 곱할 수도 있습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.25)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000} />
 
 `Pmf`의 값을 수정하면 다시 정규화해야 할 수 있습니다. 확률의 합이 더 이상 1이 아닐 수 있다는 뜻입니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 12" code={notebook.cells[12].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.8500000000000001)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 12" code={notebook.cells[12].code} language="python" timeout={60000} />
 
 `normalize` 메서드는 모든 확률을 그 합으로 나누어 다시 정규화합니다. 반환값은 정규화하기 전의 합입니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000}>
-
-```text
-np.float64(0.8500000000000001)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000} />
 
 `Pmf`의 `copy` 메서드로 복사본을 만들 수 있습니다. 복사본을 수정해도 원본에는 영향을 주지 않습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000}>
-
-| 값 | probs |
-| --- | --- |
-| 1 | 0.235294 |
-| 2 | 0.294118 |
-| 3 | 0.235294 |
-| 5 | 0.235294 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000} />
 `FreqTab`처럼 `Pmf`에도 값에 접근하는 `qs` 속성이 있습니다. 확률에는 `ps` 속성으로 접근합니다.
 
 막대그래프를 그리는 `bar` 메서드와 선 그래프를 그리는 `plot` 메서드도 있습니다.
@@ -205,13 +109,7 @@ np.float64(0.8500000000000001)
 
 [1장의 요약 통계량](/posts/statistics/think-stats-01#요약-통계량)에서는 표본의 값들을 모두 더한 뒤 개수로 나누어 평균을 구했습니다. 간단한 예를 보겠습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000}>
-
-```text
-np.float64(2.6)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000} />
 
 이 시퀀스에 들어 있는 값들의 PMF를 구해 보겠습니다.
 
@@ -219,23 +117,11 @@ np.float64(2.6)
 
 `Pmf`만 있어도 평균을 구할 수 있지만, 계산 과정은 다릅니다. 각 값에 그 확률을 곱한 뒤 모두 더해야 합니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 17" code={notebook.cells[17].code} language="python" timeout={60000}>
-
-```text
-np.float64(2.6)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 17" code={notebook.cells[17].code} language="python" timeout={60000} />
 
 여기서는 `n`으로 나눌 필요가 없습니다. `Pmf`를 정규화할 때 이미 나누었기 때문입니다. `mean` 메서드도 같은 일을 합니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 18" code={notebook.cells[18].code} language="python" timeout={60000}>
-
-```text
-np.float64(2.6)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 18" code={notebook.cells[18].code} language="python" timeout={60000} />
 
 분산을 구하려면 먼저 `Pmf`의 각 값에서 평균을 빼서 편차를 계산합니다.
 
@@ -243,53 +129,23 @@ np.float64(2.6)
 
 그런 다음 편차의 제곱에 확률을 곱하고 모두 더합니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 20" code={notebook.cells[20].code} language="python" timeout={60000}>
-
-```text
-np.float64(1.84)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 20" code={notebook.cells[20].code} language="python" timeout={60000} />
 
 `var` 메서드도 같은 일을 합니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000}>
-
-```text
-np.float64(1.84)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000} />
 
 분산에서 표준편차를 구하는 방법은 앞에서와 같습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 22" code={notebook.cells[22].code} language="python" timeout={60000}>
-
-```text
-np.float64(1.3564659966250536)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 22" code={notebook.cells[22].code} language="python" timeout={60000} />
 
 `std` 메서드를 사용해도 됩니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 23" code={notebook.cells[23].code} language="python" timeout={60000}>
-
-```text
-np.float64(1.3564659966250536)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 23" code={notebook.cells[23].code} language="python" timeout={60000} />
 
 `Pmf`에는 확률이 가장 큰 값을 찾는 `mode` 메서드도 있습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 24" code={notebook.cells[24].code} language="python" timeout={60000}>
-
-```text
-np.int64(2)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 24" code={notebook.cells[24].code} language="python" timeout={60000} />
 
 다른 메서드들은 앞으로 살펴보겠습니다. 시작하는 데는 이 정도면 충분합니다.
 
@@ -310,52 +166,20 @@ np.int64(2)
 
 첫 번째는 교수 한 명이 맡는 수업 수와 학생 한 명이 듣는 수업 수가 다르다는 설명입니다. 두 번째 이유는 예를 들어 살펴보겠습니다. 예를 들어 어느 대학이 한 학기에 65개 수업을 개설했고, 규모 구간별 수업 수가 다음과 같다고 하겠습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000}>
-
-| class size | count |
-| --- | --- |
-| [5, 10) | 8 |
-| [10, 15) | 8 |
-| [15, 20) | 14 |
-| [20, 25) | 4 |
-| [25, 30) | 6 |
-| [30, 35) | 12 |
-| [35, 40) | 8 |
-| [40, 45) | 3 |
-| [45, 50) | 2 |
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 25" code={notebook.cells[25].code} language="python" timeout={60000} />
 pandas의 `interval_range` 함수는 각 레이블이 값의 구간을 나타내는 `Index`를 만듭니다. `[5, 10)`이라는 표기는 `5`를 포함하고 `10`은 포함하지 않는다는 뜻입니다. 각 구간 안의 정확한 수강생 수는 모르므로 구간을 대표하는 값을 정하겠습니다.
 
 > 번역자 주: 원문 코드는 정수 수업 규모를 대표하도록 구간의 왼쪽 끝에 2를 더해 7, 12, …, 47을 사용합니다. 아래 평균과 그림도 이 값을 기준으로 합니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 26" code={notebook.cells[26].code} language="python" timeout={60000}>
-
-```text
-Index([7, 12, 17, 22, 27, 32, 37, 42, 47], dtype='int64')
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 26" code={notebook.cells[26].code} language="python" timeout={60000} />
 
 이제 수업 규모의 분포를 나타내는 `Pmf`를 만들겠습니다. 값과 도수를 알고 있으므로 개수, 규모, 이름을 인수로 넘겨 `Pmf`를 바로 만들 수 있습니다. 새 `Pmf`를 정규화하면 원래 개수의 합이 반환됩니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 27" code={notebook.cells[27].code} language="python" timeout={60000}>
-
-```text
-np.int64(65)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 27" code={notebook.cells[27].code} language="python" timeout={60000} />
 
 대학에 평균 수업 규모를 물으면 이 분포의 평균인 23.7명이라고 답할 것입니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 28" code={notebook.cells[28].code} language="python" timeout={60000}>
-
-```text
-np.float64(23.692307692307693)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 28" code={notebook.cells[28].code} language="python" timeout={60000} />
 
 하지만 학생들을 조사해 듣는 수업에 학생이 몇 명인지 묻고 평균을 내면, 더 큰 값이 나옵니다. 얼마나 커지는지 보겠습니다.
 
@@ -377,13 +201,7 @@ np.float64(23.692307692307693)
 
 학생이 관측하는 분포에는 작은 수업이 적고 큰 수업이 많습니다. 편향된 평균은 29.1명으로, 실제 평균보다 거의 25% 큽니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000}>
-
-```text
-np.float64(29.123376623376622)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 32" code={notebook.cells[32].code} language="python" timeout={60000} />
 
 이 연산을 거꾸로 할 수도 있습니다. 어떤 대학의 수업 규모 분포를 알고 싶지만 믿을 만한 자료를 구할 수 없다고 하겠습니다. 학생을 무작위로 뽑아 수강 중인 수업의 학생 수를 묻는 방법이 있습니다.
 
@@ -393,13 +211,7 @@ np.float64(29.123376623376622)
 
 결과는 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 34" code={notebook.cells[34].code} language="python" timeout={60000}>
-
-```text
-np.float64(23.692307692307693)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 34" code={notebook.cells[34].code} language="python" timeout={60000} />
 
 편향을 보정한 `Pmf`의 평균은 처음에 사용한 실제 분포의 평균과 같습니다.
 
@@ -425,20 +237,7 @@ np.float64(23.692307692307693)
 
 첫아이와 다른 아이의 PMF를 막대그래프로 그리면 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 37" code={notebook.cells[37].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap03-086-0.png"
-        alt="첫아이와 다른 아이의 임신 기간 PMF. 확률로 정규화하여 표본 수가 다른 집단을 비교합니다."
-        width={1770}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 37" code={notebook.cells[37].code} language="python" timeout={60000} />
 
 PMF로 바꾸면 표본 크기가 다른 두 집단을 비율로 비교할 수 있습니다. 이 그림에서는 첫아이가 다른 아이들보다 39주에 태어날 가능성은 작고, 41주나 42주에 늦게 태어날 가능성은 커 보입니다.
 
@@ -450,54 +249,17 @@ NSFG 자료에서 두 분포의 가장 큰 차이는 최빈값 근처에 있습�
 
 `Pmf`를 함수처럼 호출할 때는 값의 시퀀스를 넘겨 확률의 시퀀스를 얻을 수 있습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 38" code={notebook.cells[38].code} language="python" timeout={60000}>
+<CodePlayground notebook="think-stats-03" title="셀 38" code={notebook.cells[38].code} language="python" timeout={60000} />
 
-```text
-array([0.03602991, 0.03897575, 0.04713347, 0.06163608, 0.4790392 ,
-       0.12145932, 0.08157716, 0.04645366, 0.01971448, 0.00521187,
-       0.00135962])
-```
-
-</CodePlayground>
-
-<CodePlayground notebook="think-stats-03" title="셀 39" code={notebook.cells[39].code} language="python" timeout={60000}>
-
-```text
-array([0.03210137, 0.03146779, 0.05216473, 0.07074974, 0.54466737,
-       0.12249208, 0.04794087, 0.02597677, 0.01288279, 0.00485744,
-       0.00084477])
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 39" code={notebook.cells[39].code} language="python" timeout={60000} />
 
 따라서 다음과 같이 확률 차이를 구할 수 있습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 40" code={notebook.cells[40].code} language="python" timeout={60000}>
-
-```text
-array([ 0.00392854,  0.00750796, -0.00503126, -0.00911366, -0.06562817,
-       -0.00103276,  0.03363629,  0.02047689,  0.00683169,  0.00035443,
-        0.00051485])
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 40" code={notebook.cells[40].code} language="python" timeout={60000} />
 
 차이에 100을 곱해 퍼센트포인트 단위로 나타내면 다음과 같습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap03-094-0.png"
-        alt="첫아이 확률에서 다른 아이 확률을 뺀 차이. 39주는 음수, 41주와 42주는 양수입니다."
-        width={1769}
-        height={1020}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 41" code={notebook.cells[41].code} language="python" timeout={60000} />
 
 이 그림에서는 패턴이 더 분명합니다. 첫아이는 39주에 태어날 가능성이 작고, 41주와 42주에 태어날 가능성은 조금 더 큽니다.
 
@@ -518,13 +280,7 @@ array([ 0.00392854,  0.00750796, -0.00503126, -0.00911366, -0.06562817,
 
 `nsfg.py` 모듈에는 응답자 파일을 읽고 `DataFrame`을 반환하는 함수가 있습니다.
 
-<CodePlayground notebook="think-stats-03" title="셀 42" code={notebook.cells[42].code} language="python" timeout={60000} runAll={false}>
-
-```text
-(7643, 3092)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 42" code={notebook.cells[42].code} language="python" timeout={60000} runAll={false} />
 
 이 `DataFrame`에는 행이 7,643개, 열이 3,092개 있습니다.
 
@@ -544,13 +300,7 @@ array([ 0.00392854,  0.00750796, -0.00503126, -0.00911366, -0.06562817,
 
 <CodePlayground notebook="think-stats-03" title="셀 44" code={notebook.cells[44].code} language="python" timeout={60000} runAll={false} />
 
-<CodePlayground notebook="think-stats-03" title="셀 45" code={notebook.cells[45].code} language="python" timeout={60000} runAll={false}>
-
-```text
-np.float64(1.7018914266755958)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-03" title="셀 45" code={notebook.cells[45].code} language="python" timeout={60000} runAll={false} />
 
 양수이면 오른쪽으로, 음수이면 왼쪽으로 치우친 분포입니다.
 
@@ -576,7 +326,7 @@ np.float64(1.7018914266755958)
 
 ## 번역과 실행에 관하여
 
-참고용 출력과 고정 그림은 [같은 판의 실행된 원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap03.ipynb)에서 가져왔습니다. 난수를 사용하는 그림은 실행할 때마다 달라집니다. 연습문제의 해답은 넣지 않았습니다. 원문 설명과 코드가 어긋나는 곳에는 번역자 주를 붙였습니다.
+고정 그림은 [같은 판의 실행된 원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/soln/chap03.ipynb)에서 가져왔습니다. 난수를 사용하는 그림은 실행할 때마다 달라집니다. 연습문제의 해답은 넣지 않았습니다. 원문 설명과 코드가 어긋나는 곳에는 번역자 주를 붙였습니다.
 
 [Think Stats: Exploratory Data Analysis in Python, 3rd Edition](https://allendowney.github.io/ThinkStats/index.html)
 

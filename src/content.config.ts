@@ -1,7 +1,7 @@
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
-import { POSTS_DIRECTORY } from "./post-source";
+import { POSTS_DIRECTORY } from "#src/post-source.ts";
 
 /**
  * A post's path below `src/content/posts/` becomes its URL below `/posts/`.

@@ -12,7 +12,7 @@ import {
     toneColor,
     withAlpha,
     type Frame,
-} from "../kit.ts";
+} from "#src/figures/kit.ts";
 import {
     characters,
     decodeScene,
@@ -21,8 +21,8 @@ import {
     SCENE_DURATION,
     type PlacedItem,
     type SceneModel,
-} from "../scene/model.ts";
-import { symbols, type SymbolName } from "../scene/symbols.ts";
+} from "#src/figures/scene/model.ts";
+import { symbols, type SymbolName } from "#src/figures/scene/symbols.ts";
 
 const paths = new Map<SymbolName, Path2D>();
 

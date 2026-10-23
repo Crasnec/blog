@@ -4,9 +4,9 @@ import type {
     GrammarSource,
     HighlightResponse,
     HighlightToken,
-} from "./types.ts";
-import { isRecord, isId, isArray } from "./readers.ts";
-import { MAX_CODE, MAX_GRAMMAR } from "./limits.ts";
+} from "#src/playground/contracts/types.ts";
+import { isRecord, isId, isArray } from "#src/playground/contracts/readers.ts";
+import { MAX_CODE, MAX_GRAMMAR } from "#src/playground/contracts/limits.ts";
 
 export function decodeHighlightRequest(value: MessageValue): HighlightRequest | undefined {
     if (

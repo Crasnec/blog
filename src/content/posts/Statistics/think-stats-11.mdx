@@ -10,20 +10,20 @@ series:
   order: 11
 ---
 
-import CodePlayground from '../../../components/CodePlayground.astro';
-import PythonNotebook from '../../../components/PythonNotebook.astro';
-import notebook from './_notebooks/chap11.json';
-import Figure from '../../../components/Figure.astro';
-import plots from './_figures/chapters-09-14.json';
-import codeBrowser from '../../../../public/labs/think-stats/chap11-browser.py?raw';
-import codeControl from '../../../../public/labs/think-stats/chap11-control.py?raw';
-import codeLogistic from '../../../../public/labs/think-stats/chap11-logistic.py?raw';
+import CodePlayground from '#src/components/CodePlayground.astro';
+import PythonNotebook from '#src/components/PythonNotebook.astro';
+import notebook from '#src/content/posts/Statistics/_notebooks/chap11.json';
+import Figure from '#src/components/Figure.astro';
+import plots from '#src/content/posts/Statistics/_figures/chapters-09-14.json';
+import codeBrowser from '#root/public/labs/think-stats/chap11-browser.py?raw';
+import codeControl from '#root/public/labs/think-stats/chap11-control.py?raw';
+import codeLogistic from '#root/public/labs/think-stats/chap11-logistic.py?raw';
 
 Allen B. Downey의 《Think Stats》 3판, 11장 「Multiple Regression」의 한국어 번역입니다. [원문 노트북](https://github.com/AllenDowney/ThinkStats/blob/30ecbdcf05723f1190cae2aeaff5848f59f8ca26/nb/chap11.ipynb)을 바탕으로 옮겼습니다.
 
 <a href="/labs/think-stats/chap11-ko.ipynb" download="think-stats-11-ko.ipynb">한국어 노트북 내려받기</a> · [원문 웹판](https://allendowney.github.io/ThinkStats/chap11.html)
 
-준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 셀을 실행하면 참고용 출력이 실제 결과로 바뀝니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
+준비 셀부터 차례로 실행하면 앞에서 만든 변수와 함수를 이어서 쓸 수 있습니다. 실행 결과는 셀을 실행한 뒤 표시됩니다. 고정 그림은 책의 자료를 보여 주며, ‘직접 실행’ 실습은 별도 환경에서 실행됩니다.
 
 앞 장의 선형 최소제곱은 **회귀**의 한 예입니다. 회귀는 예측할 변수인 **반응변수** 또는 종속변수와, 예측에 사용하는 **설명변수** 또는 독립변수 사이의 관계를 모형으로 나타내는 문제입니다.
 
@@ -45,31 +45,11 @@ Allen B. Downey의 《Think Stats》 3판, 11장 「Multiple Regression」의 �
 
 자료를 읽고 체중이 빠진 행을 제외한 뒤 열 이름을 바꿉니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 2" code={notebook.cells[2].code} language="python" timeout={60000}>
-
-```text
-Out[0]: (342, 17)
-```
-
-```text
-(342, 17)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 2" code={notebook.cells[2].code} language="python" timeout={60000} />
 
 세 종 가운데 아델리펭귄만 선택합니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 3" code={notebook.cells[3].code} language="python" timeout={60000}>
-
-```text
-Out[0]: 151
-```
-
-```text
-151
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 3" code={notebook.cells[3].code} language="python" timeout={60000} />
 
 앞 장에서는 날개 길이로 체중을 설명하는 최소제곱 직선을 구했습니다.
 
@@ -77,17 +57,7 @@ Out[0]: 151
 
 `linregress`를 쓴 코드를 다시 보겠습니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 5" code={notebook.cells[5].code} language="python" timeout={60000}>
-
-```text
-Out[0]: (np.float64(-2535.8368022002514), np.float64(32.83168975115009))
-```
-
-```text
-(np.float64(-2535.8368022002514), np.float64(32.83168975115009))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 5" code={notebook.cells[5].code} language="python" timeout={60000} />
 
 statsmodels의 두 인터페이스 중 Patsy 수식 언어를 사용하는 formula API를 쓰겠습니다. 다음 문자열은 반응변수 `mass`가 설명변수 `flipper_length`의 선형함수라는 뜻입니다.
 
@@ -95,141 +65,43 @@ statsmodels의 두 인터페이스 중 Patsy 수식 언어를 사용하는 formu
 
 수식과 자료를 `ols`에 전달합니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 7" code={notebook.cells[7].code} language="python" timeout={60000}>
-
-```text
-Out[0]: statsmodels.regression.linear_model.OLS
-```
-
-```text
-statsmodels.regression.linear_model.OLS
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 7" code={notebook.cells[7].code} language="python" timeout={60000} />
 
 `ols`는 ordinary least squares, 즉 **보통최소제곱**의 줄임말입니다. 반환된 `OLS` 객체는 반응변수가 설명변수의 선형함수라는 모형을 나타냅니다. `fit`으로 계수를 추정하면 결과를 담은 `RegressionResults` 객체가 나옵니다.
 
 <CodePlayground notebook="think-stats-11" title="셀 8" code={notebook.cells[8].code} language="python" timeout={60000} />
 
-<CodePlayground notebook="think-stats-11" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000}>
-
-```text
-Out[0]: statsmodels.regression.linear_model.RegressionResultsWrapper
-```
-
-```text
-statsmodels.regression.linear_model.RegressionResultsWrapper
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 9" code={notebook.cells[9].code} language="python" timeout={60000} />
 
 결과 객체의 정보가 많으므로, 원문에서는 `display_summary`로 지금 필요한 부분만 표시합니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000}>
-
-```text
-==================================================================================
-                     coef    std err          t      P>|t|      [0.025      0.975]
-----------------------------------------------------------------------------------
-Intercept      -2535.8368    964.798     -2.628      0.009   -4442.291    -629.382
-flipper_length    32.8317      5.076      6.468      0.000      22.801      42.862
-==================================================================================
-=================
-R-squared: 0.2192
------------------
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 10" code={notebook.cells[10].code} language="python" timeout={60000} />
 
 첫 번째 열은 모형의 **계수**인 절편과 기울기입니다. `linregress`와 같은 값인지 확인하겠습니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000}>
-
-```text
-Out[0]: (np.float64(-2535.8368022002514), np.float64(32.83168975115009))
-```
-
-```text
-(np.float64(-2535.8368022002514), np.float64(32.83168975115009))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 11" code={notebook.cells[11].code} language="python" timeout={60000} />
 
 다음 열은 계수들의 표준오차입니다. 이 값도 `linregress`의 결과와 같습니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 12" code={notebook.cells[12].code} language="python" timeout={60000}>
-
-```text
-Out[0]: (np.float64(964.7984274994062), np.float64(5.076138407990823))
-```
-
-```text
-(np.float64(964.7984274994062), np.float64(5.076138407990823))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 12" code={notebook.cells[12].code} language="python" timeout={60000} />
 
 다음에는 p값 계산에 쓰는 t통계량이 있고, `P>|t|` 열에 양측 p값이 있습니다. 표에 0으로 반올림된 날개 길이의 p값을 더 자세히 출력해 보겠습니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000}>
-
-```text
-Out[0]: np.float64(1.3432645947790707e-09)
-```
-
-```text
-np.float64(1.3432645947790707e-09)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 13" code={notebook.cells[13].code} language="python" timeout={60000} />
 
 `linregress`의 p값과도 비교합니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000}>
-
-```text
-Out[0]: np.float64(1.3432645947790285e-09)
-```
-
-```text
-np.float64(1.3432645947790285e-09)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 14" code={notebook.cells[14].code} language="python" timeout={60000} />
 
 p값은 매우 작습니다. 모형의 가정 아래 체중과 날개 길이의 선형 관계가 없다면, 관측한 t통계량의 절댓값 이상으로 극단적인 결과가 나오기 어렵다는 뜻입니다. 마지막 두 열은 계수의 95% 신뢰구간이며, 기울기의 구간은 약 [22.8, 42.9]g/mm입니다.
 
 마지막 줄의 $R^2$는 약 0.22입니다. 평균 체중만 사용할 때보다 훈련 자료의 MSE를 약 22% 줄입니다. 단순 최소제곱의 `rsquared`를 `linregress`의 상관계수 제곱과 비교하겠습니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000}>
-
-```text
-Out[0]: (np.float64(0.21921282646854867), np.float64(0.21921282646854867))
-```
-
-```text
-(np.float64(0.21921282646854867), np.float64(0.21921282646854867))
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 15" code={notebook.cells[15].code} language="python" timeout={60000} />
 
 부동소수점 근사 차이를 빼면 같습니다. 다중회귀에 들어가기 전에, 이번에는 부리 길이 `culmen_length`만 설명변수로 사용하겠습니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 16" code={notebook.cells[16].code} language="python" timeout={60000}>
-
-```text
-=================================================================================
-                    coef    std err          t      P>|t|      [0.025      0.975]
----------------------------------------------------------------------------------
-Intercept        34.8830    458.439      0.076      0.939    -870.998     940.764
-culmen_length    94.4998     11.790      8.015      0.000      71.202     117.798
-=================================================================================
-=================
-R-squared: 0.3013
------------------
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 16" code={notebook.cells[16].code} language="python" timeout={60000} />
 
 부리 길이의 기울기도 p값이 작습니다. 절편의 p값이 커도, 이 문제에서는 절편이 0인지가 관심사가 아니므로 곧바로 문제라는 뜻은 아닙니다. 여기서 절편은 부리 길이가 0mm인 경우를 가리키므로 실제 관측 범위의 관계를 설명하는 데 중요하지 않습니다. 이 모형의 $R^2$는 약 0.30으로 날개 길이 모형의 약 0.22보다 큽니다. 두 측정값을 함께 쓰면 어떻게 될까요?
 
@@ -241,72 +113,21 @@ R-squared: 0.3013
 
 이 모형을 자료에 맞춘 결과입니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 18" code={notebook.cells[18].code} language="python" timeout={60000}>
-
-```text
-==================================================================================
-                     coef    std err          t      P>|t|      [0.025      0.975]
-----------------------------------------------------------------------------------
-Intercept      -3573.0817    866.739     -4.122      0.000   -5285.864   -1860.299
-flipper_length    22.7024      4.742      4.787      0.000      13.331      32.074
-culmen_length     76.3402     11.644      6.556      0.000      53.331      99.350
-==================================================================================
-=================
-R-squared: 0.3949
------------------
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 18" code={notebook.cells[18].code} language="python" timeout={60000} />
 
 절편 하나와 기울기 둘이 나옵니다. 날개 길이 계수 약 22.7g/mm는 **부리 길이가 같을 때** 날개가 1mm 긴 펭귄의 예측 체중이 약 22.7g 높다는 뜻입니다. 부리 길이 계수 약 76.3g/mm도 **날개 길이가 같을 때**의 관계입니다.
 
 두 기울기의 p값은 작습니다. $R^2$는 약 0.39로, 부리 길이만 쓴 0.30이나 날개 길이만 쓴 0.22보다 큽니다. 하지만 0.22+0.30=0.52만큼 높아지지는 않습니다. 두 설명변수가 서로 상관되어 있기 때문입니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 19" code={notebook.cells[19].code} language="python" timeout={60000}>
-
-```text
-Out[0]: np.float64(0.32578471516515944)
-```
-
-```text
-np.float64(0.32578471516515944)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 19" code={notebook.cells[19].code} language="python" timeout={60000} />
 
 날개가 긴 펭귄은 부리도 긴 경향이 있습니다. 두 변수는 반응변수에 관한 정보를 일부 공유합니다. 변수를 추가할 때 $R^2$의 증가는 새 변수가 더해 준 정보만 반영합니다. 부리 깊이까지 추가해 보겠습니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 20" code={notebook.cells[20].code} language="python" timeout={60000}>
-
-```text
-==================================================================================
-                     coef    std err          t      P>|t|      [0.025      0.975]
-----------------------------------------------------------------------------------
-Intercept      -4341.3019    795.117     -5.460      0.000   -5912.639   -2769.964
-flipper_length    17.4215      4.385      3.973      0.000       8.756      26.087
-culmen_length     55.3676     11.133      4.973      0.000      33.366      77.369
-culmen_depth     140.8946     24.216      5.818      0.000      93.037     188.752
-==================================================================================
-=================
-R-squared: 0.5082
------------------
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 20" code={notebook.cells[20].code} language="python" timeout={60000} />
 
 계수는 네 개가 됩니다. 각 설명변수의 p값이 작고 $R^2$는 약 0.51로 증가합니다. 다만 부리 깊이도 나머지 측정값과 상관되어 있어 증가량은 단순히 더해지지 않습니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000}>
-
-```text
-Out[0]: [np.float64(0.30762017939668534), np.float64(0.39149169183587634)]
-```
-
-```text
-[np.float64(0.30762017939668534), np.float64(0.39149169183587634)]
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 21" code={notebook.cells[21].code} language="python" timeout={60000} />
 
 이처럼 여러 설명변수를 결합해 예측을 개선하는 것이 다중회귀의 한 용도입니다. 또 다른 용도는 다른 변수의 기여를 고려한 상태에서 관심 변수의 관계를 추정하는 것입니다.
 
@@ -338,21 +159,7 @@ Out[0]: [np.float64(0.30762017939668534), np.float64(0.39149169183587634)]
 
 산모 나이와 체중의 관계를 선형으로 가정하고 회귀하겠습니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 24" code={notebook.cells[24].code} language="python" timeout={60000}>
-
-```text
-==============================================================================
-                 coef    std err          t      P>|t|      [0.025      0.975]
-------------------------------------------------------------------------------
-Intercept      6.8304      0.068    100.470      0.000       6.697       6.964
-agepreg        0.0175      0.003      6.559      0.000       0.012       0.023
-==============================================================================
-===================
-R-squared: 0.004738
--------------------
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 24" code={notebook.cells[24].code} language="python" timeout={60000} />
 
 기울기는 약 0.0175lb/년입니다. 나이가 10년 다른 두 산모의 아기는 평균적으로 약 0.175lb 차이가 난다고 예측합니다. 기울기는 작아도 p값은 작습니다. 반면 $R^2$는 아주 작아 나이를 알아도 개별 아기의 체중 예측은 거의 좋아지지 않습니다. 작은 p값과 작은 예측력이 함께 나오는 것은 모순이 아닙니다. 그림으로 확인하기 위해 두 열을 고르겠습니다.
 
@@ -372,45 +179,13 @@ R-squared: 0.004738
 
 결과인 예측 `Series`를 산점도와 함께 그립니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 29" code={notebook.cells[29].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap11-073-0.png"
-        alt="산모 나이와 출생 체중의 산점도. 나이가 증가할 때 체중이 약간 증가하는 경향입니다."
-        width={442}
-        height={254}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-[그림 크게 보기](/labs/think-stats/figures/chap11-073-0.png)
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 29" code={notebook.cells[29].code} language="python" timeout={60000} />
 
 나이에 따른 평균의 차이보다 각 나이에서의 체중 차이가 훨씬 큽니다. 이번에는 첫아이 여부와 체중의 관계를 보겠습니다. 첫아이이면 `True`, 아니면 `False`인 `is_first` 열을 만듭니다.
 
 <CodePlayground notebook="think-stats-11" title="셀 30" code={notebook.cells[30].code} language="python" timeout={60000} />
 
-<CodePlayground notebook="think-stats-11" title="셀 31" code={notebook.cells[31].code} language="python" timeout={60000}>
-
-```text
-Out[0]: 
-is_first
-False    4675
-True     4363
-Name: count, dtype: int64
-```
-
-```text
-is_first
-False    4675
-True     4363
-Name: count, dtype: int64
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 31" code={notebook.cells[31].code} language="python" timeout={60000} />
 
 반응변수는 `totalwgt_lb`, 설명변수는 `is_first`입니다. Patsy의 `C(...)`는 측정값이 아니라 집단을 나타내는 **범주형 변수**로 취급하라는 뜻입니다.
 
@@ -418,108 +193,29 @@ Name: count, dtype: int64
 
 모형을 적합하고 결과를 봅니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 33" code={notebook.cells[33].code} language="python" timeout={60000}>
-
-```text
-=======================================================================================
-                          coef    std err          t      P>|t|      [0.025      0.975]
----------------------------------------------------------------------------------------
-Intercept               7.3259      0.021    356.007      0.000       7.286       7.366
-C(is_first)[T.True]    -0.1248      0.030     -4.212      0.000      -0.183      -0.067
-=======================================================================================
-==================
-R-squared: 0.00196
-------------------
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 33" code={notebook.cells[33].code} language="python" timeout={60000} />
 
 `C(is_first)[T.True]`는 첫아이 집단의 계수입니다. `[T.True]`는 기준범주와 비교한 `True` 범주의 차이를 나타내는 [처리 부호화(treatment coding)](https://www.statsmodels.org/stable/contrasts.html#treatment-dummy-coding) 표기입니다. 기준집단은 다른 아이들입니다. 어느 쪽을 기준으로 삼는지는 선택이지만, 계수의 부호를 읽으려면 알아야 합니다. 절편 약 7.3lb는 기준집단의 평균이고, 첫아이의 계수 약 −0.12lb는 그보다 가볍다는 뜻입니다. 집단 평균으로 직접 확인하겠습니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 34" code={notebook.cells[34].code} language="python" timeout={60000}>
+<CodePlayground notebook="think-stats-11" title="셀 34" code={notebook.cells[34].code} language="python" timeout={60000} />
 
-```text
-Out[0]: np.float64(7.325855614973262)
-```
-
-```text
-np.float64(7.325855614973262)
-```
-
-</CodePlayground>
-
-<CodePlayground notebook="think-stats-11" title="셀 35" code={notebook.cells[35].code} language="python" timeout={60000}>
-
-```text
-Out[0]: np.float64(-0.12476118453549034)
-```
-
-```text
-np.float64(-0.12476118453549034)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 35" code={notebook.cells[35].code} language="python" timeout={60000} />
 
 첫아이 계수의 p값은 작지만 $R^2$도 작습니다. 집단 평균 차이는 검출되어도 개별 체중을 알아맞히는 데에는 큰 도움이 되지 않습니다. 첫아이 산모는 다른 산모보다 평균 약 3.6년 젊으므로, 이것이 체중 차이를 얼마나 설명할지 보겠습니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 36" code={notebook.cells[36].code} language="python" timeout={60000}>
-
-```text
-Out[0]: np.float64(-3.5864347661500275)
-```
-
-```text
-np.float64(-3.5864347661500275)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 36" code={notebook.cells[36].code} language="python" timeout={60000} />
 
 나이에 따른 체중 기울기는 약 0.0175lb/년입니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 37" code={notebook.cells[37].code} language="python" timeout={60000}>
-
-```text
-Out[0]: np.float64(0.01745385147180278)
-```
-
-```text
-np.float64(0.01745385147180278)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 37" code={notebook.cells[37].code} language="python" timeout={60000} />
 
 나이 차이와 기울기를 곱하면 나이 차이에 대응하는 예측 체중 차이가 나옵니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 38" code={notebook.cells[38].code} language="python" timeout={60000}>
-
-```text
-Out[0]: np.float64(-0.06259709972169232)
-```
-
-```text
-np.float64(-0.06259709972169232)
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 38" code={notebook.cells[38].code} language="python" timeout={60000} />
 
 약 0.063lb로 관측된 집단 차이의 절반 정도입니다. 산모 나이가 일부를 설명할 수 있어 보입니다. 두 설명변수를 같은 회귀에 넣겠습니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 39" code={notebook.cells[39].code} language="python" timeout={60000}>
-
-```text
-=======================================================================================
-                          coef    std err          t      P>|t|      [0.025      0.975]
----------------------------------------------------------------------------------------
-Intercept               6.9142      0.078     89.073      0.000       6.762       7.066
-C(is_first)[T.True]    -0.0698      0.031     -2.236      0.025      -0.131      -0.009
-agepreg                 0.0154      0.003      5.499      0.000       0.010       0.021
-=======================================================================================
-===================
-R-squared: 0.005289
--------------------
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 39" code={notebook.cells[39].code} language="python" timeout={60000} />
 
 첫아이 계수는 약 −0.0698lb입니다. 산모 나이의 선형 관계를 함께 고려하면 조정 전 차이의 약 절반이 남습니다. p값은 약 0.025입니다. 관습적인 5% 기준으로는 유의하지만, 그 수치만으로 해석을 확정할 일은 아닙니다.
 
@@ -539,22 +235,7 @@ R-squared: 0.005289
 
 같은 방법으로 적합합니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 42" code={notebook.cells[42].code} language="python" timeout={60000}>
-
-```text
-==============================================================================
-                 coef    std err          t      P>|t|      [0.025      0.975]
-------------------------------------------------------------------------------
-Intercept      5.5720      0.275     20.226      0.000       5.032       6.112
-agepreg        0.1186      0.022      5.485      0.000       0.076       0.161
-agepreg2      -0.0019      0.000     -4.714      0.000      -0.003      -0.001
-==============================================================================
-==================
-R-squared: 0.00718
-------------------
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 42" code={notebook.cells[42].code} language="python" timeout={60000} />
 
 이차항의 p값은 작고, $R^2$는 선형 모형의 약 0.0047에서 약 0.0072로 증가합니다. 나이와 나이 제곱의 계수를 추정하면 나이에 대한 포물선을 맞추는 셈입니다. 이를 그리기 위해 두 설명변수 값을 담은 표를 만듭니다.
 
@@ -566,42 +247,11 @@ R-squared: 0.00718
 
 예측 포물선과 원자료를 함께 그립니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 45" code={notebook.cells[45].code} language="python" timeout={60000}>
-
-<p>
-    <img
-        src="/labs/think-stats/figures/chap11-104-0.png"
-        alt="출생 체중과 산모 나이에 적합한 이차 곡선. 직선보다 완만한 굽음을 허용합니다."
-        width={442}
-        height={254}
-        loading="lazy"
-        decoding="async"
-    />
-</p>
-
-[그림 크게 보기](/labs/think-stats/figures/chap11-104-0.png)
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 45" code={notebook.cells[45].code} language="python" timeout={60000} />
 
 휘어짐은 작지만 아주 젊거나 나이가 많은 산모의 아기가 조금 가볍고, 가운데 나이대에서 조금 무거운 패턴을 시사합니다. 이 관계를 고려한 뒤 첫아이 효과를 다시 추정하겠습니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 46" code={notebook.cells[46].code} language="python" timeout={60000}>
-
-```text
-=======================================================================================
-                          coef    std err          t      P>|t|      [0.025      0.975]
----------------------------------------------------------------------------------------
-Intercept               5.6923      0.286     19.937      0.000       5.133       6.252
-C(is_first)[T.True]    -0.0504      0.031     -1.602      0.109      -0.112       0.011
-agepreg                 0.1124      0.022      5.113      0.000       0.069       0.155
-agepreg2               -0.0018      0.000     -4.447      0.000      -0.003      -0.001
-=======================================================================================
-===================
-R-squared: 0.007462
--------------------
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 46" code={notebook.cells[46].code} language="python" timeout={60000} />
 
 첫아이의 체중 차이 추정치는 약 −0.0504lb로, 차이의 절댓값이 더 작아집니다. p값은 약 0.109입니다. 이 모형에서는 남은 차이가 우연한 변동으로도 나타날 만합니다. 원저자는 산모 나이가 관측 차이의 일부, 어쩌면 전부를 설명할 수 있다고 해석합니다.
 
@@ -630,24 +280,7 @@ R-squared: 0.007462
 
 <CodePlayground notebook="think-stats-11" title="셀 47" code={notebook.cells[47].code} language="python" timeout={60000} />
 
-<CodePlayground notebook="think-stats-11" title="셀 48" code={notebook.cells[48].code} language="python" timeout={60000}>
-
-```text
-Out[0]: 
-y
-1    73
-0    73
-Name: count, dtype: int64
-```
-
-```text
-y
-1    73
-0    73
-Name: count, dtype: int64
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 48" code={notebook.cells[48].code} language="python" timeout={60000} />
 
 먼저 체중 `mass`만으로 반응변수 `y`를 설명하겠습니다. `disp=False`는 최적화 과정의 진행 메시지를 생략합니다.
 
@@ -655,21 +288,7 @@ Name: count, dtype: int64
 
 적합 결과를 확인합니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 50" code={notebook.cells[50].code} language="python" timeout={60000}>
-
-```text
-==============================================================================
-                 coef    std err          z      P>|z|      [0.025      0.975]
-------------------------------------------------------------------------------
-Intercept    -28.7496      4.820     -5.965      0.000     -38.196     -19.303
-mass           0.0078      0.001      5.958      0.000       0.005       0.010
-==============================================================================
-========================
-Pseudo R-squared: 0.5615
-------------------------
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 50" code={notebook.cells[50].code} language="python" timeout={60000} />
 
 선형회귀의 $R^2$는 로지스틱 회귀에 그대로 적용되지 않습니다. 대신 **유사 결정계수**를 사용합니다. 여기서 출력하는 값은 [맥패든의 유사 결정계수](https://www.statsmodels.org/stable/generated/statsmodels.discrete.discrete_model.LogitResults.prsquared.html)이며 약 0.562입니다. 체중 계수가 양수이므로 무거운 펭귄일수록 수컷일 예측 확률이 높습니다. 계수를 직접 읽기보다, 여러 체중의 예측값을 계산해 보겠습니다.
 
@@ -683,24 +302,7 @@ Pseudo R-squared: 0.5615
 
 가장 가벼운 아델리펭귄은 암컷일 가능성이 높고, 가장 무거운 개체는 수컷일 가능성이 높습니다. 약 3680g에서는 두 가능성이 비슷합니다. 다른 측정값들도 설명변수로 추가하겠습니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 53" code={notebook.cells[53].code} language="python" timeout={60000}>
-
-```text
-==================================================================================
-                     coef    std err          z      P>|z|      [0.025      0.975]
-----------------------------------------------------------------------------------
-Intercept        -79.1811     19.740     -4.011      0.000    -117.871     -40.491
-mass               0.0079      0.002      4.030      0.000       0.004       0.012
-flipper_length    -0.0357      0.061     -0.586      0.558      -0.155       0.084
-culmen_length      0.8403      0.236      3.555      0.000       0.377       1.304
-culmen_depth       1.3360      0.433      3.085      0.002       0.487       2.185
-==================================================================================
-========================
-Pseudo R-squared: 0.7348
-------------------------
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 53" code={notebook.cells[53].code} language="python" timeout={60000} />
 
 유사 결정계수는 약 0.735로 증가합니다. 부리 길이와 깊이의 p값은 작지만, 날개 길이의 p값은 큽니다. 이 모형에서는 체중과 부리 크기를 고려한 뒤 날개 길이가 더하는 기여가 뚜렷하지 않습니다. 다음 함수는 체중과 특정 부리 길이를 받아, 나머지 측정값을 평균에 고정한 상태로 수컷 확률을 계산하고 그립니다.
 
@@ -722,38 +324,11 @@ Pseudo R-squared: 0.7348
 
 <CodePlayground notebook="think-stats-11" title="셀 57" code={notebook.cells[57].code} language="python" timeout={60000} />
 
-<CodePlayground notebook="think-stats-11" title="셀 58" code={notebook.cells[58].code} language="python" timeout={60000}>
-
-```text
-Out[0]: 119
-```
-
-```text
-119
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 58" code={notebook.cells[58].code} language="python" timeout={60000} />
 
 젠투펭귄의 로지스틱 회귀 결과입니다.
 
-<CodePlayground notebook="think-stats-11" title="셀 59" code={notebook.cells[59].code} language="python" timeout={60000}>
-
-```text
-==================================================================================
-                     coef    std err          z      P>|z|      [0.025      0.975]
-----------------------------------------------------------------------------------
-Intercept       -172.3739     61.593     -2.799      0.005    -293.094     -51.654
-mass               0.0101      0.003      2.908      0.004       0.003       0.017
-flipper_length     0.2903      0.183      1.584      0.113      -0.069       0.650
-culmen_length      0.1923      0.295      0.652      0.514      -0.386       0.771
-culmen_depth       3.2864      1.317      2.496      0.013       0.705       5.867
-==================================================================================
-========================
-Pseudo R-squared: 0.8495
-------------------------
-```
-
-</CodePlayground>
+<CodePlayground notebook="think-stats-11" title="셀 59" code={notebook.cells[59].code} language="python" timeout={60000} />
 
 유사 결정계수는 약 0.850로 아델리펭귄 모형의 약 0.735보다 큽니다. 원저자는 이 결과를 젠투펭귄의 성적 이형성이 더 크다는 단서로 해석합니다.
 

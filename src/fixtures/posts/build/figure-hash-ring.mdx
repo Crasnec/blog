@@ -5,7 +5,7 @@ description: Compare key movement under modulo hashing and consistent hashing wh
 tags: [hashing, cache, distributed-systems]
 ---
 
-import { ModuloPlacement, VirtualNodeRing, SingleNodeRing } from "./_figures/HashRingExamples.tsx";
+import { ModuloPlacement, VirtualNodeRing, SingleNodeRing } from "#src/fixtures/posts/build/_figures/HashRingExamples.tsx";
 
 Suppose three cache servers, A, B and C, hold twenty-four keys before server D is added. The assignment rule determines how many keys change owners. A moved key starts with an empty entry on its new server.
 

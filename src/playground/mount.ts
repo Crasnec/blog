@@ -1,4 +1,4 @@
-import { t } from "../strings";
+import { t } from "#src/strings.ts";
 import {
     decodeConfig,
     decodeRunResponse,
@@ -11,9 +11,9 @@ import {
     type InputResponse,
     type RunRequest,
     type RunResponse,
-} from "./contracts";
-import { PythonNotebook, type NotebookCell } from "./notebook";
-import { mountEditor } from "./editor";
+} from "#src/playground/contracts.ts";
+import { PythonNotebook, type NotebookCell } from "#src/playground/notebook.ts";
+import { mountEditor } from "#src/playground/editor.ts";
 
 const notebooks = new Map<string, PythonNotebook>();
 const mounted = new Map<HTMLElement, () => void>();

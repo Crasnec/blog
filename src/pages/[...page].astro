@@ -1,8 +1,8 @@
 ---
 import type { GetStaticPaths } from "astro";
-import { siteConfig } from "../config";
-import IndexView from "../views/IndexView.astro";
-import { getPosts } from "../posts/queries";
+import { siteConfig } from "#src/config.ts";
+import IndexView from "#src/views/IndexView.astro";
+import { getPosts } from "#src/posts/queries.ts";
 
 export const getStaticPaths = (async ({ paginate }) => {
     const posts = await getPosts();

@@ -1,6 +1,6 @@
 /** Compatibility data generator; no heatmap rendering logic lives here. */
-import { arr, maybe, num, obj, random, str } from "../kit.ts";
-import type { JsonValue } from "../../utils/json.ts";
+import { arr, maybe, num, obj, random, str } from "#src/figures/kit.ts";
+import type { JsonValue } from "#src/utils/json.ts";
 
 /**
  * The `daily-peak` model: a weekday × hour matrix with a quiet night, an

@@ -1,4 +1,4 @@
-import { t } from "../strings";
+import { t } from "#src/strings.ts";
 
 type ThemeMode = "light" | "dark" | "auto";
 const ORDER: ThemeMode[] = ["light", "dark", "auto"];

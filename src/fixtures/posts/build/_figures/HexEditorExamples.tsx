@@ -1,6 +1,6 @@
 /** Post-specific buffers and edit scripts; the library owns the rendering. */
-import { HexEditor, type DiagramProps } from "../../../../components/figures";
-import type { FigureInputs } from "../../../../figures/inputs";
+import { HexEditor, type DiagramProps } from "#src/components/figures/index.tsx";
+import type { FigureInputs } from "#src/figures/inputs.ts";
 
 const greeting = {
     title: "greeting.bin",

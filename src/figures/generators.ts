@@ -1,7 +1,7 @@
 /** Deterministic author-side data helpers; renderers accept their resulting arrays. */
-import { arrivals, lognormal, random } from "./kit.ts";
-import type { Request } from "./models/memory.ts";
-import type { Job } from "./models/gantt.ts";
+import { arrivals, lognormal, random } from "#src/figures/kit.ts";
+import type { Request } from "#src/figures/models/memory.ts";
+import type { Job } from "#src/figures/models/gantt.ts";
 
 export function numberSamples(
     count: number,

@@ -6,7 +6,7 @@ import {
     Heatmap,
     HashRing,
     GridSearch,
-} from "../../../../components/figures";
+} from "#src/components/figures/index.tsx";
 
 const measurements = [-4, -1, 2, 0, -2, 3];
 

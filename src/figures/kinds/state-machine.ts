@@ -59,7 +59,7 @@ import {
     type Frame,
     type Palette,
     type Point,
-} from "../kit.ts";
+} from "#src/figures/kit.ts";
 
 import {
     EVENT_TONES,
@@ -69,7 +69,7 @@ import {
     type EventKind,
     type Transition,
     type Step,
-} from "../models/state-machine.ts";
+} from "#src/figures/models/state-machine.ts";
 
 /* — 1. pacing ——————————————————————————————————————————————————————— */
 

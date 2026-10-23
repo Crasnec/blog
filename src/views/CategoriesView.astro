@@ -1,9 +1,9 @@
 ---
-import { t } from "../strings";
-import CategoryTree from "../components/CategoryTree.astro";
-import Sidebar from "../components/Sidebar.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
-import { getCategories } from "../posts/queries";
+import { t } from "#src/strings.ts";
+import CategoryTree from "#src/components/CategoryTree.astro";
+import Sidebar from "#src/components/Sidebar.astro";
+import BaseLayout from "#src/layouts/BaseLayout.astro";
+import { getCategories } from "#src/posts/queries.ts";
 
 const categories = await getCategories();
 ---

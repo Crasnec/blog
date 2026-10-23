@@ -37,9 +37,9 @@ import {
     scale,
     str,
     text,
-} from "../kit.ts";
-import type { JsonValue } from "../../utils/json.ts";
-import { lognormalSamples } from "../generators.ts";
+} from "#src/figures/kit.ts";
+import type { JsonValue } from "#src/utils/json.ts";
+import { lognormalSamples } from "#src/figures/generators.ts";
 
 interface Group {
     label: string;

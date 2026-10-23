@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 import test from "node:test";
 import postcss, { type Root } from "postcss";
-import fontFaceGroups from "../scripts/font-face-groups.ts";
+import fontFaceGroups from "#root/scripts/font-face-groups.ts";
 
 async function packageStyles(): Promise<Root> {
     const root = postcss.root();

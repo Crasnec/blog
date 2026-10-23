@@ -1,5 +1,5 @@
 import { splitLines, type GrammarState, type HighlighterCore } from "shiki/core";
-import { MAX_CODE, type HighlightToken } from "./contracts.ts";
+import { MAX_CODE, type HighlightToken } from "#src/playground/contracts.ts";
 
 interface CachedLine {
     text: string;

@@ -3,4 +3,4 @@
  * omitted.
  * Full contract and numerical conventions: ../statistics/README.md.
  */
-export { qq as default } from "../statistics/distributions.ts";
+export { qq as default } from "#src/figures/statistics/distributions.ts";

@@ -2,12 +2,12 @@ import { basicSetup } from "codemirror";
 import { EditorState, Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import { indentWithTab } from "@codemirror/commands";
-import { LOCALE, t } from "../strings.ts";
-import { editorPhrases } from "../locales/editor.ts";
-import { MAX_CODE, type HighlightRequest, type PlaygroundConfig } from "./contracts.ts";
+import { LOCALE, t } from "#src/strings.ts";
+import { editorPhrases } from "#src/locales/editor.ts";
+import { MAX_CODE, type HighlightRequest, type PlaygroundConfig } from "#src/playground/contracts.ts";
 
-import { releaseHighlight, sharedHighlight } from "./shared-highlight.ts";
-import { highlights, setTokens } from "./highlight-decorations.ts";
+import { releaseHighlight, sharedHighlight } from "#src/playground/shared-highlight.ts";
+import { highlights, setTokens } from "#src/playground/highlight-decorations.ts";
 
 let nextDocument = 0;
 

@@ -1,6 +1,6 @@
 /** A bespoke SVG diagram lives with the post and needs no global kind. */
-import SvgFigure from "../../../../components/SvgFigure";
-import { normalCdf } from "../../../../figures/statistics/math";
+import SvgFigure from "#src/components/SvgFigure.tsx";
+import { normalCdf } from "#src/figures/statistics/math.ts";
 
 export default function NormalCoverage({ deviations = 1.96 }: { deviations?: number }) {
     if (!Number.isFinite(deviations) || deviations < 0.1 || deviations > 3.5)

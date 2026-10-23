@@ -1,5 +1,5 @@
 /** Supplied intervals retain their statistical meaning; no inferred CI from bars. */
-import { arr, defineFigure, dot, line, maybe, obj, progress, str, withAlpha } from "../kit.ts";
+import { arr, defineFigure, dot, line, maybe, obj, progress, str, withAlpha } from "#src/figures/kit.ts";
 import {
     axes,
     bounded,
@@ -13,8 +13,8 @@ import {
     reference,
     TIMES,
     type Domain,
-} from "./shared.ts";
-import type { JsonValue } from "../../utils/json.ts";
+} from "#src/figures/statistics/shared.ts";
+import type { JsonValue } from "#src/utils/json.ts";
 
 function estimate(raw: JsonValue | undefined, path: string, pooled = false) {
     const p = obj(raw, path);

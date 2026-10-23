@@ -5,7 +5,7 @@ description: Model a circuit breaker that opens after consecutive failures, beco
 tags: [figures, resilience]
 ---
 
-import { CircuitBreaker } from "./_figures/StateMachineExamples.tsx";
+import { CircuitBreaker } from "#src/fixtures/posts/build/_figures/StateMachineExamples.tsx";
 
 A circuit breaker limits repeated calls to a slow or unavailable dependency. In **CLOSED**, requests pass through. After enough consecutive failures, **OPEN** rejects requests immediately. A timeout permits one probe in **HALF-OPEN**: success closes the breaker, while failure opens it again.
 

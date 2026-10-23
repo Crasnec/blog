@@ -1,5 +1,5 @@
 /** Pure statistical models. No canvas, randomness, or frame state. */
-import { mean, sum, type Point } from "../kit.ts";
+import { mean, sum, type Point } from "#src/figures/kit.ts";
 
 /** R-7 / NumPy's default linear sample quantile. Input must be sorted. */
 export function quantile(sorted: readonly number[], p: number): number {

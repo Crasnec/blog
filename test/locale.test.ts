@@ -6,7 +6,7 @@ import {
     translate,
     type Locale,
     type UIKey,
-} from "../src/locales/index.ts";
+} from "#src/locales/index.ts";
 import {
     countLabel,
     longDate,
@@ -16,7 +16,7 @@ import {
     shortStampDate,
     stampDate,
     yearLabel,
-} from "../src/utils/format.ts";
+} from "#src/utils/format.ts";
 
 void test("both locales supply the same messages and interpolation placeholders", () => {
     assert.deepEqual(Object.keys(dictionaries.en).sort(), Object.keys(dictionaries.ko).sort());

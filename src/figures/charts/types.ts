@@ -1,4 +1,4 @@
-import type { Tone } from "../kit.ts";
+import type { Tone } from "#src/figures/kit.ts";
 
 export interface Series {
     label: string;

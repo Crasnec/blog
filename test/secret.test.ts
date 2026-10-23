@@ -3,9 +3,9 @@ import { describe, test } from "node:test";
 import { parseFrontmatter } from "@astrojs/markdown-remark";
 import { stringify } from "yaml";
 
-import { publicFrontmatter } from "../scripts/secret.mjs";
-import { parseJson } from "../src/utils/json.ts";
-import { parsePostOrder, parseSeriesMetadata } from "../src/posts/post-order.ts";
+import { publicFrontmatter } from "#root/scripts/secret.mjs";
+import { parseJson } from "#src/utils/json.ts";
+import { parsePostOrder, parseSeriesMetadata } from "#src/posts/post-order.ts";
 import {
     generateKeys,
     openWith,
@@ -14,7 +14,7 @@ import {
     parseSecretPayload,
     parseSecretSource,
     sealTo,
-} from "../src/utils/secret.ts";
+} from "#src/utils/secret.ts";
 
 void describe("locked post data boundaries", () => {
     void test("public ordering metadata survives sealing and opening frontmatter", () => {
