@@ -1,7 +1,7 @@
 ---
 import type { GetStaticPaths } from "astro";
 import PostLayout from "../../layouts/PostLayout.astro";
-import { getPosts } from "../../utils/content";
+import { getPosts } from "../../posts/queries";
 
 export const getStaticPaths = (async () => {
     const posts = await getPosts();

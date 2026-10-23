@@ -34,6 +34,7 @@ export const en = {
     "post.readingTime": "{count} min",
     "post.prev": "Previous",
     "figure.replay": "Replay",
+    "figure.data": "Data and labels",
     "notebook.title": "Python notebook",
     "notebook.execution": "Execution order",
     "notebook.instructions":

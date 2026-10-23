@@ -12,7 +12,7 @@ import { longDate, readingTimeLabel } from "../../utils/format";
 import { t } from "../../strings";
 import type { APIRoute, GetStaticPaths } from "astro";
 import { siteConfig } from "../../config";
-import { type PostRef, getPosts, postMeta } from "../../utils/content";
+import { type PostRef, getPosts, postMeta } from "../../posts/queries";
 import { renderCard } from "../../utils/og";
 
 interface Props {

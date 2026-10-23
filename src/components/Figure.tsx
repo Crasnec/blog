@@ -1,7 +1,7 @@
 /**
  * Server-rendered TSX entry point for the shared canvas runtime.
  * Import directly in MDX or compose it inside a post-specific TSX component.
- * No client directive is needed: src/scripts/figures.ts owns the animation.
+ * No client directive is needed: src/figures/runtime.ts owns the animation.
  */
 import type { CSSProperties } from "react";
 import { t } from "../strings";
@@ -50,6 +50,40 @@ export default function Figure(input: FigureProps) {
                         </button>
                     )}
                 </figcaption>
+            )}
+            {model.table && (
+                <details className="figure-data">
+                    <summary>{t("figure.data")}</summary>
+                    <div className="table-scroll" role="region" aria-label={t("figure.data")}>
+                        <table>
+                            <caption>{model.table.unit || t("figure.data")}</caption>
+                            <thead>
+                                <tr>
+                                    {model.table.columns.map((column, i) => (
+                                        <th key={i} scope="col">
+                                            {column}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {model.table.rows.map((row, i) => (
+                                    <tr key={i}>
+                                        {row.map((value, j) =>
+                                            j === 0 ? (
+                                                <th key={j} scope="row">
+                                                    {value}
+                                                </th>
+                                            ) : (
+                                                <td key={j}>{value}</td>
+                                            ),
+                                        )}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </details>
             )}
         </figure>
     );

@@ -36,6 +36,7 @@ export const ko = {
     "post.info": "글 정보",
     "post.readIn": "다른 언어로 읽기",
     "figure.replay": "다시 재생",
+    "figure.data": "데이터와 설명",
     "notebook.title": "Python 노트북",
     "notebook.execution": "실행 순서",
     "notebook.instructions":

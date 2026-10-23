@@ -1,0 +1,194 @@
+/* — locked posts ——————————————————————————————— */
+
+/*
+ * The lock in a listing. It sits under the date, in the apparatus column, and
+ * is the only thing a listing may say about a post that is being kept back.
+ */
+.lock-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+
+.lock-icon {
+    width: 0.85em;
+    height: 0.85em;
+    stroke-width: 1.8;
+    flex: none;
+}
+
+.archive-lock {
+    color: var(--ink-faint);
+    align-self: center;
+    /* Hard against the right edge, whatever the title does. */
+    justify-self: end;
+}
+
+/* The gate itself, in the place the article would have been. */
+.secret {
+    max-width: var(--prose-width);
+    margin-block: var(--space-6);
+    padding: var(--space-5);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-3);
+    background: var(--paper-sunk);
+}
+
+.secret-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--ink-strong);
+}
+
+.secret-icon {
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 1.7;
+}
+
+.secret-title {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+}
+
+.secret-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+}
+
+.secret-input {
+    flex: 1 1 14rem;
+    background: var(--paper);
+    font-family: var(--font-mono);
+    letter-spacing: 0.08em;
+}
+
+.secret-form .btn-solid {
+    margin-left: 0;
+    flex: none;
+}
+
+.secret-status {
+    margin-top: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+}
+
+.secret-status.is-error {
+    color: var(--danger);
+}
+
+/* — leaving the site ——————————————————————————— */
+
+/*
+ * Shown before following a link out of a comment. The address is the content of
+ * this dialog, not decoration around a question — a reader deciding whether to
+ * go somewhere needs to see where.
+ */
+.leave-panel {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-panel);
+    display: grid;
+    place-items: center;
+    padding: var(--page-pad);
+    background: var(--scrim);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease-out);
+}
+
+.leave-panel[hidden] {
+    display: none;
+}
+
+.leave-panel.is-open {
+    opacity: 1;
+}
+
+.leave-dialog {
+    width: min(30rem, 100%);
+    padding: var(--space-5);
+    background: var(--paper-raised);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-3);
+    box-shadow: var(--shadow-panel);
+    transform: translateY(-0.5rem);
+    transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.leave-panel.is-open .leave-dialog {
+    transform: translateY(0);
+}
+
+.leave-title {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+
+/* The host is the part that answers "where am I going", so it is the headline. */
+.leave-host {
+    margin-top: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--step-1);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--ink-strong);
+    word-break: break-all;
+}
+
+.leave-url {
+    margin-top: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    line-height: 1.55;
+    color: var(--ink-faint);
+    word-break: break-all;
+    /* A URL long enough to fill the dialog is itself a warning sign; show a few
+       lines of it and stop. */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.leave-note {
+    margin-top: var(--space-4);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--ink-muted);
+    word-break: keep-all;
+}
+
+.leave-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+}
+
+.leave-cancel {
+    margin-left: auto;
+}
+
+.leave-actions .btn-solid {
+    margin-left: 0;
+    text-decoration: none;
+}

@@ -304,6 +304,8 @@
     display: block;
     width: 100%;
     height: var(--figure-height, 260px);
+    /* Runtime layout changes must be synchronous, including under reduced motion. */
+    transition-property: none;
 }
 
 /* The replay button shares the caption's row, so it never covers the drawing. */
@@ -331,6 +333,38 @@
 
 .figure-replay:hover {
     border-color: var(--marker-line);
+}
+
+.figure-data {
+    margin-top: 0.75rem;
+    color: var(--ink-muted);
+    font-size: var(--step--1);
+}
+
+.figure-data > summary {
+    width: fit-content;
+    cursor: pointer;
+}
+
+.figure-data .table-scroll {
+    max-width: 100%;
+    margin-block: 0.75rem 0;
+}
+
+.figure-data caption {
+    text-align: start;
+}
+
+@media (max-width: 520px) {
+    .figure figcaption {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-2);
+    }
+
+    .figure-replay {
+        align-self: flex-end;
+    }
 }
 
 /* — diagrams ——————————————————————————————————— */

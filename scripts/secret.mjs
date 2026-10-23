@@ -52,7 +52,7 @@ import {
     sealTo,
 } from "../src/utils/secret.ts";
 import { parseJson } from "../src/utils/json.ts";
-import { parsePostOrder, parseSeriesMetadata } from "../src/utils/post-order.ts";
+import { parsePostOrder, parseSeriesMetadata } from "../src/posts/post-order.ts";
 
 const ROOT = new URL("..", import.meta.url);
 const PLAIN_DIR = "secrets";

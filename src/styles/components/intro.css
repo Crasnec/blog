@@ -1,0 +1,26 @@
+/* — page intro (archive, tags, about) ——————————— */
+
+.page-intro {
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-5);
+    border-bottom: 1px solid var(--rule);
+}
+
+.page-intro h1 {
+    font-size: var(--step-3);
+    font-weight: 600;
+}
+
+.page-intro p {
+    margin-top: var(--space-2);
+    color: var(--ink-muted);
+    font-size: 0.95rem;
+}
+
+.empty-note {
+    padding: var(--space-7) 0;
+    color: var(--ink-faint);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    text-align: center;
+}

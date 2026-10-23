@@ -4,7 +4,7 @@ import { t } from "../strings";
 import Icon from "../components/Icon.astro";
 import Sidebar from "../components/Sidebar.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { groupByYear } from "../utils/content";
+import { groupByYear } from "../posts/queries";
 
 const years = await groupByYear();
 ---

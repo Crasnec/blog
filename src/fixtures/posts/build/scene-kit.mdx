@@ -1,0 +1,92 @@
+---
+title: Scenes from ready-made shapes
+published: 2026-10-22
+description: A coordinate-free figure kit with a visual catalog, automatic layouts and checked animation steps.
+tags: [mdx, figures, authoring]
+---
+
+import { RequestScene, FocusScene, CycleScene, StackScene, HierarchyScene, ShapeScene, SymbolCatalog } from "./_figures/SceneExamples.tsx";
+
+Choose the things in the picture, their arrangement and what happens next. `Scene` handles the drawing, spacing, connections and animation. A post needs no canvas code, coordinates or hand-written timing.
+
+## Start with a working scene
+
+<RequestScene />
+
+This is the complete author input, inside a TSX file beside the post:
+
+```tsx
+import { Scene, defineScene } from "../../../../components/figures";
+
+const request = defineScene({
+    layout: "flow",
+    items: [
+        { id: "client", visual: "browser", label: "Browser" },
+        { id: "api", visual: "server", label: "Application" },
+        { id: "db", visual: "database", label: "Database" },
+    ],
+});
+
+export default function RequestPath() {
+    return <Scene props={request} caption="Browser → application → database." />;
+}
+```
+
+Import this component in MDX. No `client:*` directive is needed. `defineScene` gives TypeScript the item IDs, checks references and validates the data. Plain `<Scene props={...} />` and `<Figure kind="scene" props={...} />` also validate at build time.
+
+## Choose a layout
+
+| Layout | Arrangement | Connections |
+| --- | --- | --- |
+| `flow` | Horizontal when it fits; vertical otherwise | Input order |
+| `stack` | Always vertical | Input order |
+| `grid` | Responsive cards | None |
+| `cycle` | Ring when it fits; vertical loop otherwise | Last returns to first |
+| `hierarchy` | Indented parent/child rows | `parent` references |
+
+<ShapeScene />
+
+<CycleScene />
+
+<StackScene />
+
+<HierarchyScene />
+
+Items accept `id`, `label`, `visual`, optional `detail`, semantic `tone` and, for a hierarchy, `parent`. Use short labels and put the explanation in the surrounding text. The library wraps text and reserves the full height before playback. Parent order is calculated automatically; cycles and missing parents are errors.
+
+## Choose a motion
+
+`motion: "flow"` follows the connections and is the default. A grid reveals its items instead. `"reveal"` introduces items in order; `"none"` shows a static scene. All figures hold a complete final view under reduced motion and offer manual replay.
+
+For a specific explanation, supply `steps` instead of `motion`:
+
+```tsx
+steps: [
+    { action: "focus", target: "client" },
+    { action: "transfer", from: "client", to: "api" },
+    { action: "focus", target: "api" },
+    { action: "transfer", from: "api", to: "db" },
+]
+```
+
+<FocusScene />
+
+A transfer must follow an existing connection. Focus and reveal must name a real item. Every sequence is fitted to the shared eight-second timeline. Timing communicates order, not measured throughput or latency; use the existing simulation figures when the numbers matter.
+
+## Pick a visual from the catalog
+
+Each label below is an exact `visual` name. All outlines are library-owned, use the same line weight and follow the active theme. The catalog includes basic geometry, computing, network, data, actions and interface symbols.
+
+<SymbolCatalog />
+
+## Keep authoring predictable
+
+1. Copy the closest working example.
+2. Choose existing visual names and a layout.
+3. Replace IDs, labels and details. Keep a scene to one idea.
+4. Add animation steps only when the default does not tell the story.
+5. Run `npm run check`, build the examples, and inspect phone/desktop screenshots in both themes.
+
+Scenes accept 1–16 items, 1–40 graphemes per label, up to 64 per detail, and at most 16 animation steps. Cycles need at least three items. Hierarchies support five levels. Larger explanations should use several scenes. Misspelled options, unsupported visuals, duplicate IDs, missing references and invalid transfers stop the build with a specific field name. No drawing instructions are silently guessed.
+
+Expand **Data and labels** to read complete item descriptions without animation or JavaScript. For numerical comparisons, use [basic charts](/posts/build/basic-charts/). For computed algorithm traces, use the sorting, scheduling, allocation and queue figures in [the Figure guide](/posts/build/animated-figures/).

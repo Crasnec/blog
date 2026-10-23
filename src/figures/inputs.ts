@@ -5,8 +5,16 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 import type { Tone } from "./kit.ts";
 import type { QueueInput } from "./kinds/queue.ts";
+import type { SceneInput } from "./scene/model.ts";
 
 export type SampleGroup = { label: string; values: number[] };
+export type ChartSeries = { label: string; values: number[]; tone?: Tone };
+type ChartOptions = {
+    title?: string;
+    unit?: string;
+    showLegend?: boolean;
+    showValues?: boolean;
+};
 export type XY = { x: number; y: number };
 export type Estimate = {
     label: string;
@@ -26,6 +34,27 @@ type Correlation = Titled & { values: number[]; lags?: number };
 type Classification = Titled & { data: ScoredObservation[] };
 
 export type FigureInputs = {
+    scene: SceneInput;
+    bar: ChartOptions & {
+        categories: string[];
+        series: ChartSeries[];
+        orientation?: "vertical" | "horizontal";
+        mode?: "grouped" | "stacked" | "percent";
+        categoryLabel?: string;
+        valueLabel?: string;
+    };
+    pie: ChartOptions & {
+        slices: { label: string; value: number; tone?: Tone }[];
+        variant?: "pie" | "donut";
+        totalLabel?: string;
+    };
+    area: ChartOptions & {
+        x: number[];
+        series: ChartSeries[];
+        mode?: "overlay" | "stacked" | "percent";
+        xLabel?: string;
+        yLabel?: string;
+    };
     line: {
         series: { label?: string; values: number[]; tone?: Tone }[];
         unit?: string;

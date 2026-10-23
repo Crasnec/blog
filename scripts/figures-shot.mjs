@@ -27,7 +27,7 @@
  * writes somewhere other than `.figures-shots/` (it is emptied first).
  *
  * The moments come from `?figure-at=`, which the runtime reads to freeze every
- * figure at that fraction of its duration — see `src/scripts/figures.ts`.
+ * figure at that fraction of its duration — see `src/figures/runtime.ts`.
  */
 
 /* global document -- the page.evaluate callbacks run in the browser. */

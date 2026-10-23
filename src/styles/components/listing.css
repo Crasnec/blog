@@ -1,0 +1,303 @@
+/* — index entries —————————————————————————————— */
+
+.entry-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.entry {
+    position: relative;
+    border-top: 1px solid var(--rule);
+}
+
+.entry:first-child {
+    border-top: 0;
+}
+
+/*
+ * Hovering an entry runs the marker across it. It is the same gesture as the
+ * nameplate on the index and the section you are reading in the contents:
+ * wherever the marker appears, it means "this one, the one you are pointed at".
+ * The wash bleeds past the text column so the row reads as a struck band
+ * rather than as a button that grew a background.
+ */
+.entry::before {
+    content: "";
+    position: absolute;
+    inset: 1px -0.85rem 0;
+    z-index: 0;
+    border-radius: var(--radius-1);
+    background: var(--marker-wash);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.entry:hover::before,
+.entry:focus-within::before {
+    transform: scaleX(1);
+}
+
+.entry-link {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+    gap: 0 var(--space-5);
+    padding-block: var(--space-5);
+    align-items: start;
+}
+
+.entry-aside {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-top: 0.35rem;
+}
+
+.entry-title {
+    font-size: var(--step-2);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    color: var(--ink-strong);
+}
+
+.entry-excerpt {
+    margin-top: var(--space-3);
+    color: var(--ink-muted);
+    font-size: 0.95rem;
+    line-height: 1.68;
+    word-break: keep-all;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.entry-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    margin-top: var(--space-4);
+}
+
+.entry-read {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-faint);
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .entry-link {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--space-3);
+    }
+
+    .entry-aside {
+        flex-direction: row;
+        align-items: center;
+        gap: var(--space-4);
+        padding-top: 0;
+    }
+
+    .entry-date {
+        flex: none;
+    }
+
+    .entry-read {
+        margin-left: 0;
+    }
+}
+
+/* — tags ——————————————————————————————————————— */
+
+.tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.15rem 0.45rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-1);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-muted);
+    white-space: nowrap;
+    transition:
+        color var(--dur-fast) var(--ease-out),
+        border-color var(--dur-fast) var(--ease-out),
+        background-color var(--dur-fast) var(--ease-out);
+}
+
+.tag::before {
+    content: "#";
+    color: var(--ink-faint);
+}
+
+a.tag:hover {
+    color: var(--marker);
+    border-color: var(--marker-line);
+    background: var(--marker-wash);
+}
+
+.tag-count {
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-faint);
+}
+
+/* The tag index, where the tags are the content rather than metadata. */
+.tag-row.is-large {
+    gap: 0.55rem;
+}
+
+.tag-row.is-large .tag {
+    padding: 0.3rem 0.6rem;
+    font-size: var(--step--1);
+}
+
+.tag.is-current {
+    color: var(--marker);
+    border-color: var(--marker-line);
+    background: var(--marker-wash);
+}
+
+/* — categories ————————————————————————————————— */
+
+/*
+ * A category is not a tag and does not look like one. No pill, no `#`, and set
+ * in ink rather than the muted grey the tags carry, because on a listing it is
+ * the one line that says where the post sits rather than what it mentions.
+ */
+.category-mark {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--tracking-label);
+    color: var(--ink);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    min-width: 0;
+}
+
+/* The category index: rows, like the archive, because there are few of them. */
+.category-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--rule);
+}
+
+.category-item {
+    border-bottom: 1px solid var(--rule-faint);
+}
+
+.category-link {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: 0.85rem 0.5rem;
+    margin-inline: -0.5rem;
+    border-radius: var(--radius-1);
+    transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.category-link:hover {
+    background: var(--marker-wash);
+}
+
+.category-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: var(--step-1);
+    color: var(--ink-strong);
+}
+
+.category-tally {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-faint);
+}
+
+.category-tree .category-tree {
+    margin-inline-start: 0.6rem;
+    padding-inline-start: 0.7rem;
+    border-inline-start: 1px solid var(--rule);
+    border-top: 0;
+}
+
+.category-tree .category-tree > .category-item:last-child {
+    border-bottom: 0;
+}
+
+.category-widget-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.category-widget-tree .count {
+    flex-shrink: 0;
+}
+
+.widget-link.is-ancestor {
+    color: var(--ink-strong);
+    font-weight: 600;
+}
+
+.category-children {
+    margin-bottom: var(--space-6);
+}
+
+.category-breadcrumbs {
+    margin-bottom: var(--space-3);
+    font-size: var(--step--1);
+    color: var(--ink-muted);
+}
+
+.category-breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.category-breadcrumbs li {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.category-breadcrumbs :is(a, [aria-current]) {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.category-breadcrumbs a:hover {
+    color: var(--ink-strong);
+    text-decoration: underline;
+}
+
+.category-separator {
+    color: var(--ink-faint);
+}

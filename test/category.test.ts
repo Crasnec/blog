@@ -8,7 +8,7 @@ import {
     categoryPath,
     countCategories,
     flattenCategories,
-} from "../src/utils/category.ts";
+} from "../src/posts/category.ts";
 import { dictionaries } from "../src/locales/index.ts";
 
 const root = "src/content/posts";

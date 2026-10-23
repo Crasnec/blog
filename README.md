@@ -341,6 +341,11 @@ distribution, requests flowing between services) are placed with
 to write a new one, and `npm run figures:shot`, which captures stills to check
 a figure without watching it.
 
+For coordinate-free diagrams, use the [Scene authoring kit](src/figures/scene/README.md):
+82 prepared visuals, automatic layouts and checked animation steps. The visual
+catalog is at `/posts/build/scene-kit/` in the developer fixture build. For
+numerical comparisons, use [basic charts](src/figures/charts/README.md).
+
 Editable code uses `<CodePlayground language="python" code={source} />` in MDX.
 JavaScript, TypeScript and Python run in browser Workers, with output, Stop and
 Reset controls. Editors also accept custom JSON or XML/plist TextMate grammars.
@@ -438,14 +443,21 @@ src/content/        Posts and standalone pages
 src/layouts/        Site and article layouts
 src/pages/          Astro routes
 src/plugins/        Markdown processing plugins
-src/scripts/        Browser-side behavior
+src/scripts/        Stable browser bundle entries
+src/site/           Page lifecycle, search, navigation and reading features
+src/posts/          Post queries, categories, series and ordering
+src/playground/     Editors, execution workers and notebook sessions
+src/figures/        Typed figure inputs, models, renderers and canvas runtime
 src/styles/         Layout, prose, motion, and themes
-src/utils/          Content, URL, rendering, and cryptography helpers
+src/utils/          Shared helpers and old import compatibility
 src/views/          Shared page views
 ```
 
 Generated or private directories such as `dist/`, `.astro/`, `.comments/`,
 `node_modules/`, `secrets/`, and `.env` are ignored by Git.
+
+See [module boundaries](docs/architecture.md) for import direction, lifecycle ownership
+and the internal Figure/playground structure.
 
 ## Category hierarchy regression checks
 

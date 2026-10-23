@@ -1,0 +1,122 @@
+/* — contents ——————————————————————————————————— */
+
+/*
+ * Where you are, not how far you have got. The section on screen is struck
+ * with the marker and carries the only heavy rule in the list; everything else
+ * is quiet, so the eye lands on one line without scanning.
+ */
+.contents-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0;
+    border-left: 1px solid var(--rule);
+}
+
+.contents-item {
+    display: block;
+    margin-left: -1px;
+    padding: 0.3rem 0.5rem 0.3rem 0.75rem;
+    border-left: 2px solid transparent;
+    border-radius: 0 var(--radius-1) var(--radius-1) 0;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: var(--ink-muted);
+    word-break: keep-all;
+    transition:
+        color var(--dur) var(--ease-out),
+        border-color var(--dur) var(--ease-out),
+        background-color var(--dur) var(--ease-out);
+}
+
+.contents-item:hover {
+    color: var(--ink-strong);
+}
+
+.contents-item[data-depth="3"] {
+    padding-left: 1.5rem;
+    font-size: 0.8125rem;
+    color: var(--ink-faint);
+}
+
+.contents-item.is-active {
+    color: var(--ink-strong);
+    border-left-color: var(--marker);
+    background: var(--marker-wash);
+}
+
+/* Folded into the top of the article where the sidebar has dropped below it. */
+.contents-inline {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+    #contents {
+        display: none;
+    }
+
+    .contents-inline {
+        display: block;
+        margin-bottom: var(--space-6);
+        border: 1px solid var(--rule);
+        border-radius: var(--radius-2);
+        background: var(--paper-sunk);
+    }
+}
+
+.contents-inline > summary {
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    list-style: none;
+}
+
+.contents-inline > summary::-webkit-details-marker {
+    display: none;
+}
+
+.contents-inline > summary::after {
+    content: "+";
+    float: right;
+    color: var(--ink-faint);
+}
+
+.contents-inline[open] > summary::after {
+    content: "−";
+}
+
+.contents-inline-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.contents-inline-list a {
+    display: block;
+    padding: 0.25rem 0;
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+}
+
+.contents-inline-list a:hover {
+    color: var(--marker);
+}
+
+.contents-inline-list a[aria-current="location"] {
+    color: var(--ink-strong);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--marker);
+    text-underline-offset: 0.2em;
+}
+
+.contents-inline-list li[data-depth="3"] a {
+    padding-left: 1.25rem;
+    font-size: 0.85rem;
+}

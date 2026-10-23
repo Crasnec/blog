@@ -2,7 +2,7 @@
 import { t } from "../strings";
 import Sidebar from "../components/Sidebar.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { getTags, tagSlug } from "../utils/content";
+import { getTags, tagSlug } from "../posts/queries";
 import { sitePath } from "../utils/url";
 
 const tags = await getTags();

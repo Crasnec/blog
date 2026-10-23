@@ -307,3 +307,10 @@ export's introductory Markdown cell, for source and license information.
 Simple top-level `DATA_URL = "/datasets/example/"` assignments are made absolute
 on export so dataset links retain the site's origin. This does not install
 dependencies or translate browser-specific APIs for desktop Python.
+
+## Implementation boundaries
+
+`mount.ts` owns the page controls; `editor.ts`, `notebook.ts` and the workers
+own their respective editing and execution state. `contracts.ts` is a stable
+entry for the types, limits and decoders in `contracts/`. See
+[module boundaries](../../docs/architecture.md) for lifecycle and dependency rules.

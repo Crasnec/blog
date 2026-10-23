@@ -5,7 +5,7 @@ import { stringify } from "yaml";
 
 import { publicFrontmatter } from "../scripts/secret.mjs";
 import { parseJson } from "../src/utils/json.ts";
-import { parsePostOrder, parseSeriesMetadata } from "../src/utils/post-order.ts";
+import { parsePostOrder, parseSeriesMetadata } from "../src/posts/post-order.ts";
 import {
     generateKeys,
     openWith,

@@ -63,7 +63,7 @@ const fixture = `<!doctype html>
 </script></body></html>`;
 
 before(async () => {
-    const input = await readFile(new URL("../src/scripts/contents.ts", import.meta.url), "utf8");
+    const input = await readFile(new URL("../src/site/contents.ts", import.meta.url), "utf8");
     source = ts.transpileModule(input, {
         compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
     }).outputText;

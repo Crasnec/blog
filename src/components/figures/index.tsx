@@ -13,6 +13,15 @@ function component<K extends FigureKindName>(kind: K) {
 }
 
 export const Line = component("line");
+export function Scene(input: Omit<DiagramProps<"scene">, "height">) {
+    return <Figure {...input} kind="scene" />;
+}
+export { defineScene } from "../../figures/scene/model";
+export { symbolNames, symbolGroups, symbols } from "../../figures/scene/symbols";
+export type { SymbolName } from "../../figures/scene/symbols";
+export const Bar = component("bar");
+export const Pie = component("pie");
+export const Area = component("area");
 export const Distribution = component("distribution");
 export const Flow = component("flow");
 export const Sequence = component("sequence");

@@ -1,7 +1,7 @@
 ---
 import type { GetStaticPaths } from "astro";
 import TagView from "../../views/TagView.astro";
-import { getPostsByTag, getTags, tagSlug } from "../../utils/content";
+import { getPostsByTag, getTags, tagSlug } from "../../posts/queries";
 
 export const getStaticPaths = (async () => {
     const tags = await getTags();

@@ -1,0 +1,158 @@
+/* — search ————————————————————————————————————— */
+
+.search-panel {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-panel);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    place-items: start center;
+    padding: clamp(1rem, 8vh, 6rem) var(--page-pad) var(--space-6);
+    background: var(--scrim);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur) var(--ease-out);
+}
+
+.search-panel.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.search-dialog {
+    width: min(38rem, 100%);
+    min-width: 0;
+    min-height: 0;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--paper-raised);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-3);
+    box-shadow: var(--shadow-panel);
+    transform: translateY(-0.75rem);
+    opacity: 0;
+    transition:
+        transform var(--dur-slow) var(--ease-out),
+        opacity var(--dur) var(--ease-out);
+}
+
+.search-panel.is-open .search-dialog {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.search-field {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--rule);
+}
+
+.search-field svg {
+    width: 1.05rem;
+    height: 1.05rem;
+    flex: none;
+    color: var(--ink-faint);
+}
+
+.search-input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: none;
+    outline: none;
+    font-size: var(--step-1);
+    color: var(--ink-strong);
+}
+
+.search-input::placeholder {
+    color: var(--ink-faint);
+}
+
+/* The browser's own clear button duplicates the ESC affordance next to it. */
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-decoration {
+    appearance: none;
+    display: none;
+}
+
+.search-esc {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-1);
+    padding: 0.1rem 0.35rem;
+}
+
+.search-results {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--space-2) 0;
+    list-style: none;
+    margin: 0;
+}
+
+.search-results:empty {
+    display: none;
+}
+
+.search-result a {
+    display: block;
+    overflow-wrap: anywhere;
+    padding: var(--space-3) var(--space-5);
+    border-left: 2px solid transparent;
+    transition:
+        background-color var(--dur-fast) var(--ease-out),
+        border-color var(--dur-fast) var(--ease-out);
+}
+
+.search-result a:hover,
+.search-result a:focus-visible {
+    background: var(--marker-wash);
+    border-left-color: var(--marker);
+    outline: none;
+}
+
+.search-result-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--ink-strong);
+    margin-bottom: 0.25rem;
+}
+
+.search-result-excerpt {
+    font-size: var(--step--1);
+    line-height: 1.6;
+    color: var(--ink-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* A search hit is the thing you are looking for, so it gets the marker. */
+.search-result-excerpt mark {
+    background: var(--marker-wash-strong);
+    color: var(--ink-strong);
+    border-radius: var(--radius-1);
+    padding-inline: 0.1em;
+}
+
+.search-note {
+    flex-shrink: 0;
+    overflow-wrap: anywhere;
+    padding: var(--space-4) var(--space-5);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+    border-top: 1px solid var(--rule-faint);
+}

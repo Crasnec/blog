@@ -1,0 +1,309 @@
+/* — comments ——————————————————————————————————— */
+
+/*
+ * The discussion, set as apparatus rather than as a second article: mono for
+ * who and when, the body in the reading face, and a hairline between entries.
+ * It is quieter than the post it hangs off, because it is.
+ */
+.comments {
+    max-width: var(--prose-width);
+    margin-top: var(--space-8);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--rule);
+    scroll-margin-top: calc(var(--navbar-height) + 2rem);
+}
+
+.comments-title {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+
+.comments-count {
+    font-variant-numeric: tabular-nums;
+}
+
+.comment-list {
+    list-style: none;
+    margin: var(--space-5) 0 0;
+    padding: 0;
+}
+
+.comment + .comment {
+    margin-top: var(--space-5);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--rule-faint);
+}
+
+.comment-head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+}
+
+.comment-author {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--ink-strong);
+}
+
+.comment-date {
+    margin-left: auto;
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+}
+
+/*
+ * A comment is Markdown, compiled and sanitised at build time, so it needs its
+ * own small prose scope — smaller than the article's, and quieter, because it
+ * hangs off the article rather than competing with it.
+ */
+.comment-body {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--ink);
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
+
+.comment-body > * + * {
+    margin-top: 0.85em;
+}
+
+.comment-body :is(ul, ol) {
+    padding-left: 1.3rem;
+}
+
+.comment-body li + li {
+    margin-top: 0.3em;
+}
+
+.comment-body li::marker {
+    color: var(--ink-faint);
+}
+
+.comment-body blockquote {
+    margin-left: 0;
+    padding-left: 1rem;
+    border-left: 2px solid var(--rule-strong);
+    color: var(--ink-muted);
+}
+
+.comment-body :not(pre) > code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    padding: 0.1em 0.3em;
+    border-radius: var(--radius-1);
+    background: var(--paper-sunk);
+    border: 1px solid var(--rule-faint);
+}
+
+/* No highlighting: Expressive Code compiles files, not strings from a form. */
+.comment-body pre {
+    overflow-x: auto;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-2);
+    background: var(--paper-sunk);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.65;
+}
+
+.comment-body pre code {
+    font: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+}
+
+.comment-body table {
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: var(--step--1);
+}
+
+.comment-body :is(th, td) {
+    padding: 0.4rem 0.7rem;
+    text-align: left;
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+}
+
+.comment-body hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+}
+
+.comment-body a {
+    text-decoration: underline;
+    text-decoration-color: var(--marker-line);
+    text-underline-offset: 0.2em;
+    transition: color var(--dur-fast) var(--ease-out);
+}
+
+.comment-body a:hover {
+    color: var(--marker);
+}
+
+/* Says the link goes somewhere else before it is clicked, not after. */
+.comment-body a[data-external]::after {
+    content: "↗";
+    margin-left: 0.15em;
+    font-size: 0.85em;
+    color: var(--ink-faint);
+}
+
+.comment-empty {
+    margin-top: var(--space-5);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+}
+
+/* — comment form ——————————————————————————————— */
+
+.comment-form {
+    margin-top: var(--space-7);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--rule);
+}
+
+.comment-form-title {
+    display: block;
+    margin-bottom: var(--space-2);
+}
+
+.field {
+    display: block;
+    margin-top: var(--space-3);
+}
+
+.field-label {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    margin-bottom: 0.4rem;
+}
+
+.field-count {
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink-faint);
+    transition: color var(--dur-fast) var(--ease-out);
+}
+
+/* The last tenth is where the limit starts mattering to whoever is typing. */
+.field-count.is-near {
+    color: var(--marker);
+}
+
+.field-input {
+    width: 100%;
+    padding: 0.55rem 0.7rem;
+    background: var(--paper-sunk);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-2);
+    color: var(--ink-strong);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.field-input::placeholder {
+    color: var(--ink-faint);
+}
+
+.field-input:focus {
+    border-color: var(--marker-line);
+}
+
+.comment-form[aria-disabled="true"] .field-input {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.field-textarea {
+    min-height: 7.5rem;
+    resize: vertical;
+    font-family: inherit;
+}
+
+/* Not `visually-hidden`: this one must stay out of the tab order as well. */
+.field-trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.comment-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-4);
+    margin-top: var(--space-4);
+}
+
+.comment-note {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    line-height: 1.5;
+    color: var(--ink-faint);
+    max-width: 24rem;
+}
+
+.btn-solid {
+    margin-left: auto;
+    padding: 0.5rem 1.15rem;
+    border-radius: var(--radius-2);
+    background: var(--ink-strong);
+    color: var(--paper);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: 500;
+    transition: background-color var(--dur) var(--ease-out);
+}
+
+.btn-solid:hover {
+    background: var(--ink);
+}
+
+.btn-solid:disabled {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.comment-status {
+    margin-top: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    line-height: 1.6;
+    color: var(--ink-muted);
+}
+
+/* An accepted comment is the thing the reader is now looking at, so it is the
+   one place in this section the marker turns up. */
+.comment-status.is-ok {
+    padding: 0.55rem 0.75rem;
+    border-radius: var(--radius-2);
+    background: var(--marker-wash);
+    color: var(--ink-strong);
+}
+
+.comment-status.is-error {
+    color: var(--danger);
+}

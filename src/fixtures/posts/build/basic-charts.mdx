@@ -1,0 +1,112 @@
+---
+title: Basic charts
+published: 2026-10-22
+description: Bars, pies, donuts and areas using the shared Figure runtime, with typed data and static tables.
+tags: [mdx, figures]
+---
+
+import { VerticalBars, HorizontalBars, GroupedBars, StackedBars, PercentBars, PartToWhole, Areas } from "./_figures/BasicCharts.tsx";
+
+Use `Bar` for category comparisons, `Pie` for parts of a positive total, and `Area` for changes along a numeric axis. They use the existing theme, replay button and reduced-motion setting. Expand **Data and labels** below any graph to read its complete labels and original values, including without JavaScript.
+
+The numbers on this page are illustrative workloads, not benchmark measurements.
+
+## Vertical and horizontal bars
+
+Bars always include zero. Horizontal bars leave more room for category names; negative values extend left of zero. Exact values remain in the table when a label cannot fit.
+
+<VerticalBars />
+
+<HorizontalBars />
+
+```tsx
+import { Bar } from "../../../../components/figures";
+
+<Bar
+    props={{
+        categories: ["Read", "Write", "Sync"],
+        series: [{ label: "Application", values: [30, 18, 12] }],
+        orientation: "horizontal",
+        unit: "ms",
+        valueLabel: "Elapsed time",
+    }}
+    caption="Read takes the longest at 30 ms."
+/>
+```
+
+Import paths depend on the post's location. This path is for a TSX file inside `build/_figures/`.
+
+## Grouped, stacked and percentage bars
+
+Grouped bars compare individual components from the same baseline. Stacked bars show the total and its parts. A percentage stack answers a different question: how much of each category belongs to each component?
+
+<GroupedBars />
+
+<StackedBars />
+
+<PercentBars />
+
+Set `mode` to `"grouped"` (the default), `"stacked"` or `"percent"`. Every mode works with either orientation. Signed stacks accumulate positive and negative values separately from zero. Percentage stacks require nonnegative values; a zero-total category remains empty because it has no defined proportions. Its raw zeros remain in the data table.
+
+The author controls `title`, `unit`, `categoryLabel`, `valueLabel`, `showLegend` and `showValues`. Long labels truncate within their slots; choose horizontal bars for many categories. Values that cannot fit a segment are omitted from the drawing, not from the table.
+
+## Pie and donut
+
+A pie is useful for a small number of parts with a meaningful total. Use bars when small differences matter. Slices follow input order, start at twelve o'clock and use the same patterns as the legend.
+
+<PartToWhole />
+
+```tsx
+import { Pie } from "../../../../components/figures";
+
+<Pie
+    props={{
+        variant: "donut",
+        slices: [
+            { label: "Application", value: 60 },
+            { label: "Kernel", value: 35 },
+            { label: "Device", value: 35 },
+        ],
+        totalLabel: "Total ms",
+        unit: "ms",
+    }}
+    caption="Application accounts for 60 of the 130 ms."
+/>
+```
+
+`variant` defaults to `"pie"`. Values must be nonnegative, and their total must be positive. A zero-valued slice occupies no angle but stays in the legend and table. Displayed percentages are rounded independently, so their printed sum can differ slightly from 100%.
+
+## Area and stacked area
+
+Area charts use actual numeric `x` coordinates. Lines connect samples by linear interpolation; the filled region is not an additional measurement. In an overlay, each series starts at zero. In a stack, a series starts at the cumulative value below it.
+
+<Areas />
+
+```tsx
+import { Area } from "../../../../components/figures";
+
+<Area
+    props={{
+        x: [0, 1, 3, 4, 6],
+        series: [
+            { label: "Application", values: [10, 20, 15, 30, 20] },
+            { label: "Kernel", values: [5, 8, 10, 12, 15] },
+        ],
+        mode: "stacked",
+        xLabel: "Elapsed time (s)",
+        yLabel: "Memory",
+        unit: "MB",
+    }}
+    caption="Total memory at 6 s is 20 + 15 = 35 MB."
+/>
+```
+
+`x` must increase strictly, and each series must have one value per x coordinate. `mode` is `"overlay"` (default), `"stacked"` or `"percent"`. Overlay accepts signed values. Stacked and percentage areas require nonnegative values. A zero-total sample in percentage mode has zero height; the neighboring samples are connected to it. The filled area therefore should not be interpreted as a measured share between samples. Legend numbers show the final sample and can be hidden with `showValues: false`.
+
+## Input limits and static data
+
+Bars accept 1–24 distinct categories and 1–6 distinctly named series. Pies accept 1–8 distinctly named slices. Areas accept 2–500 x coordinates and 1–6 series. Labels contain 1–120 characters. Numbers must be finite, either zero or have magnitude between 1e-12 and 1e12. Invalid data and unknown options fail the build with a field name.
+
+The first series uses the theme accent. Other series use neutral fills and patterns; optional `tone` selects an existing semantic theme color. Use warning and danger colors only when the data warrants them. A hidden legend should be replaced by clear labels in the surrounding prose.
+
+These components also work through `<Figure kind="bar" props={...} />`, `<Figure kind="pie" props={...} />` and `<Figure kind="area" props={...} />`. No `client:*` directive or chart package is needed. The HTML table contains raw input values; percentage conversion and stacking affect only the drawing. Pie tables additionally include computed shares.

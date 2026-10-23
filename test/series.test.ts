@@ -7,8 +7,8 @@ import {
     seriesNeighbours,
     seriesPath,
     seriesSlug,
-} from "../src/utils/series.ts";
-import type { SeriesMetadata } from "../src/utils/post-order.ts";
+} from "../src/posts/series.ts";
+import type { SeriesMetadata } from "../src/posts/post-order.ts";
 
 function post(id: string, date: string, order?: number, series?: SeriesMetadata) {
     return {

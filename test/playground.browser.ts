@@ -112,7 +112,7 @@ void test("first focus on the fallback transfers into the editor after its lazy 
         releaseImport = resolve;
     });
     const modulePath =
-        /\/(?:_astro\/playgrounds\.[^/?]+\.js|src\/scripts\/playgrounds(?:\.ts)?)(?:\?|$)/u;
+        /\/(?:_astro\/mount\.[^/?]+\.js|src\/playground\/mount(?:\.ts)?)(?:\?|$)/u;
     await context.route(modulePath, async (route) => {
         await gate;
         await route.fallback();

@@ -193,6 +193,7 @@ void test("a frozen figure recomputes its height when switching to phone width",
 });
 
 void test("all 30 statistical figures animate, resize and repaint in dark mode", async () => {
+    await page.evaluate(() => { localStorage.setItem("theme", "light"); });
     await page.addInitScript(
         (kinds: string[]) => {
             // Store the prototype method deliberately; the wrapper restores its receiver with
@@ -334,9 +335,10 @@ void test("post-specific TSX figures render in MDX and reuse the canvas runtime"
     );
     const bounds = await svg.boundingBox();
     assert.ok(bounds && bounds.width > 0 && bounds.x >= 0 && bounds.x + bounds.width <= 340);
-    const html = await (
-        await page.request.get(new URL("/posts/build/animated-figures/", base).href)
-    ).text();
+    const html = await page.evaluate(async () => {
+        const response = await fetch("/posts/build/animated-figures/");
+        return response.text();
+    });
     assert.match(
         html,
         /data-static-figure="normal-coverage"/u,

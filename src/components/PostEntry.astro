@@ -1,9 +1,9 @@
 ---
 import { machineDate, readingTimeLabel, stampDate } from "../utils/format";
 import { t } from "../strings";
-import type { PostRef } from "../utils/content";
-import { postMeta } from "../utils/content";
-import { categoryLabel } from "../utils/category";
+import type { PostRef } from "../posts/queries";
+import { postMeta } from "../posts/queries";
+import { categoryLabel } from "../posts/category";
 import Icon from "./Icon.astro";
 
 interface Props {

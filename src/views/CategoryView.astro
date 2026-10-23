@@ -5,8 +5,8 @@ import CategoryBreadcrumbs from "../components/CategoryBreadcrumbs.astro";
 import CategoryTree from "../components/CategoryTree.astro";
 import { t } from "../strings";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import type { PostRef } from "../utils/content";
-import { categoryLabel, type CategoryCount } from "../utils/category";
+import type { PostRef } from "../posts/queries";
+import { categoryLabel, type CategoryCount } from "../posts/category";
 
 interface Props {
     category: CategoryCount;

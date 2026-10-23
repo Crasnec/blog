@@ -3,7 +3,7 @@ import { t } from "../strings";
 import CategoryTree from "../components/CategoryTree.astro";
 import Sidebar from "../components/Sidebar.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { getCategories } from "../utils/content";
+import { getCategories } from "../posts/queries";
 
 const categories = await getCategories();
 ---

@@ -5,15 +5,32 @@ import { chromium, type Browser, type Page } from "playwright";
 import ts from "typescript";
 
 let browser: Browser;
-let uiScript: string;
+const compiled: Record<string, string> = {};
 
 before(async () => {
-    const source = await readFile(new URL("../src/scripts/ui.ts", import.meta.url), "utf8");
-    uiScript = `import.meta.env = { BASE_URL: "/" };\n${
-        ts.transpileModule(source, {
-            compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 },
-        }).outputText
-    }`;
+    const modules = [
+        ["/ui.js", "scripts/ui.ts"],
+        ...[
+            "lifecycle",
+            "theme",
+            "scroll",
+            "navigation",
+            "enhancements",
+            "search/dialog",
+            "search/engine",
+        ].map((name) => [`/site/${name}`, `site/${name}.ts`]),
+    ];
+    for (const [url, file] of modules) {
+        if (!url || !file) {
+            throw new Error("Invalid browser fixture module");
+        }
+        const source = await readFile(new URL(`../src/${file}`, import.meta.url), "utf8");
+        compiled[url] = `import.meta.env = { BASE_URL: "/" };\n${
+            ts.transpileModule(source, {
+                compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 },
+            }).outputText
+        }`;
+    }
     browser = await chromium.launch();
 });
 
@@ -77,7 +94,7 @@ async function mount(context: TestContext, engine = pagefindScript): Promise<Pag
     await browserContext.route("**/*", async (route) => {
         const path = new URL(route.request().url()).pathname;
         const scripts: Record<string, string> = {
-            "/ui.js": uiScript,
+            ...compiled,
             "/consts": "export const NAVBAR_HEIGHT = 64;",
             "/strings": "export const t = key => key;",
             "/pagefind/pagefind.js": engine,
@@ -290,4 +307,69 @@ void test("malformed search payloads fail visibly and a valid query recovers", a
         assert.equal(await page.locator("#search-results a").count(), 0, query);
     }
     await findResults(page, "recovered");
+});
+
+void test("site controls bind to each new document without duplicating shortcuts", async (context) => {
+    const page = await mount(context);
+    const body = markup.slice(
+        markup.indexOf("<body>") + 6,
+        markup.indexOf('<script type="module">'),
+    );
+    for (let navigation = 0; navigation < 3; navigation++) {
+        await openSearch(page);
+        await page.evaluate((html) => {
+            document.dispatchEvent(new Event("astro:before-swap"));
+            document.body.innerHTML = html;
+            document.dispatchEvent(new Event("astro:after-swap"));
+            document.dispatchEvent(new Event("astro:page-load"));
+            const button = document.getElementById("search-open");
+            button?.addEventListener("click", () => {
+                button.dataset.clicks = String(Number(button.dataset.clicks ?? "0") + 1);
+            });
+        }, body);
+        await page.keyboard.press("Control+k");
+        await page.waitForFunction(() => document.activeElement?.id === "search-input");
+        assert.equal(await page.locator("#search-open").getAttribute("data-clicks"), "1");
+        assert.equal(await page.locator("main").getAttribute("inert"), "");
+        assert.equal(await page.locator("html").getAttribute("data-navigated"), "true");
+        await findResults(page, `navigation-${String(navigation)}`);
+        await page.keyboard.press("Escape");
+        assert.equal(await page.locator("main").getAttribute("inert"), null);
+        assert.equal(await page.locator("#already-inert").getAttribute("inert"), "");
+    }
+});
+
+void test("navigation cancels a reading feature whose module is still loading", async (context) => {
+    const page = await mount(context);
+    const { promise: gate, resolve: release } = Promise.withResolvers<undefined>();
+    const started = page.waitForRequest("**/site/contents");
+    await page.route("**/site/contents", async (route) => {
+        await gate;
+        await route.fulfill({
+            contentType: "text/javascript",
+            body: `
+                document.documentElement.dataset.featureLoaded = "true";
+                export function mountContents() {
+                    document.documentElement.dataset.staleFeatureMounted = "true";
+                }
+            `,
+        });
+    });
+    try {
+        await page.evaluate(() => {
+            const contents = document.createElement("nav");
+            contents.id = "contents";
+            document.body.append(contents);
+            document.dispatchEvent(new Event("astro:page-load"));
+        });
+        await started;
+        await page.evaluate(() => {
+            document.dispatchEvent(new Event("astro:before-swap"));
+            document.getElementById("contents")?.remove();
+        });
+    } finally {
+        release(undefined);
+    }
+    await page.waitForFunction(() => document.documentElement.dataset.featureLoaded === "true");
+    assert.equal(await page.locator("html").getAttribute("data-stale-feature-mounted"), null);
 });
